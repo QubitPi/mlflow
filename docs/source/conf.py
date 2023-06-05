@@ -29,6 +29,8 @@ import languagesections
 
 # -- General configuration ------------------------------------------------
 
+html_baseurl = "https://QubitPi.github.io/mlflow/"
+
 # If your documentation needs a minimal Sphinx version, state it here.
 # needs_sphinx = '1.0'
 

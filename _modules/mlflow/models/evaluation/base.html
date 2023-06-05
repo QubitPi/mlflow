@@ -183,6 +183,8 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">from</span> <span class="nn">mlflow.entities.dataset_input</span> <span class="kn">import</span> <span class="n">DatasetInput</span>
+<span class="kn">from</span> <span class="nn">mlflow.entities.input_tag</span> <span class="kn">import</span> <span class="n">InputTag</span>
 <span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">INVALID_PARAMETER_VALUE</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.client</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
@@ -193,8 +195,10 @@
 <span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">_get_fully_qualified_class_name</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">developer_stable</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.class_utils</span> <span class="kn">import</span> <span class="n">_get_class_from_string</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.mlflow_tags</span> <span class="kn">import</span> <span class="n">MLFLOW_DATASET_CONTEXT</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.string_utils</span> <span class="kn">import</span> <span class="n">generate_feature_name_if_not_string</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.proto_json_utils</span> <span class="kn">import</span> <span class="n">NumpyEncoder</span>
+<span class="kn">from</span> <span class="nn">mlflow.data.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.evaluation.validation</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">_MetricValidationResult</span><span class="p">,</span>
     <span class="n">MetricThreshold</span><span class="p">,</span>
@@ -217,13 +221,23 @@
 <span class="k">class</span> <span class="nc">_ModelType</span><span class="p">:</span>
     <span class="n">REGRESSOR</span> <span class="o">=</span> <span class="s2">&quot;regressor&quot;</span>
     <span class="n">CLASSIFIER</span> <span class="o">=</span> <span class="s2">&quot;classifier&quot;</span>
+    <span class="n">QUESTION_ANSWERING</span> <span class="o">=</span> <span class="s2">&quot;question-answering&quot;</span>
+    <span class="n">TEXT_SUMMARIZATION</span> <span class="o">=</span> <span class="s2">&quot;text-summarization&quot;</span>
+    <span class="n">TEXT</span> <span class="o">=</span> <span class="s2">&quot;text&quot;</span>
+    <span class="c1"># TODO: Add &#39;retrieval&#39; model type</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;This class is not meant to be instantiated.&quot;</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">REGRESSOR</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">CLASSIFIER</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">REGRESSOR</span><span class="p">,</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">CLASSIFIER</span><span class="p">,</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">QUESTION_ANSWERING</span><span class="p">,</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">TEXT_SUMMARIZATION</span><span class="p">,</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+        <span class="p">)</span>
 
 
 <div class="viewcode-block" id="EvaluationMetric"><a class="viewcode-back" href="../../../../python_api/mlflow.models.html#mlflow.EvaluationMetric">[docs]</a><span class="k">class</span> <span class="nc">EvaluationMetric</span><span class="p">:</span>
@@ -553,7 +567,7 @@
         <span class="n">md5_gen</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_hash_array_like_obj_as_bytes</span><span class="p">(</span><span class="n">tail_rows</span><span class="p">))</span>
 
 
-<span class="k">class</span> <span class="nc">EvaluationDataset</span><span class="p">:</span>
+<div class="viewcode-block" id="EvaluationDataset"><a class="viewcode-back" href="../../../../python_api/mlflow.data.html#mlflow.EvaluationDataset">[docs]</a><span class="k">class</span> <span class="nc">EvaluationDataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An input dataset for model evaluation. This is intended for use with the</span>
 <span class="sd">    :py:func:`mlflow.models.evaluate()`</span>
@@ -587,6 +601,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_supported_dataframe_types</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_spark_df_type</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_labels_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_targets_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_has_targets</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># add checking `&#39;pyspark&#39; in sys.modules` to avoid importing pyspark when user</span>
@@ -606,6 +622,8 @@
             <span class="p">)</span>
 
         <span class="n">has_targets</span> <span class="o">=</span> <span class="n">targets</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">has_targets</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_has_targets</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">has_targets</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
                 <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
@@ -683,6 +701,7 @@
 
             <span class="k">if</span> <span class="n">has_targets</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_labels_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">targets</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_targets_name</span> <span class="o">=</span> <span class="n">targets</span>
 
             <span class="k">if</span> <span class="n">feature_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_features_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">feature_names</span><span class="p">)]</span>
@@ -690,6 +709,8 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">has_targets</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_features_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_features_data</span> <span class="o">=</span> <span class="n">data</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_feature_names</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">generate_feature_name_if_not_string</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features_data</span><span class="o">.</span><span class="n">columns</span>
                 <span class="p">]</span>
@@ -726,6 +747,20 @@
 <span class="sd">        return labels data as a numpy array</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_labels_data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">has_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True if the dataset has targets, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_targets</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">targets_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return targets name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_targets_name</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -808,7 +843,7 @@
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">path</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_names</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_feature_names</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
 
 <span class="nd">@developer_stable</span>
@@ -1223,6 +1258,32 @@
 <span class="sd">          true_negatives/false_positives/false_negatives/true_positives/recall/precision/roc_auc,</span>
 <span class="sd">          precision_recall_auc), precision-recall merged curves plot, ROC merged curves plot.</span>
 
+<span class="sd">     - For question-answering models, the default evaluator logs:</span>
+<span class="sd">        - **metrics**: ``exact_match``.</span>
+<span class="sd">        - **artifacts**: A JSON file containing the inputs, outputs, and targets (if the ``targets``</span>
+<span class="sd">          argument is supplied) of the model in tabular format.</span>
+
+<span class="sd">     - For text-summarization models, the default evaluator logs:</span>
+<span class="sd">        - **metrics**: `ROUGE`_ (requires `evaluate`_, `nltk`_, and `rouge_score` to be installed).</span>
+<span class="sd">        - **artifacts**: A JSON file containing the inputs, outputs, and targets (if the ``targets``</span>
+<span class="sd">          argument is supplied) of the model in the tabular format.</span>
+
+<span class="sd">        .. _ROUGE:</span>
+<span class="sd">            https://huggingface.co/spaces/evaluate-metric/rouge</span>
+
+<span class="sd">        .. _evaluate:</span>
+<span class="sd">            https://pypi.org/project/evaluate</span>
+
+<span class="sd">        .. _nltk:</span>
+<span class="sd">            https://pypi.org/project/nltk</span>
+
+<span class="sd">        .. _rouge_score:</span>
+<span class="sd">            https://pypi.org/project/rouge-score</span>
+
+<span class="sd">     - For text models, the default evaluator logs:</span>
+<span class="sd">        - **artifacts**: A JSON file containing the inputs, outputs, and targets (if the ``targets``</span>
+<span class="sd">          argument is supplied) of the model in tabular format.</span>
+
 <span class="sd">     - For sklearn models, the default evaluator additionally logs the model&#39;s evaluation criterion</span>
 <span class="sd">       (e.g. mean accuracy for a classifier) computed by `model.score` method.</span>
 
@@ -1311,12 +1372,28 @@
 <span class="sd">                   are regarded as feature columns. If it is Spark DataFrame, only the first 10000</span>
 <span class="sd">                   rows in the Spark DataFrame will be used as evaluation data.</span>
 
+<span class="sd">                 - A :py:class`mlflow.data.dataset.Dataset` instance containing evaluation features</span>
+<span class="sd">                   and labels.</span>
+
 <span class="sd">    :param targets: If ``data`` is a numpy array or list, a numpy array or list of evaluation</span>
 <span class="sd">                    labels. If ``data`` is a DataFrame, the string name of a column from ``data``</span>
-<span class="sd">                    that contains evaluation labels.</span>
+<span class="sd">                    that contains evaluation labels. Required for classifier and regressor models,</span>
+<span class="sd">                    but optional for question-answering, text-summarization, and text models. If</span>
+<span class="sd">                    ``data`` is a :py:class`mlflow.data.dataset.Dataset` that defines targets,</span>
+<span class="sd">                    then ``targets`` is optional.</span>
 
 <span class="sd">    :param model_type: A string describing the model type. The default evaluator</span>
-<span class="sd">                       supports ``&quot;regressor&quot;`` and ``&quot;classifier&quot;`` as model types.</span>
+<span class="sd">                       supports the following model types:</span>
+
+<span class="sd">                       - ``&#39;classifier&#39;``</span>
+<span class="sd">                       - ``&#39;regressor&#39;``</span>
+<span class="sd">                       - ``&#39;question-answering&#39;``</span>
+<span class="sd">                       - ``&#39;text-summarization&#39;``</span>
+<span class="sd">                       - ``&#39;text&#39;``</span>
+
+<span class="sd">                       .. note::</span>
+<span class="sd">                            ``&#39;question-answering&#39;``, ``&#39;text-summarization&#39;``, and ``&#39;text&#39;``</span>
+<span class="sd">                            are experimental and may be changed or removed in a future release.</span>
 
 <span class="sd">    :param dataset_path: (Optional) The path where the data is stored. Must not contain double</span>
 <span class="sd">                         quotes (``“``). If specified, the path is logged to the ``mlflow.datasets``</span>
@@ -1490,11 +1567,22 @@
 
     <span class="n">_EnvManager</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">env_manager</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">model_type</span> <span class="ow">in</span> <span class="p">[</span><span class="n">_ModelType</span><span class="o">.</span><span class="n">REGRESSOR</span><span class="p">,</span> <span class="n">_ModelType</span><span class="o">.</span><span class="n">CLASSIFIER</span><span class="p">]</span> <span class="ow">and</span> <span class="n">targets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;The targets argument must be specified for </span><span class="si">{</span><span class="n">model_type</span><span class="si">}</span><span class="s2"> models.&quot;</span><span class="p">,</span>
-            <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">model_type</span> <span class="ow">in</span> <span class="p">[</span><span class="n">_ModelType</span><span class="o">.</span><span class="n">REGRESSOR</span><span class="p">,</span> <span class="n">_ModelType</span><span class="o">.</span><span class="n">CLASSIFIER</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;targets&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">targets</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">targets</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                    <span class="n">message</span><span class="o">=</span><span class="s2">&quot;The targets argument is required when data is a Dataset and does not &quot;</span>
+                    <span class="s2">&quot;define targets.&quot;</span><span class="p">,</span>
+                    <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">targets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The targets argument must be specified for </span><span class="si">{</span><span class="n">model_type</span><span class="si">}</span><span class="s2"> models.&quot;</span><span class="p">,</span>
+                    <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
+                <span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">_load_model_or_server</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">env_manager</span><span class="p">)</span>
@@ -1548,14 +1636,27 @@
         <span class="n">evaluator_name_to_conf_map</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">=</span> <span class="n">_normalize_evaluators_and_evaluator_config_args</span><span class="p">(</span><span class="n">evaluators</span><span class="p">,</span> <span class="n">evaluator_config</span><span class="p">)</span>
 
-    <span class="n">dataset</span> <span class="o">=</span> <span class="n">EvaluationDataset</span><span class="p">(</span>
-        <span class="n">data</span><span class="p">,</span>
-        <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span>
-        <span class="n">path</span><span class="o">=</span><span class="n">dataset_path</span><span class="p">,</span>
-        <span class="n">feature_names</span><span class="o">=</span><span class="n">feature_names</span><span class="p">,</span>
-    <span class="p">)</span>
-
     <span class="k">with</span> <span class="n">_start_run_or_reuse_active_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run_id</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">mlflow.data.pyfunc_dataset_mixin</span> <span class="kn">import</span> <span class="n">PyFuncConvertibleDatasetMixin</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">PyFuncConvertibleDatasetMixin</span><span class="p">):</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to_evaluation_dataset</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span> <span class="n">feature_names</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">evaluator_name_to_conf_map</span> <span class="ow">and</span> <span class="s2">&quot;default&quot;</span> <span class="ow">in</span> <span class="n">evaluator_name_to_conf_map</span><span class="p">:</span>
+                <span class="n">context</span> <span class="o">=</span> <span class="n">evaluator_name_to_conf_map</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metric_prefix&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">context</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+            <span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">InputTag</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">MLFLOW_DATASET_CONTEXT</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">context</span><span class="p">)]</span> <span class="k">if</span> <span class="n">context</span> <span class="k">else</span> <span class="p">[]</span>
+            <span class="n">dataset_input</span> <span class="o">=</span> <span class="n">DatasetInput</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">_to_mlflow_entity</span><span class="p">(),</span> <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">)</span>
+            <span class="n">client</span><span class="o">.</span><span class="n">log_inputs</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="p">[</span><span class="n">dataset_input</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">EvaluationDataset</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span>
+                <span class="n">path</span><span class="o">=</span><span class="n">dataset_path</span><span class="p">,</span>
+                <span class="n">feature_names</span><span class="o">=</span><span class="n">feature_names</span><span class="p">,</span>
+            <span class="p">)</span>
+
         <span class="k">try</span><span class="p">:</span>
             <span class="n">evaluate_result</span> <span class="o">=</span> <span class="n">_evaluate</span><span class="p">(</span>
                 <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>

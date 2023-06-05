@@ -191,7 +191,6 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -598,6 +597,7 @@
 <div class="viewcode-block" id="autolog"><a class="viewcode-back" href="../../python_api/mlflow.fastai.html#mlflow.fastai.autolog">[docs]</a><span class="nd">@autologging_integration</span><span class="p">(</span><span class="n">FLAVOR_NAME</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">autolog</span><span class="p">(</span>
     <span class="n">log_models</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">log_datasets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">disable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">exclusive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">disable_for_unsupported_versions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -616,6 +616,8 @@
 
 <span class="sd">    :param log_models: If ``True``, trained models are logged as MLflow model artifacts.</span>
 <span class="sd">                       If ``False``, trained models are not logged.</span>
+<span class="sd">    :param log_datasets: If ``True``, dataset information is logged to MLflow Tracking.</span>
+<span class="sd">                         If ``False``, dataset information is not logged.</span>
 <span class="sd">    :param disable: If ``True``, disables the Fastai autologging integration. If ``False``,</span>
 <span class="sd">                    enables the Fastai autologging integration.</span>
 <span class="sd">    :param exclusive: If ``True``, autologged content is not logged to user-created fluent runs.</span>
@@ -754,14 +756,11 @@
         <span class="k">if</span> <span class="n">remove_cbs</span><span class="p">:</span>
             <span class="n">learner</span><span class="o">.</span><span class="n">add_cbs</span><span class="p">(</span><span class="n">remove_cbs</span><span class="p">)</span>
 
-        <span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
-        <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tempdir</span><span class="p">:</span>
             <span class="n">summary_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempdir</span><span class="p">,</span> <span class="s2">&quot;module_summary.txt&quot;</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">summary_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
             <span class="n">mlflow</span><span class="o">.</span><span class="n">log_artifact</span><span class="p">(</span><span class="n">local_path</span><span class="o">=</span><span class="n">summary_file</span><span class="p">)</span>
-        <span class="k">finally</span><span class="p">:</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">tempdir</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_run_and_log_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">unlogged_params</span><span class="p">,</span> <span class="n">is_fine_tune</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="c1"># Check if is trying to fit while fine tuning or not</span>

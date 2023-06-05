@@ -190,12 +190,12 @@
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">from</span> <span class="nn">mlflow.entities</span> <span class="kn">import</span> <span class="n">Experiment</span><span class="p">,</span> <span class="n">Run</span><span class="p">,</span> <span class="n">Param</span><span class="p">,</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">RunTag</span><span class="p">,</span> <span class="n">FileInfo</span><span class="p">,</span> <span class="n">ViewType</span>
+<span class="kn">from</span> <span class="nn">mlflow.entities</span> <span class="kn">import</span> <span class="n">Experiment</span><span class="p">,</span> <span class="n">Run</span><span class="p">,</span> <span class="n">Param</span><span class="p">,</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">RunTag</span><span class="p">,</span> <span class="n">FileInfo</span><span class="p">,</span> <span class="n">ViewType</span><span class="p">,</span> <span class="n">DatasetInput</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.entities.paged_list</span> <span class="kn">import</span> <span class="n">PagedList</span>
 <span class="kn">from</span> <span class="nn">mlflow.entities.model_registry</span> <span class="kn">import</span> <span class="n">RegisteredModel</span><span class="p">,</span> <span class="n">ModelVersion</span>
 <span class="kn">from</span> <span class="nn">mlflow.entities.model_registry.model_version_stages</span> <span class="kn">import</span> <span class="n">ALL_STAGES</span>
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
-<span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">FEATURE_DISABLED</span>
+<span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">FEATURE_DISABLED</span><span class="p">,</span> <span class="n">RESOURCE_DOES_NOT_EXIST</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.model_registry</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">SEARCH_REGISTERED_MODEL_MAX_RESULTS_DEFAULT</span><span class="p">,</span>
     <span class="n">SEARCH_MODEL_VERSION_MAX_RESULTS_DEFAULT</span><span class="p">,</span>
@@ -208,7 +208,7 @@
 <span class="kn">from</span> <span class="nn">mlflow.tracking._tracking_service.client</span> <span class="kn">import</span> <span class="n">TrackingServiceClient</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="n">_upload_artifacts_to_databricks</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.registry</span> <span class="kn">import</span> <span class="n">UnsupportedModelRegistryStoreURIException</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">deprecated</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">deprecated</span><span class="p">,</span> <span class="n">experimental</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.databricks_utils</span> <span class="kn">import</span> <span class="n">get_databricks_run_url</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.logging_utils</span> <span class="kn">import</span> <span class="n">eprint</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.uri</span> <span class="kn">import</span> <span class="n">is_databricks_uri</span><span class="p">,</span> <span class="n">is_databricks_unity_catalog_uri</span>
@@ -222,7 +222,6 @@
     <span class="n">MLFLOW_LOGGED_ARTIFACTS</span><span class="p">,</span>
     <span class="n">MLFLOW_PARENT_RUN_ID</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">experimental</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">pandas</span>  <span class="c1"># pylint: disable=unused-import</span>
@@ -305,9 +304,11 @@
 <span class="sd">        Fetch the run from backend store. The resulting :py:class:`Run &lt;mlflow.entities.Run&gt;`</span>
 <span class="sd">        contains a collection of run metadata -- :py:class:`RunInfo &lt;mlflow.entities.RunInfo&gt;`,</span>
 <span class="sd">        as well as a collection of run parameters, tags, and metrics --</span>
-<span class="sd">        :py:class:`RunData &lt;mlflow.entities.RunData&gt;`. In the case where multiple metrics with the</span>
-<span class="sd">        same key are logged for the run, the :py:class:`RunData &lt;mlflow.entities.RunData&gt;` contains</span>
-<span class="sd">        the most recently logged value at the largest step for each metric.</span>
+<span class="sd">        :py:class:`RunData &lt;mlflow.entities.RunData&gt;`. It also contains a collection of run</span>
+<span class="sd">        inputs (experimental), including information about datasets used by the run --</span>
+<span class="sd">        :py:class:`RunInputs &lt;mlflow.entities.RunInputs&gt;`. In the case where multiple metrics with</span>
+<span class="sd">        the same key are logged for the run, the :py:class:`RunData &lt;mlflow.entities.RunData&gt;`</span>
+<span class="sd">        contains the most recently logged value at the largest step for each metric.</span>
 
 <span class="sd">        :param run_id: Unique identifier for the run.</span>
 
@@ -1211,6 +1212,23 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">log_batch</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="MlflowClient.log_inputs"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.log_inputs">[docs]</a>    <span class="nd">@experimental</span>
+    <span class="k">def</span> <span class="nf">log_inputs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">datasets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">DatasetInput</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Log one or more dataset inputs to a run.</span>
+
+<span class="sd">        :param run_id: String ID of the run</span>
+<span class="sd">        :param datasets: List of :py:class:`mlflow.entities.DatasetInput` instances to log.</span>
+
+<span class="sd">        Raises an MlflowException if any errors occur.</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">log_inputs</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">datasets</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="MlflowClient.log_artifact"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.log_artifact">[docs]</a>    <span class="k">def</span> <span class="nf">log_artifact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_id</span><span class="p">,</span> <span class="n">local_path</span><span class="p">,</span> <span class="n">artifact_path</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write a local file or directory to the remote ``artifact_uri``.</span>
@@ -1607,6 +1625,18 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Unsupported image object type: &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">image</span><span class="p">)))</span></div>
 
+    <span class="k">def</span> <span class="nf">_check_artifact_file_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">artifact_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the artifact_file contains any forbidden characters.</span>
+
+<span class="sd">        :param artifact_file: The run-relative artifact file path in posixpath format to which</span>
+<span class="sd">                              the table is saved (e.g. &quot;dir/file.json&quot;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">characters_to_check</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="s2">&quot;[&quot;</span><span class="p">,</span> <span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;{&quot;</span><span class="p">,</span> <span class="s2">&quot;}&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">characters_to_check</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">artifact_file</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The artifact_file contains forbidden character: </span><span class="si">{</span><span class="n">char</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
 <div class="viewcode-block" id="MlflowClient.log_table"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.log_table">[docs]</a>    <span class="nd">@experimental</span>
     <span class="k">def</span> <span class="nf">log_table</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1663,6 +1693,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_artifact_file_string</span><span class="p">(</span><span class="n">artifact_file</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
                 <span class="s2">&quot;data must be a pandas.DataFrame or a dictionary&quot;</span>
@@ -1684,8 +1715,6 @@
                 <span class="s2">&quot;Appending new table to already existing artifact &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">artifact_file</span><span class="si">}</span><span class="s2"> for run </span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating a new </span><span class="si">{</span><span class="n">artifact_file</span><span class="si">}</span><span class="s2"> for run </span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_artifact_helper</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">artifact_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">artifact_path</span><span class="p">:</span>
             <span class="n">data</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">artifact_path</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;split&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -1701,6 +1730,147 @@
             <span class="n">current_tag_value</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag_value</span><span class="p">)</span>
             <span class="c1"># Set the tag with the updated list</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_tag</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">MLFLOW_LOGGED_ARTIFACTS</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">current_tag_value</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MlflowClient.load_table"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.load_table">[docs]</a>    <span class="nd">@experimental</span>
+    <span class="k">def</span> <span class="nf">load_table</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">experiment_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">artifact_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">run_ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">extra_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;pandas.DataFrame&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a table from MLflow Tracking as a pandas.DataFrame. The table is loaded from the</span>
+<span class="sd">        specified artifact_file in the specified run_ids. The extra_columns are columns that</span>
+<span class="sd">        are not in the table but are augmented with run information and added to the DataFrame.</span>
+
+<span class="sd">        :param experiment_id: The experiment ID to load the table from.</span>
+<span class="sd">        :param artifact_file: The run-relative artifact file path in posixpath format to which</span>
+<span class="sd">                              table to load (e.g. &quot;dir/file.json&quot;).</span>
+<span class="sd">        :param run_ids: Optional list of run_ids to load the table from. If no run_ids are</span>
+<span class="sd">                        specified, the table is loaded from all runs in the current experiment.</span>
+<span class="sd">        :param extra_columns: Optional list of extra columns to add to the returned DataFrame</span>
+<span class="sd">                              For example, if extra_columns=[&quot;run_id&quot;], then the returned DataFrame</span>
+<span class="sd">                              will have a column named run_id.</span>
+
+<span class="sd">        :return: pandas.DataFrame containing the loaded table if the artifact exists</span>
+<span class="sd">                 or else throw a MlflowException.</span>
+
+<span class="sd">        .. test-code-block:: python</span>
+<span class="sd">            :caption: Example with passing run_ids</span>
+
+<span class="sd">            import mlflow</span>
+<span class="sd">            import pandas as pd</span>
+<span class="sd">            from mlflow import MlflowClient</span>
+
+<span class="sd">            table_dict = {</span>
+<span class="sd">                &quot;inputs&quot;: [&quot;What is MLflow?&quot;, &quot;What is Databricks?&quot;],</span>
+<span class="sd">                &quot;outputs&quot;: [&quot;MLflow is ...&quot;, &quot;Databricks is ...&quot;],</span>
+<span class="sd">                &quot;toxicity&quot;: [0.0, 0.0],</span>
+<span class="sd">            }</span>
+<span class="sd">            df = pd.DataFrame.from_dict(table_dict)</span>
+
+<span class="sd">            client = MlflowClient()</span>
+<span class="sd">            run = client.create_run(experiment_id=&quot;0&quot;)</span>
+<span class="sd">            client.log_table(run.info.run_id, data=df, artifact_file=&quot;qabot_eval_results.json&quot;)</span>
+<span class="sd">            loaded_table = client.load_table(</span>
+<span class="sd">                experiment_id=&quot;0&quot;,</span>
+<span class="sd">                artifact_file=&quot;qabot_eval_results.json&quot;,</span>
+<span class="sd">                run_ids=[</span>
+<span class="sd">                    run.info.run_id,</span>
+<span class="sd">                ],</span>
+<span class="sd">                # Append a column containing the associated run ID for each row</span>
+<span class="sd">                extra_columns=[&quot;run_id&quot;],</span>
+<span class="sd">            )</span>
+
+<span class="sd">        .. test-code-block:: python</span>
+<span class="sd">            :caption: Example with passing no run_ids</span>
+
+<span class="sd">            # Loads the table with the specified name for all runs in the given</span>
+<span class="sd">            # experiment and joins them together</span>
+<span class="sd">            import mlflow</span>
+<span class="sd">            import pandas as pd</span>
+<span class="sd">            from mlflow import MlflowClient</span>
+
+<span class="sd">            table_dict = {</span>
+<span class="sd">                &quot;inputs&quot;: [&quot;What is MLflow?&quot;, &quot;What is Databricks?&quot;],</span>
+<span class="sd">                &quot;outputs&quot;: [&quot;MLflow is ...&quot;, &quot;Databricks is ...&quot;],</span>
+<span class="sd">                &quot;toxicity&quot;: [0.0, 0.0],</span>
+<span class="sd">            }</span>
+<span class="sd">            df = pd.DataFrame.from_dict(table_dict)</span>
+
+<span class="sd">            client = MlflowClient()</span>
+<span class="sd">            run = client.create_run(experiment_id=&quot;0&quot;)</span>
+<span class="sd">            client.log_table(run.info.run_id, data=df, artifact_file=&quot;qabot_eval_results.json&quot;)</span>
+<span class="sd">            loaded_table = client.load_table(</span>
+<span class="sd">                experiment_id=&quot;0&quot;,</span>
+<span class="sd">                artifact_file=&quot;qabot_eval_results.json&quot;,</span>
+<span class="sd">                # Append the run ID and the parent run ID to the table</span>
+<span class="sd">                extra_columns=[&quot;run_id&quot;],</span>
+<span class="sd">            )</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_artifact_file_string</span><span class="p">(</span><span class="n">artifact_file</span><span class="p">)</span>
+        <span class="n">subset_tag_value</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">artifact_file</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;table&quot;</span><span class="p">})</span>
+
+        <span class="c1"># Build the filter string</span>
+        <span class="n">filter_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;tags.</span><span class="si">{</span><span class="n">MLFLOW_LOGGED_ARTIFACTS</span><span class="si">}</span><span class="s2"> LIKE &#39;%</span><span class="si">{</span><span class="n">subset_tag_value</span><span class="si">}</span><span class="s2">%&#39;&quot;</span>
+        <span class="k">if</span> <span class="n">run_ids</span><span class="p">:</span>
+            <span class="n">list_run_ids</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="n">run_ids</span><span class="p">))</span>
+            <span class="n">filter_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; and attributes.run_id IN (</span><span class="si">{</span><span class="n">list_run_ids</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+        <span class="n">runs</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_runs</span><span class="p">(</span><span class="n">experiment_ids</span><span class="o">=</span><span class="p">[</span><span class="n">experiment_id</span><span class="p">],</span> <span class="n">filter_string</span><span class="o">=</span><span class="n">filter_string</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">run_ids</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">run_ids</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">runs</span><span class="p">):</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Not all runs have the specified table artifact. Some runs will be skipped.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># TODO: Add parallelism support here</span>
+        <span class="k">def</span> <span class="nf">get_artifact_data</span><span class="p">(</span><span class="n">run</span><span class="p">):</span>
+            <span class="n">run_id</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">run_id</span>
+            <span class="n">norm_path</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">artifact_file</span><span class="p">)</span>
+            <span class="n">artifact_dir</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">norm_path</span><span class="p">)</span>
+            <span class="n">artifact_dir</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">artifact_dir</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="n">artifact_dir</span>
+            <span class="n">existing_predictions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+            <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">path</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_artifacts</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">artifact_dir</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_dir</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">artifact_file</span> <span class="ow">in</span> <span class="n">artifacts</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
+                    <span class="n">downloaded_artifact_path</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">download_artifacts</span><span class="p">(</span>
+                        <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">artifact_path</span><span class="o">=</span><span class="n">artifact_file</span><span class="p">,</span> <span class="n">dst_path</span><span class="o">=</span><span class="n">tmpdir</span>
+                    <span class="p">)</span>
+                    <span class="n">existing_predictions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">downloaded_artifact_path</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;split&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">extra_columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">extra_columns</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">existing_predictions</span><span class="p">:</span>
+                                <span class="n">column_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">_&quot;</span>
+                                <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                                    <span class="sa">f</span><span class="s2">&quot;Column name </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> already exists in the table. &quot;</span>
+                                    <span class="s2">&quot;Resolving the conflict, by appending an underscore &quot;</span>
+                                    <span class="s2">&quot;to the column name.&quot;</span>
+                                <span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">column_name</span> <span class="o">=</span> <span class="n">column</span>
+                            <span class="n">existing_predictions</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">run</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Artifact </span><span class="si">{</span><span class="n">artifact_file</span><span class="si">}</span><span class="s2"> not found for run </span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">RESOURCE_DOES_NOT_EXIST</span>
+                <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">existing_predictions</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">runs</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">get_artifact_data</span><span class="p">(</span><span class="n">run</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">runs</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                <span class="s2">&quot;No runs found with the corresponding table artifact.&quot;</span><span class="p">,</span> <span class="n">RESOURCE_DOES_NOT_EXIST</span>
+            <span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_record_logged_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_id</span><span class="p">,</span> <span class="n">mlflow_model</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

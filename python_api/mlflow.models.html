@@ -124,6 +124,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.artifacts.html">mlflow.artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.catboost.html">mlflow.catboost</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.client.html">mlflow.client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.data.html">mlflow.data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.deployments.html">mlflow.deployments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.diviner.html">mlflow.diviner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.entities.html">mlflow.entities</a></li>
@@ -961,6 +962,32 @@ precision_recall_auc), precision-recall merged curves plot, ROC merged curves pl
 </dd>
 </dl>
 </li>
+<li><dl class="simple">
+<dt>For question-answering models, the default evaluator logs:</dt><dd><ul>
+<li><p><strong>metrics</strong>: <code class="docutils literal notranslate"><span class="pre">exact_match</span></code>.</p></li>
+<li><p><strong>artifacts</strong>: A JSON file containing the inputs, outputs, and targets (if the <code class="docutils literal notranslate"><span class="pre">targets</span></code>
+argument is supplied) of the model in tabular format.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>For text-summarization models, the default evaluator logs:</dt><dd><ul>
+<li><p><strong>metrics</strong>: <a class="reference external" href="https://huggingface.co/spaces/evaluate-metric/rouge">ROUGE</a> (requires <a class="reference external" href="https://pypi.org/project/evaluate">evaluate</a>, <a class="reference external" href="https://pypi.org/project/nltk">nltk</a>, and <cite>rouge_score</cite> to be installed).</p></li>
+<li><p><strong>artifacts</strong>: A JSON file containing the inputs, outputs, and targets (if the <code class="docutils literal notranslate"><span class="pre">targets</span></code>
+argument is supplied) of the model in the tabular format.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>For text models, the default evaluator logs:</dt><dd><ul>
+<li><p><strong>artifacts</strong>: A JSON file containing the inputs, outputs, and targets (if the <code class="docutils literal notranslate"><span class="pre">targets</span></code>
+argument is supplied) of the model in tabular format.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
 <li><p>For sklearn models, the default evaluator additionally logs the model’s evaluation criterion
 (e.g. mean accuracy for a classifier) computed by <cite>model.score</cite> method.</p></li>
 <li><p>The metrics/artifacts listed above are logged to the active MLflow run.
@@ -1069,13 +1096,31 @@ labels. If <code class="docutils literal notranslate"><span class="pre">feature_
 as feature columns. Otherwise, only column names present in <code class="docutils literal notranslate"><span class="pre">feature_names</span></code>
 are regarded as feature columns. If it is Spark DataFrame, only the first 10000
 rows in the Spark DataFrame will be used as evaluation data.</p></li>
+<li><p>A :py:class`mlflow.data.dataset.Dataset` instance containing evaluation features
+and labels.</p></li>
 </ul>
 </p></li>
 <li><p><strong>targets</strong> – If <code class="docutils literal notranslate"><span class="pre">data</span></code> is a numpy array or list, a numpy array or list of evaluation
 labels. If <code class="docutils literal notranslate"><span class="pre">data</span></code> is a DataFrame, the string name of a column from <code class="docutils literal notranslate"><span class="pre">data</span></code>
-that contains evaluation labels.</p></li>
-<li><p><strong>model_type</strong> – A string describing the model type. The default evaluator
-supports <code class="docutils literal notranslate"><span class="pre">&quot;regressor&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;classifier&quot;</span></code> as model types.</p></li>
+that contains evaluation labels. Required for classifier and regressor models,
+but optional for question-answering, text-summarization, and text models. If
+<code class="docutils literal notranslate"><span class="pre">data</span></code> is a :py:class`mlflow.data.dataset.Dataset` that defines targets,
+then <code class="docutils literal notranslate"><span class="pre">targets</span></code> is optional.</p></li>
+<li><p><strong>model_type</strong> – <p>A string describing the model type. The default evaluator
+supports the following model types:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">'classifier'</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'regressor'</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'question-answering'</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'text-summarization'</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'text'</span></code></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">'question-answering'</span></code>, <code class="docutils literal notranslate"><span class="pre">'text-summarization'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'text'</span></code>
+are experimental and may be changed or removed in a future release.</p>
+</div>
+</p></li>
 <li><p><strong>dataset_path</strong> – (Optional) The path where the data is stored. Must not contain double
 quotes (<code class="docutils literal notranslate"><span class="pre">“</span></code>). If specified, the path is logged to the <code class="docutils literal notranslate"><span class="pre">mlflow.datasets</span></code>
 tag for lineage tracking purposes.</p></li>

@@ -185,6 +185,10 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">zip_longest</span>
 <span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">from</span> <span class="nn">mlflow.data.code_dataset_source</span> <span class="kn">import</span> <span class="n">CodeDatasetSource</span>
+<span class="kn">from</span> <span class="nn">mlflow.data.spark_dataset</span> <span class="kn">import</span> <span class="n">SparkDataset</span>
+<span class="kn">from</span> <span class="nn">mlflow.entities.dataset_input</span> <span class="kn">import</span> <span class="n">DatasetInput</span>
+<span class="kn">from</span> <span class="nn">mlflow.entities.input_tag</span> <span class="kn">import</span> <span class="n">InputTag</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.client</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 <span class="kn">from</span> <span class="nn">mlflow.entities</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">Param</span>
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
@@ -202,7 +206,11 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.autologging_utils</span> <span class="kn">import</span> <span class="n">get_method_call_arg_value</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.file_utils</span> <span class="kn">import</span> <span class="n">TempDir</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.mlflow_tags</span> <span class="kn">import</span> <span class="n">MLFLOW_AUTOLOGGING</span><span class="p">,</span> <span class="n">MLFLOW_PARENT_RUN_ID</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.mlflow_tags</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MLFLOW_AUTOLOGGING</span><span class="p">,</span>
+    <span class="n">MLFLOW_DATASET_CONTEXT</span><span class="p">,</span>
+    <span class="n">MLFLOW_PARENT_RUN_ID</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.rest_utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">augmented_raise_for_status</span><span class="p">,</span>
     <span class="n">http_request</span><span class="p">,</span>
@@ -937,6 +945,7 @@
 <div class="viewcode-block" id="autolog"><a class="viewcode-back" href="../../../python_api/mlflow.pyspark.ml.html#mlflow.pyspark.ml.autolog">[docs]</a><span class="nd">@autologging_integration</span><span class="p">(</span><span class="n">AUTOLOGGING_INTEGRATION_NAME</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">autolog</span><span class="p">(</span>
     <span class="n">log_models</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">log_datasets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">disable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">exclusive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">disable_for_unsupported_versions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -1046,6 +1055,8 @@
 <span class="sd">                       newline-delimited list of fully-qualified estimator classnames, and set</span>
 <span class="sd">                       the &quot;spark.mlflow.pysparkml.autolog.logModelAllowlistFile&quot; Spark config</span>
 <span class="sd">                       to the path of your allowlist file.</span>
+<span class="sd">    :param log_datasets: If ``True``, dataset information is logged to MLflow Tracking.</span>
+<span class="sd">                         If ``False``, dataset information is not logged.</span>
 <span class="sd">    :param disable: If ``True``, disables the scikit-learn autologging integration. If ``False``,</span>
 <span class="sd">                    enables the pyspark ML autologging integration.</span>
 <span class="sd">    :param exclusive: If ``True``, autologged content is not logged to user-created fluent runs.</span>
@@ -1096,7 +1107,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">_log_model_allowlist</span> <span class="o">=</span> <span class="n">_read_log_model_allowlist</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_log_pretraining_metadata</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_log_pretraining_metadata</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">input_df</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">params</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">estimator</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 
@@ -1134,6 +1145,20 @@
         <span class="n">_log_estimator_params</span><span class="p">(</span><span class="n">param_map</span><span class="p">)</span>
 
         <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tags</span><span class="p">(</span><span class="n">_get_estimator_info_tags</span><span class="p">(</span><span class="n">estimator</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">log_datasets</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">context_tags</span> <span class="o">=</span> <span class="n">context_registry</span><span class="o">.</span><span class="n">resolve_tags</span><span class="p">()</span>
+                <span class="n">code_source</span> <span class="o">=</span> <span class="n">CodeDatasetSource</span><span class="p">(</span><span class="n">context_tags</span><span class="p">)</span>
+                <span class="n">dataset</span> <span class="o">=</span> <span class="n">SparkDataset</span><span class="p">(</span>
+                    <span class="n">df</span><span class="o">=</span><span class="n">input_df</span><span class="p">,</span>
+                    <span class="n">source</span><span class="o">=</span><span class="n">code_source</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">mlflow</span><span class="o">.</span><span class="n">log_input</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;train&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Failed to log training dataset information to MLflow Tracking. Reason: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span>
+                <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_log_posttraining_metadata</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">spark_model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">input_df</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">_is_parameter_search_estimator</span><span class="p">(</span><span class="n">estimator</span><span class="p">):</span>
@@ -1269,8 +1294,8 @@
             <span class="kn">from</span> <span class="nn">pyspark.storagelevel</span> <span class="kn">import</span> <span class="n">StorageLevel</span>
 
             <span class="n">estimator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span>
-            <span class="n">_log_pretraining_metadata</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
             <span class="n">input_training_df</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">persist</span><span class="p">(</span><span class="n">StorageLevel</span><span class="o">.</span><span class="n">MEMORY_AND_DISK</span><span class="p">)</span>
+            <span class="n">_log_pretraining_metadata</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">input_training_df</span><span class="p">)</span>
             <span class="n">spark_model</span> <span class="o">=</span> <span class="n">original</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="n">_log_posttraining_metadata</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">spark_model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">input_training_df</span><span class="p">)</span>
             <span class="n">input_training_df</span><span class="o">.</span><span class="n">unpersist</span><span class="p">()</span>
@@ -1337,6 +1362,27 @@
                     <span class="n">_AUTOLOGGING_METRICS_MANAGER</span><span class="o">.</span><span class="n">log_post_training_metric</span><span class="p">(</span>
                         <span class="n">run_id</span><span class="p">,</span> <span class="n">metric_key</span><span class="p">,</span> <span class="n">metric</span>
                     <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">log_datasets</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">context_tags</span> <span class="o">=</span> <span class="n">context_registry</span><span class="o">.</span><span class="n">resolve_tags</span><span class="p">()</span>
+                            <span class="n">code_source</span> <span class="o">=</span> <span class="n">CodeDatasetSource</span><span class="p">(</span><span class="n">context_tags</span><span class="p">)</span>
+
+                            <span class="n">dataset</span> <span class="o">=</span> <span class="n">SparkDataset</span><span class="p">(</span>
+                                <span class="n">df</span><span class="o">=</span><span class="n">pred_result_dataset</span><span class="p">,</span>
+                                <span class="n">source</span><span class="o">=</span><span class="n">code_source</span><span class="p">,</span>
+                            <span class="p">)</span>
+                            <span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">InputTag</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">MLFLOW_DATASET_CONTEXT</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;eval&quot;</span><span class="p">)]</span>
+                            <span class="n">dataset_input</span> <span class="o">=</span> <span class="n">DatasetInput</span><span class="p">(</span>
+                                <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">_to_mlflow_entity</span><span class="p">(),</span> <span class="n">tags</span><span class="o">=</span><span class="n">tags</span>
+                            <span class="p">)</span>
+                            <span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+                            <span class="n">client</span><span class="o">.</span><span class="n">log_inputs</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="p">[</span><span class="n">dataset_input</span><span class="p">])</span>
+                        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                                <span class="s2">&quot;Failed to log evaluation dataset information to MLflow Tracking. &quot;</span>
+                                <span class="s2">&quot;Reason: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                                <span class="n">e</span><span class="p">,</span>
+                            <span class="p">)</span>
             <span class="k">return</span> <span class="n">metric</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">original</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>

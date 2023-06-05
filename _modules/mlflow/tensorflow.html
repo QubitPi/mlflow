@@ -201,6 +201,9 @@
 
 <span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">pyfunc</span>
+<span class="kn">from</span> <span class="nn">mlflow.data.code_dataset_source</span> <span class="kn">import</span> <span class="n">CodeDatasetSource</span>
+<span class="kn">from</span> <span class="nn">mlflow.data.numpy_dataset</span> <span class="kn">import</span> <span class="n">from_numpy</span>
+<span class="kn">from</span> <span class="nn">mlflow.data.tensorflow_dataset</span> <span class="kn">import</span> <span class="n">from_tensorflow</span>
 <span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">TensorSpec</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.client</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
@@ -243,6 +246,7 @@
 <span class="kn">from</span> <span class="nn">mlflow.utils.time_utils</span> <span class="kn">import</span> <span class="n">get_current_time_millis</span>
 <span class="kn">from</span> <span class="nn">mlflow.entities</span> <span class="kn">import</span> <span class="n">Metric</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry</span> <span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
+<span class="kn">from</span> <span class="nn">mlflow.tracking.context</span> <span class="kn">import</span> <span class="n">registry</span> <span class="k">as</span> <span class="n">context_registry</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">INVALID_PARAMETER_VALUE</span>
 
@@ -1155,6 +1159,7 @@
 <span class="k">def</span> <span class="nf">autolog</span><span class="p">(</span>
     <span class="n">every_n_iter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">log_models</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">log_datasets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">disable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">exclusive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">disable_for_unsupported_versions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -1202,6 +1207,8 @@
 <span class="sd">                         100 will log metrics at step 0, 100, 200, etc.</span>
 <span class="sd">    :param log_models: If ``True``, trained models are logged as MLflow model artifacts.</span>
 <span class="sd">                       If ``False``, trained models are not logged.</span>
+<span class="sd">    :param log_datasets: If ``True``, dataset information is logged to MLflow Tracking.</span>
+<span class="sd">                         If ``False``, dataset information is not logged.</span>
 <span class="sd">    :param disable: If ``True``, disables the TensorFlow autologging integration. If ``False``,</span>
 <span class="sd">                    enables the TensorFlow integration autologging integration.</span>
 <span class="sd">    :param exclusive: If ``True``, autologged content is not logged to user-created fluent runs.</span>
@@ -1428,6 +1435,36 @@
                 <span class="n">early_stop_callback</span> <span class="o">=</span> <span class="n">_get_early_stop_callback</span><span class="p">(</span><span class="n">callbacks</span><span class="p">)</span>
                 <span class="n">_log_early_stop_callback_params</span><span class="p">(</span><span class="n">early_stop_callback</span><span class="p">)</span>
 
+                <span class="k">if</span> <span class="n">log_datasets</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">context_tags</span> <span class="o">=</span> <span class="n">context_registry</span><span class="o">.</span><span class="n">resolve_tags</span><span class="p">()</span>
+                        <span class="n">source</span> <span class="o">=</span> <span class="n">CodeDatasetSource</span><span class="p">(</span><span class="n">tags</span><span class="o">=</span><span class="n">context_tags</span><span class="p">)</span>
+
+                        <span class="n">x</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;x&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">else</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="s2">&quot;y&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                            <span class="n">y</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
+                        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                            <span class="n">y</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">y</span> <span class="o">=</span> <span class="kc">None</span>
+
+                        <span class="k">if</span> <span class="s2">&quot;validation_data&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                            <span class="n">validation_data</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;validation_data&quot;</span><span class="p">]</span>
+                        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">8</span><span class="p">:</span>
+                            <span class="n">validation_data</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">validation_data</span> <span class="o">=</span> <span class="kc">None</span>
+                        <span class="n">_log_tensorflow_dataset</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">validation_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">_log_tensorflow_dataset</span><span class="p">(</span><span class="n">validation_data</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="s2">&quot;eval&quot;</span><span class="p">)</span>
+
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s2">&quot;Failed to log training dataset information to &quot;</span>
+                            <span class="s2">&quot;MLflow Tracking. Reason: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="n">e</span><span class="p">,</span>
+                        <span class="p">)</span>
+
                 <span class="n">history</span> <span class="o">=</span> <span class="n">original</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">log_models</span><span class="p">:</span>
@@ -1462,6 +1499,35 @@
 
     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">managed</span><span class="p">:</span>
         <span class="n">safe_patch</span><span class="p">(</span><span class="n">FLAVOR_NAME</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="n">manage_run</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_log_tensorflow_dataset</span><span class="p">(</span><span class="n">tensorflow_dataset</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">tensorflow</span>
+
+    <span class="c1"># create a dataset</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensorflow_dataset</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">from_numpy</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">tensorflow_dataset</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensorflow_dataset</span><span class="p">,</span> <span class="n">tensorflow</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">from_tensorflow</span><span class="p">(</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">tensorflow_dataset</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensorflow_dataset</span><span class="p">,</span> <span class="n">tensorflow</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">from_tensorflow</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">tensorflow_dataset</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensorflow_dataset</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tensorflow_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">tensorflow_dataset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># check if x and y are tensors</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">tensorflow</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">tensorflow</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">from_tensorflow</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">from_numpy</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Unrecognized dataset type </span><span class="si">%s</span><span class="s2">. Dataset logging skipped.&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">tensorflow_dataset</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">log_input</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
 </pre></div>
 
               </div>

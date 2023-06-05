@@ -43,7 +43,7 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="MLflow 2.3.3.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
-        <link rel="next" title="mlflow.deployments" href="/mlflow.deployments.html"/>
+        <link rel="next" title="mlflow.data" href="/mlflow.data.html"/>
         <link rel="prev" title="mlflow.catboost" href="/mlflow.catboost.html"/> 
 
   
@@ -124,6 +124,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.artifacts.html">mlflow.artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.catboost.html">mlflow.catboost</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">mlflow.client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.data.html">mlflow.data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.deployments.html">mlflow.deployments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.diviner.html">mlflow.diviner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.entities.html">mlflow.entities</a></li>
@@ -1648,9 +1649,11 @@ description: This sentiment analysis model classifies the tone-happy, sad, angry
 <dd><p>Fetch the run from backend store. The resulting <a class="reference internal" href="mlflow.entities.html#mlflow.entities.Run" title="mlflow.entities.Run"><code class="xref py py-class docutils literal notranslate"><span class="pre">Run</span></code></a>
 contains a collection of run metadata – <a class="reference internal" href="mlflow.entities.html#mlflow.entities.RunInfo" title="mlflow.entities.RunInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunInfo</span></code></a>,
 as well as a collection of run parameters, tags, and metrics –
-<a class="reference internal" href="mlflow.entities.html#mlflow.entities.RunData" title="mlflow.entities.RunData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunData</span></code></a>. In the case where multiple metrics with the
-same key are logged for the run, the <a class="reference internal" href="mlflow.entities.html#mlflow.entities.RunData" title="mlflow.entities.RunData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunData</span></code></a> contains
-the most recently logged value at the largest step for each metric.</p>
+<a class="reference internal" href="mlflow.entities.html#mlflow.entities.RunData" title="mlflow.entities.RunData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunData</span></code></a>. It also contains a collection of run
+inputs (experimental), including information about datasets used by the run –
+<a class="reference internal" href="mlflow.entities.html#mlflow.entities.RunInputs" title="mlflow.entities.RunInputs"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunInputs</span></code></a>. In the case where multiple metrics with
+the same key are logged for the run, the <a class="reference internal" href="mlflow.entities.html#mlflow.entities.RunData" title="mlflow.entities.RunData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunData</span></code></a>
+contains the most recently logged value at the largest step for each metric.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>run_id</strong> – Unique identifier for the run.</p>
@@ -1751,6 +1754,91 @@ size: 5
 </dd></dl>
 
 <dl class="py method">
+<dt id="mlflow.client.MlflowClient.load_table">
+<code class="sig-name descname"><span class="pre">load_table</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_ids</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_columns</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">pandas.DataFrame</span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.load_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.load_table" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This function may change or be removed in a future release without warning.</p>
+</div>
+<p>Load a table from MLflow Tracking as a pandas.DataFrame. The table is loaded from the
+specified artifact_file in the specified run_ids. The extra_columns are columns that
+are not in the table but are augmented with run information and added to the DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_id</strong> – The experiment ID to load the table from.</p></li>
+<li><p><strong>artifact_file</strong> – The run-relative artifact file path in posixpath format to which
+table to load (e.g. “dir/file.json”).</p></li>
+<li><p><strong>run_ids</strong> – Optional list of run_ids to load the table from. If no run_ids are
+specified, the table is loaded from all runs in the current experiment.</p></li>
+<li><p><strong>extra_columns</strong> – Optional list of extra columns to add to the returned DataFrame
+For example, if extra_columns=[“run_id”], then the returned DataFrame
+will have a column named run_id.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>pandas.DataFrame containing the loaded table if the artifact exists
+or else throw a MlflowException.</p>
+</dd>
+</dl>
+<div class="literal-block-wrapper docutils container" id="id51">
+<div class="code-block-caption"><span class="caption-text">Example with passing run_ids</span><a class="headerlink" href="#id51" title="Permalink to this code"> </a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
+
+<span class="n">table_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;What is MLflow?&quot;</span><span class="p">,</span> <span class="s2">&quot;What is Databricks?&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;MLflow is ...&quot;</span><span class="p">,</span> <span class="s2">&quot;Databricks is ...&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;toxicity&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+<span class="p">}</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">table_dict</span><span class="p">)</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+<span class="n">run</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_run</span><span class="p">(</span><span class="n">experiment_id</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+<span class="n">client</span><span class="o">.</span><span class="n">log_table</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">artifact_file</span><span class="o">=</span><span class="s2">&quot;qabot_eval_results.json&quot;</span><span class="p">)</span>
+<span class="n">loaded_table</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">load_table</span><span class="p">(</span>
+    <span class="n">experiment_id</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span>
+    <span class="n">artifact_file</span><span class="o">=</span><span class="s2">&quot;qabot_eval_results.json&quot;</span><span class="p">,</span>
+    <span class="n">run_ids</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="c1"># Append a column containing the associated run ID for each row</span>
+    <span class="n">extra_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;run_id&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="literal-block-wrapper docutils container" id="id52">
+<div class="code-block-caption"><span class="caption-text">Example with passing no run_ids</span><a class="headerlink" href="#id52" title="Permalink to this code"> </a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Loads the table with the specified name for all runs in the given</span>
+<span class="c1"># experiment and joins them together</span>
+<span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
+
+<span class="n">table_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;What is MLflow?&quot;</span><span class="p">,</span> <span class="s2">&quot;What is Databricks?&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;MLflow is ...&quot;</span><span class="p">,</span> <span class="s2">&quot;Databricks is ...&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;toxicity&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+<span class="p">}</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">table_dict</span><span class="p">)</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+<span class="n">run</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_run</span><span class="p">(</span><span class="n">experiment_id</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+<span class="n">client</span><span class="o">.</span><span class="n">log_table</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">artifact_file</span><span class="o">=</span><span class="s2">&quot;qabot_eval_results.json&quot;</span><span class="p">)</span>
+<span class="n">loaded_table</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">load_table</span><span class="p">(</span>
+    <span class="n">experiment_id</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span>
+    <span class="n">artifact_file</span><span class="o">=</span><span class="s2">&quot;qabot_eval_results.json&quot;</span><span class="p">,</span>
+    <span class="c1"># Append the run ID and the parent run ID to the table</span>
+    <span class="n">extra_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;run_id&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
 <dt id="mlflow.client.MlflowClient.log_artifact">
 <code class="sig-name descname"><span class="pre">log_artifact</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.log_artifact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.log_artifact" title="Permalink to this definition"> </a></dt>
 <dd><p>Write a local file or directory to the remote <code class="docutils literal notranslate"><span class="pre">artifact_uri</span></code>.</p>
@@ -1762,8 +1850,8 @@ size: 5
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id51">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id51" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id53">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id53" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
 <span class="n">features</span> <span class="o">=</span> <span class="s2">&quot;rooms, zipcode, median_price, school_rating, transport&quot;</span>
@@ -1785,8 +1873,8 @@ size: 5
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id52">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id52" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id54">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id54" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>artifact: features.txt
 is_dir: False
 </pre></div>
@@ -1806,8 +1894,8 @@ is_dir: False
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id53">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id53" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id55">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id55" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">json</span>
 
@@ -1836,8 +1924,8 @@ is_dir: False
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id54">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id54" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id56">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id56" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>artifact: states
 is_dir: True
 </pre></div>
@@ -1861,8 +1949,8 @@ is_dir: True
 </dl>
 <p>Raises an MlflowException if any errors occur.
 :return: None</p>
-<div class="literal-block-wrapper docutils container" id="id55">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id55" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id57">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id57" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
@@ -1894,8 +1982,8 @@ is_dir: True
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id56">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id56" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id58">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id58" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>run_id: ef0247fa3205410595acc0f30f620871
 params: {&#39;p&#39;: &#39;p&#39;}
 metrics: {&#39;m&#39;: 1.5}
@@ -1923,8 +2011,8 @@ the dictionary is saved (e.g. “dir/data.json”).</p></li>
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id57">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id57" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id59">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id59" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
@@ -1966,8 +2054,8 @@ the figure is saved (e.g. “dir/file.png”).</p></li>
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id58">
-<div class="code-block-caption"><span class="caption-text">Matplotlib Example</span><a class="headerlink" href="#id58" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id60">
+<div class="code-block-caption"><span class="caption-text">Matplotlib Example</span><a class="headerlink" href="#id60" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
@@ -1979,8 +2067,8 @@ the figure is saved (e.g. “dir/file.png”).</p></li>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id59">
-<div class="code-block-caption"><span class="caption-text">Plotly Example</span><a class="headerlink" href="#id59" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id61">
+<div class="code-block-caption"><span class="caption-text">Plotly Example</span><a class="headerlink" href="#id61" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">plotly</span> <span class="kn">import</span> <span class="n">graph_objects</span> <span class="k">as</span> <span class="n">go</span>
 
@@ -2043,8 +2131,8 @@ the image is saved (e.g. “dir/image.png”).</p></li>
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id60">
-<div class="code-block-caption"><span class="caption-text">Numpy Example</span><a class="headerlink" href="#id60" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id62">
+<div class="code-block-caption"><span class="caption-text">Numpy Example</span><a class="headerlink" href="#id62" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -2055,8 +2143,8 @@ the image is saved (e.g. “dir/image.png”).</p></li>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id61">
-<div class="code-block-caption"><span class="caption-text">Pillow Example</span><a class="headerlink" href="#id61" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id63">
+<div class="code-block-caption"><span class="caption-text">Pillow Example</span><a class="headerlink" href="#id63" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
 
@@ -2067,6 +2155,26 @@ the image is saved (e.g. “dir/image.png”).</p></li>
 </pre></div>
 </div>
 </div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mlflow.client.MlflowClient.log_inputs">
+<code class="sig-name descname"><span class="pre">log_inputs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlflow.entities.html#mlflow.entities.DatasetInput" title="mlflow.entities.DatasetInput"><span class="pre">DatasetInput</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.log_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.log_inputs" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This function may change or be removed in a future release without warning.</p>
+</div>
+<p>Log one or more dataset inputs to a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_id</strong> – String ID of the run</p></li>
+<li><p><strong>datasets</strong> – List of <a class="reference internal" href="mlflow.entities.html#mlflow.entities.DatasetInput" title="mlflow.entities.DatasetInput"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlflow.entities.DatasetInput</span></code></a> instances to log.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Raises an MlflowException if any errors occur.
+:return: None</p>
 </dd></dl>
 
 <dl class="py method">
@@ -2092,8 +2200,8 @@ Defaults to 0.</p></li>
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id62">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id62" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id64">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id64" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
 
@@ -2122,8 +2230,8 @@ Defaults to 0.</p></li>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id63">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id63" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id65">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id65" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>run_id: 95e79843cb2c463187043d9065185e24
 metrics: {}
 status: RUNNING
@@ -2157,8 +2265,8 @@ may support larger values.</p></li>
 <dd class="field-even"><p>the parameter value that is logged.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id64">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id64" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id66">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id66" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
 
@@ -2188,8 +2296,8 @@ may support larger values.</p></li>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id65">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id65" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id67">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id67" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>run_id: e649e49c7b504be48ee3ae33c0e76c93
 params: {}
 status: RUNNING
@@ -2224,8 +2332,8 @@ the table is saved (e.g. “dir/file.json”).</p></li>
 <dd class="field-even"><p>None</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id66">
-<div class="code-block-caption"><span class="caption-text">Dictionary Example</span><a class="headerlink" href="#id66" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id68">
+<div class="code-block-caption"><span class="caption-text">Dictionary Example</span><a class="headerlink" href="#id68" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
@@ -2243,8 +2351,8 @@ the table is saved (e.g. “dir/file.json”).</p></li>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id67">
-<div class="code-block-caption"><span class="caption-text">Pandas DF Example</span><a class="headerlink" href="#id67" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id69">
+<div class="code-block-caption"><span class="caption-text">Pandas DF Example</span><a class="headerlink" href="#id69" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
@@ -2278,8 +2386,8 @@ the text is saved (e.g. “dir/file.txt”).</p></li>
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id68">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id68" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id70">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id70" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
@@ -2307,8 +2415,8 @@ the text is saved (e.g. “dir/file.txt”).</p></li>
 <dd class="field-odd"><p><strong>experiment_id</strong> – The experiment ID returned from <code class="docutils literal notranslate"><span class="pre">create_experiment</span></code>.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id69">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id69" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id71">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id71" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
 
@@ -2334,8 +2442,8 @@ the text is saved (e.g. “dir/file.txt”).</p></li>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id70">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id70" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id72">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id72" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Name: Social NLP Experiments
 Experiment_id: 1
 Lifecycle_stage: active
@@ -2363,8 +2471,8 @@ Lifecycle_stage: active
 <dd class="field-even"><p>A single updated <a class="reference internal" href="mlflow.entities.html#mlflow.entities.model_registry.RegisteredModel" title="mlflow.entities.model_registry.RegisteredModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlflow.entities.model_registry.RegisteredModel</span></code></a> object.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id71">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id71" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id73">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id73" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
@@ -2393,8 +2501,8 @@ Lifecycle_stage: active
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id72">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id72" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id74">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id74" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>name: SocialTextAnalyzer
 tags: {&#39;nlp.framework&#39;: &#39;Spark NLP&#39;}
 description: This sentiment analysis model classifies the tone-happy, sad, angry.
@@ -2416,8 +2524,8 @@ description: This sentiment analysis model classifies the tone-happy, sad, angry
 <dd class="field-odd"><p><strong>experiment_id</strong> – The experiment ID returned from <code class="docutils literal notranslate"><span class="pre">create_experiment</span></code>.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id73">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id73" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id75">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id75" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
 
@@ -2444,8 +2552,8 @@ description: This sentiment analysis model classifies the tone-happy, sad, angry
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id74">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id74" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id76">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id76" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Name: New Experiment
 Experiment Id: 1
 Lifecycle_stage: deleted
@@ -2467,8 +2575,8 @@ Lifecycle_stage: active
 <dd class="field-odd"><p><strong>run_id</strong> – The unique run id to restore.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id75">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id75" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id77">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id77" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
 <span class="c1"># Create a run under the default experiment (whose id is &#39;0&#39;).</span>
@@ -2486,8 +2594,8 @@ Lifecycle_stage: active
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id76">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id76" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id78">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id78" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>run_id: 7bc59754d7e74534a7917d62f2873ac0; lifecycle_stage: active
 run_id: 7bc59754d7e74534a7917d62f2873ac0; lifecycle_stage: deleted
 run_id: 7bc59754d7e74534a7917d62f2873ac0; lifecycle_stage: active
@@ -2562,8 +2670,8 @@ a <code class="docutils literal notranslate"><span class="pre">search_experiment
 for the next page can be obtained via the <code class="docutils literal notranslate"><span class="pre">token</span></code> attribute of the object.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id77">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id77" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id79">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id79" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 
 
@@ -2659,8 +2767,8 @@ objects that satisfy the search expressions. The pagination token for the next
 page can be obtained via the <code class="docutils literal notranslate"><span class="pre">token</span></code> attribute of the object.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id78">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id78" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id80">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id80" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
@@ -2684,8 +2792,8 @@ page can be obtained via the <code class="docutils literal notranslate"><span cl
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id79">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id79" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id81">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id81" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>------------------------------------------------------------------------------------
 name=CordobaWeatherForecastModel; run_id=eaef868ee3d14d10b4299c4c81ba8814; version=1
 name=CordobaWeatherForecastModel; run_id=e14afa2f47a040728060c1699968fd43; version=2
@@ -2740,8 +2848,8 @@ that satisfy the search expressions. The pagination token for the next page can 
 obtained via the <code class="docutils literal notranslate"><span class="pre">token</span></code> attribute of the object.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id80">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id80" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id82">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id82" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
@@ -2774,8 +2882,8 @@ obtained via the <code class="docutils literal notranslate"><span class="pre">to
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id81">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id81" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id83">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id83" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>------------------------------------------------------------------------------------
 name=CordobaWeatherForecastModel; run_id=eaef868ee3d14d10b4299c4c81ba8814; version=1
 name=CordobaWeatherForecastModel; run_id=e14afa2f47a040728060c1699968fd43; version=2
@@ -2820,8 +2928,8 @@ If the underlying tracking store supports pagination, the token for the next pag
 be obtained via the <code class="docutils literal notranslate"><span class="pre">token</span></code> attribute of the returned object.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id82">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id82" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id84">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id84" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 <span class="kn">from</span> <span class="nn">mlflow.entities</span> <span class="kn">import</span> <span class="n">ViewType</span>
@@ -2867,8 +2975,8 @@ be obtained via the <code class="docutils literal notranslate"><span class="pre"
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id83">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id83" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id85">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id85" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>run_id: 0efb2a68833d4ee7860a964fad31cb3f
 lifecycle_stage: active
 metrics: {&#39;m&#39;: 2.5}
@@ -2900,8 +3008,8 @@ tags: {&#39;s.release&#39;: &#39;1.1.0-RC&#39;}
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id84">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id84" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id86">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id86" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
 <span class="c1"># Create an experiment and set its tag</span>
@@ -2916,8 +3024,8 @@ tags: {&#39;s.release&#39;: &#39;1.1.0-RC&#39;}
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id85">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id85" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id87">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id87" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Name: Social Media NLP Experiments
 Tags: {&#39;nlp.framework&#39;: &#39;Spark NLP&#39;}
 </pre></div>
@@ -2945,8 +3053,8 @@ Setting both version and stage parameter will result in error.</p>
 <dd class="field-even"><p>None</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id86">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id86" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id88">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id88" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.sklearn</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
@@ -2994,8 +3102,8 @@ Setting both version and stage parameter will result in error.</p>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id87">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id87" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id89">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id89" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Name: RandomForestRegression
 Version: 1
 Tags: {}
@@ -3024,8 +3132,8 @@ Tags: {&#39;t&#39;: &#39;1&#39;, &#39;t1&#39;: &#39;1&#39;}
 <dd class="field-even"><p>None</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id88">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id88" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id90">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id90" title="Permalink to this code"> </a></div>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
@@ -3074,8 +3182,8 @@ Tags: {&#39;t&#39;: &#39;1&#39;, &#39;t1&#39;: &#39;1&#39;}
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id89">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id89" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id91">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id91" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>--Model--
 name: RandomForestRegression
 aliases: {}
@@ -3112,8 +3220,8 @@ Aliases: [&quot;test-alias&quot;]
 <dd class="field-even"><p>None</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id90">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id90" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id92">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id92" title="Permalink to this code"> </a></div>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
@@ -3139,8 +3247,8 @@ Aliases: [&quot;test-alias&quot;]
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id91">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id91" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id93">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id93" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>--
 name: SocialMediaTextAnalyzer
 tags: {&#39;nlp.framework1&#39;: &#39;Spark NLP&#39;}
@@ -3170,8 +3278,8 @@ may support larger values.</p></li>
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id92">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id92" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id94">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id94" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
 
@@ -3194,8 +3302,8 @@ may support larger values.</p></li>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id93">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id93" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id95">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id95" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>run_id: 4f226eb5758145e9b28f78514b59a03b
 Tags: {}
 --
@@ -3219,8 +3327,8 @@ Defaults to “FINISHED”.</p></li>
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id94">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id94" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id96">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id96" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
 
@@ -3247,8 +3355,8 @@ Defaults to “FINISHED”.</p></li>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id95">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id95" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id97">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id97" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>run_id: 575fb62af83f469e84806aee24945973
 status: RUNNING
 --
@@ -3283,8 +3391,8 @@ when <code class="docutils literal notranslate"><span class="pre">stage</span></
 <dd class="field-even"><p>A single <a class="reference internal" href="mlflow.entities.html#mlflow.entities.model_registry.ModelVersion" title="mlflow.entities.model_registry.ModelVersion"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlflow.entities.model_registry.ModelVersion</span></code></a> object.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id96">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id96" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id98">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id98" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.sklearn</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
@@ -3328,8 +3436,8 @@ when <code class="docutils literal notranslate"><span class="pre">stage</span></
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id97">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id97" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id99">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id99" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Name: RandomForestRegression
 Version: 1
 Description: A new version of the model using ensemble trees
@@ -3360,8 +3468,8 @@ Stage: Staging
 <dd class="field-even"><p>A single <a class="reference internal" href="mlflow.entities.html#mlflow.entities.model_registry.ModelVersion" title="mlflow.entities.model_registry.ModelVersion"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlflow.entities.model_registry.ModelVersion</span></code></a> object.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id98">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id98" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id100">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id100" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.sklearn</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
@@ -3404,8 +3512,8 @@ Stage: Staging
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id99">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id99" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id101">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id101" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Name: RandomForestRegression
 Version: 1
 Description: None
@@ -3434,8 +3542,8 @@ Backend raises exception if a registered model with given name does not exist.</
 <dd class="field-even"><p>A single updated <a class="reference internal" href="mlflow.entities.html#mlflow.entities.model_registry.RegisteredModel" title="mlflow.entities.model_registry.RegisteredModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlflow.entities.model_registry.RegisteredModel</span></code></a> object.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id100">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id100" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id102">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id102" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">print_registered_model_info</span><span class="p">(</span><span class="n">rm</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
@@ -3459,8 +3567,8 @@ Backend raises exception if a registered model with given name does not exist.</
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id101">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id101" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id103">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id103" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>name: SocialMediaTextAnalyzer
 tags: {&#39;nlp.framework&#39;: &#39;Spark NLP&#39;}
 description: This sentiment analysis model classifies the tone-happy, sad, angry.
@@ -3488,8 +3596,8 @@ At least one of <code class="docutils literal notranslate"><span class="pre">nam
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id102">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id102" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id104">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id104" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 
 
@@ -3513,8 +3621,8 @@ At least one of <code class="docutils literal notranslate"><span class="pre">nam
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id103">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id103" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id105">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id105" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>run_id: 1cf6bf8bf6484dd8a598bd43be367b20
 run_name: judicious-hog-915
 status: RUNNING
@@ -3541,7 +3649,7 @@ status: FINISHED
         <a href="mlflow.catboost.html" class="btn btn-neutral" title="mlflow.catboost" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
       
       
-        <a href="mlflow.deployments.html" class="btn btn-neutral" title="mlflow.deployments" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
+        <a href="mlflow.data.html" class="btn btn-neutral" title="mlflow.data" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
       
     </div>
   

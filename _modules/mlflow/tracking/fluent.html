@@ -186,7 +186,18 @@
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">from</span> <span class="nn">mlflow.entities</span> <span class="kn">import</span> <span class="n">Experiment</span><span class="p">,</span> <span class="n">Run</span><span class="p">,</span> <span class="n">RunStatus</span><span class="p">,</span> <span class="n">Param</span><span class="p">,</span> <span class="n">RunTag</span><span class="p">,</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">ViewType</span>
+<span class="kn">from</span> <span class="nn">mlflow.data.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">mlflow.entities</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Experiment</span><span class="p">,</span>
+    <span class="n">Run</span><span class="p">,</span>
+    <span class="n">RunStatus</span><span class="p">,</span>
+    <span class="n">Param</span><span class="p">,</span>
+    <span class="n">RunTag</span><span class="p">,</span>
+    <span class="n">Metric</span><span class="p">,</span>
+    <span class="n">ViewType</span><span class="p">,</span>
+    <span class="n">InputTag</span><span class="p">,</span>
+    <span class="n">DatasetInput</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.entities.lifecycle_stage</span> <span class="kn">import</span> <span class="n">LifecycleStage</span>
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="p">(</span>
@@ -199,6 +210,7 @@
 <span class="kn">from</span> <span class="nn">mlflow.tracking.default_experiment</span> <span class="kn">import</span> <span class="n">registry</span> <span class="k">as</span> <span class="n">default_experiment_registry</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.tracking</span> <span class="kn">import</span> <span class="n">SEARCH_MAX_RESULTS_DEFAULT</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">env</span><span class="p">,</span> <span class="n">get_results_from_paginated_fn</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">experimental</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.autologging_utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">is_testing</span><span class="p">,</span>
     <span class="n">autologging_integration</span><span class="p">,</span>
@@ -208,6 +220,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.import_hooks</span> <span class="kn">import</span> <span class="n">register_post_import_hook</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.mlflow_tags</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MLFLOW_DATASET_CONTEXT</span><span class="p">,</span>
     <span class="n">MLFLOW_PARENT_RUN_ID</span><span class="p">,</span>
     <span class="n">MLFLOW_RUN_NAME</span><span class="p">,</span>
     <span class="n">MLFLOW_RUN_NOTE</span><span class="p">,</span>
@@ -217,8 +230,6 @@
 <span class="kn">from</span> <span class="nn">mlflow.utils.validation</span> <span class="kn">import</span> <span class="n">_validate_run_id</span><span class="p">,</span> <span class="n">_validate_experiment_id_type</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.time_utils</span> <span class="kn">import</span> <span class="n">get_current_time_millis</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.databricks_utils</span> <span class="kn">import</span> <span class="n">is_in_databricks_runtime</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">experimental</span>
-
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">pandas</span>  <span class="c1"># pylint: disable=unused-import</span>
@@ -663,9 +674,11 @@
 <span class="sd">    Fetch the run from backend store. The resulting :py:class:`Run &lt;mlflow.entities.Run&gt;`</span>
 <span class="sd">    contains a collection of run metadata -- :py:class:`RunInfo &lt;mlflow.entities.RunInfo&gt;`,</span>
 <span class="sd">    as well as a collection of run parameters, tags, and metrics --</span>
-<span class="sd">    :py:class:`RunData &lt;mlflow.entities.RunData&gt;`. In the case where multiple metrics with the</span>
-<span class="sd">    same key are logged for the run, the :py:class:`RunData &lt;mlflow.entities.RunData&gt;` contains</span>
-<span class="sd">    the most recently logged value at the largest step for each metric.</span>
+<span class="sd">    :py:class:`RunData &lt;mlflow.entities.RunData&gt;`. It also contains a collection of run</span>
+<span class="sd">    inputs (experimental), including information about datasets used by the run --</span>
+<span class="sd">    :py:class:`RunInputs &lt;mlflow.entities.RunInputs&gt;`. In the case where multiple metrics with the</span>
+<span class="sd">    same key are logged for the run, the :py:class:`RunData &lt;mlflow.entities.RunData&gt;` contains the</span>
+<span class="sd">    most recently logged value at the largest step for each metric.</span>
 
 <span class="sd">    :param run_id: Unique identifier for the run.</span>
 
@@ -911,6 +924,44 @@
     <span class="n">run_id</span> <span class="o">=</span> <span class="n">_get_or_start_run</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
     <span class="n">params_arr</span> <span class="o">=</span> <span class="p">[</span><span class="n">Param</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
     <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">log_batch</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[],</span> <span class="n">params</span><span class="o">=</span><span class="n">params_arr</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[])</span></div>
+
+
+<div class="viewcode-block" id="log_input"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.log_input">[docs]</a><span class="nd">@experimental</span>
+<span class="k">def</span> <span class="nf">log_input</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Log a dataset used in the current run.</span>
+
+<span class="sd">    :param dataset: :py:class:`mlflow.data.dataset.Dataset` object to be logged.</span>
+<span class="sd">    :param context: Context in which the dataset is used. For example: &quot;training&quot;, &quot;testing&quot;.</span>
+<span class="sd">                    This will be set as an input tag with key `mlflow.data.context`.</span>
+<span class="sd">    :param tags: Tags to be associated with the dataset. Dictionary of tag_key -&gt; tag_value.</span>
+<span class="sd">    :returns: None</span>
+
+<span class="sd">    .. test-code-block:: python</span>
+<span class="sd">        :caption: Example</span>
+
+<span class="sd">        import numpy as np</span>
+<span class="sd">        import mlflow</span>
+
+<span class="sd">        array = np.asarray([[1, 2, 3], [4, 5, 6], [7, 8, 9]])</span>
+<span class="sd">        dataset = mlflow.data.from_numpy(array, source=&quot;data.csv&quot;)</span>
+
+<span class="sd">        # Log an input dataset used for training</span>
+<span class="sd">        with mlflow.start_run():</span>
+<span class="sd">            mlflow.log_input(dataset, context=&quot;training&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">run_id</span> <span class="o">=</span> <span class="n">_get_or_start_run</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
+    <span class="n">tags_to_log</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">tags</span><span class="p">:</span>
+        <span class="n">tags_to_log</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">InputTag</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">tags</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+    <span class="k">if</span> <span class="n">context</span><span class="p">:</span>
+        <span class="n">tags_to_log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">InputTag</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">MLFLOW_DATASET_CONTEXT</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">context</span><span class="p">))</span>
+
+    <span class="n">dataset_input</span> <span class="o">=</span> <span class="n">DatasetInput</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">_to_mlflow_entity</span><span class="p">(),</span> <span class="n">tags</span><span class="o">=</span><span class="n">tags_to_log</span><span class="p">)</span>
+
+    <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">log_inputs</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="n">dataset_input</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="set_experiment_tags"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.set_experiment_tags">[docs]</a><span class="k">def</span> <span class="nf">set_experiment_tags</span><span class="p">(</span><span class="n">tags</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1246,6 +1297,78 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">run_id</span> <span class="o">=</span> <span class="n">_get_or_start_run</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
     <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">log_table</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">artifact_file</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load_table"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.load_table">[docs]</a><span class="nd">@experimental</span>
+<span class="k">def</span> <span class="nf">load_table</span><span class="p">(</span>
+    <span class="n">artifact_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">run_ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">extra_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;pandas.DataFrame&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a table from MLflow Tracking as a pandas.DataFrame. The table is loaded from the</span>
+<span class="sd">    specified artifact_file in the specified run_ids. The extra_columns are columns that</span>
+<span class="sd">    are not in the table but are augmented with run information and added to the DataFrame.</span>
+
+<span class="sd">    :param artifact_file: The run-relative artifact file path in posixpath format to which</span>
+<span class="sd">                          table to load (e.g. &quot;dir/file.json&quot;).</span>
+<span class="sd">    :param run_ids: Optional list of run_ids to load the table from. If no run_ids are specified,</span>
+<span class="sd">                    the table is loaded from all runs in the current experiment.</span>
+<span class="sd">    :param extra_columns: Optional list of extra columns to add to the returned DataFrame</span>
+<span class="sd">                          For example, if extra_columns=[&quot;run_id&quot;], then the returned DataFrame</span>
+<span class="sd">                          will have a column named run_id.</span>
+
+<span class="sd">    :return: pandas.DataFrame containing the loaded table if the artifact exists</span>
+<span class="sd">             or else throw a MlflowException.</span>
+
+<span class="sd">    .. test-code-block:: python</span>
+<span class="sd">        :caption: Example with passing run_ids</span>
+
+<span class="sd">        import mlflow</span>
+
+<span class="sd">        table_dict = {</span>
+<span class="sd">            &quot;inputs&quot;: [&quot;What is MLflow?&quot;, &quot;What is Databricks?&quot;],</span>
+<span class="sd">            &quot;outputs&quot;: [&quot;MLflow is ...&quot;, &quot;Databricks is ...&quot;],</span>
+<span class="sd">            &quot;toxicity&quot;: [0.0, 0.0],</span>
+<span class="sd">        }</span>
+
+<span class="sd">        with mlflow.start_run() as run:</span>
+<span class="sd">            # Log the dictionary as a table</span>
+<span class="sd">            mlflow.log_table(data=table_dict, artifact_file=&quot;qabot_eval_results.json&quot;)</span>
+<span class="sd">            run_id = run.info.run_id</span>
+
+<span class="sd">        loaded_table = mlflow.load_table(</span>
+<span class="sd">            artifact_file=&quot;qabot_eval_results.json&quot;,</span>
+<span class="sd">            run_ids=[run_id],</span>
+<span class="sd">            # Append a column containing the associated run ID for each row</span>
+<span class="sd">            extra_columns=[&quot;run_id&quot;],</span>
+<span class="sd">        )</span>
+
+<span class="sd">    .. test-code-block:: python</span>
+<span class="sd">        :caption: Example with passing no run_ids</span>
+
+<span class="sd">        # Loads the table with the specified name for all runs in the given</span>
+<span class="sd">        # experiment and joins them together</span>
+<span class="sd">        import mlflow</span>
+
+<span class="sd">        table_dict = {</span>
+<span class="sd">            &quot;inputs&quot;: [&quot;What is MLflow?&quot;, &quot;What is Databricks?&quot;],</span>
+<span class="sd">            &quot;outputs&quot;: [&quot;MLflow is ...&quot;, &quot;Databricks is ...&quot;],</span>
+<span class="sd">            &quot;toxicity&quot;: [0.0, 0.0],</span>
+<span class="sd">        }</span>
+
+<span class="sd">        with mlflow.start_run():</span>
+<span class="sd">            # Log the dictionary as a table</span>
+<span class="sd">            mlflow.log_table(data=table_dict, artifact_file=&quot;qabot_eval_results.json&quot;)</span>
+
+<span class="sd">        loaded_table = mlflow.load_table(</span>
+<span class="sd">            &quot;qabot_eval_results.json&quot;,</span>
+<span class="sd">            # Append the run ID and the parent run ID to the table</span>
+<span class="sd">            extra_columns=[&quot;run_id&quot;],</span>
+<span class="sd">        )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">experiment_id</span> <span class="o">=</span> <span class="n">_get_experiment_id</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">load_table</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span> <span class="n">artifact_file</span><span class="p">,</span> <span class="n">run_ids</span><span class="p">,</span> <span class="n">extra_columns</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">_record_logged_model</span><span class="p">(</span><span class="n">mlflow_model</span><span class="p">):</span>
@@ -1856,6 +1979,7 @@
     <span class="n">log_input_examples</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">log_model_signatures</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">log_models</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">log_datasets</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">disable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">exclusive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">disable_for_unsupported_versions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1914,6 +2038,8 @@
 <span class="sd">                       If ``False``, trained models are not logged.</span>
 <span class="sd">                       Input examples and model signatures, which are attributes of MLflow models,</span>
 <span class="sd">                       are also omitted when ``log_models`` is ``False``.</span>
+<span class="sd">    :param log_datasets: If ``True``, dataset information is logged to MLflow Tracking.</span>
+<span class="sd">                         If ``False``, dataset information is not logged.</span>
 <span class="sd">    :param disable: If ``True``, disables all supported autologging integrations. If ``False``,</span>
 <span class="sd">                    enables all supported autologging integrations.</span>
 <span class="sd">    :param exclusive: If ``True``, autologged content is not logged to user-created fluent runs.</span>

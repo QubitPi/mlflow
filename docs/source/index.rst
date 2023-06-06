@@ -278,5 +278,6 @@ Deployment Guides and Tutorials
     java_api/index
     rest-api
     docker
+    hashicorp
     community-model-flavors
     tutorials-and-examples/index

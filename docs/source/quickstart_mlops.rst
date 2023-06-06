@@ -92,6 +92,10 @@ MLflow allows you to easily serve models produced by any run or model version. Y
 
 (Note that specifying the port as above will be necessary if you are running the tracking server on the same machine at the default port of **5000**.)
 
+**If the command above is invoked in a *new* shell session, make sure to re-point tracking server using the
+``export MLFLOW_TRACKING_URI=http://localhost:5000`` mentioned above, otherwise MLflow will complain
+"Registered Model with name=wine-quality not found"**
+
 You could also have used a ``runs:/<run_id>`` URI to serve a model, or any supported URI described in :ref:`artifact-stores`. 
 
 To test the model, you can send a request to the REST API using the ``curl`` command:
@@ -120,6 +124,19 @@ Most routes toward deployment will use a container to package your model, its de
 
   mlflow models build-docker --model-uri "models:/wine-quality/1" --name "qs_mlops"
 
+If the command above erros by
+
+.. code-block:: bash
+
+  mlflow.exceptions.MlflowException: The configured tracking uri scheme: 'file' is invalid for use with the proxy mlflow-artifact scheme. The allowed tracking schemes are: {'http', 'https'}
+
+This is, again, most likely the tracking server is not pointed at properly (because the command, for example, is run
+in a seprate shell). Simply run
+
+.. code-block:: bash
+
+  export MLFLOW_TRACKING_URI=http://localhost:5000
+
 This command builds a Docker image named ``qs_mlops`` that contains your model and its dependencies. The ``model-uri`` in this case specifies a version number (``/1``) rather than a lifecycle stage (``/staging``), but you can use whichever integrates best with your workflow. It will take several minutes to build the image. Once it completes, you can run the image to provide real-time inferencing locally, on-prem, on a bespoke Internet server, or cloud platform. You can run it locally with:
 
 .. code-block:: bash
@@ -131,6 +148,9 @@ This `Docker run command <https://docs.docker.com/engine/reference/commandline/r
 .. code-block:: bash
 
   curl -d '{"dataframe_split": {"columns": ["fixed acidity","volatile acidity","citric acid","residual sugar","chlorides","free sulfur dioxide","total sulfur dioxide","density","pH","sulphates","alcohol"], "data": [[7,0.27,0.36,20.7,0.045,45,170,1.001,3,0.45,8.8]]}}' -H 'Content-Type: application/json' -X POST localhost:5002/invocations
+
+To publish it for later deployment, we could then choose to push the image to our image registry such as
+`Docker Registry <https://docs.docker.com/registry/>`_ (`UI <https://github.com/stealth-tech-startup/docker-registry-ui>`_)
 
 Deploying to a cloud platform
 -----------------------------

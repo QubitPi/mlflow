@@ -3,7 +3,8 @@ MLflow AMI Image
 
 A public MLflow AMI image is available at `AWS AMI <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html>`_ for
 anyone with an AWS account. The *AMI name* is "**jack20191124-mlflow**" and *Owner ID* is "**899075777617**". We
-could, for example, deploy an EC2 instance of this image using HashiCorp Terraform:
+could, for example, deploy an EC2 instance of this image using HashiCorp Terraform (The code snippet below can be put
+in a file with extension ``.tf``, such as `main.tf`):
 
 .. code-block:: terraform
 
@@ -61,4 +62,4 @@ could, for example, deploy an EC2 instance of this image using HashiCorp Terrafo
 
   - The security group must have TCP port 5000 open for its UI access
 
-The MLflow instance, after deployment, can be accessed at "http://<ec2-public-ip>:5000"
+The MLflow instance, after deployment, can be accessed at ``http://<ec2-public-ip>:5000``

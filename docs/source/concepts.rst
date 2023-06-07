@@ -7,6 +7,7 @@ Concepts
     :width: 800px
     :align: center
     :alt: Summary of this page via a knowledge graph
+
   Image generated from
   `Cypher queries <https://github.com/QubitPi/mlflow/blob/master/docs/image-sources/concepts/graph.cql>`_ running in
   `Neo4J-Browser <https://neo4j.com/sandbox/>`_

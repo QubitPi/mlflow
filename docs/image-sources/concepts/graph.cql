@@ -4,12 +4,16 @@ CREATE (mlflow:`Root` {
     name: "MLflow"
 });
 
+
+
 CREATE (flexibility:`Philosophy` {
     name: "Flexibility"
 });
 MATCH (source), (target)
 WHERE source.name = "MLflow" AND target.name = "Flexibility"
 CREATE (source)-[r:`core philosophy`]->(target) RETURN type(r);
+
+
 
 CREATE (tracking:`Main Component` {
     name: "Tracking"
@@ -23,11 +27,24 @@ CREATE (models:`Main Component` {
 CREATE (modelRegistry:`Main Component` {
     name: "Model Registry"
 });
+MATCH (source), (target)
+WHERE source.name = "MLflow" AND target.name = "Tracking"
+CREATE (source)-[r:`main component`]->(target) RETURN type(r);
+MATCH (source), (target)
+WHERE source.name = "MLflow" AND target.name = "Projects"
+CREATE (source)-[r:`main component`]->(target) RETURN type(r);
+MATCH (source), (target)
+WHERE source.name = "MLflow" AND target.name = "Models"
+CREATE (source)-[r:`main component`]->(target) RETURN type(r);
+MATCH (source), (target)
+WHERE source.name = "MLflow" AND target.name = "Model Registry"
+CREATE (source)-[r:`main component`]->(target) RETURN type(r);
+
+
 
 CREATE (productiveML:`Business Goal` {
     name: "Productive Machine Learning"
 });
-
 CREATE (trackingExperiments:`Business Goal` {
     name: "Tracking Experiments"
 });
@@ -53,21 +70,7 @@ MATCH (source), (target)
 WHERE source.name = "Productive Machine Learning" AND target.name = "Model Central Management"
 CREATE (source)-[r:`challenge`]->(target) RETURN type(r);
 
-MATCH (source), (target)
-WHERE source.name = "MLflow" AND target.name = "Tracking"
-CREATE (source)-[r:`main component`]->(target) RETURN type(r);
 
-MATCH (source), (target)
-WHERE source.name = "MLflow" AND target.name = "Projects"
-CREATE (source)-[r:`main component`]->(target) RETURN type(r);
-
-MATCH (source), (target)
-WHERE source.name = "MLflow" AND target.name = "Models"
-CREATE (source)-[r:`main component`]->(target) RETURN type(r);
-
-MATCH (source), (target)
-WHERE source.name = "MLflow" AND target.name = "Model Registry"
-CREATE (source)-[r:`main component`]->(target) RETURN type(r);
 
 MATCH (source), (target)
 WHERE source.name = "Tracking" AND target.name = "Tracking Experiments"
@@ -81,6 +84,7 @@ CREATE (source)-[r:`solution for`]->(target) RETURN type(r);
 MATCH (source), (target)
 WHERE source.name = "Model Registry" AND target.name = "Model Central Management"
 CREATE (source)-[r:`solution for`]->(target) RETURN type(r);
+
 
 
 CREATE (runOnDistributedCluster:`Scalability` {

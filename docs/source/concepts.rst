@@ -3,13 +3,14 @@
 Concepts
 ========
 
-.. image:: _static/images/concepts/knowledge-graph.png
-    :width: 800px
-    :align: center
-    :alt: Summary of this page via a knowledge graph
-  Image generated from
-  `Cypher queries <https://github.com/QubitPi/mlflow/blob/master/docs/image-sources/concepts/graph.cql>`_ running in
-  `Neo4J-Browser <https://neo4j.com/sandbox/>`_
+.. figure:: _static/images/concepts/knowledge-graph.png
+   :width: 800px
+   :align: center
+   :alt: Summary of this page via a knowledge graph
+
+   Summary of this page (Image generated from
+   `Cypher queries <https://github.com/QubitPi/mlflow/blob/master/docs/image-sources/concepts/graph.cql>`_ running in
+   `Neo4J-Browser <https://neo4j.com/sandbox/>`_)
 
 MLflow is organized into four components: :ref:`Tracking<tracking>`, :ref:`Projects<projects>`,
 :ref:`Models<models>`, and :ref:`Model Registry<registry>`. You can use each of these components on their own---for example, maybe you

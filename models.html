@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>MLflow Models &mdash; MLflow 2.3.3.dev0 documentation</title>
+  <title>MLflow Models &mdash; MLflow 2.4.2.dev0 documentation</title>
   
    
   <link rel="canonical" href="https://mlflow.org/docs/latest/models.html">
@@ -41,7 +41,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="MLflow 2.3.3.dev0 documentation" href="index.html"/>
+    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="index.html"/>
         <link rel="next" title="MLflow Model Registry" href="/model-registry.html"/>
         <link rel="prev" title="MLflow Projects" href="/projects.html"/> 
 
@@ -66,7 +66,7 @@
     <a href="index.html" class="wy-nav-top-logo"
       ><img src="_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.3.3.dev0</span>
+    <span class="version">2.4.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -201,6 +201,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#pmdarima-pmdarima">Pmdarima (<code class="docutils literal notranslate"><span class="pre">pmdarima</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#openai-openai-experimental">OpenAI (<code class="docutils literal notranslate"><span class="pre">openai</span></code>) (Experimental)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#langchain-langchain-experimental">LangChain (<code class="docutils literal notranslate"><span class="pre">langchain</span></code>) (Experimental)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#john-snow-labs-johnsnowlabs-experimental">John Snow Labs (<code class="docutils literal notranslate"><span class="pre">johnsnowlabs</span></code>) (Experimental)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#to-deploy-the-john-snow-labs-model-as-a-container">To deploy the John Snow Labs model as a container</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#to-deploy-the-john-snow-labs-model-without-a-container">To deploy the John Snow Labs model without a container</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#diviner-diviner">Diviner (<code class="docutils literal notranslate"><span class="pre">diviner</span></code>)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#diviner-types">Diviner Types</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#metrics-and-parameters-logging-for-diviner">Metrics and Parameters logging for Diviner</a></li>
@@ -215,6 +220,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#model-evaluation">Model Evaluation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evaluating-with-llms">Evaluating with LLMs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#evaluating-with-custom-metrics">Evaluating with Custom Metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#performing-model-validation">Performing Model Validation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#model-validation-with-trubrics-plugin">Model Validation with Trubrics’ plugin</a></li>
@@ -250,15 +256,16 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#deployment-to-custom-targets">Deployment to Custom Targets</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id22">Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id23">Commands</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id24">Community Model Flavors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id25">Community Model Flavors</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">MLflow Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Command-Line Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="search-runs.html">Search Runs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="search-experiments.html">Search Experiments</a></li>
@@ -326,19 +333,19 @@ that can be understood by different downstream tools.</p>
 <div class="contents local topic" id="table-of-contents">
 <p class="topic-title">Table of Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#storage-format" id="id26">Storage Format</a></p></li>
-<li><p><a class="reference internal" href="#model-signature-and-input-example" id="id27">Model Signature And Input Example</a></p></li>
-<li><p><a class="reference internal" href="#model-api" id="id28">Model API</a></p></li>
-<li><p><a class="reference internal" href="#built-in-model-flavors" id="id29">Built-In Model Flavors</a></p></li>
-<li><p><a class="reference internal" href="#model-evaluation" id="id30">Model Evaluation</a></p></li>
-<li><p><a class="reference internal" href="#model-customization" id="id31">Model Customization</a></p></li>
-<li><p><a class="reference internal" href="#built-in-deployment-tools" id="id32">Built-In Deployment Tools</a></p></li>
-<li><p><a class="reference internal" href="#deployment-to-custom-targets" id="id33">Deployment to Custom Targets</a></p></li>
-<li><p><a class="reference internal" href="#id24" id="id34">Community Model Flavors</a></p></li>
+<li><p><a class="reference internal" href="#storage-format" id="id27">Storage Format</a></p></li>
+<li><p><a class="reference internal" href="#model-signature-and-input-example" id="id28">Model Signature And Input Example</a></p></li>
+<li><p><a class="reference internal" href="#model-api" id="id29">Model API</a></p></li>
+<li><p><a class="reference internal" href="#built-in-model-flavors" id="id30">Built-In Model Flavors</a></p></li>
+<li><p><a class="reference internal" href="#model-evaluation" id="id31">Model Evaluation</a></p></li>
+<li><p><a class="reference internal" href="#model-customization" id="id32">Model Customization</a></p></li>
+<li><p><a class="reference internal" href="#built-in-deployment-tools" id="id33">Built-In Deployment Tools</a></p></li>
+<li><p><a class="reference internal" href="#deployment-to-custom-targets" id="id34">Deployment to Custom Targets</a></p></li>
+<li><p><a class="reference internal" href="#id25" id="id35">Community Model Flavors</a></p></li>
 </ul>
 </div>
 <div class="section" id="storage-format">
-<span id="model-storage-format"></span><h2><a class="toc-backref" href="#id26">Storage Format</a><a class="headerlink" href="#storage-format" title="Permalink to this headline"> </a></h2>
+<span id="model-storage-format"></span><h2><a class="toc-backref" href="#id27">Storage Format</a><a class="headerlink" href="#storage-format" title="Permalink to this headline"> </a></h2>
 <p>Each MLflow Model is a directory containing arbitrary files, together with an <code class="docutils literal notranslate"><span class="pre">MLmodel</span></code>
 file in the root of the directory that can define multiple <em>flavors</em> that the model can be viewed
 in.</p>
@@ -483,7 +490,7 @@ cloudpickle==1.6.0
 </div>
 </div>
 <div class="section" id="model-signature-and-input-example">
-<span id="model-metadata"></span><h2><a class="toc-backref" href="#id27">Model Signature And Input Example</a><a class="headerlink" href="#model-signature-and-input-example" title="Permalink to this headline"> </a></h2>
+<span id="model-metadata"></span><h2><a class="toc-backref" href="#id28">Model Signature And Input Example</a><a class="headerlink" href="#model-signature-and-input-example" title="Permalink to this headline"> </a></h2>
 <p>When working with ML models you often need to know some basic functional properties of the model
 at hand, such as “What inputs does it expect?” and “What output does it produce?”. MLflow models can
 include the following additional metadata about model inputs and outputs that can be used by
@@ -635,7 +642,7 @@ on the <code class="docutils literal notranslate"><span class="pre">Iris</span> 
 <span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
 <span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">import</span> <span class="nn">mlflow.sklearn</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 
 <span class="n">iris</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_iris</span><span class="p">()</span>
 <span class="n">iris_train</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">iris</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">iris</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span>
@@ -646,7 +653,7 @@ on the <code class="docutils literal notranslate"><span class="pre">Iris</span> 
 </pre></div>
 </div>
 <p>The same signature can be created explicitly as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">ModelSignature</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">ModelSignature</span>
 <span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">Schema</span><span class="p">,</span> <span class="n">ColSpec</span>
 
 <span class="n">input_schema</span> <span class="o">=</span> <span class="n">Schema</span><span class="p">(</span>
@@ -673,7 +680,7 @@ on the <code class="docutils literal notranslate"><span class="pre">MNIST</span>
 <span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Conv2D</span><span class="p">,</span> <span class="n">MaxPooling2D</span><span class="p">,</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Flatten</span>
 <span class="kn">from</span> <span class="nn">keras.optimizers</span> <span class="kn">import</span> <span class="n">SGD</span>
 <span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 
 <span class="p">(</span><span class="n">train_X</span><span class="p">,</span> <span class="n">train_Y</span><span class="p">),</span> <span class="p">(</span><span class="n">test_X</span><span class="p">,</span> <span class="n">test_Y</span><span class="p">)</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
 <span class="n">trainX</span> <span class="o">=</span> <span class="n">train_X</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">train_X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
@@ -705,7 +712,7 @@ on the <code class="docutils literal notranslate"><span class="pre">MNIST</span>
 </div>
 <p>The same signature can be created explicitly as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">ModelSignature</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">ModelSignature</span>
 <span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">Schema</span><span class="p">,</span> <span class="n">TensorSpec</span>
 
 <span class="n">input_schema</span> <span class="o">=</span> <span class="n">Schema</span><span class="p">(</span>
@@ -745,7 +752,7 @@ Suppose you’ve logged a sklearn model without a signature like below:</p>
 <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
 <span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.model</span> <span class="kn">import</span> <span class="n">get_model_info</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span><span class="p">,</span> <span class="n">set_signature</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span><span class="p">,</span> <span class="n">set_signature</span>
 
 <span class="c1"># load the logged model</span>
 <span class="n">model_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/iris_rf&quot;</span>
@@ -856,7 +863,7 @@ you can log a tensor-based input example with your model:</p>
 </div>
 </div>
 <div class="section" id="model-api">
-<span id="id8"></span><h2><a class="toc-backref" href="#id28">Model API</a><a class="headerlink" href="#model-api" title="Permalink to this headline"> </a></h2>
+<span id="id8"></span><h2><a class="toc-backref" href="#id29">Model API</a><a class="headerlink" href="#model-api" title="Permalink to this headline"> </a></h2>
 <p>You can save and load MLflow Models in multiple ways. First, MLflow includes integrations with
 several common libraries. For example, <a class="reference internal" href="python_api/mlflow.sklearn.html#module-mlflow.sklearn" title="mlflow.sklearn"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.sklearn</span></code></a> contains
 <a class="reference internal" href="python_api/mlflow.sklearn.html#mlflow.sklearn.save_model" title="mlflow.sklearn.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_model</span></code></a>, <a class="reference internal" href="python_api/mlflow.sklearn.html#mlflow.sklearn.log_model" title="mlflow.sklearn.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">log_model</span></code></a>,
@@ -875,39 +882,40 @@ from an artifact in a previous run.</p></li>
 </ul>
 </div>
 <div class="section" id="built-in-model-flavors">
-<span id="models-built-in-model-flavors"></span><h2><a class="toc-backref" href="#id29">Built-In Model Flavors</a><a class="headerlink" href="#built-in-model-flavors" title="Permalink to this headline"> </a></h2>
+<span id="models-built-in-model-flavors"></span><h2><a class="toc-backref" href="#id30">Built-In Model Flavors</a><a class="headerlink" href="#built-in-model-flavors" title="Permalink to this headline"> </a></h2>
 <p>MLflow provides several standard flavors that might be useful in your applications. Specifically,
 many of its deployment tools support these flavors, so you can export your own model in one of these
 flavors to benefit from all these tools:</p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#python-function-python-function" id="id35">Python Function (<code class="docutils literal notranslate"><span class="pre">python_function</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#r-function-crate" id="id36">R Function (<code class="docutils literal notranslate"><span class="pre">crate</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#h2o-h2o" id="id37">H<sub>2</sub>O (<code class="docutils literal notranslate"><span class="pre">h2o</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#keras-keras" id="id38">Keras (<code class="docutils literal notranslate"><span class="pre">keras</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#mleap-mleap" id="id39">MLeap (<code class="docutils literal notranslate"><span class="pre">mleap</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#pytorch-pytorch" id="id40">PyTorch (<code class="docutils literal notranslate"><span class="pre">pytorch</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#scikit-learn-sklearn" id="id41">Scikit-learn (<code class="docutils literal notranslate"><span class="pre">sklearn</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#spark-mllib-spark" id="id42">Spark MLlib (<code class="docutils literal notranslate"><span class="pre">spark</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#tensorflow-tensorflow" id="id43">TensorFlow (<code class="docutils literal notranslate"><span class="pre">tensorflow</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#onnx-onnx" id="id44">ONNX (<code class="docutils literal notranslate"><span class="pre">onnx</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#mxnet-gluon-gluon" id="id45">MXNet Gluon (<code class="docutils literal notranslate"><span class="pre">gluon</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#xgboost-xgboost" id="id46">XGBoost (<code class="docutils literal notranslate"><span class="pre">xgboost</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#lightgbm-lightgbm" id="id47">LightGBM (<code class="docutils literal notranslate"><span class="pre">lightgbm</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#catboost-catboost" id="id48">CatBoost (<code class="docutils literal notranslate"><span class="pre">catboost</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#spacy-spacy" id="id49">Spacy(<code class="docutils literal notranslate"><span class="pre">spaCy</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#fastai-fastai" id="id50">Fastai(<code class="docutils literal notranslate"><span class="pre">fastai</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#statsmodels-statsmodels" id="id51">Statsmodels (<code class="docutils literal notranslate"><span class="pre">statsmodels</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#prophet-prophet" id="id52">Prophet (<code class="docutils literal notranslate"><span class="pre">prophet</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#pmdarima-pmdarima" id="id53">Pmdarima (<code class="docutils literal notranslate"><span class="pre">pmdarima</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#openai-openai-experimental" id="id54">OpenAI (<code class="docutils literal notranslate"><span class="pre">openai</span></code>) (Experimental)</a></p></li>
-<li><p><a class="reference internal" href="#langchain-langchain-experimental" id="id55">LangChain (<code class="docutils literal notranslate"><span class="pre">langchain</span></code>) (Experimental)</a></p></li>
-<li><p><a class="reference internal" href="#diviner-diviner" id="id56">Diviner (<code class="docutils literal notranslate"><span class="pre">diviner</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#transformers-transformers-experimental" id="id57">Transformers (<code class="docutils literal notranslate"><span class="pre">transformers</span></code>) (Experimental)</a></p></li>
+<li><p><a class="reference internal" href="#python-function-python-function" id="id36">Python Function (<code class="docutils literal notranslate"><span class="pre">python_function</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#r-function-crate" id="id37">R Function (<code class="docutils literal notranslate"><span class="pre">crate</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#h2o-h2o" id="id38">H<sub>2</sub>O (<code class="docutils literal notranslate"><span class="pre">h2o</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#keras-keras" id="id39">Keras (<code class="docutils literal notranslate"><span class="pre">keras</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#mleap-mleap" id="id40">MLeap (<code class="docutils literal notranslate"><span class="pre">mleap</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#pytorch-pytorch" id="id41">PyTorch (<code class="docutils literal notranslate"><span class="pre">pytorch</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#scikit-learn-sklearn" id="id42">Scikit-learn (<code class="docutils literal notranslate"><span class="pre">sklearn</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#spark-mllib-spark" id="id43">Spark MLlib (<code class="docutils literal notranslate"><span class="pre">spark</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#tensorflow-tensorflow" id="id44">TensorFlow (<code class="docutils literal notranslate"><span class="pre">tensorflow</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#onnx-onnx" id="id45">ONNX (<code class="docutils literal notranslate"><span class="pre">onnx</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#mxnet-gluon-gluon" id="id46">MXNet Gluon (<code class="docutils literal notranslate"><span class="pre">gluon</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#xgboost-xgboost" id="id47">XGBoost (<code class="docutils literal notranslate"><span class="pre">xgboost</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#lightgbm-lightgbm" id="id48">LightGBM (<code class="docutils literal notranslate"><span class="pre">lightgbm</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#catboost-catboost" id="id49">CatBoost (<code class="docutils literal notranslate"><span class="pre">catboost</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#spacy-spacy" id="id50">Spacy(<code class="docutils literal notranslate"><span class="pre">spaCy</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#fastai-fastai" id="id51">Fastai(<code class="docutils literal notranslate"><span class="pre">fastai</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#statsmodels-statsmodels" id="id52">Statsmodels (<code class="docutils literal notranslate"><span class="pre">statsmodels</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#prophet-prophet" id="id53">Prophet (<code class="docutils literal notranslate"><span class="pre">prophet</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#pmdarima-pmdarima" id="id54">Pmdarima (<code class="docutils literal notranslate"><span class="pre">pmdarima</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#openai-openai-experimental" id="id55">OpenAI (<code class="docutils literal notranslate"><span class="pre">openai</span></code>) (Experimental)</a></p></li>
+<li><p><a class="reference internal" href="#langchain-langchain-experimental" id="id56">LangChain (<code class="docutils literal notranslate"><span class="pre">langchain</span></code>) (Experimental)</a></p></li>
+<li><p><a class="reference internal" href="#john-snow-labs-johnsnowlabs-experimental" id="id57">John Snow Labs (<code class="docutils literal notranslate"><span class="pre">johnsnowlabs</span></code>) (Experimental)</a></p></li>
+<li><p><a class="reference internal" href="#diviner-diviner" id="id58">Diviner (<code class="docutils literal notranslate"><span class="pre">diviner</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#transformers-transformers-experimental" id="id59">Transformers (<code class="docutils literal notranslate"><span class="pre">transformers</span></code>) (Experimental)</a></p></li>
 </ul>
 </div>
 <div class="section" id="python-function-python-function">
-<span id="pyfunc-model-flavor"></span><h3><a class="toc-backref" href="#id35">Python Function (<code class="docutils literal notranslate"><span class="pre">python_function</span></code>)</a><a class="headerlink" href="#python-function-python-function" title="Permalink to this headline"> </a></h3>
+<span id="pyfunc-model-flavor"></span><h3><a class="toc-backref" href="#id36">Python Function (<code class="docutils literal notranslate"><span class="pre">python_function</span></code>)</a><a class="headerlink" href="#python-function-python-function" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">python_function</span></code> model flavor serves as a default model interface for MLflow Python models.
 Any MLflow Python model is expected to be loadable as a <code class="docutils literal notranslate"><span class="pre">python_function</span></code> model. This enables
 other MLflow tools to work with any python model regardless of which persistence module or
@@ -964,7 +972,7 @@ during training.</p>
 </div>
 </div>
 <div class="section" id="r-function-crate">
-<h3><a class="toc-backref" href="#id36">R Function (<code class="docutils literal notranslate"><span class="pre">crate</span></code>)</a><a class="headerlink" href="#r-function-crate" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id37">R Function (<code class="docutils literal notranslate"><span class="pre">crate</span></code>)</a><a class="headerlink" href="#r-function-crate" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">crate</span></code> model flavor defines a generic model format for representing an arbitrary R prediction
 function as an MLflow model using the <code class="docutils literal notranslate"><span class="pre">crate</span></code> function from the
 <a class="reference external" href="https://github.com/r-lib/carrier">carrier</a> package. The prediction function is expected to take a dataframe as input and
@@ -1004,7 +1012,7 @@ produce a dataframe, a vector or a list with the predictions as output.</p>
 </div>
 </div>
 <div class="section" id="h2o-h2o">
-<h3><a class="toc-backref" href="#id37">H<sub>2</sub>O (<code class="docutils literal notranslate"><span class="pre">h2o</span></code>)</a><a class="headerlink" href="#h2o-h2o" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id38">H<sub>2</sub>O (<code class="docutils literal notranslate"><span class="pre">h2o</span></code>)</a><a class="headerlink" href="#h2o-h2o" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">h2o</span></code> model flavor enables logging and loading H2O models.</p>
 <p>The <a class="reference internal" href="python_api/mlflow.h2o.html#module-mlflow.h2o" title="mlflow.h2o"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.h2o</span></code></a> module defines <a class="reference internal" href="python_api/mlflow.h2o.html#mlflow.h2o.save_model" title="mlflow.h2o.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_model()</span></code></a> and
 <a class="reference internal" href="python_api/mlflow.h2o.html#mlflow.h2o.log_model" title="mlflow.h2o.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">log_model()</span></code></a> methods in python, and
@@ -1082,7 +1090,7 @@ environment. You can customize the arguments given to
 </div>
 </div>
 <div class="section" id="keras-keras">
-<span id="tf-keras-example"></span><h3><a class="toc-backref" href="#id38">Keras (<code class="docutils literal notranslate"><span class="pre">keras</span></code>)</a><a class="headerlink" href="#keras-keras" title="Permalink to this headline"> </a></h3>
+<span id="tf-keras-example"></span><h3><a class="toc-backref" href="#id39">Keras (<code class="docutils literal notranslate"><span class="pre">keras</span></code>)</a><a class="headerlink" href="#keras-keras" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">keras</span></code> model flavor enables logging and loading Keras models. It is available in both Python
 and R clients. In R, you can save or log the model using
 <a class="reference external" href="R-api.rst#mlflow-save-model">mlflow_save_model</a> and <a class="reference external" href="R-api.rst#mlflow-log-model">mlflow_log_model</a>.
@@ -1129,7 +1137,7 @@ with the <code class="docutils literal notranslate"><span class="pre">keras</spa
 </div>
 </div>
 <div class="section" id="mleap-mleap">
-<h3><a class="toc-backref" href="#id39">MLeap (<code class="docutils literal notranslate"><span class="pre">mleap</span></code>)</a><a class="headerlink" href="#mleap-mleap" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id40">MLeap (<code class="docutils literal notranslate"><span class="pre">mleap</span></code>)</a><a class="headerlink" href="#mleap-mleap" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">mleap</span></code> model flavor supports saving Spark models in MLflow format using the
 <a class="reference external" href="https://combust.github.io/mleap-docs/">MLeap</a> persistence mechanism. MLeap is an inference-optimized
 format and execution engine for Spark models that does not depend on
@@ -1156,7 +1164,7 @@ inference.</p>
 <a class="reference external" href="https://combust.github.io/mleap-docs/">MLeap documentation</a>.</p>
 </div>
 <div class="section" id="pytorch-pytorch">
-<h3><a class="toc-backref" href="#id40">PyTorch (<code class="docutils literal notranslate"><span class="pre">pytorch</span></code>)</a><a class="headerlink" href="#pytorch-pytorch" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id41">PyTorch (<code class="docutils literal notranslate"><span class="pre">pytorch</span></code>)</a><a class="headerlink" href="#pytorch-pytorch" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">pytorch</span></code> model flavor enables logging and loading PyTorch models.</p>
 <p>The <a class="reference internal" href="python_api/mlflow.pytorch.html#module-mlflow.pytorch" title="mlflow.pytorch"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.pytorch</span></code></a> module defines utilities for saving and loading MLflow Models with the
 <code class="docutils literal notranslate"><span class="pre">pytorch</span></code> flavor. You can use the <a class="reference internal" href="python_api/mlflow.pytorch.html#mlflow.pytorch.save_model" title="mlflow.pytorch.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.pytorch.save_model()</span></code></a> and
@@ -1185,7 +1193,7 @@ logging multiple copies of the same model.</p>
 <p>For a minimal PyTorch model, an example configuration for the pyfunc predict() method is:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
 
@@ -1221,7 +1229,7 @@ logging multiple copies of the same model.</p>
 </div>
 </div>
 <div class="section" id="scikit-learn-sklearn">
-<h3><a class="toc-backref" href="#id41">Scikit-learn (<code class="docutils literal notranslate"><span class="pre">sklearn</span></code>)</a><a class="headerlink" href="#scikit-learn-sklearn" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id42">Scikit-learn (<code class="docutils literal notranslate"><span class="pre">sklearn</span></code>)</a><a class="headerlink" href="#scikit-learn-sklearn" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">sklearn</span></code> model flavor provides an easy-to-use interface for saving and loading scikit-learn
 models. The <a class="reference internal" href="python_api/mlflow.sklearn.html#module-mlflow.sklearn" title="mlflow.sklearn"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.sklearn</span></code></a> module defines
 <a class="reference internal" href="python_api/mlflow.sklearn.html#mlflow.sklearn.save_model" title="mlflow.sklearn.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_model()</span></code></a> and
@@ -1236,7 +1244,7 @@ scikit-learn model objects.</p>
 <h4>Scikit-learn pyfunc usage<a class="headerlink" href="#scikit-learn-pyfunc-usage" title="Permalink to this headline"> </a></h4>
 <p>For a Scikit-learn LogisticRegression model, an example configuration for the pyfunc predict() method is:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
 
@@ -1262,7 +1270,7 @@ scikit-learn model objects.</p>
 </div>
 </div>
 <div class="section" id="spark-mllib-spark">
-<span id="model-spark"></span><h3><a class="toc-backref" href="#id42">Spark MLlib (<code class="docutils literal notranslate"><span class="pre">spark</span></code>)</a><a class="headerlink" href="#spark-mllib-spark" title="Permalink to this headline"> </a></h3>
+<span id="model-spark"></span><h3><a class="toc-backref" href="#id43">Spark MLlib (<code class="docutils literal notranslate"><span class="pre">spark</span></code>)</a><a class="headerlink" href="#spark-mllib-spark" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">spark</span></code> model flavor enables exporting Spark MLlib models as MLflow Models.</p>
 <p>The <a class="reference internal" href="python_api/mlflow.spark.html#module-mlflow.spark" title="mlflow.spark"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.spark</span></code></a> module defines</p>
 <ul class="simple">
@@ -1364,7 +1372,7 @@ spark-model/
 </div>
 </div>
 <div class="section" id="tensorflow-tensorflow">
-<h3><a class="toc-backref" href="#id43">TensorFlow (<code class="docutils literal notranslate"><span class="pre">tensorflow</span></code>)</a><a class="headerlink" href="#tensorflow-tensorflow" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id44">TensorFlow (<code class="docutils literal notranslate"><span class="pre">tensorflow</span></code>)</a><a class="headerlink" href="#tensorflow-tensorflow" title="Permalink to this headline"> </a></h3>
 <p>The simple example below shows how to log params and metrics in mlflow for a custom training loop
 using low-level TensorFlow API. See <a class="reference internal" href="#tf-keras-example">tf-keras-example</a>. for an example of mlflow and <code class="docutils literal notranslate"><span class="pre">tf.keras</span></code> models.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -1405,7 +1413,7 @@ using low-level TensorFlow API. See <a class="reference internal" href="#tf-kera
 </div>
 </div>
 <div class="section" id="onnx-onnx">
-<h3><a class="toc-backref" href="#id44">ONNX (<code class="docutils literal notranslate"><span class="pre">onnx</span></code>)</a><a class="headerlink" href="#onnx-onnx" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id45">ONNX (<code class="docutils literal notranslate"><span class="pre">onnx</span></code>)</a><a class="headerlink" href="#onnx-onnx" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">onnx</span></code> model flavor enables logging of <a class="reference external" href="http://onnx.ai/">ONNX models</a> in MLflow format via
 the <a class="reference internal" href="python_api/mlflow.onnx.html#mlflow.onnx.save_model" title="mlflow.onnx.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.onnx.save_model()</span></code></a> and <a class="reference internal" href="python_api/mlflow.onnx.html#mlflow.onnx.log_model" title="mlflow.onnx.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.onnx.log_model()</span></code></a> methods. These
 methods also add the <code class="docutils literal notranslate"><span class="pre">python_function</span></code> flavor to the MLflow Models that they produce, allowing the
@@ -1422,7 +1430,7 @@ Models with the <code class="docutils literal notranslate"><span class="pre">onn
 converts it to ONNX, logs to mlflow and makes a prediction using pyfunc predict() method is:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 <span class="kn">import</span> <span class="nn">onnx</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
@@ -1465,7 +1473,7 @@ converts it to ONNX, logs to mlflow and makes a prediction using pyfunc predict(
 </div>
 </div>
 <div class="section" id="mxnet-gluon-gluon">
-<h3><a class="toc-backref" href="#id45">MXNet Gluon (<code class="docutils literal notranslate"><span class="pre">gluon</span></code>)</a><a class="headerlink" href="#mxnet-gluon-gluon" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id46">MXNet Gluon (<code class="docutils literal notranslate"><span class="pre">gluon</span></code>)</a><a class="headerlink" href="#mxnet-gluon-gluon" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">gluon</span></code> model flavor enables logging of <a class="reference external" href="https://mxnet.incubator.apache.org/api/python/docs/api/gluon/index.html">Gluon models</a> in MLflow format via
 the <a class="reference internal" href="python_api/mlflow.gluon.html#mlflow.gluon.save_model" title="mlflow.gluon.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.gluon.save_model()</span></code></a> and <a class="reference internal" href="python_api/mlflow.gluon.html#mlflow.gluon.log_model" title="mlflow.gluon.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.gluon.log_model()</span></code></a> methods. These
 methods also add the <code class="docutils literal notranslate"><span class="pre">python_function</span></code> flavor to the MLflow Models that they produce, allowing the
@@ -1609,7 +1617,7 @@ method to load MLflow Models with the <code class="docutils literal notranslate"
 </div>
 </div>
 <div class="section" id="xgboost-xgboost">
-<h3><a class="toc-backref" href="#id46">XGBoost (<code class="docutils literal notranslate"><span class="pre">xgboost</span></code>)</a><a class="headerlink" href="#xgboost-xgboost" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id47">XGBoost (<code class="docutils literal notranslate"><span class="pre">xgboost</span></code>)</a><a class="headerlink" href="#xgboost-xgboost" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">xgboost</span></code> model flavor enables logging of <a class="reference external" href="https://xgboost.readthedocs.io/en/latest/python/python_api.html#xgboost.Booster">XGBoost models</a>
 in MLflow format via the <a class="reference internal" href="python_api/mlflow.xgboost.html#mlflow.xgboost.save_model" title="mlflow.xgboost.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.xgboost.save_model()</span></code></a> and <a class="reference internal" href="python_api/mlflow.xgboost.html#mlflow.xgboost.log_model" title="mlflow.xgboost.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.xgboost.log_model()</span></code></a> methods in python and <a class="reference external" href="R-api.html#mlflow-save-model-crate">mlflow_save_model</a> and <a class="reference external" href="R-api.html#mlflow-log-model">mlflow_log_model</a> in R respectively.
 These methods also add the <code class="docutils literal notranslate"><span class="pre">python_function</span></code> flavor to the MLflow Models that they produce, allowing the
@@ -1632,7 +1640,7 @@ not models that implement the <a class="reference external" href="https://xgboos
 <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
 <span class="kn">from</span> <span class="nn">xgboost</span> <span class="kn">import</span> <span class="n">XGBClassifier</span>
 <span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">load_iris</span><span class="p">()</span>
 <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
@@ -1666,7 +1674,7 @@ not models that implement the <a class="reference external" href="https://xgboos
 </div>
 </div>
 <div class="section" id="lightgbm-lightgbm">
-<h3><a class="toc-backref" href="#id47">LightGBM (<code class="docutils literal notranslate"><span class="pre">lightgbm</span></code>)</a><a class="headerlink" href="#lightgbm-lightgbm" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id48">LightGBM (<code class="docutils literal notranslate"><span class="pre">lightgbm</span></code>)</a><a class="headerlink" href="#lightgbm-lightgbm" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">lightgbm</span></code> model flavor enables logging of <a class="reference external" href="https://lightgbm.readthedocs.io/en/latest/pythonapi/lightgbm.Booster.html#lightgbm-booster">LightGBM models</a>
 in MLflow format via the <a class="reference internal" href="python_api/mlflow.lightgbm.html#mlflow.lightgbm.save_model" title="mlflow.lightgbm.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.lightgbm.save_model()</span></code></a> and <a class="reference internal" href="python_api/mlflow.lightgbm.html#mlflow.lightgbm.log_model" title="mlflow.lightgbm.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.lightgbm.log_model()</span></code></a> methods.
 These methods also add the <code class="docutils literal notranslate"><span class="pre">python_function</span></code> flavor to the MLflow Models that they produce, allowing the
@@ -1687,7 +1695,7 @@ method to load MLflow Models with the <code class="docutils literal notranslate"
 <span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_iris</span>
 <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
 <span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">load_iris</span><span class="p">()</span>
 
@@ -1731,7 +1739,7 @@ method to load MLflow Models with the <code class="docutils literal notranslate"
 </div>
 </div>
 <div class="section" id="catboost-catboost">
-<h3><a class="toc-backref" href="#id48">CatBoost (<code class="docutils literal notranslate"><span class="pre">catboost</span></code>)</a><a class="headerlink" href="#catboost-catboost" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id49">CatBoost (<code class="docutils literal notranslate"><span class="pre">catboost</span></code>)</a><a class="headerlink" href="#catboost-catboost" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">catboost</span></code> model flavor enables logging of <a class="reference external" href="https://catboost.ai/docs/concepts/python-reference_catboost.html">CatBoost models</a>
 in MLflow format via the <a class="reference internal" href="python_api/mlflow.catboost.html#mlflow.catboost.save_model" title="mlflow.catboost.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.catboost.save_model()</span></code></a> and <a class="reference internal" href="python_api/mlflow.catboost.html#mlflow.catboost.log_model" title="mlflow.catboost.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.catboost.log_model()</span></code></a> methods.
 These methods also add the <code class="docutils literal notranslate"><span class="pre">python_function</span></code> flavor to the MLflow Models that they produce, allowing the
@@ -1743,7 +1751,7 @@ method to load MLflow Models with the <code class="docutils literal notranslate"
 <h4><code class="docutils literal notranslate"><span class="pre">CatBoost</span></code> pyfunc usage<a class="headerlink" href="#catboost-pyfunc-usage" title="Permalink to this headline"> </a></h4>
 <p>For a CatBoost Classifier model, an example configuration for the pyfunc predict() method is:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 <span class="kn">from</span> <span class="nn">catboost</span> <span class="kn">import</span> <span class="n">CatBoostClassifier</span>
 <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
 
@@ -1774,7 +1782,7 @@ method to load MLflow Models with the <code class="docutils literal notranslate"
 </div>
 </div>
 <div class="section" id="spacy-spacy">
-<h3><a class="toc-backref" href="#id49">Spacy(<code class="docutils literal notranslate"><span class="pre">spaCy</span></code>)</a><a class="headerlink" href="#spacy-spacy" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id50">Spacy(<code class="docutils literal notranslate"><span class="pre">spaCy</span></code>)</a><a class="headerlink" href="#spacy-spacy" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">spaCy</span></code> model flavor enables logging of <a class="reference external" href="https://spacy.io/models">spaCy models</a> in MLflow format via
 the <a class="reference internal" href="python_api/mlflow.spacy.html#mlflow.spacy.save_model" title="mlflow.spacy.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.spacy.save_model()</span></code></a> and <a class="reference internal" href="python_api/mlflow.spacy.html#mlflow.spacy.log_model" title="mlflow.spacy.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.spacy.log_model()</span></code></a> methods. Additionally, these
 methods add the <code class="docutils literal notranslate"><span class="pre">python_function</span></code> flavor to the MLflow Models that they produce, allowing the models to be
@@ -1950,7 +1958,7 @@ and eval frequency:</p>
 </div>
 </div>
 <div class="section" id="fastai-fastai">
-<h3><a class="toc-backref" href="#id50">Fastai(<code class="docutils literal notranslate"><span class="pre">fastai</span></code>)</a><a class="headerlink" href="#fastai-fastai" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id51">Fastai(<code class="docutils literal notranslate"><span class="pre">fastai</span></code>)</a><a class="headerlink" href="#fastai-fastai" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">fastai</span></code> model flavor enables logging of <a class="reference external" href="https://docs.fast.ai/learner.html">fastai Learner models</a> in MLflow format via
 the <a class="reference internal" href="python_api/mlflow.fastai.html#mlflow.fastai.save_model" title="mlflow.fastai.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.fastai.save_model()</span></code></a> and <a class="reference internal" href="python_api/mlflow.fastai.html#mlflow.fastai.log_model" title="mlflow.fastai.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.fastai.log_model()</span></code></a> methods. Additionally, these
 methods add the <code class="docutils literal notranslate"><span class="pre">python_function</span></code> flavor to the MLflow Models that they produce, allowing the models to be
@@ -2144,7 +2152,7 @@ using a <code class="docutils literal notranslate"><span class="pre">fastai</spa
 <p>For more information, see <a class="reference internal" href="python_api/mlflow.fastai.html#module-mlflow.fastai" title="mlflow.fastai"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.fastai</span></code></a>.</p>
 </div>
 <div class="section" id="statsmodels-statsmodels">
-<h3><a class="toc-backref" href="#id51">Statsmodels (<code class="docutils literal notranslate"><span class="pre">statsmodels</span></code>)</a><a class="headerlink" href="#statsmodels-statsmodels" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id52">Statsmodels (<code class="docutils literal notranslate"><span class="pre">statsmodels</span></code>)</a><a class="headerlink" href="#statsmodels-statsmodels" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">statsmodels</span></code> model flavor enables logging of <a class="reference external" href="https://www.statsmodels.org/stable/api.html">Statsmodels models</a> in MLflow format via the <a class="reference internal" href="python_api/mlflow.statsmodels.html#mlflow.statsmodels.save_model" title="mlflow.statsmodels.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.statsmodels.save_model()</span></code></a>
 and <a class="reference internal" href="python_api/mlflow.statsmodels.html#mlflow.statsmodels.log_model" title="mlflow.statsmodels.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.statsmodels.log_model()</span></code></a> methods.
 These methods also add the <code class="docutils literal notranslate"><span class="pre">python_function</span></code> flavor to the MLflow Models that they produce, allowing the
@@ -2274,7 +2282,7 @@ from the following statsmodels apis : statsmodels.formula.api and statsmodels.ts
 </div>
 </div>
 <div class="section" id="prophet-prophet">
-<h3><a class="toc-backref" href="#id52">Prophet (<code class="docutils literal notranslate"><span class="pre">prophet</span></code>)</a><a class="headerlink" href="#prophet-prophet" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id53">Prophet (<code class="docutils literal notranslate"><span class="pre">prophet</span></code>)</a><a class="headerlink" href="#prophet-prophet" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">prophet</span></code> model flavor enables logging of <a class="reference external" href="https://facebook.github.io/prophet/">Prophet models</a> in MLflow format via the <a class="reference internal" href="python_api/mlflow.prophet.html#mlflow.prophet.save_model" title="mlflow.prophet.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.prophet.save_model()</span></code></a>
 and <a class="reference internal" href="python_api/mlflow.prophet.html#mlflow.prophet.log_model" title="mlflow.prophet.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.prophet.log_model()</span></code></a> methods.
 These methods also add the <code class="docutils literal notranslate"><span class="pre">python_function</span></code> flavor to the MLflow Models that they produce, allowing the
@@ -2317,7 +2325,7 @@ Peyton Manning’s Wikipedia page for several years. A sample of the dataset is 
 <span class="kn">from</span> <span class="nn">prophet.diagnostics</span> <span class="kn">import</span> <span class="n">cross_validation</span><span class="p">,</span> <span class="n">performance_metrics</span>
 
 <span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 
 <span class="c1"># starts on 2007-12-10, ends on 2016-01-20</span>
 <span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
@@ -2419,7 +2427,7 @@ Peyton Manning’s Wikipedia page for several years. A sample of the dataset is 
 </div>
 </div>
 <div class="section" id="pmdarima-pmdarima">
-<span id="pmdarima-flavor"></span><h3><a class="toc-backref" href="#id53">Pmdarima (<code class="docutils literal notranslate"><span class="pre">pmdarima</span></code>)</a><a class="headerlink" href="#pmdarima-pmdarima" title="Permalink to this headline"> </a></h3>
+<span id="pmdarima-flavor"></span><h3><a class="toc-backref" href="#id54">Pmdarima (<code class="docutils literal notranslate"><span class="pre">pmdarima</span></code>)</a><a class="headerlink" href="#pmdarima-pmdarima" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">pmdarima</span></code> model flavor enables logging of <a class="reference external" href="http://alkaline-ml.com/pmdarima/">pmdarima models</a> in MLflow
 format via the <a class="reference internal" href="python_api/mlflow.pmdarima.html#mlflow.pmdarima.save_model" title="mlflow.pmdarima.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.pmdarima.save_model()</span></code></a> and <a class="reference internal" href="python_api/mlflow.pmdarima.html#mlflow.pmdarima.log_model" title="mlflow.pmdarima.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.pmdarima.log_model()</span></code></a> methods.
 These methods also add the <code class="docutils literal notranslate"><span class="pre">python_function</span></code> flavor to the MLflow Models that they produce, allowing the
@@ -2552,7 +2560,7 @@ a recognized signature type.</p>
 </div>
 </div>
 <div class="section" id="openai-openai-experimental">
-<h3><a class="toc-backref" href="#id54">OpenAI (<code class="docutils literal notranslate"><span class="pre">openai</span></code>) (Experimental)</a><a class="headerlink" href="#openai-openai-experimental" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id55">OpenAI (<code class="docutils literal notranslate"><span class="pre">openai</span></code>) (Experimental)</a><a class="headerlink" href="#openai-openai-experimental" title="Permalink to this headline"> </a></h3>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">openai</span></code> flavor is in active development and is marked as Experimental. Public APIs may change and new features are
@@ -2735,7 +2743,7 @@ Model with the <code class="docutils literal notranslate"><span class="pre">open
 </div>
 </div>
 <div class="section" id="langchain-langchain-experimental">
-<h3><a class="toc-backref" href="#id55">LangChain (<code class="docutils literal notranslate"><span class="pre">langchain</span></code>) (Experimental)</a><a class="headerlink" href="#langchain-langchain-experimental" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id56">LangChain (<code class="docutils literal notranslate"><span class="pre">langchain</span></code>) (Experimental)</a><a class="headerlink" href="#langchain-langchain-experimental" title="Permalink to this headline"> </a></h3>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">langchain</span></code> flavor is in active development and is marked as Experimental. Public APIs may change and new features are
@@ -2808,8 +2816,125 @@ Model with the <code class="docutils literal notranslate"><span class="pre">lang
 </pre></div>
 </div>
 </div>
+<div class="section" id="john-snow-labs-johnsnowlabs-experimental">
+<h3><a class="toc-backref" href="#id57">John Snow Labs (<code class="docutils literal notranslate"><span class="pre">johnsnowlabs</span></code>) (Experimental)</a><a class="headerlink" href="#john-snow-labs-johnsnowlabs-experimental" title="Permalink to this headline"> </a></h3>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">johnsnowlabs</span></code> flavor is in active development and is marked as Experimental. Public APIs may change and new features are
+subject to be added as additional functionality is brought to the flavor.</p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">johnsnowlabs</span></code> model flavor gives you access to <a class="reference external" href="https://nlp.johnsnowlabs.com/models">20.000+ state-of-the-art enterprise NLP models in 200+ languages</a> for medical, finance, legal and many more domains.</p>
+<p>You can use <a class="reference internal" href="python_api/mlflow.johnsnowlabs.html#mlflow.johnsnowlabs.log_model" title="mlflow.johnsnowlabs.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.johnsnowlabs.log_model()</span></code></a> to log and export your model as
+<a class="reference internal" href="python_api/mlflow.pyfunc.html#mlflow.pyfunc.PyFuncModel" title="mlflow.pyfunc.PyFuncModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlflow.pyfunc.PyFuncModel</span></code></a>.</p>
+<p>This enables you to integrate <a class="reference external" href="https://nlp.johnsnowlabs.com/models">any John Snow Labs model</a>
+into the MLflow framework. You can easily deploy your models for inference with MLflows serve functionalities.
+Models are interpreted as a generic Python function for inference via <a class="reference internal" href="python_api/mlflow.pyfunc.html#mlflow.pyfunc.load_model" title="mlflow.pyfunc.load_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.pyfunc.load_model()</span></code></a>.
+You can also use the <a class="reference internal" href="python_api/mlflow.johnsnowlabs.html#mlflow.johnsnowlabs.load_model" title="mlflow.johnsnowlabs.load_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.johnsnowlabs.load_model()</span></code></a> function to load a saved or logged MLflow
+Model with the <code class="docutils literal notranslate"><span class="pre">johnsnowlabs</span></code> flavor from an stored artifact.</p>
+<p>Features include: LLM’s, Text Summarization, Question Answering, Named Entity Recognition, Relation
+Extraction, Sentiment Analysis, Spell Checking, Image Classification, Automatic Speech Recognition and much more,
+powered by the latest Transformer Architectures. The models are provided by <a class="reference external" href="https://www.johnsnowlabs.com/">John Snow Labs</a> and requires a <a class="reference external" href="https://www.johnsnowlabs.com/">John Snow Labs</a>
+Enterprise NLP License. <a class="reference external" href="https://www.johnsnowlabs.com/schedule-a-demo/">You can reach out to us</a>
+for a research or industry license.</p>
+<p>Example: Export a John Snow Labs to MLflow format</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">johnsnowlabs</span> <span class="kn">import</span> <span class="n">nlp</span>
+
+<span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">from</span> <span class="nn">mlflow.pyfunc</span> <span class="kn">import</span> <span class="n">spark_udf</span>
+
+<span class="c1"># 1) Write your raw license.json string into the &#39;JOHNSNOWLABS_LICENSE_JSON&#39; env variable for MLflow</span>
+<span class="n">creds</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;AWS_ACCESS_KEY_ID&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;AWS_SECRET_ACCESS_KEY&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SPARK_NLP_LICENSE&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SECRET&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;JOHNSNOWLABS_LICENSE_JSON&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">creds</span><span class="p">)</span>
+
+<span class="c1"># 2) Install enterprise libraries</span>
+<span class="n">nlp</span><span class="o">.</span><span class="n">install</span><span class="p">()</span>
+<span class="c1"># 3) Start a Spark session with enterprise libraries</span>
+<span class="n">spark</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="c1"># 4) Load a model and test it</span>
+<span class="n">nlu_model</span> <span class="o">=</span> <span class="s2">&quot;en.classify.bert_sequence.covid_sentiment&quot;</span>
+<span class="n">model_save_path</span> <span class="o">=</span> <span class="s2">&quot;my_model&quot;</span>
+<span class="n">johnsnowlabs_model</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">nlu_model</span><span class="p">)</span>
+<span class="n">johnsnowlabs_model</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s2">&quot;I hate COVID,&quot;</span><span class="p">,</span> <span class="s2">&quot;I love COVID&quot;</span><span class="p">])</span>
+
+<span class="c1"># 5) Export model with pyfunc and johnsnowlabs flavors</span>
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
+    <span class="n">model_info</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">johnsnowlabs</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span><span class="n">johnsnowlabs_model</span><span class="p">,</span> <span class="n">model_save_path</span><span class="p">)</span>
+
+<span class="c1"># 6) Load model with johnsnowlabs flavor</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">johnsnowlabs</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_uri</span><span class="p">)</span>
+
+<span class="c1"># 7) Load model with pyfunc flavor</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_save_path</span><span class="p">)</span>
+
+<span class="n">pandas_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Hello World&quot;</span><span class="p">]})</span>
+<span class="n">spark_df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">pandas_df</span><span class="p">)</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">pyfunc_udf</span> <span class="o">=</span> <span class="n">spark_udf</span><span class="p">(</span>
+    <span class="n">spark</span><span class="o">=</span><span class="n">spark</span><span class="p">,</span>
+    <span class="n">model_uri</span><span class="o">=</span><span class="n">model_save_path</span><span class="p">,</span>
+    <span class="n">env_manager</span><span class="o">=</span><span class="s2">&quot;virtualenv&quot;</span><span class="p">,</span>
+    <span class="n">result_type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">new_df</span> <span class="o">=</span> <span class="n">spark_df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span> <span class="n">pyfunc_udf</span><span class="p">(</span><span class="o">*</span><span class="n">pandas_df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+
+<span class="c1"># 9) You can now use the mlflow models serve command to serve the model see next section</span>
+
+<span class="c1"># 10)  You can also use x command to deploy model inside of a container see next section</span>
+</pre></div>
+</div>
+<div class="section" id="to-deploy-the-john-snow-labs-model-as-a-container">
+<h4>To deploy the John Snow Labs model as a container<a class="headerlink" href="#to-deploy-the-john-snow-labs-model-as-a-container" title="Permalink to this headline"> </a></h4>
+<ol class="arabic simple">
+<li><p>Start the Docker Container</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>-p<span class="w"> </span><span class="m">5001</span>:8080<span class="w"> </span>-e<span class="w"> </span><span class="nv">JOHNSNOWLABS_LICENSE_JSON</span><span class="o">=</span>your_json_string<span class="w"> </span><span class="s2">&quot;mlflow-pyfunc&quot;</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Query server</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>http://127.0.0.1:5001/invocations<span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">  &quot;dataframe_split&quot;: {</span>
+<span class="s1">      &quot;columns&quot;: [&quot;text&quot;],</span>
+<span class="s1">      &quot;data&quot;: [[&quot;I hate covid&quot;], [&quot;I love covid&quot;]]</span>
+<span class="s1">  }</span>
+<span class="s1">}&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="to-deploy-the-john-snow-labs-model-without-a-container">
+<h4>To deploy the John Snow Labs model without a container<a class="headerlink" href="#to-deploy-the-john-snow-labs-model-without-a-container" title="Permalink to this headline"> </a></h4>
+<ol class="arabic simple">
+<li><p>Export env variable and start server</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">JOHNSNOWLABS_LICENSE_JSON</span><span class="o">=</span>your_json_string
+mlflow<span class="w"> </span>models<span class="w"> </span>serve<span class="w"> </span>-m<span class="w"> </span>&lt;model_uri&gt;
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Query server</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>http://127.0.0.1:5000/invocations<span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">  &quot;dataframe_split&quot;: {</span>
+<span class="s1">      &quot;columns&quot;: [&quot;text&quot;],</span>
+<span class="s1">      &quot;data&quot;: [[&quot;I hate covid&quot;], [&quot;I love covid&quot;]]</span>
+<span class="s1">  }</span>
+<span class="s1">}&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
 <div class="section" id="diviner-diviner">
-<h3><a class="toc-backref" href="#id56">Diviner (<code class="docutils literal notranslate"><span class="pre">diviner</span></code>)</a><a class="headerlink" href="#diviner-diviner" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id58">Diviner (<code class="docutils literal notranslate"><span class="pre">diviner</span></code>)</a><a class="headerlink" href="#diviner-diviner" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">diviner</span></code> model flavor enables logging of
 <a class="reference external" href="https://databricks-diviner.readthedocs.io/en/latest/index.html">diviner models</a> in MLflow format via the
 <a class="reference internal" href="python_api/mlflow.diviner.html#mlflow.diviner.save_model" title="mlflow.diviner.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.diviner.save_model()</span></code></a> and <a class="reference internal" href="python_api/mlflow.diviner.html#mlflow.diviner.log_model" title="mlflow.diviner.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.diviner.log_model()</span></code></a> methods. These methods also add the
@@ -3095,7 +3220,7 @@ will cause an <code class="docutils literal notranslate"><span class="pre">Mlflo
 </div>
 </div>
 <div class="section" id="transformers-transformers-experimental">
-<h3><a class="toc-backref" href="#id57">Transformers (<code class="docutils literal notranslate"><span class="pre">transformers</span></code>) (Experimental)</a><a class="headerlink" href="#transformers-transformers-experimental" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id59">Transformers (<code class="docutils literal notranslate"><span class="pre">transformers</span></code>) (Experimental)</a><a class="headerlink" href="#transformers-transformers-experimental" title="Permalink to this headline"> </a></h3>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">transformers</span></code> flavor is in active development and is marked as Experimental. Public APIs may change and new features are
@@ -3525,7 +3650,7 @@ The default signature input value type of <code class="docutils literal notransl
 to be thrown from the serving process stating that the soundfile is corrupt.</p>
 </div>
 <p>An example of specifying an appropriate uri-based input model signature for an audio model is shown below:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 <span class="kn">from</span> <span class="nn">mlflow.transformers</span> <span class="kn">import</span> <span class="n">generate_signature_output</span>
 
 <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://www.mywebsite.com/sound/files/for/transcription/file111.mp3&quot;</span>
@@ -3562,12 +3687,12 @@ or the other as an allowed input type.</p>
 </div>
 </div>
 <div class="section" id="model-evaluation">
-<span id="id11"></span><h2><a class="toc-backref" href="#id30">Model Evaluation</a><a class="headerlink" href="#model-evaluation" title="Permalink to this headline"> </a></h2>
+<span id="id12"></span><h2><a class="toc-backref" href="#id31">Model Evaluation</a><a class="headerlink" href="#model-evaluation" title="Permalink to this headline"> </a></h2>
 <p>After building and training your MLflow Model, you can use the <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a> API to
 evaluate its performance on one or more datasets of your choosing. <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a>
 currently supports evaluation of MLflow Models with the
-<a class="reference internal" href="#pyfunc-model-flavor"><span class="std std-ref">python_function (pyfunc) model flavor</span></a> for classification and regression
-tasks, computing a variety of task-specific performance metrics, model performance plots, and
+<a class="reference internal" href="#pyfunc-model-flavor"><span class="std std-ref">python_function (pyfunc) model flavor</span></a> for classification, regression, and numerous language modeling tasks (see <a class="reference internal" href="#model-evaluation-llms"><span class="std std-ref">Evaluating with LLMs</span></a>), computing a variety of
+task-specific performance metrics, model performance plots, and
 model explanations. Evaluation results are logged to <a class="reference internal" href="tracking.html#tracking"><span class="std std-ref">MLflow Tracking</span></a>.</p>
 <p>The following <a class="reference external" href="https://github.com/mlflow/mlflow/blob/master/examples/evaluation/evaluate_on_binary_classifier.py">example from the MLflow GitHub Repository</a>
 uses <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a> to evaluate the performance of a classifier
@@ -3577,7 +3702,7 @@ and behavior:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xgboost</span>
 <span class="kn">import</span> <span class="nn">shap</span>
 <span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
 
 <span class="c1"># Load the UCI Adult Dataset</span>
@@ -3614,6 +3739,75 @@ and behavior:</p>
 </pre></div>
 </div>
 <p><a class="reference internal" href="_images/model_evaluation_metrics.png"><img alt="eval_metrics_img" src="_images/model_evaluation_metrics.png" style="width: 15%;" /></a> <a class="reference internal" href="_images/model_evaluation_feature_importance.png"><img alt="eval_importance_img" src="_images/model_evaluation_feature_importance.png" style="width: 84%;" /></a></p>
+<div class="section" id="evaluating-with-llms">
+<span id="model-evaluation-llms"></span><h3>Evaluating with LLMs<a class="headerlink" href="#evaluating-with-llms" title="Permalink to this headline"> </a></h3>
+<p>As of MLflow 2.4.0, <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a> has built-in support for a variety of tasks with
+LLMs, including text summarization, text classification, question answering, and text generation.
+The following example uses <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a> to evaluate a model that answers
+questions about MLflow (note that you must have the <code class="docutils literal notranslate"><span class="pre">OPENAI_API_TOKEN</span></code> environment variable set
+in your current system environment in order to run the example):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">import</span> <span class="nn">openai</span>
+
+<span class="c1"># Create a question answering model using prompt engineering with OpenAI. Log the</span>
+<span class="c1"># prompt and the model to MLflow Tracking</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span>
+<span class="n">system_prompt</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;Your job is to answer questions about MLflow. When you are asked a question about MLflow,&quot;</span>
+    <span class="s2">&quot; respond to it. Make sure to include code examples. If the question is not related to&quot;</span>
+    <span class="s2">&quot; MLflow, refuse to answer and say that the question is unrelated.&quot;</span>
+<span class="p">)</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">log_param</span><span class="p">(</span><span class="s2">&quot;system_prompt&quot;</span><span class="p">,</span> <span class="n">system_prompt</span><span class="p">)</span>
+<span class="n">logged_model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">openai</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">,</span>
+    <span class="n">task</span><span class="o">=</span><span class="n">openai</span><span class="o">.</span><span class="n">ChatCompletion</span><span class="p">,</span>
+    <span class="n">artifact_path</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">system_prompt</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{question}</span><span class="s2">&quot;</span><span class="p">},</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># Evaluate the model on some example questions</span>
+<span class="n">questions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;How do you create a run with MLflow?&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;How do you log a model with MLflow?&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;What is the capital of France?&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">logged_model</span><span class="o">.</span><span class="n">model_uri</span><span class="p">,</span>
+    <span class="n">model_type</span><span class="o">=</span><span class="s2">&quot;question-answering&quot;</span><span class="p">,</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">questions</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Load and inspect the evaluation results</span>
+<span class="n">results</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">load_table</span><span class="p">(</span>
+    <span class="s2">&quot;eval_results_table.json&quot;</span><span class="p">,</span> <span class="n">extra_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;run_id&quot;</span><span class="p">,</span> <span class="s2">&quot;params.system_prompt&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Evaluation results:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>MLflow also provides an Artifact View UI for comparing inputs and outputs across multiple models
+built with LLMs. For example, after evaluating multiple prompts for question answering
+(see the
+<a class="reference external" href="https://github.com/mlflow/mlflow/tree/master/examples/llms/openai">MLflow OpenAI question answering full example</a>), you can navigate to the Artifact View to view the questions and compare the answers for
+each model:</p>
+<img alt="_images/artifact-view-ui.png" src="_images/artifact-view-ui.png" />
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line"><br /></div>
+</div>
+<p>For additional examples demonstrating the use of <code class="docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code> with LLMs, check out the
+<a class="reference external" href="https://github.com/mlflow/mlflow/tree/master/examples/llms">MLflow LLMs example repository</a>.</p>
+</div>
 <div class="section" id="evaluating-with-custom-metrics">
 <h3>Evaluating with Custom Metrics<a class="headerlink" href="#evaluating-with-custom-metrics" title="Permalink to this headline"> </a></h3>
 <p>If the default set of metrics is insufficient, you can supply <code class="docutils literal notranslate"><span class="pre">custom_metrics</span></code> and <code class="docutils literal notranslate"><span class="pre">custom_artifacts</span></code>
@@ -3627,7 +3821,7 @@ uses <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate"
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">make_metric</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
@@ -3724,7 +3918,7 @@ will throw a <code class="docutils literal notranslate"><span class="pre">ModelV
 <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
 <span class="kn">from</span> <span class="nn">sklearn.dummy</span> <span class="kn">import</span> <span class="n">DummyClassifier</span>
 <span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">MetricThreshold</span>
 
 <span class="c1"># load UCI Adult Data Set; segment it into training and test sets</span>
@@ -3827,7 +4021,7 @@ or binary classification) are unified in the single metric: <code class="docutil
 </div>
 </div>
 <div class="section" id="model-customization">
-<h2><a class="toc-backref" href="#id31">Model Customization</a><a class="headerlink" href="#model-customization" title="Permalink to this headline"> </a></h2>
+<h2><a class="toc-backref" href="#id32">Model Customization</a><a class="headerlink" href="#model-customization" title="Permalink to this headline"> </a></h2>
 <p>While MLflow’s built-in model persistence utilities are convenient for packaging models from various
 popular ML libraries in MLflow Model format, they do not cover every use case. For example, you may
 want to use a model from an ML library that is not explicitly supported by MLflow’s built-in
@@ -3837,22 +4031,22 @@ tasks: <a class="reference internal" href="#custom-python-models"><span class="s
 <div class="contents local topic" id="in-this-section">
 <p class="topic-title">In this section:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#custom-python-models" id="id58">Custom Python Models</a></p>
+<li><p><a class="reference internal" href="#custom-python-models" id="id60">Custom Python Models</a></p>
 <ul>
-<li><p><a class="reference internal" href="#example-creating-a-custom-add-n-model" id="id59">Example: Creating a custom “add n” model</a></p></li>
-<li><p><a class="reference internal" href="#example-saving-an-xgboost-model-in-mlflow-format" id="id60">Example: Saving an XGBoost model in MLflow format</a></p></li>
+<li><p><a class="reference internal" href="#example-creating-a-custom-add-n-model" id="id61">Example: Creating a custom “add n” model</a></p></li>
+<li><p><a class="reference internal" href="#example-saving-an-xgboost-model-in-mlflow-format" id="id62">Example: Saving an XGBoost model in MLflow format</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#custom-flavors" id="id61">Custom Flavors</a></p>
+<li><p><a class="reference internal" href="#custom-flavors" id="id63">Custom Flavors</a></p>
 <ul>
-<li><p><a class="reference internal" href="#example-creating-a-custom-sktime-flavor" id="id62">Example: Creating a custom “sktime” flavor</a></p></li>
-<li><p><a class="reference internal" href="#example-using-the-custom-sktime-flavor" id="id63">Example: Using the custom “sktime” flavor</a></p></li>
+<li><p><a class="reference internal" href="#example-creating-a-custom-sktime-flavor" id="id64">Example: Creating a custom “sktime” flavor</a></p></li>
+<li><p><a class="reference internal" href="#example-using-the-custom-sktime-flavor" id="id65">Example: Using the custom “sktime” flavor</a></p></li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="section" id="custom-python-models">
-<span id="id12"></span><h3><a class="toc-backref" href="#id58">Custom Python Models</a><a class="headerlink" href="#custom-python-models" title="Permalink to this headline"> </a></h3>
+<span id="id13"></span><h3><a class="toc-backref" href="#id60">Custom Python Models</a><a class="headerlink" href="#custom-python-models" title="Permalink to this headline"> </a></h3>
 <p>The <a class="reference internal" href="python_api/mlflow.pyfunc.html#module-mlflow.pyfunc" title="mlflow.pyfunc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.pyfunc</span></code></a> module provides <a class="reference internal" href="python_api/mlflow.pyfunc.html#mlflow.pyfunc.save_model" title="mlflow.pyfunc.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_model()</span></code></a> and
 <a class="reference internal" href="python_api/mlflow.pyfunc.html#mlflow.pyfunc.log_model" title="mlflow.pyfunc.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">log_model()</span></code></a> utilities for creating MLflow Models with the
 <code class="docutils literal notranslate"><span class="pre">python_function</span></code> flavor that contain user-specified code and <em>artifact</em> (file) dependencies.
@@ -3865,7 +4059,7 @@ custom Python models. For additional information about model customization with 
 <code class="docutils literal notranslate"><span class="pre">python_function</span></code> utilities, see the
 <a class="reference internal" href="python_api/mlflow.pyfunc.html#pyfunc-create-custom"><span class="std std-ref">python_function custom models documentation</span></a>.</p>
 <div class="section" id="example-creating-a-custom-add-n-model">
-<h4><a class="toc-backref" href="#id59">Example: Creating a custom “add n” model</a><a class="headerlink" href="#example-creating-a-custom-add-n-model" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id61">Example: Creating a custom “add n” model</a><a class="headerlink" href="#example-creating-a-custom-add-n-model" title="Permalink to this headline"> </a></h4>
 <p>This example defines a class for a custom model that adds a specified numeric value, <code class="docutils literal notranslate"><span class="pre">n</span></code>, to all
 columns of a Pandas DataFrame input. Then, it uses the <a class="reference internal" href="python_api/mlflow.pyfunc.html#module-mlflow.pyfunc" title="mlflow.pyfunc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.pyfunc</span></code></a> APIs to save an
 instance of this model with <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">=</span> <span class="pre">5</span></code> in MLflow Model format. Finally, it loads the model in
@@ -3900,7 +4094,7 @@ instance of this model with <code class="docutils literal notranslate"><span cla
 </div>
 </div>
 <div class="section" id="example-saving-an-xgboost-model-in-mlflow-format">
-<h4><a class="toc-backref" href="#id60">Example: Saving an XGBoost model in MLflow format</a><a class="headerlink" href="#example-saving-an-xgboost-model-in-mlflow-format" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id62">Example: Saving an XGBoost model in MLflow format</a><a class="headerlink" href="#example-saving-an-xgboost-model-in-mlflow-format" title="Permalink to this headline"> </a></h4>
 <p>This example begins by training and saving a gradient boosted tree model using the XGBoost
 library. Next, it defines a wrapper class around the XGBoost model that conforms to MLflow’s
 <code class="docutils literal notranslate"><span class="pre">python_function</span></code> <a class="reference internal" href="python_api/mlflow.pyfunc.html#pyfunc-inference-api"><span class="std std-ref">inference API</span></a>. Then, it uses the wrapper class and
@@ -3989,7 +4183,7 @@ evaluate test data.</p>
 </div>
 </div>
 <div class="section" id="custom-flavors">
-<span id="id13"></span><h3><a class="toc-backref" href="#id61">Custom Flavors</a><a class="headerlink" href="#custom-flavors" title="Permalink to this headline"> </a></h3>
+<span id="id14"></span><h3><a class="toc-backref" href="#id63">Custom Flavors</a><a class="headerlink" href="#custom-flavors" title="Permalink to this headline"> </a></h3>
 <p>You can also create custom MLflow Models by writing a custom <em>flavor</em>.</p>
 <p>As discussed in the <a class="reference internal" href="#model-api"><span class="std std-ref">Model API</span></a> and <a class="reference internal" href="#model-storage-format"><span class="std std-ref">Storage Format</span></a> sections, an MLflow Model
 is defined by a directory of files that contains an <code class="docutils literal notranslate"><span class="pre">MLmodel</span></code> configuration file. This <code class="docutils literal notranslate"><span class="pre">MLmodel</span></code>
@@ -4005,7 +4199,7 @@ provided in the
 <a class="reference external" href="community-model-flavors.html">Community Model Flavors</a>
 page.</p>
 <div class="section" id="example-creating-a-custom-sktime-flavor">
-<h4><a class="toc-backref" href="#id62">Example: Creating a custom “sktime” flavor</a><a class="headerlink" href="#example-creating-a-custom-sktime-flavor" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id64">Example: Creating a custom “sktime” flavor</a><a class="headerlink" href="#example-creating-a-custom-sktime-flavor" title="Permalink to this headline"> </a></h4>
 <p>This example illustrates the creation of a custom flavor for
 <a class="reference external" href="https://github.com/sktime/sktime">sktime</a> time series library. The library provides a unified
 interface for multiple learning  tasks including time series forecasting. While the custom flavor in
@@ -4443,7 +4637,7 @@ docstrings.</p>
 </div>
 </div>
 <div class="section" id="example-using-the-custom-sktime-flavor">
-<h4><a class="toc-backref" href="#id63">Example: Using the custom “sktime” flavor</a><a class="headerlink" href="#example-using-the-custom-sktime-flavor" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id65">Example: Using the custom “sktime” flavor</a><a class="headerlink" href="#example-using-the-custom-sktime-flavor" title="Permalink to this headline"> </a></h4>
 <p>This example trains a <code class="docutils literal notranslate"><span class="pre">sktime</span></code> NaiveForecaster model using the Longley dataset for forecasting
 with exogenous variables. It shows a custom model type implementation that logs the training
 hyper-parameters, evaluation metrics and the trained model as an artifact. The <em>single-row</em>
@@ -4583,20 +4777,20 @@ back to <code class="docutils literal notranslate"><span class="pre">numpy</span
 </div>
 </div>
 <div class="section" id="built-in-deployment-tools">
-<span id="built-in-deployment"></span><h2><a class="toc-backref" href="#id32">Built-In Deployment Tools</a><a class="headerlink" href="#built-in-deployment-tools" title="Permalink to this headline"> </a></h2>
+<span id="built-in-deployment"></span><h2><a class="toc-backref" href="#id33">Built-In Deployment Tools</a><a class="headerlink" href="#built-in-deployment-tools" title="Permalink to this headline"> </a></h2>
 <p>MLflow provides tools for deploying MLflow models on a local machine and to several production environments.
 Not all deployment methods are available for all model flavors.</p>
-<div class="contents local topic" id="id15">
+<div class="contents local topic" id="id16">
 <p class="topic-title">In this section:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#local-model-deployment" id="id64">Deploy MLflow models</a></p></li>
-<li><p><a class="reference internal" href="#deploy-a-python-function-model-on-microsoft-azure-ml" id="id65">Deploy a <code class="docutils literal notranslate"><span class="pre">python_function</span></code> model on Microsoft Azure ML</a></p></li>
-<li><p><a class="reference internal" href="#deploy-a-python-function-model-on-amazon-sagemaker" id="id66">Deploy a <code class="docutils literal notranslate"><span class="pre">python_function</span></code> model on Amazon SageMaker</a></p></li>
-<li><p><a class="reference internal" href="#export-a-python-function-model-as-an-apache-spark-udf" id="id67">Export a <code class="docutils literal notranslate"><span class="pre">python_function</span></code> model as an Apache Spark UDF</a></p></li>
+<li><p><a class="reference internal" href="#local-model-deployment" id="id66">Deploy MLflow models</a></p></li>
+<li><p><a class="reference internal" href="#deploy-a-python-function-model-on-microsoft-azure-ml" id="id67">Deploy a <code class="docutils literal notranslate"><span class="pre">python_function</span></code> model on Microsoft Azure ML</a></p></li>
+<li><p><a class="reference internal" href="#deploy-a-python-function-model-on-amazon-sagemaker" id="id68">Deploy a <code class="docutils literal notranslate"><span class="pre">python_function</span></code> model on Amazon SageMaker</a></p></li>
+<li><p><a class="reference internal" href="#export-a-python-function-model-as-an-apache-spark-udf" id="id69">Export a <code class="docutils literal notranslate"><span class="pre">python_function</span></code> model as an Apache Spark UDF</a></p></li>
 </ul>
 </div>
 <div class="section" id="local-model-deployment">
-<span id="id16"></span><h3><a class="toc-backref" href="#id64">Deploy MLflow models</a><a class="headerlink" href="#local-model-deployment" title="Permalink to this headline"> </a></h3>
+<span id="id17"></span><h3><a class="toc-backref" href="#id66">Deploy MLflow models</a><a class="headerlink" href="#local-model-deployment" title="Permalink to this headline"> </a></h3>
 <p>MLflow can deploy models locally as local REST API endpoints or to directly score files. In addition,
 MLflow can package models as self-contained Docker images with the REST API endpoint. The image can
 be used to safely deploy the model to various environments such as Kubernetes.</p>
@@ -4672,7 +4866,7 @@ curl<span class="w"> </span>http://127.0.0.1:5000/invocations<span class="w"> </
 <p>For more information about serializing tensor inputs using the TF serving format, see
 <a class="reference external" href="https://www.tensorflow.org/tfx/serving/api_rest#request_format_2">TF serving’s request format docs</a>.</p>
 <div class="section" id="serving-with-mlserver">
-<span id="id18"></span><h4>Serving with MLServer<a class="headerlink" href="#serving-with-mlserver" title="Permalink to this headline"> </a></h4>
+<span id="id19"></span><h4>Serving with MLServer<a class="headerlink" href="#serving-with-mlserver" title="Permalink to this headline"> </a></h4>
 <p>Python models can be deployed using <a class="reference external" href="https://mlserver.readthedocs.io/en/latest/">Seldon’s MLServer</a> as alternative inference server.
 MLServer is integrated with two leading open source model deployment tools,
 <a class="reference external" href="https://docs.seldon.io/projects/seldon-core/en/latest/graph/protocols.html#v2-kfserving-protocol">Seldon Core</a>
@@ -4704,7 +4898,7 @@ the <a class="reference external" href="https://mlserver.readthedocs.io/en/lates
 visit the <a class="reference external" href="https://mlserver.readthedocs.io/en/latest/">MLServer docs</a>.</p>
 </div>
 <div class="section" id="encoding-complex-data">
-<span id="id19"></span><h4>Encoding complex data<a class="headerlink" href="#encoding-complex-data" title="Permalink to this headline"> </a></h4>
+<span id="id20"></span><h4>Encoding complex data<a class="headerlink" href="#encoding-complex-data" title="Permalink to this headline"> </a></h4>
 <p>Complex data types, such as dates or binary, do not have a native JSON representation. If you include a model
 signature, MLflow can automatically decode supported data types from JSON. The following data type conversions
 are supported:</p>
@@ -4783,7 +4977,7 @@ mlflow<span class="w"> </span>models<span class="w"> </span>serve<span class="w"
 </div>
 </div>
 <div class="section" id="deploy-a-python-function-model-on-microsoft-azure-ml">
-<span id="azureml-deployment"></span><h3><a class="toc-backref" href="#id65">Deploy a <code class="docutils literal notranslate"><span class="pre">python_function</span></code> model on Microsoft Azure ML</a><a class="headerlink" href="#deploy-a-python-function-model-on-microsoft-azure-ml" title="Permalink to this headline"> </a></h3>
+<span id="azureml-deployment"></span><h3><a class="toc-backref" href="#id67">Deploy a <code class="docutils literal notranslate"><span class="pre">python_function</span></code> model on Microsoft Azure ML</a><a class="headerlink" href="#deploy-a-python-function-model-on-microsoft-azure-ml" title="Permalink to this headline"> </a></h3>
 <p>The MLflow plugin <a class="reference external" href="https://pypi.org/project/azureml-mlflow/">azureml-mlflow</a> can deploy models to Azure ML, either to Azure Kubernetes Service (AKS) or Azure Container Instances (ACI) for real-time serving.</p>
 <p>The resulting deployment accepts the following data formats as input:</p>
 <ul class="simple">
@@ -4956,7 +5150,7 @@ mlflow<span class="w"> </span>deployments<span class="w"> </span>create<span cla
 </div>
 </div>
 <div class="section" id="deploy-a-python-function-model-on-amazon-sagemaker">
-<span id="sagemaker-deployment"></span><h3><a class="toc-backref" href="#id66">Deploy a <code class="docutils literal notranslate"><span class="pre">python_function</span></code> model on Amazon SageMaker</a><a class="headerlink" href="#deploy-a-python-function-model-on-amazon-sagemaker" title="Permalink to this headline"> </a></h3>
+<span id="sagemaker-deployment"></span><h3><a class="toc-backref" href="#id68">Deploy a <code class="docutils literal notranslate"><span class="pre">python_function</span></code> model on Amazon SageMaker</a><a class="headerlink" href="#deploy-a-python-function-model-on-amazon-sagemaker" title="Permalink to this headline"> </a></h3>
 <p>The <a class="reference internal" href="python_api/mlflow.deployments.html#module-mlflow.deployments" title="mlflow.deployments"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.deployments</span></code></a> and <a class="reference internal" href="python_api/mlflow.sagemaker.html#module-mlflow.sagemaker" title="mlflow.sagemaker"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.sagemaker</span></code></a> modules can deploy
 <code class="docutils literal notranslate"><span class="pre">python_function</span></code> models locally in a Docker container with SageMaker compatible environment and
 remotely on SageMaker. To deploy remotely to SageMaker you need to set up your environment and user
@@ -5004,7 +5198,7 @@ mlflow<span class="w"> </span>deployments<span class="w"> </span><span class="nb
 </div>
 </div>
 <div class="section" id="export-a-python-function-model-as-an-apache-spark-udf">
-<h3><a class="toc-backref" href="#id67">Export a <code class="docutils literal notranslate"><span class="pre">python_function</span></code> model as an Apache Spark UDF</a><a class="headerlink" href="#export-a-python-function-model-as-an-apache-spark-udf" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id69">Export a <code class="docutils literal notranslate"><span class="pre">python_function</span></code> model as an Apache Spark UDF</a><a class="headerlink" href="#export-a-python-function-model-as-an-apache-spark-udf" title="Permalink to this headline"> </a></h3>
 <p>You can output a <code class="docutils literal notranslate"><span class="pre">python_function</span></code> model as an Apache Spark UDF, which can be uploaded to a
 Spark cluster and used to score the model.</p>
 <p class="rubric">Example</p>
@@ -5122,15 +5316,15 @@ set the <cite>env_manager</cite> argument when calling <a class="reference inter
 </div>
 </div>
 <div class="section" id="deployment-to-custom-targets">
-<span id="deployment-plugin"></span><h2><a class="toc-backref" href="#id33">Deployment to Custom Targets</a><a class="headerlink" href="#deployment-to-custom-targets" title="Permalink to this headline"> </a></h2>
+<span id="deployment-plugin"></span><h2><a class="toc-backref" href="#id34">Deployment to Custom Targets</a><a class="headerlink" href="#deployment-to-custom-targets" title="Permalink to this headline"> </a></h2>
 <p>In addition to the built-in deployment tools, MLflow provides a pluggable
 <a class="reference external" href="python_api/mlflow.deployments.html#mlflow.deployments">mlflow.deployments Python API</a> and
 <a class="reference external" href="cli.html#mlflow-deployments">mlflow deployments CLI</a> for deploying
 models to custom targets and environments. To deploy to a custom target, you must first install an
 appropriate third-party Python plugin. See the list of known community-maintained plugins
 <a class="reference external" href="plugins.html#deployment-plugins">here</a>.</p>
-<div class="section" id="id22">
-<h3>Commands<a class="headerlink" href="#id22" title="Permalink to this headline"> </a></h3>
+<div class="section" id="id23">
+<h3>Commands<a class="headerlink" href="#id23" title="Permalink to this headline"> </a></h3>
 <p>The <cite>mlflow deployments</cite> CLI contains the following commands, which can also be invoked programmatically
 using the <a class="reference external" href="python_api/mlflow.deployments.html#mlflow.deployments">mlflow.deployments Python API</a>:</p>
 <ul class="simple">
@@ -5156,8 +5350,8 @@ mlflow<span class="w"> </span>deployments<span class="w"> </span><span class="nb
 </div>
 </div>
 </div>
-<div class="section" id="id24">
-<h2><a class="toc-backref" href="#id34">Community Model Flavors</a><a class="headerlink" href="#id24" title="Permalink to this headline"> </a></h2>
+<div class="section" id="id25">
+<h2><a class="toc-backref" href="#id35">Community Model Flavors</a><a class="headerlink" href="#id25" title="Permalink to this headline"> </a></h2>
 <p>Go to the <a class="reference external" href="community-model-flavors.html">Community Model Flavors</a>
 page to get an overview of other useful MLflow flavors, which are developed and
 maintained by the MLflow community.</p>
@@ -5202,7 +5396,7 @@ maintained by the MLflow community.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'./',
-      VERSION:'2.3.3.dev0',
+      VERSION:'2.4.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

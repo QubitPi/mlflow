@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.tensorflow &mdash; MLflow 2.3.3.dev0 documentation</title>
+  <title>mlflow.tensorflow &mdash; MLflow 2.4.2.dev0 documentation</title>
   
    
   <link rel="canonical" href="https://mlflow.org/docs/latest/_modules/mlflow/tensorflow.html">
@@ -41,7 +41,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.3.3.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.3.3.dev0</span>
+    <span class="version">2.4.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,6 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../search-runs.html">Search Runs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../search-experiments.html">Search Experiments</a></li>
@@ -208,10 +209,10 @@
 <span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">TensorSpec</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.client</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
-<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">ModelSignature</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.model</span> <span class="kn">import</span> <span class="n">MLMODEL_FILE_NAME</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">ModelSignature</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">_save_example</span>
+<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">_infer_signature_from_input_example</span>
+<span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">_save_example</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="n">_download_artifact_from_uri</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">is_iterator</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.environment</span> <span class="kn">import</span> <span class="p">(</span>
@@ -336,7 +337,7 @@
 <span class="sd">            :caption: Example of creating signature for saving TensorFlow and `tf.Keras` models</span>
 
 <span class="sd">            from mlflow.types.schema import Schema, TensorSpec</span>
-<span class="sd">            from mlflow.models.signature import ModelSignature</span>
+<span class="sd">            from mlflow.models import ModelSignature</span>
 <span class="sd">            import numpy as np</span>
 
 <span class="sd">            input_schema = Schema(</span>
@@ -365,26 +366,8 @@
 <span class="sd">                                  ``registered_model_name``, also creating a registered model if one</span>
 <span class="sd">                                  with the given name does not exist.</span>
 
-<span class="sd">    :param signature: :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
-<span class="sd">                      describes model input and output :py:class:`Schema &lt;mlflow.types.Schema&gt;`.</span>
-<span class="sd">                      The model signature can be :py:func:`inferred &lt;mlflow.models.infer_signature&gt;`</span>
-<span class="sd">                      from datasets with valid model input (e.g. the training dataset with target</span>
-<span class="sd">                      column omitted) and valid model output (e.g. model predictions generated on</span>
-<span class="sd">                      the training dataset), for example:</span>
-
-<span class="sd">                      .. code-block:: python</span>
-
-<span class="sd">                        from mlflow.models.signature import infer_signature</span>
-
-<span class="sd">                        train = df.drop_column(&quot;target_label&quot;)</span>
-<span class="sd">                        predictions = ...  # compute model predictions</span>
-<span class="sd">                        signature = infer_signature(train, predictions)</span>
-<span class="sd">    :param input_example: Input example provides one or several instances of valid</span>
-<span class="sd">                          model input. The example can be used as a hint of what data to feed the</span>
-<span class="sd">                          model. The given example can be a Pandas DataFrame where the given</span>
-<span class="sd">                          example will be serialized to json using the Pandas split-oriented</span>
-<span class="sd">                          format, or a numpy array where the example will be serialized to json</span>
-<span class="sd">                          by converting it to a list. Bytes are base64-encoded.</span>
+<span class="sd">    :param signature: {{ signature }}</span>
+<span class="sd">    :param input_example: {{ input_example }}</span>
 <span class="sd">    :param await_registration_for: Number of seconds to wait for the model version to finish</span>
 <span class="sd">                            being created and is in ``READY`` status. By default, the function</span>
 <span class="sd">                            waits for five minutes. Specify 0 or None to skip waiting.</span>
@@ -457,7 +440,8 @@
         <span class="k">return</span> <span class="n">keras_module</span><span class="o">.</span><span class="n">__version__</span>
 
 
-<div class="viewcode-block" id="save_model"><a class="viewcode-back" href="../../python_api/mlflow.tensorflow.html#mlflow.tensorflow.save_model">[docs]</a><span class="k">def</span> <span class="nf">save_model</span><span class="p">(</span>
+<div class="viewcode-block" id="save_model"><a class="viewcode-back" href="../../python_api/mlflow.tensorflow.html#mlflow.tensorflow.save_model">[docs]</a><span class="nd">@format_docstring</span><span class="p">(</span><span class="n">LOG_MODEL_PARAM_DOCS</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package_name</span><span class="o">=</span><span class="n">FLAVOR_NAME</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">save_model</span><span class="p">(</span>
     <span class="n">model</span><span class="p">,</span>
     <span class="n">path</span><span class="p">,</span>
     <span class="n">conda_env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -488,7 +472,7 @@
 <span class="sd">            :caption: Example of creating signature for saving TensorFlow and `tf.Keras` models</span>
 
 <span class="sd">            from mlflow.types.schema import Schema, TensorSpec</span>
-<span class="sd">            from mlflow.models.signature import ModelSignature</span>
+<span class="sd">            from mlflow.models import ModelSignature</span>
 <span class="sd">            import numpy as np</span>
 
 <span class="sd">            input_schema = Schema(</span>
@@ -514,26 +498,8 @@
 <span class="sd">                           these custom layers using CloudPickle and restores them automatically</span>
 <span class="sd">                           when the model is loaded with :py:func:`mlflow.tensorflow.load_model` and</span>
 <span class="sd">                           :py:func:`mlflow.pyfunc.load_model`.</span>
-<span class="sd">    :param signature: :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
-<span class="sd">                      describes model input and output :py:class:`Schema &lt;mlflow.types.Schema&gt;`.</span>
-<span class="sd">                      The model signature can be :py:func:`inferred &lt;mlflow.models.infer_signature&gt;`</span>
-<span class="sd">                      from datasets with valid model input (e.g. the training dataset with target</span>
-<span class="sd">                      column omitted) and valid model output (e.g. model predictions generated on</span>
-<span class="sd">                      the training dataset), for example:</span>
-
-<span class="sd">                      .. code-block:: python</span>
-
-<span class="sd">                        from mlflow.models.signature import infer_signature</span>
-
-<span class="sd">                        train = df.drop_column(&quot;target_label&quot;)</span>
-<span class="sd">                        predictions = ...  # compute model predictions</span>
-<span class="sd">                        signature = infer_signature(train, predictions)</span>
-<span class="sd">    :param input_example: Input example provides one or several instances of valid</span>
-<span class="sd">                          model input. The example can be used as a hint of what data to feed the</span>
-<span class="sd">                          model. The given example can be a Pandas DataFrame where the given</span>
-<span class="sd">                          example will be serialized to json using the Pandas split-oriented</span>
-<span class="sd">                          format, or a numpy array where the example will be serialized to json</span>
-<span class="sd">                          by converting it to a list. Bytes are base64-encoded.</span>
+<span class="sd">    :param signature: {{ signature }}</span>
+<span class="sd">    :param input_example: {{ input_example }}</span>
 <span class="sd">    :param pip_requirements: {{ pip_requirements }}</span>
 <span class="sd">    :param extra_pip_requirements: {{ extra_pip_requirements }}</span>
 <span class="sd">    :param saved_model_kwargs: a dict of kwargs to pass to ``tensorflow.saved_model.save`` method</span>
@@ -547,6 +513,17 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">tensorflow</span>
     <span class="kn">from</span> <span class="nn">tensorflow.keras.models</span> <span class="kn">import</span> <span class="n">Model</span> <span class="k">as</span> <span class="n">KerasModel</span>
+
+    <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">input_example</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">wrapped_model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">KerasModel</span><span class="p">):</span>
+            <span class="n">wrapped_model</span> <span class="o">=</span> <span class="n">_KerasModelWrapper</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">signature</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">tensorflow</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+            <span class="n">wrapped_model</span> <span class="o">=</span> <span class="n">_TF2ModuleWrapper</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">signature</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wrapped_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">signature</span> <span class="o">=</span> <span class="n">_infer_signature_from_input_example</span><span class="p">(</span><span class="n">input_example</span><span class="p">,</span> <span class="n">wrapped_model</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_NO_MODEL_SIGNATURE_WARNING</span><span class="p">)</span>
@@ -1559,7 +1536,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.3.3.dev0',
+      VERSION:'2.4.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

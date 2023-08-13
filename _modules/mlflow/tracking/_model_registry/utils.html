@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.tracking._model_registry.utils &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.tracking._model_registry.utils &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/_modules/mlflow/tracking/_model_registry/utils.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../../../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../../../index.html"/>
         <link rel="up" title="Module code" href="../../../index.html"/> 
 
   
@@ -54,7 +55,6 @@
 <script type="text/javascript" src="../../../../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -65,7 +65,7 @@
     <a href="../../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">Command-Line Interface</a></li>
@@ -176,30 +177,40 @@
               <div itemprop="articleBody">
                 
   <h1>Source code for mlflow.tracking._model_registry.utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">mlflow.environment_variables</span> <span class="kn">import</span> <span class="n">MLFLOW_TRACKING_AWS_SIGV4</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.db.db_types</span> <span class="kn">import</span> <span class="n">DATABASE_ENGINES</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.model_registry.file_store</span> <span class="kn">import</span> <span class="n">FileStore</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.model_registry.rest_store</span> <span class="kn">import</span> <span class="n">RestStore</span>
+<span class="kn">from</span> <span class="nn">mlflow.store.model_registry.databricks_workspace_model_registry_rest_store</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DatabricksWorkspaceModelRegistryRestStore</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.store._unity_catalog.registry.rest_store</span> <span class="kn">import</span> <span class="n">UcModelRegistryStore</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry.registry</span> <span class="kn">import</span> <span class="n">ModelRegistryStoreRegistry</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking._tracking_service.utils</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_TRACKING_USERNAME_ENV_VAR</span><span class="p">,</span>
-    <span class="n">_TRACKING_PASSWORD_ENV_VAR</span><span class="p">,</span>
-    <span class="n">_TRACKING_TOKEN_ENV_VAR</span><span class="p">,</span>
-    <span class="n">_TRACKING_INSECURE_TLS_ENV_VAR</span><span class="p">,</span>
-    <span class="n">_TRACKING_CLIENT_CERT_PATH_ENV_VAR</span><span class="p">,</span>
-    <span class="n">_TRACKING_SERVER_CERT_PATH_ENV_VAR</span><span class="p">,</span>
     <span class="n">_resolve_tracking_uri</span><span class="p">,</span>
     <span class="n">get_tracking_uri</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">env</span><span class="p">,</span> <span class="n">rest_utils</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.databricks_utils</span> <span class="kn">import</span> <span class="n">get_databricks_host_creds</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">rest_utils</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.databricks_utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_databricks_host_creds</span><span class="p">,</span>
+    <span class="n">warn_on_deprecated_cross_workspace_registry_uri</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.uri</span> <span class="kn">import</span> <span class="n">_DATABRICKS_UNITY_CATALOG_SCHEME</span>
+<span class="kn">from</span> <span class="nn">mlflow.environment_variables</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MLFLOW_TRACKING_AWS_SIGV4</span><span class="p">,</span>
+    <span class="n">MLFLOW_TRACKING_USERNAME</span><span class="p">,</span>
+    <span class="n">MLFLOW_TRACKING_PASSWORD</span><span class="p">,</span>
+    <span class="n">MLFLOW_TRACKING_TOKEN</span><span class="p">,</span>
+    <span class="n">MLFLOW_TRACKING_INSECURE_TLS</span><span class="p">,</span>
+    <span class="n">MLFLOW_TRACKING_SERVER_CERT_PATH</span><span class="p">,</span>
+    <span class="n">MLFLOW_TRACKING_CLIENT_CERT_PATH</span><span class="p">,</span>
+    <span class="n">MLFLOW_REGISTRY_URI</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="n">_REGISTRY_URI_ENV_VAR</span> <span class="o">=</span> <span class="s2">&quot;MLFLOW_REGISTRY_URI&quot;</span>
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
 
 <span class="c1"># NOTE: in contrast to tracking, we do not support the following ways to specify</span>
 <span class="c1"># the model registry URI:</span>
@@ -265,8 +276,8 @@
     <span class="c1"># in the future, REGISTRY_URI env var support can go here</span>
     <span class="k">if</span> <span class="n">_registry_uri</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_registry_uri</span>
-    <span class="k">elif</span> <span class="n">env</span><span class="o">.</span><span class="n">get_env</span><span class="p">(</span><span class="n">_REGISTRY_URI_ENV_VAR</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">env</span><span class="o">.</span><span class="n">get_env</span><span class="p">(</span><span class="n">_REGISTRY_URI_ENV_VAR</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">uri</span> <span class="o">:=</span> <span class="n">MLFLOW_REGISTRY_URI</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">uri</span>
     <span class="k">return</span> <span class="n">_registry_uri</span>
 
 
@@ -312,13 +323,13 @@
 <span class="k">def</span> <span class="nf">get_default_host_creds</span><span class="p">(</span><span class="n">store_uri</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">rest_utils</span><span class="o">.</span><span class="n">MlflowHostCreds</span><span class="p">(</span>
         <span class="n">host</span><span class="o">=</span><span class="n">store_uri</span><span class="p">,</span>
-        <span class="n">username</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_TRACKING_USERNAME_ENV_VAR</span><span class="p">),</span>
-        <span class="n">password</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_TRACKING_PASSWORD_ENV_VAR</span><span class="p">),</span>
-        <span class="n">token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_TRACKING_TOKEN_ENV_VAR</span><span class="p">),</span>
+        <span class="n">username</span><span class="o">=</span><span class="n">MLFLOW_TRACKING_USERNAME</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+        <span class="n">password</span><span class="o">=</span><span class="n">MLFLOW_TRACKING_PASSWORD</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+        <span class="n">token</span><span class="o">=</span><span class="n">MLFLOW_TRACKING_TOKEN</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
         <span class="n">aws_sigv4</span><span class="o">=</span><span class="n">MLFLOW_TRACKING_AWS_SIGV4</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
-        <span class="n">ignore_tls_verification</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_TRACKING_INSECURE_TLS_ENV_VAR</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
-        <span class="n">client_cert_path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_TRACKING_CLIENT_CERT_PATH_ENV_VAR</span><span class="p">),</span>
-        <span class="n">server_cert_path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_TRACKING_SERVER_CERT_PATH_ENV_VAR</span><span class="p">),</span>
+        <span class="n">ignore_tls_verification</span><span class="o">=</span><span class="n">MLFLOW_TRACKING_INSECURE_TLS</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+        <span class="n">client_cert_path</span><span class="o">=</span><span class="n">MLFLOW_TRACKING_CLIENT_CERT_PATH</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+        <span class="n">server_cert_path</span><span class="o">=</span><span class="n">MLFLOW_TRACKING_SERVER_CERT_PATH</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
     <span class="p">)</span>
 
 
@@ -327,7 +338,8 @@
 
 
 <span class="k">def</span> <span class="nf">_get_databricks_rest_store</span><span class="p">(</span><span class="n">store_uri</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">RestStore</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">get_databricks_host_creds</span><span class="p">,</span> <span class="n">store_uri</span><span class="p">))</span>
+    <span class="n">warn_on_deprecated_cross_workspace_registry_uri</span><span class="p">(</span><span class="n">registry_uri</span><span class="o">=</span><span class="n">store_uri</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">DatabricksWorkspaceModelRegistryRestStore</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">get_databricks_host_creds</span><span class="p">,</span> <span class="n">store_uri</span><span class="p">))</span>
 
 
 <span class="c1"># We define the global variable as `None` so that instantiating the store does not lead to circular</span>
@@ -395,7 +407,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

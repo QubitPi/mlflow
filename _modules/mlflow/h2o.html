@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.h2o &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.h2o &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/_modules/mlflow/h2o.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -54,7 +55,6 @@
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -188,11 +189,13 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">pyfunc</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">ModelSignature</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.model</span> <span class="kn">import</span> <span class="n">MLMODEL_FILE_NAME</span>
+<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">_infer_signature_from_input_example</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">_save_example</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="n">_download_artifact_from_uri</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.environment</span> <span class="kn">import</span> <span class="p">(</span>
@@ -261,27 +264,11 @@
 <span class="sd">    :param code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
 <span class="sd">                       containing file dependencies). These files are *prepended* to the system</span>
 <span class="sd">                       path when the model is loaded.</span>
-<span class="sd">    :param signature: :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
-<span class="sd">                      describes model input and output :py:class:`Schema &lt;mlflow.types.Schema&gt;`.</span>
-<span class="sd">                      The model signature can be :py:func:`inferred &lt;mlflow.models.infer_signature&gt;`</span>
-<span class="sd">                      from datasets with valid model input (e.g. the training dataset with target</span>
-<span class="sd">                      column omitted) and valid model output (e.g. model predictions generated on</span>
-<span class="sd">                      the training dataset), for example:</span>
-
-<span class="sd">                      .. code-block:: python</span>
-
-<span class="sd">                        from mlflow.models import infer_signature</span>
-
-<span class="sd">                        train = df.drop_column(&quot;target_label&quot;)</span>
-<span class="sd">                        predictions = ...  # compute model predictions</span>
-<span class="sd">                        signature = infer_signature(train, predictions)</span>
-<span class="sd">    :param input_example: Input example provides one or several instances of valid</span>
-<span class="sd">                          model input. The example can be used as a hint of what data to feed the</span>
-<span class="sd">                          model. The given example will be converted to a Pandas DataFrame and then</span>
-<span class="sd">                          serialized to json using the Pandas split-oriented format. Bytes are</span>
-<span class="sd">                          base64-encoded.</span>
-
 <span class="sd">    :param mlflow_model: :py:mod:`mlflow.models.Model` this flavor is being added to.</span>
+<span class="sd">    :param signature: {{ signature }}</span>
+<span class="sd">    :param input_example: {{ input_example }}</span>
+<span class="sd">    :param pip_requirements: {{ pip_requirements }}</span>
+<span class="sd">    :param extra_pip_requirements: {{ extra_pip_requirements }}</span>
 <span class="sd">    :param metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
 
 <span class="sd">                     .. Note:: Experimental: This parameter may change or be removed in a future</span>
@@ -297,6 +284,12 @@
     <span class="n">model_data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">model_data_subpath</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">model_data_path</span><span class="p">)</span>
     <span class="n">code_dir_subpath</span> <span class="o">=</span> <span class="n">_validate_and_copy_code_paths</span><span class="p">(</span><span class="n">code_paths</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">input_example</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">wrapped_model</span> <span class="o">=</span> <span class="n">_H2OModelWrapper</span><span class="p">(</span><span class="n">h2o_model</span><span class="p">)</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="n">_infer_signature_from_input_example</span><span class="p">(</span><span class="n">input_example</span><span class="p">,</span> <span class="n">wrapped_model</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="n">mlflow_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mlflow_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
@@ -401,25 +394,8 @@
 <span class="sd">                                  ``registered_model_name``, also creating a registered model if one</span>
 <span class="sd">                                  with the given name does not exist.</span>
 
-<span class="sd">    :param signature: :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
-<span class="sd">                      describes model input and output :py:class:`Schema &lt;mlflow.types.Schema&gt;`.</span>
-<span class="sd">                      The model signature can be :py:func:`inferred &lt;mlflow.models.infer_signature&gt;`</span>
-<span class="sd">                      from datasets with valid model input (e.g. the training dataset with target</span>
-<span class="sd">                      column omitted) and valid model output (e.g. model predictions generated on</span>
-<span class="sd">                      the training dataset), for example:</span>
-
-<span class="sd">                      .. code-block:: python</span>
-
-<span class="sd">                        from mlflow.models import infer_signature</span>
-
-<span class="sd">                        train = df.drop_column(&quot;target_label&quot;)</span>
-<span class="sd">                        predictions = ...  # compute model predictions</span>
-<span class="sd">                        signature = infer_signature(train, predictions)</span>
-<span class="sd">    :param input_example: Input example provides one or several instances of valid</span>
-<span class="sd">                          model input. The example can be used as a hint of what data to feed the</span>
-<span class="sd">                          model. The given example will be converted to a Pandas DataFrame and then</span>
-<span class="sd">                          serialized to json using the Pandas split-oriented format. Bytes are</span>
-<span class="sd">                          base64-encoded.</span>
+<span class="sd">    :param signature: {{ signature }}</span>
+<span class="sd">    :param input_example: {{ input_example }}</span>
 <span class="sd">    :param pip_requirements: {{ pip_requirements }}</span>
 <span class="sd">    :param extra_pip_requirements: {{ extra_pip_requirements }}</span>
 <span class="sd">    :param metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
@@ -473,7 +449,18 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h2o_model</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">h2o_model</span> <span class="o">=</span> <span class="n">h2o_model</span>
 
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataframe</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dataframe</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>  <span class="c1"># pylint: disable=unused-argument</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param dataframe: Model input data.</span>
+<span class="sd">        :param params: Additional parameters to pass to the model for inference.</span>
+
+<span class="sd">                       .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                               release without warning.</span>
+
+<span class="sd">        :return: Model predictions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">h2o</span>
 
         <span class="n">predicted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">h2o_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">h2o</span><span class="o">.</span><span class="n">H2OFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">))</span><span class="o">.</span><span class="n">as_data_frame</span><span class="p">()</span>
@@ -551,7 +538,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

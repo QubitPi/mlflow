@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.pyfunc &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.pyfunc &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/python_api/mlflow.pyfunc.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.pyspark.ml" href="/mlflow.pyspark.ml.html"/>
         <link rel="prev" title="mlflow.prophet" href="/mlflow.prophet.html"/> 
@@ -56,7 +57,6 @@
 <script type="text/javascript" src="../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -67,7 +67,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -115,6 +115,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command-Line Interface</a></li>
@@ -131,6 +132,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.entities.html">mlflow.entities</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.environment_variables.html">mlflow.environment_variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.fastai.html">mlflow.fastai</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.gateway.html">mlflow.gateway</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.gluon.html">mlflow.gluon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.h2o.html">mlflow.h2o</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.johnsnowlabs.html">mlflow.johnsnowlabs</a></li>
@@ -442,14 +444,15 @@ returned by invoking the model’s <code class="docutils literal notranslate"><s
 
 <dl class="py method">
 <dt id="mlflow.pyfunc.PyFuncModel.predict">
-<code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">csc_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">csr_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/mlflow/pyfunc.html#PyFuncModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.PyFuncModel.predict" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">csc_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">csr_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/mlflow/pyfunc.html#PyFuncModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.PyFuncModel.predict" title="Permalink to this definition"> </a></dt>
 <dd><p>Generate model predictions.</p>
 <p>If the model contains signature, enforce the input schema first before calling the model
 implementation with the sanitized input. If the pyfunc model does not include model schema,
 the input is passed to the model implementation as is. See <a class="reference external" href="https://www.mlflow.org/docs/latest/models.html#signature-enforcement">Model Signature Enforcement</a> for more details.”</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> – Model input as one of pandas.DataFrame, numpy.ndarray,
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – Model input as one of pandas.DataFrame, numpy.ndarray,
 scipy.sparse.(csc.csc_matrix | csr.csr_matrix), List[Any], or
 Dict[str, numpy.ndarray].
 For model signatures with tensor spec inputs
@@ -459,7 +462,15 @@ For model signatures with tensor spec inputs
 contains a signature with tensor spec inputs, the corresponding column values
 in the pandas DataFrame will be reshaped to the required shape with ‘C’ order
 (i.e. read / write the elements using C-like index order), and DataFrame
-column values will be cast as the required tensor spec type.</p>
+column values will be cast as the required tensor spec type.</p></li>
+<li><p><strong>params</strong> – <p>Additional parameters to pass to the model for inference.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This parameter may change or be removed in a future
+release without warning.</p>
+</div>
+</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Model predictions as one of pandas.DataFrame, pandas.Series, numpy.ndarray or list.</p>
@@ -489,10 +500,10 @@ leverage the MLflow designed workflow through the <cite>predict()</cite> method.
 
 <span class="c1"># define a custom model</span>
 <span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">my_custom_function</span><span class="p">(</span><span class="n">model_input</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">my_custom_function</span><span class="p">(</span><span class="n">model_input</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">my_custom_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_input</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">my_custom_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_input</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># do something with the model input</span>
         <span class="k">return</span> <span class="mi">0</span>
 
@@ -715,7 +726,7 @@ locations.</p>
 
 
 <span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">model_input</span><span class="p">]</span>
 
 
@@ -917,7 +928,7 @@ locations.</p>
 
 
 <span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">model_input</span><span class="p">]</span>
 
 
@@ -1036,7 +1047,7 @@ release without warning.</p>
 
 <dl class="py function">
 <dt id="mlflow.pyfunc.spark_udf">
-<code class="sig-prename descclassname"><span class="pre">mlflow.pyfunc.</span></code><code class="sig-name descname"><span class="pre">spark_udf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spark</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'double'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_manager</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'local'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/pyfunc.html#spark_udf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.spark_udf" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.pyfunc.</span></code><code class="sig-name descname"><span class="pre">spark_udf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spark</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_manager</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'local'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/pyfunc.html#spark_udf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.spark_udf" title="Permalink to this definition"> </a></dt>
 <dd><p>A Spark UDF that can be used to invoke the Python function formatted model.</p>
 <p>Parameters passed to the UDF are forwarded to the model as a DataFrame where the column names
 are ordinals (0, 1, …). On some versions of Spark (3.0 and above), it is also possible to
@@ -1088,7 +1099,10 @@ Spark (2.4 and below).</p>
 <code class="docutils literal notranslate"><span class="pre">pyspark.sql.types.DataType</span></code> object or a DDL-formatted type string. Only a primitive
 type, an array <code class="docutils literal notranslate"><span class="pre">pyspark.sql.types.ArrayType</span></code> of primitive type, or a struct type
 containing fields of above 2 kinds of types are allowed.
-The following classes of result type are supported:</p>
+If unspecified, it tries to infer result type from model signature
+output schema, if model output schema is not available, it fallbacks to use <code class="docutils literal notranslate"><span class="pre">double</span></code>
+type.</p>
+<p>The following classes of result type are supported:</p>
 <ul>
 <li><p>”int” or <code class="docutils literal notranslate"><span class="pre">pyspark.sql.types.IntegerType</span></code>: The leftmost integer that can fit in an
 <code class="docutils literal notranslate"><span class="pre">int32</span></code> or an exception if there is none.</p></li>
@@ -1126,6 +1140,13 @@ may differ from the environment used to train the model and may lead to
 errors or invalid predictions.</p></li>
 </ul>
 </div></blockquote>
+</p></li>
+<li><p><strong>params</strong> – <p>Additional parameters to pass to the model for inference.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This parameter may change or be removed in a future
+release without warning.</p>
+</div>
 </p></li>
 </ul>
 </dd>
@@ -1207,7 +1228,7 @@ can use to perform inference.</p>
 
 <dl class="py method">
 <dt id="mlflow.pyfunc.PythonModel.predict">
-<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/pyfunc/model.html#PythonModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.PythonModel.predict" title="Permalink to this definition"> </a></dt>
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/pyfunc/model.html#PythonModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.PythonModel.predict" title="Permalink to this definition"> </a></dt>
 <dd><p>Evaluates a pyfunc-compatible input and produces a pyfunc-compatible output.
 For more information about the pyfunc input/output API, see the <a class="reference internal" href="#pyfunc-inference-api"><span class="std std-ref">Inference API</span></a>.</p>
 <dl class="field-list simple">
@@ -1216,6 +1237,13 @@ For more information about the pyfunc input/output API, see the <a class="refere
 <li><p><strong>context</strong> – A <a class="reference internal" href="#mlflow.pyfunc.PythonModelContext" title="mlflow.pyfunc.PythonModelContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PythonModelContext</span></code></a> instance containing artifacts that the model
 can use to perform inference.</p></li>
 <li><p><strong>model_input</strong> – A pyfunc-compatible input for the model to evaluate.</p></li>
+<li><p><strong>params</strong> – <p>Additional parameters to pass to the model for inference.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This parameter may change or be removed in a future
+release without warning.</p>
+</div>
+</p></li>
 </ul>
 </dd>
 </dl>
@@ -1263,7 +1291,7 @@ can use to perform inference.</p></li>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

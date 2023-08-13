@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.models.model &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.models.model &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/_modules/mlflow/models/model.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="mlflow.models" href="../models.html"/> 
 
   
@@ -54,7 +55,6 @@
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -65,7 +65,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command-Line Interface</a></li>
@@ -477,6 +478,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">signature</span><span class="o">.</span><span class="n">outputs</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">signature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
 
+<div class="viewcode-block" id="Model.get_params_schema"><a class="viewcode-back" href="../../../python_api/mlflow.models.html#mlflow.models.Model.get_params_schema">[docs]</a>    <span class="k">def</span> <span class="nf">get_params_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves the parameters schema of the Model iff the model was saved with a schema</span>
+<span class="sd">        definition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">signature</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Model.load_input_example"><a class="viewcode-back" href="../../../python_api/mlflow.models.html#mlflow.models.Model.load_input_example">[docs]</a>    <span class="k">def</span> <span class="nf">load_input_example</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load the input example saved along a model. Returns None if there is no example metadata</span>
@@ -594,7 +602,7 @@
         <span class="k">return</span> <span class="n">ModelInfo</span><span class="p">(</span>
             <span class="n">artifact_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">artifact_path</span><span class="p">,</span>
             <span class="n">flavors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flavors</span><span class="p">,</span>
-            <span class="n">model_uri</span><span class="o">=</span><span class="s2">&quot;runs:/</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifact_path</span><span class="p">),</span>
+            <span class="n">model_uri</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">artifact_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">model_uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_uuid</span><span class="p">,</span>
             <span class="n">run_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span>
             <span class="n">saved_input_example_info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">saved_input_example_info</span><span class="p">,</span>
@@ -742,13 +750,15 @@
             <span class="n">local_path</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
             <span class="n">run_id</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">_get_or_start_run</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
             <span class="n">mlflow_model</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">artifact_path</span><span class="o">=</span><span class="n">artifact_path</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
-            <span class="n">flavor</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">local_path</span><span class="p">,</span> <span class="n">mlflow_model</span><span class="o">=</span><span class="n">mlflow_model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">log_artifacts</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">artifact_path</span><span class="p">)</span>
             <span class="n">tracking_uri</span> <span class="o">=</span> <span class="n">_resolve_tracking_uri</span><span class="p">()</span>
             <span class="k">if</span> <span class="p">(</span>
-                <span class="n">tracking_uri</span> <span class="o">==</span> <span class="s2">&quot;databricks&quot;</span> <span class="ow">or</span> <span class="n">get_uri_scheme</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;databricks&quot;</span>
-            <span class="p">)</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;signature&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">tracking_uri</span> <span class="o">==</span> <span class="s2">&quot;databricks&quot;</span> <span class="ow">or</span> <span class="n">get_uri_scheme</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;databricks&quot;</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;signature&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;input_example&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="p">):</span>
                 <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_LOG_MODEL_MISSING_SIGNATURE_WARNING</span><span class="p">)</span>
+            <span class="n">flavor</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">local_path</span><span class="p">,</span> <span class="n">mlflow_model</span><span class="o">=</span><span class="n">mlflow_model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">log_artifacts</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">artifact_path</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">_record_logged_model</span><span class="p">(</span><span class="n">mlflow_model</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">MlflowException</span><span class="p">:</span>
@@ -758,10 +768,11 @@
                 <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">registered_model_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">run_id</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">active_run</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
-                <span class="n">mlflow</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span>
-                    <span class="s2">&quot;runs:/</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">artifact_path</span><span class="p">),</span>
+                <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">_model_registry</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">_register_model</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">mlflow_model</span><span class="o">.</span><span class="n">artifact_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="n">registered_model_name</span><span class="p">,</span>
                     <span class="n">await_registration_for</span><span class="o">=</span><span class="n">await_registration_for</span><span class="p">,</span>
+                    <span class="n">local_model_path</span><span class="o">=</span><span class="n">local_path</span><span class="p">,</span>
                 <span class="p">)</span>
         <span class="k">return</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">get_model_info</span><span class="p">()</span></div></div>
 
@@ -856,7 +867,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

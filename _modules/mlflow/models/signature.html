@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.models.signature &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.models.signature &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/_modules/mlflow/models/signature.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="mlflow.models" href="../models.html"/> 
 
   
@@ -54,7 +55,6 @@
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -65,7 +65,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command-Line Interface</a></li>
@@ -188,21 +189,23 @@
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">get_type_hints</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">get_type_hints</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
+<span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">environment_variables</span>
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">Model</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.model</span> <span class="kn">import</span> <span class="n">MLMODEL_FILE_NAME</span>
+<span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">_Example</span><span class="p">,</span> <span class="n">ModelInputExample</span>
 <span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span> <span class="n">RESOURCE_DOES_NOT_EXIST</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.artifact.models_artifact_repo</span> <span class="kn">import</span> <span class="n">ModelsArtifactRepository</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.artifact.runs_artifact_repo</span> <span class="kn">import</span> <span class="n">RunsArtifactRepository</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="n">_download_artifact_from_uri</span><span class="p">,</span> <span class="n">_upload_artifact_to_uri</span>
-<span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">Schema</span>
-<span class="kn">from</span> <span class="nn">mlflow.types.utils</span> <span class="kn">import</span> <span class="n">_infer_schema</span><span class="p">,</span> <span class="n">_infer_schema_from_type_hint</span>
+<span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">ParamSchema</span><span class="p">,</span> <span class="n">Schema</span>
+<span class="kn">from</span> <span class="nn">mlflow.types.utils</span> <span class="kn">import</span> <span class="n">_infer_param_schema</span><span class="p">,</span> <span class="n">_infer_schema</span><span class="p">,</span> <span class="n">_infer_schema_from_type_hint</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.uri</span> <span class="kn">import</span> <span class="n">append_to_uri_path</span>
 
 
@@ -229,25 +232,30 @@
 
 <div class="viewcode-block" id="ModelSignature"><a class="viewcode-back" href="../../../python_api/mlflow.models.html#mlflow.models.ModelSignature">[docs]</a><span class="k">class</span> <span class="nc">ModelSignature</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ModelSignature specifies schema of model&#39;s inputs and outputs.</span>
+<span class="sd">    ModelSignature specifies schema of model&#39;s inputs, outputs and params.</span>
 
-<span class="sd">    ModelSignature can be :py:func:`inferred &lt;mlflow.models.infer_signature&gt;` from training dataset</span>
-<span class="sd">    and model predictions using or constructed by hand by passing an input and output</span>
-<span class="sd">    :py:class:`Schema &lt;mlflow.types.Schema&gt;`.</span>
+<span class="sd">    ModelSignature can be :py:func:`inferred &lt;mlflow.models.infer_signature&gt;` from training</span>
+<span class="sd">    dataset, model predictions using and params for inference, or constructed by hand by</span>
+<span class="sd">    passing an input and output :py:class:`Schema &lt;mlflow.types.Schema&gt;`, and params</span>
+<span class="sd">    :py:class:`ParamSchema &lt;mlflow.types.ParamSchema&gt;`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Schema</span><span class="p">,</span> <span class="n">outputs</span><span class="p">:</span> <span class="n">Schema</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Schema</span><span class="p">,</span> <span class="n">outputs</span><span class="p">:</span> <span class="n">Schema</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamSchema</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">Schema</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s2">&quot;inputs must be mlflow.models.signature.Schema, got &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
-            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;inputs must be mlflow.models.signature.Schema, got &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">outputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">Schema</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="s2">&quot;outputs must be either None or mlflow.models.signature.Schema, &quot;</span>
-                <span class="s2">&quot;got &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
+                <span class="sa">f</span><span class="s2">&quot;got &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">ParamSchema</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;If params are provided, they must by of type mlflow.models.signature.ParamSchema. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Got &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
 
 <div class="viewcode-block" id="ModelSignature.to_dict"><a class="viewcode-back" href="../../../python_api/mlflow.models.html#mlflow.models.ModelSignature.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -262,6 +270,7 @@
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">to_json</span><span class="p">(),</span>
             <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 <div class="viewcode-block" id="ModelSignature.from_dict"><a class="viewcode-back" href="../../../python_api/mlflow.models.html#mlflow.models.ModelSignature.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
@@ -271,41 +280,54 @@
 
 <span class="sd">        :param signature_dict: Dictionary representation of model signature.</span>
 <span class="sd">                               Expected dictionary format:</span>
-<span class="sd">                               `{&#39;inputs&#39;: &lt;json string&gt;, &#39;outputs&#39;: &lt;json string&gt;&quot; }`</span>
+<span class="sd">                               `{&#39;inputs&#39;: &lt;json string&gt;,</span>
+<span class="sd">                               &#39;outputs&#39;: &lt;json string&gt;,</span>
+<span class="sd">                               &#39;params&#39;: &lt;json string&gt;&quot; }`</span>
 
 <span class="sd">        :return: ModelSignature populated with the data form the dictionary.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">inputs</span> <span class="o">=</span> <span class="n">Schema</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">signature_dict</span><span class="p">[</span><span class="s2">&quot;inputs&quot;</span><span class="p">])</span>
         <span class="k">if</span> <span class="s2">&quot;outputs&quot;</span> <span class="ow">in</span> <span class="n">signature_dict</span> <span class="ow">and</span> <span class="n">signature_dict</span><span class="p">[</span><span class="s2">&quot;outputs&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">outputs</span> <span class="o">=</span> <span class="n">Schema</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">signature_dict</span><span class="p">[</span><span class="s2">&quot;outputs&quot;</span><span class="p">])</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span></div>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">params</span> <span class="o">:=</span> <span class="n">signature_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">ParamSchema</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ModelSignature</span><span class="p">)</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">inputs</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">outputs</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">params</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="s2">&quot;inputs: </span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="s2">&quot;  </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="s2">&quot;outputs: </span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="s2">&quot;  </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">))</span>
+            <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;params: </span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="infer_signature"><a class="viewcode-back" href="../../../python_api/mlflow.models.html#mlflow.models.infer_signature">[docs]</a><span class="k">def</span> <span class="nf">infer_signature</span><span class="p">(</span>
-    <span class="n">model_input</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">model_output</span><span class="p">:</span> <span class="s2">&quot;MlflowInferableDataset&quot;</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">model_input</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">model_output</span><span class="p">:</span> <span class="s2">&quot;MlflowInferableDataset&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelSignature</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Infer an MLflow model signature from the training data (input) and model predictions (output).</span>
+<span class="sd">    Infer an MLflow model signature from the training data (input), model predictions (output)</span>
+<span class="sd">    and parameters (for inference).</span>
 
 <span class="sd">    The signature represents model input and output as data frames with (optionally) named columns</span>
-<span class="sd">    and data type specified as one of types defined in :py:class:`mlflow.types.DataType`.</span>
+<span class="sd">    and data type specified as one of types defined in :py:class:`mlflow.types.DataType`. It also</span>
+<span class="sd">    includes parameters schema for inference, .</span>
 <span class="sd">    This method will raise an exception if the user data contains incompatible types or is not</span>
 <span class="sd">    passed in one of the supported formats listed below.</span>
 
@@ -327,11 +349,53 @@
 <span class="sd">    :param model_input: Valid input to the model. E.g. (a subset of) the training dataset.</span>
 <span class="sd">    :param model_output: Valid model output. E.g. Model predictions for the (subset of) training</span>
 <span class="sd">                         dataset.</span>
+<span class="sd">    :param params: Valid parameters for inference. It should be a dictionary of parameters</span>
+<span class="sd">                   that can be set on the model during inference by passing `params` to pyfunc</span>
+<span class="sd">                   `predict` method.</span>
+
+<span class="sd">                   An example of valid parameters:</span>
+
+<span class="sd">                   .. code-block:: python</span>
+
+<span class="sd">                        from mlflow.models import infer_signature</span>
+<span class="sd">                        from mlflow.transformers import generate_signature_output</span>
+
+<span class="sd">                        # Define parameters for inference</span>
+<span class="sd">                        params = {</span>
+<span class="sd">                            &quot;num_beams&quot;: 5,</span>
+<span class="sd">                            &quot;max_length&quot;: 30,</span>
+<span class="sd">                            &quot;do_sample&quot;: True,</span>
+<span class="sd">                            &quot;remove_invalid_values&quot;: True,</span>
+<span class="sd">                        }</span>
+
+<span class="sd">                        # Infer the signature including parameters</span>
+<span class="sd">                        signature = infer_signature(</span>
+<span class="sd">                            data,</span>
+<span class="sd">                            generate_signature_output(model, data),</span>
+<span class="sd">                            params=params,</span>
+<span class="sd">                        )</span>
+
+<span class="sd">                        # Saving model with model signature</span>
+<span class="sd">                        mlflow.transformers.save_model(</span>
+<span class="sd">                            model,</span>
+<span class="sd">                            path=model_path,</span>
+<span class="sd">                            signature=signature,</span>
+<span class="sd">                        )</span>
+
+<span class="sd">                        pyfunc_loaded = mlflow.pyfunc.load_model(model_path)</span>
+
+<span class="sd">                        # Passing params to `predict` function directly</span>
+<span class="sd">                        result = pyfunc_loaded.predict(data, params=params)</span>
+
+<span class="sd">                   .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                           release without warning.</span>
+
 <span class="sd">    :return: ModelSignature</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">inputs</span> <span class="o">=</span> <span class="n">_infer_schema</span><span class="p">(</span><span class="n">model_input</span><span class="p">)</span>
     <span class="n">outputs</span> <span class="o">=</span> <span class="n">_infer_schema</span><span class="p">(</span><span class="n">model_output</span><span class="p">)</span> <span class="k">if</span> <span class="n">model_output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
-    <span class="k">return</span> <span class="n">ModelSignature</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span></div>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">_infer_param_schema</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="k">if</span> <span class="n">params</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">ModelSignature</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
 
 
 <span class="c1"># `t\w*\.` matches the `typing` module or its alias</span>
@@ -370,7 +434,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">output</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;&lt;input: </span><span class="si">{}</span><span class="s2">, output: </span><span class="si">{}</span><span class="s2">&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;input: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="si">}</span><span class="s2">, output: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
 
 
 <span class="k">def</span> <span class="nf">_extract_type_hints</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">input_arg_index</span><span class="p">):</span>
@@ -435,7 +499,9 @@
     <span class="k">return</span> <span class="n">ModelSignature</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">input_schema</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">output_schema</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_infer_signature_from_input_example</span><span class="p">(</span><span class="n">input_example</span><span class="p">,</span> <span class="n">wrapped_model</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_infer_signature_from_input_example</span><span class="p">(</span>
+    <span class="n">input_example</span><span class="p">:</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">wrapped_model</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelSignature</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Infer the signature from an example input and a PyFunc wrapped model. Catches all exceptions.</span>
 
@@ -446,9 +512,10 @@
 <span class="sd">        `wrapped_model`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">input_schema</span> <span class="o">=</span> <span class="n">_infer_schema</span><span class="p">(</span><span class="n">input_example</span><span class="p">)</span>
+        <span class="n">input_ex</span> <span class="o">=</span> <span class="n">_Example</span><span class="p">(</span><span class="n">input_example</span><span class="p">)</span><span class="o">.</span><span class="n">inference_data</span>
+        <span class="n">input_schema</span> <span class="o">=</span> <span class="n">_infer_schema</span><span class="p">(</span><span class="n">input_ex</span><span class="p">)</span>
         <span class="c1"># Copy the input example so that it is not mutated by predict()</span>
-        <span class="n">prediction</span> <span class="o">=</span> <span class="n">wrapped_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">input_example</span><span class="p">))</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="n">wrapped_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">input_ex</span><span class="p">))</span>
         <span class="c1"># For column-based inputs, 1D numpy arrays likely signify row-based predictions. Thus, we</span>
         <span class="c1"># convert them to a Pandas series for inferring as a single ColSpec Schema.</span>
         <span class="k">if</span> <span class="p">(</span>
@@ -460,6 +527,8 @@
         <span class="n">output_schema</span> <span class="o">=</span> <span class="n">_infer_schema</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ModelSignature</span><span class="p">(</span><span class="n">input_schema</span><span class="p">,</span> <span class="n">output_schema</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">environment_variables</span><span class="o">.</span><span class="n">_MLFLOW_TESTING</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+            <span class="k">raise</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_LOG_MODEL_INFER_SIGNATURE_WARNING_TEMPLATE</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
@@ -575,7 +644,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

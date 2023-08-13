@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.tracking.fluent &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.tracking.fluent &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/_modules/mlflow/tracking/fluent.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -54,7 +55,6 @@
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -65,7 +65,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command-Line Interface</a></li>
@@ -185,6 +186,7 @@
 <span class="kn">import</span> <span class="nn">atexit</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">contextlib</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
@@ -211,7 +213,7 @@
 <span class="kn">from</span> <span class="nn">mlflow.tracking.context</span> <span class="kn">import</span> <span class="n">registry</span> <span class="k">as</span> <span class="n">context_registry</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.default_experiment</span> <span class="kn">import</span> <span class="n">registry</span> <span class="k">as</span> <span class="n">default_experiment_registry</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.tracking</span> <span class="kn">import</span> <span class="n">SEARCH_MAX_RESULTS_DEFAULT</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">env</span><span class="p">,</span> <span class="n">get_results_from_paginated_fn</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">get_results_from_paginated_fn</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">experimental</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.autologging_utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">is_testing</span><span class="p">,</span>
@@ -232,18 +234,20 @@
 <span class="kn">from</span> <span class="nn">mlflow.utils.validation</span> <span class="kn">import</span> <span class="n">_validate_run_id</span><span class="p">,</span> <span class="n">_validate_experiment_id_type</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.time_utils</span> <span class="kn">import</span> <span class="n">get_current_time_millis</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.databricks_utils</span> <span class="kn">import</span> <span class="n">is_in_databricks_runtime</span>
+<span class="kn">from</span> <span class="nn">mlflow.environment_variables</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MLFLOW_RUN_ID</span><span class="p">,</span>
+    <span class="n">MLFLOW_EXPERIMENT_ID</span><span class="p">,</span>
+    <span class="n">MLFLOW_EXPERIMENT_NAME</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">pandas</span>  <span class="c1"># pylint: disable=unused-import</span>
-    <span class="kn">import</span> <span class="nn">matplotlib</span>  <span class="c1"># pylint: disable=unused-import</span>
+    <span class="kn">import</span> <span class="nn">pandas</span>
+    <span class="kn">import</span> <span class="nn">matplotlib</span>
     <span class="kn">import</span> <span class="nn">matplotlib.figure</span>
-    <span class="kn">import</span> <span class="nn">plotly</span>  <span class="c1"># pylint: disable=unused-import</span>
-    <span class="kn">import</span> <span class="nn">numpy</span>  <span class="c1"># pylint: disable=unused-import</span>
-    <span class="kn">import</span> <span class="nn">PIL</span>  <span class="c1"># pylint: disable=unused-import</span>
+    <span class="kn">import</span> <span class="nn">plotly</span>
+    <span class="kn">import</span> <span class="nn">numpy</span>
+    <span class="kn">import</span> <span class="nn">PIL</span>
 
-<span class="n">_EXPERIMENT_ID_ENV_VAR</span> <span class="o">=</span> <span class="s2">&quot;MLFLOW_EXPERIMENT_ID&quot;</span>
-<span class="n">_EXPERIMENT_NAME_ENV_VAR</span> <span class="o">=</span> <span class="s2">&quot;MLFLOW_EXPERIMENT_NAME&quot;</span>
-<span class="n">_RUN_ID_ENV_VAR</span> <span class="o">=</span> <span class="s2">&quot;MLFLOW_RUN_ID&quot;</span>
 <span class="n">_active_run_stack</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">_active_experiment_id</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="n">_last_active_run_id</span> <span class="o">=</span> <span class="kc">None</span>
@@ -469,9 +473,9 @@
     <span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">run_id</span><span class="p">:</span>
         <span class="n">existing_run_id</span> <span class="o">=</span> <span class="n">run_id</span>
-    <span class="k">elif</span> <span class="n">_RUN_ID_ENV_VAR</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-        <span class="n">existing_run_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">_RUN_ID_ENV_VAR</span><span class="p">]</span>
-        <span class="k">del</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">_RUN_ID_ENV_VAR</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">run_id</span> <span class="o">:=</span> <span class="n">MLFLOW_RUN_ID</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+        <span class="n">existing_run_id</span> <span class="o">=</span> <span class="n">run_id</span>
+        <span class="k">del</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">MLFLOW_RUN_ID</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">existing_run_id</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">existing_run_id</span><span class="p">:</span>
@@ -579,13 +583,18 @@
     <span class="k">global</span> <span class="n">_active_run_stack</span><span class="p">,</span> <span class="n">_last_active_run_id</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">_active_run_stack</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="c1"># Clear out the global existing run environment variable as well.</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">unset_variable</span><span class="p">(</span><span class="n">_RUN_ID_ENV_VAR</span><span class="p">)</span>
+        <span class="n">MLFLOW_RUN_ID</span><span class="o">.</span><span class="n">unset</span><span class="p">()</span>
         <span class="n">run</span> <span class="o">=</span> <span class="n">_active_run_stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
         <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">set_terminated</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         <span class="n">_last_active_run_id</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span></div>
 
 
-<span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">end_run</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_safe_end_run</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+        <span class="n">end_run</span><span class="p">()</span>
+
+
+<span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">_safe_end_run</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="active_run"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.active_run">[docs]</a><span class="k">def</span> <span class="nf">active_run</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ActiveRun</span><span class="p">]:</span>
@@ -1939,14 +1948,14 @@
 
 
 <span class="k">def</span> <span class="nf">_get_experiment_id_from_env</span><span class="p">():</span>
-    <span class="n">experiment_name</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_env</span><span class="p">(</span><span class="n">_EXPERIMENT_NAME_ENV_VAR</span><span class="p">)</span>
-    <span class="n">experiment_id</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_env</span><span class="p">(</span><span class="n">_EXPERIMENT_ID_ENV_VAR</span><span class="p">)</span>
+    <span class="n">experiment_name</span> <span class="o">=</span> <span class="n">MLFLOW_EXPERIMENT_NAME</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="n">experiment_id</span> <span class="o">=</span> <span class="n">MLFLOW_EXPERIMENT_ID</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">experiment_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">exp</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">get_experiment_by_name</span><span class="p">(</span><span class="n">experiment_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exp</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">experiment_id</span> <span class="ow">and</span> <span class="n">experiment_id</span> <span class="o">!=</span> <span class="n">exp</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-                    <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;The provided </span><span class="si">{</span><span class="n">_EXPERIMENT_ID_ENV_VAR</span><span class="si">}</span><span class="s2"> environment variable &quot;</span>
+                    <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;The provided </span><span class="si">{</span><span class="n">MLFLOW_EXPERIMENT_ID</span><span class="si">}</span><span class="s2"> environment variable &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;value `</span><span class="si">{</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">` does not match the experiment id &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">exp</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">` for experiment name `</span><span class="si">{</span><span class="n">experiment_name</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">,</span>
                     <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
@@ -1962,7 +1971,7 @@
             <span class="k">return</span> <span class="n">exp</span><span class="o">.</span><span class="n">experiment_id</span>
         <span class="k">except</span> <span class="n">MlflowException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;The provided </span><span class="si">{</span><span class="n">_EXPERIMENT_ID_ENV_VAR</span><span class="si">}</span><span class="s2"> environment variable &quot;</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;The provided </span><span class="si">{</span><span class="n">MLFLOW_EXPERIMENT_ID</span><span class="si">}</span><span class="s2"> environment variable &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;value `</span><span class="si">{</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">` does not exist in the tracking server. Provide a valid &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;experiment_id.&quot;</span><span class="p">,</span>
                 <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
@@ -1986,6 +1995,7 @@
     <span class="n">exclusive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">disable_for_unsupported_versions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">silent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">extra_tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="c1"># pylint: disable=unused-argument</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2053,6 +2063,7 @@
 <span class="sd">    :param silent: If ``True``, suppress all event logs and warnings from MLflow during autologging</span>
 <span class="sd">                   setup and training execution. If ``False``, show all events and warnings during</span>
 <span class="sd">                   autologging setup and training execution.</span>
+<span class="sd">    :param extra_tags: A dictionary of extra tags to set on each managed run created by autologging.</span>
 
 <span class="sd">    .. test-code-block:: python</span>
 <span class="sd">        :caption: Example</span>
@@ -2235,7 +2246,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

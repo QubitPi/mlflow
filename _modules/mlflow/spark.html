@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.spark &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.spark &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/_modules/mlflow/spark.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -54,7 +55,6 @@
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -203,6 +204,7 @@
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">packaging.version</span> <span class="kn">import</span> <span class="n">Version</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">import</span> <span class="nn">mlflow</span>
@@ -212,7 +214,7 @@
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">ModelSignature</span><span class="p">,</span> <span class="n">infer_signature</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.model</span> <span class="kn">import</span> <span class="n">MLMODEL_FILE_NAME</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">_LOG_MODEL_INFER_SIGNATURE_WARNING_TEMPLATE</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">_save_example</span>
+<span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">_Example</span><span class="p">,</span> <span class="n">_save_example</span>
 <span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">INVALID_PARAMETER_VALUE</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">_download_artifact_from_uri</span><span class="p">,</span>
@@ -835,7 +837,11 @@
     <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mlflow_model</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
 
+    <span class="c1"># for automatic signature inference, we use an inline implementation rather than the</span>
+    <span class="c1"># `_infer_signature_from_input_example` API because we need to convert model predictions from a</span>
+    <span class="c1"># list into a Pandas series for signature inference.</span>
     <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">input_example</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">input_ex</span> <span class="o">=</span> <span class="n">_Example</span><span class="p">(</span><span class="n">input_example</span><span class="p">)</span><span class="o">.</span><span class="n">inference_data</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">spark</span> <span class="o">=</span> <span class="n">_get_active_spark_session</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">spark</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -843,9 +849,11 @@
                 <span class="c1"># We cast the predictions to a Pandas series because the Spark _PyFuncModelWrapper</span>
                 <span class="c1"># returns predictions as a list, which the `infer_signature` API does not support</span>
                 <span class="c1"># (unless it is a list of strings).</span>
-                <span class="n">prediction</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">wrapped_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">input_example</span><span class="p">))</span>
-                <span class="n">signature</span> <span class="o">=</span> <span class="n">infer_signature</span><span class="p">(</span><span class="n">input_example</span><span class="p">,</span> <span class="n">prediction</span><span class="p">)</span>
+                <span class="n">prediction</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">wrapped_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">input_ex</span><span class="p">))</span>
+                <span class="n">signature</span> <span class="o">=</span> <span class="n">infer_signature</span><span class="p">(</span><span class="n">input_ex</span><span class="p">,</span> <span class="n">prediction</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">environment_variables</span><span class="o">.</span><span class="n">_MLFLOW_TESTING</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+                <span class="k">raise</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_LOG_MODEL_INFER_SIGNATURE_WARNING_TEMPLATE</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
@@ -1063,11 +1071,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">spark</span> <span class="o">=</span> <span class="n">spark</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spark_model</span> <span class="o">=</span> <span class="n">spark_model</span>
 
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pandas_df</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">pandas_df</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># pylint: disable=unused-argument</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate predictions given input data in a pandas DataFrame.</span>
 
 <span class="sd">        :param pandas_df: pandas DataFrame containing input data.</span>
+<span class="sd">        :param params: Additional parameters to pass to the model for inference.</span>
+
+<span class="sd">                       .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                               release without warning.</span>
+
 <span class="sd">        :return: List with model predictions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">pyspark.ml</span> <span class="kn">import</span> <span class="n">PipelineModel</span>
@@ -1219,7 +1234,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

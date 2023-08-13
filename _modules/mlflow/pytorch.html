@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.pytorch &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.pytorch &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/_modules/mlflow/pytorch.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -54,7 +55,6 @@
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -191,6 +192,7 @@
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">atexit</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -206,6 +208,7 @@
 <span class="kn">from</span> <span class="nn">mlflow.ml_package_versions</span> <span class="kn">import</span> <span class="n">_ML_PACKAGE_VERSIONS</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">ModelSignature</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.model</span> <span class="kn">import</span> <span class="n">MLMODEL_FILE_NAME</span>
+<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">_infer_signature_from_input_example</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">_save_example</span>
 <span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">RESOURCE_DOES_NOT_EXIST</span>
 <span class="kn">from</span> <span class="nn">mlflow.pytorch</span> <span class="kn">import</span> <span class="n">pickle_module</span> <span class="k">as</span> <span class="n">mlflow_pytorch_pickle_module</span>
@@ -360,28 +363,8 @@
 <span class="sd">    :param registered_model_name: If given, create a model version under</span>
 <span class="sd">                                  ``registered_model_name``, also creating a registered model if one</span>
 <span class="sd">                                  with the given name does not exist.</span>
-
-<span class="sd">    :param signature: :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
-<span class="sd">                      describes model input and output :py:class:`Schema &lt;mlflow.types.Schema&gt;`.</span>
-<span class="sd">                      The model signature can be :py:func:`inferred &lt;mlflow.models.infer_signature&gt;`</span>
-<span class="sd">                      from datasets with valid model input (e.g. the training dataset with target</span>
-<span class="sd">                      column omitted) and valid model output (e.g. model predictions generated on</span>
-<span class="sd">                      the training dataset), for example:</span>
-
-<span class="sd">                      .. code-block:: python</span>
-
-<span class="sd">                        from mlflow.models import infer_signature</span>
-
-<span class="sd">                        train = df.drop_column(&quot;target_label&quot;)</span>
-<span class="sd">                        predictions = ...  # compute model predictions</span>
-<span class="sd">                        signature = infer_signature(train, predictions)</span>
-<span class="sd">    :param input_example: Input example provides one or several instances of valid</span>
-<span class="sd">                          model input. The example can be used as a hint of what data to feed the</span>
-<span class="sd">                          model. The given example can be a Pandas DataFrame where the given</span>
-<span class="sd">                          example will be serialized to json using the Pandas split-oriented</span>
-<span class="sd">                          format, or a numpy array where the example will be serialized to json</span>
-<span class="sd">                          by converting it to a list. Bytes are base64-encoded.</span>
-
+<span class="sd">    :param signature: {{ signature }}</span>
+<span class="sd">    :param input_example: {{ input_example }}</span>
 <span class="sd">    :param await_registration_for: Number of seconds to wait for the model version to finish</span>
 <span class="sd">                            being created and is in ``READY`` status. By default, the function</span>
 <span class="sd">                            waits for five minutes. Specify 0 or None to skip waiting.</span>
@@ -552,28 +535,8 @@
 <span class="sd">                          ``pytorch_model``. This is passed as the ``pickle_module`` parameter</span>
 <span class="sd">                          to ``torch.save()``. By default, this module is also used to</span>
 <span class="sd">                          deserialize (&quot;unpickle&quot;) the PyTorch model at load time.</span>
-
-<span class="sd">    :param signature: :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
-<span class="sd">                      describes model input and output :py:class:`Schema &lt;mlflow.types.Schema&gt;`.</span>
-<span class="sd">                      The model signature can be :py:func:`inferred &lt;mlflow.models.infer_signature&gt;`</span>
-<span class="sd">                      from datasets with valid model input (e.g. the training dataset with target</span>
-<span class="sd">                      column omitted) and valid model output (e.g. model predictions generated on</span>
-<span class="sd">                      the training dataset), for example:</span>
-
-<span class="sd">                      .. code-block:: python</span>
-
-<span class="sd">                        from mlflow.models import infer_signature</span>
-
-<span class="sd">                        train = df.drop_column(&quot;target_label&quot;)</span>
-<span class="sd">                        predictions = ...  # compute model predictions</span>
-<span class="sd">                        signature = infer_signature(train, predictions)</span>
-<span class="sd">    :param input_example: Input example provides one or several instances of valid</span>
-<span class="sd">                          model input. The example can be used as a hint of what data to feed the</span>
-<span class="sd">                          model. The given example can be a Pandas DataFrame where the given</span>
-<span class="sd">                          example will be serialized to json using the Pandas split-oriented</span>
-<span class="sd">                          format, or a numpy array where the example will be serialized to json</span>
-<span class="sd">                          by converting it to a list. Bytes are base64-encoded.</span>
-
+<span class="sd">    :param signature: {{ signature }}</span>
+<span class="sd">    :param input_example: {{ input_example }}</span>
 <span class="sd">    :param requirements_file:</span>
 
 <span class="sd">        .. warning::</span>
@@ -673,9 +636,14 @@
     <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">_validate_and_prepare_target_save_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">input_example</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">wrapped_model</span> <span class="o">=</span> <span class="n">_PyTorchWrapper</span><span class="p">(</span><span class="n">pytorch_model</span><span class="p">)</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="n">_infer_signature_from_input_example</span><span class="p">(</span><span class="n">input_example</span><span class="p">,</span> <span class="n">wrapped_model</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="kc">None</span>
+
     <span class="k">if</span> <span class="n">mlflow_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mlflow_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
-
     <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mlflow_model</span><span class="o">.</span><span class="n">signature</span> <span class="o">=</span> <span class="n">signature</span>
     <span class="k">if</span> <span class="n">input_example</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -939,9 +907,19 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pytorch_model</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pytorch_model</span> <span class="o">=</span> <span class="n">pytorch_model</span>
 
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param data: Model input data.</span>
+<span class="sd">        :param params: Additional parameters to pass to the model for inference.</span>
+
+<span class="sd">                       .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                               release without warning.</span>
+
+<span class="sd">        :return: Model predictions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">torch</span>
 
+        <span class="n">device</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;device&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">params</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="c1"># if CUDA is available, we use the default CUDA device.</span>
         <span class="c1"># To force inference to the CPU when the GPU is available, please set</span>
         <span class="c1"># MLFLOW_DEFAULT_PREDICTION_DEVICE to &quot;cpu&quot;</span>
@@ -977,7 +955,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                     <span class="s2">&quot;Expected PyTorch model to output a single output tensor, &quot;</span>
-                    <span class="s2">&quot;but got output of type &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">preds</span><span class="p">))</span>
+                    <span class="sa">f</span><span class="s2">&quot;but got output of type &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">preds</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
                 <span class="n">predicted</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">preds</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
@@ -1095,6 +1073,7 @@
     <span class="n">disable_for_unsupported_versions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">registered_model_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">extra_tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>  <span class="c1"># pylint: disable=unused-argument</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Enables (or disables) and configures autologging from `PyTorch Lightning</span>
@@ -1145,6 +1124,7 @@
 <span class="sd">    :param registered_model_name: If given, each time a model is trained, it is registered as a</span>
 <span class="sd">                                  new model version of the registered model with this name.</span>
 <span class="sd">                                  The registered model is created if it does not already exist.</span>
+<span class="sd">    :param extra_tags: A dictionary of extra tags to set on each managed run created by autologging.</span>
 
 <span class="sd">    .. code-block:: python</span>
 <span class="sd">        :caption: Example</span>
@@ -1258,7 +1238,9 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">mlflow.pytorch._lightning_autolog</span> <span class="kn">import</span> <span class="n">patched_fit</span>
 
-        <span class="n">safe_patch</span><span class="p">(</span><span class="n">FLAVOR_NAME</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">Trainer</span><span class="p">,</span> <span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">patched_fit</span><span class="p">,</span> <span class="n">manage_run</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">safe_patch</span><span class="p">(</span>
+            <span class="n">FLAVOR_NAME</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">Trainer</span><span class="p">,</span> <span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">patched_fit</span><span class="p">,</span> <span class="n">manage_run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">extra_tags</span><span class="o">=</span><span class="n">extra_tags</span>
+        <span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">import</span> <span class="nn">lightning</span> <span class="k">as</span> <span class="nn">L</span>
@@ -1267,7 +1249,9 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">mlflow.pytorch._lightning_autolog</span> <span class="kn">import</span> <span class="n">patched_fit</span>
 
-        <span class="n">safe_patch</span><span class="p">(</span><span class="n">FLAVOR_NAME</span><span class="p">,</span> <span class="n">L</span><span class="o">.</span><span class="n">Trainer</span><span class="p">,</span> <span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">patched_fit</span><span class="p">,</span> <span class="n">manage_run</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">safe_patch</span><span class="p">(</span>
+            <span class="n">FLAVOR_NAME</span><span class="p">,</span> <span class="n">L</span><span class="o">.</span><span class="n">Trainer</span><span class="p">,</span> <span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">patched_fit</span><span class="p">,</span> <span class="n">manage_run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">extra_tags</span><span class="o">=</span><span class="n">extra_tags</span>
+        <span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">import</span> <span class="nn">torch.utils.tensorboard.writer</span>
@@ -1287,6 +1271,7 @@
             <span class="s2">&quot;add_event&quot;</span><span class="p">,</span>
             <span class="n">partial</span><span class="p">(</span><span class="n">patched_add_event</span><span class="p">,</span> <span class="n">mlflow_log_every_n_step</span><span class="o">=</span><span class="n">log_every_n_step</span><span class="p">),</span>
             <span class="n">manage_run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">extra_tags</span><span class="o">=</span><span class="n">extra_tags</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">safe_patch</span><span class="p">(</span>
             <span class="n">FLAVOR_NAME</span><span class="p">,</span>
@@ -1294,6 +1279,7 @@
             <span class="s2">&quot;add_summary&quot;</span><span class="p">,</span>
             <span class="n">patched_add_summary</span><span class="p">,</span>
             <span class="n">manage_run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">extra_tags</span><span class="o">=</span><span class="n">extra_tags</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">safe_patch</span><span class="p">(</span>
             <span class="n">FLAVOR_NAME</span><span class="p">,</span>
@@ -1301,6 +1287,7 @@
             <span class="s2">&quot;add_hparams&quot;</span><span class="p">,</span>
             <span class="n">patched_add_hparams</span><span class="p">,</span>
             <span class="n">manage_run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">extra_tags</span><span class="o">=</span><span class="n">extra_tags</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">_flush_queue</span><span class="p">)</span></div>
@@ -1340,7 +1327,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

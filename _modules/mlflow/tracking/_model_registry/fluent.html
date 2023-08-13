@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.tracking._model_registry.fluent &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.tracking._model_registry.fluent &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/_modules/mlflow/tracking/_model_registry/fluent.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../../../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../../../index.html"/>
         <link rel="up" title="Module code" href="../../../index.html"/> 
 
   
@@ -54,7 +55,6 @@
 <script type="text/javascript" src="../../../../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -65,7 +65,7 @@
     <a href="../../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">Command-Line Interface</a></li>
@@ -248,10 +249,23 @@
 <span class="sd">        Name: RandomForestRegressionModel</span>
 <span class="sd">        Version: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_register_model</span><span class="p">(</span>
+        <span class="n">model_uri</span><span class="o">=</span><span class="n">model_uri</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">await_registration_for</span><span class="o">=</span><span class="n">await_registration_for</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">tags</span>
+    <span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_register_model</span><span class="p">(</span>
+    <span class="n">model_uri</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">,</span>
+    <span class="n">await_registration_for</span><span class="o">=</span><span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">local_model_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelVersion</span><span class="p">:</span>
     <span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">create_model_response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_registered_model</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">eprint</span><span class="p">(</span><span class="s2">&quot;Successfully registered model &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="n">create_model_response</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">eprint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully registered model &#39;</span><span class="si">{</span><span class="n">create_model_response</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">MlflowException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">error_code</span> <span class="ow">in</span> <span class="p">(</span>
             <span class="n">ErrorCode</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="n">RESOURCE_ALREADY_EXISTS</span><span class="p">),</span>
@@ -264,26 +278,25 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">e</span>
 
+    <span class="n">run_id</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">model_uri</span>
     <span class="k">if</span> <span class="n">RunsArtifactRepository</span><span class="o">.</span><span class="n">is_runs_uri</span><span class="p">(</span><span class="n">model_uri</span><span class="p">):</span>
         <span class="n">source</span> <span class="o">=</span> <span class="n">RunsArtifactRepository</span><span class="o">.</span><span class="n">get_underlying_uri</span><span class="p">(</span><span class="n">model_uri</span><span class="p">)</span>
         <span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">RunsArtifactRepository</span><span class="o">.</span><span class="n">parse_runs_uri</span><span class="p">(</span><span class="n">model_uri</span><span class="p">)</span>
-        <span class="n">create_version_response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_model_version</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">run_id</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span> <span class="n">await_creation_for</span><span class="o">=</span><span class="n">await_registration_for</span>
-        <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">create_version_response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_model_version</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span>
-            <span class="n">source</span><span class="o">=</span><span class="n">model_uri</span><span class="p">,</span>
-            <span class="n">run_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
-            <span class="n">await_creation_for</span><span class="o">=</span><span class="n">await_registration_for</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="n">eprint</span><span class="p">(</span>
-        <span class="s2">&quot;Created version &#39;</span><span class="si">{version}</span><span class="s2">&#39; of model &#39;</span><span class="si">{model_name}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">version</span><span class="o">=</span><span class="n">create_version_response</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="n">create_version_response</span><span class="o">.</span><span class="n">name</span>
-        <span class="p">)</span>
+
+    <span class="n">create_version_response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">_create_model_version</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
+        <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span>
+        <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
+        <span class="n">await_creation_for</span><span class="o">=</span><span class="n">await_registration_for</span><span class="p">,</span>
+        <span class="n">local_model_path</span><span class="o">=</span><span class="n">local_model_path</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">create_version_response</span></div>
+    <span class="n">eprint</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Created version &#39;</span><span class="si">{</span><span class="n">create_version_response</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&#39; of model &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">create_version_response</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">create_version_response</span>
 
 
 <div class="viewcode-block" id="search_registered_models"><a class="viewcode-back" href="../../../../python_api/mlflow.html#mlflow.search_registered_models">[docs]</a><span class="k">def</span> <span class="nf">search_registered_models</span><span class="p">(</span>
@@ -438,7 +451,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

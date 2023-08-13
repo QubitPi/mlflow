@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.transformers &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.transformers &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/_modules/mlflow/transformers.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -54,7 +55,6 @@
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -191,7 +192,6 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">NamedTuple</span>
 <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
-
 <span class="kn">import</span> <span class="nn">yaml</span>
 
 <span class="kn">import</span> <span class="nn">mlflow</span>
@@ -294,7 +294,14 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">engine</span> <span class="o">=</span> <span class="n">_get_engine_type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">engine</span> <span class="o">==</span> <span class="s2">&quot;torch&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;torch&quot;</span><span class="p">,</span> <span class="s2">&quot;torchvision&quot;</span><span class="p">,</span> <span class="s2">&quot;accelerate&quot;</span><span class="p">]</span>
+        <span class="n">packages</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;torch&quot;</span><span class="p">,</span> <span class="s2">&quot;torchvision&quot;</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">accelerate</span>
+
+            <span class="n">packages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;accelerate&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">packages</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">engine</span><span class="p">]</span>
 
@@ -329,7 +336,7 @@
         <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
             <span class="s2">&quot;Could not infer model execution engine type due to huggingface_hub not &quot;</span>
             <span class="s2">&quot;being installed or unable to connect in online mode. Adding full &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;dependency chain: </span><span class="si">{</span><span class="n">dependencies</span><span class="si">}</span><span class="s2">. </span><span class="se">\n</span><span class="s2">Failure cause: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;dependency chain: </span><span class="si">{</span><span class="n">dependencies</span><span class="si">}</span><span class="s2">. </span><span class="se">\n</span><span class="s2">Failure cause: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">dependencies</span></div>
 
@@ -393,7 +400,7 @@
     <span class="n">extra_pip_requirements</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">conda_env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># pylint: disable=unused-argument</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Save a trained transformers model to a path on the local file system.</span>
@@ -554,10 +561,7 @@
 <span class="sd">                      a supported type, this inference functionality will not function correctly</span>
 <span class="sd">                      and a warning will be issued. In order to ensure that a precise signature</span>
 <span class="sd">                      is logged, it is recommended to explicitly provide one.</span>
-<span class="sd">    :param input_example: An example of valid input that the model can accept. The example can be</span>
-<span class="sd">                          used as a hint of what data to feed the model. The given example will be</span>
-<span class="sd">                          converted to a `Pandas DataFrame` and then serialized to JSON using the</span>
-<span class="sd">                          `Pandas` split-oriented format. Bytes are base64-encoded.</span>
+<span class="sd">    :param input_example: {{ input_example }}</span>
 <span class="sd">    :param pip_requirements: {{ pip_requirements }}</span>
 <span class="sd">    :param extra_pip_requirements: {{ extra_pip_requirements }}</span>
 <span class="sd">    :param conda_env: {{ conda_env }}</span>
@@ -641,8 +645,10 @@
     <span class="k">if</span> <span class="n">_should_add_pyfunc_to_model</span><span class="p">(</span><span class="n">built_pipeline</span><span class="p">):</span>
         <span class="c1"># For pyfunc supported models, if a signature is not supplied, infer the signature</span>
         <span class="c1"># from the input_example if provided, otherwise, apply a generic signature.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">signature</span><span class="p">:</span>
-            <span class="n">mlflow_model</span><span class="o">.</span><span class="n">signature</span> <span class="o">=</span> <span class="n">_get_default_pipeline_signature</span><span class="p">(</span><span class="n">built_pipeline</span><span class="p">,</span> <span class="n">input_example</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mlflow_model</span><span class="o">.</span><span class="n">signature</span> <span class="o">=</span> <span class="n">_get_default_pipeline_signature</span><span class="p">(</span>
+                <span class="n">built_pipeline</span><span class="p">,</span> <span class="n">input_example</span><span class="p">,</span> <span class="n">inference_config</span>
+            <span class="p">)</span>
 
         <span class="n">pyfunc</span><span class="o">.</span><span class="n">add_to_model</span><span class="p">(</span>
             <span class="n">mlflow_model</span><span class="p">,</span>
@@ -891,11 +897,7 @@
 <span class="sd">                      a supported type, this inference functionality will not function correctly</span>
 <span class="sd">                      and a warning will be issued. In order to ensure that a precise signature</span>
 <span class="sd">                      is logged, it is recommended to explicitly provide one.</span>
-<span class="sd">    :param input_example: Input example provides one or several instances of valid</span>
-<span class="sd">                          model input. The example can be used as a hint of what data to feed the</span>
-<span class="sd">                          model. The given example will be converted to a ``Pandas DataFrame`` and</span>
-<span class="sd">                          then serialized to json using the ``Pandas`` split-oriented format.</span>
-<span class="sd">                          Bytes are base64-encoded.</span>
+<span class="sd">    :param input_example: {{ input_example }}</span>
 <span class="sd">    :param await_registration_for: Number of seconds to wait for the model version</span>
 <span class="sd">                                   to finish being created and is in ``READY`` status.</span>
 <span class="sd">                                   By default, the function waits for five minutes.</span>
@@ -1052,7 +1054,13 @@
 
     <span class="n">model_instance</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">transformers</span><span class="p">,</span> <span class="n">flavor_config</span><span class="p">[</span><span class="n">_PIPELINE_MODEL_TYPE_KEY</span><span class="p">])</span>
     <span class="n">local_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="n">model_path</span> <span class="o">=</span> <span class="n">local_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">flavor_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_MODEL_BINARY_KEY</span><span class="p">,</span> <span class="n">_MODEL_BINARY_FILE_NAME</span><span class="p">))</span>
+    <span class="c1"># NB: Path resolution for models that were saved prior to 2.4.1 release when the pathing for</span>
+    <span class="c1">#     the saved pipeline or component artifacts was handled by duplicate entries for components</span>
+    <span class="c1">#     (artifacts/pipeline/* and artifacts/components/*) and pipelines were saved via the</span>
+    <span class="c1">#     &quot;artifacts/pipeline/*&quot; path. In order to load the older formats after the change, the</span>
+    <span class="c1">#     presence of the new path key is checked.</span>
+    <span class="n">model_path</span> <span class="o">=</span> <span class="n">local_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">flavor_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_MODEL_BINARY_KEY</span><span class="p">,</span> <span class="s2">&quot;pipeline&quot;</span><span class="p">))</span>
+
     <span class="n">conf</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;task&quot;</span><span class="p">:</span> <span class="n">flavor_config</span><span class="p">[</span><span class="n">_TASK_KEY</span><span class="p">],</span>
     <span class="p">}</span>
@@ -1489,7 +1497,9 @@
     <span class="k">return</span> <span class="n">input_example</span>
 
 
-<span class="k">def</span> <span class="nf">_get_default_pipeline_signature</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">example</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelSignature</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_get_default_pipeline_signature</span><span class="p">(</span>
+    <span class="n">pipeline</span><span class="p">,</span> <span class="n">example</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inference_config</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelSignature</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Assigns a default ModelSignature for a given Pipeline type that has pyfunc support. These</span>
 <span class="sd">    default signatures should only be generated and assigned when saving a model iff the user</span>
@@ -1502,8 +1512,8 @@
 
     <span class="k">if</span> <span class="n">example</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">inference_pyfunc</span> <span class="o">=</span> <span class="n">_TransformersWrapper</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">infer_signature</span><span class="p">(</span><span class="n">example</span><span class="p">,</span> <span class="n">inference_pyfunc</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">example</span><span class="p">))</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="n">generate_signature_output</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">example</span><span class="p">,</span> <span class="n">inference_config</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">infer_signature</span><span class="p">(</span><span class="n">example</span><span class="p">,</span> <span class="n">prediction</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s2">&quot;Attempted to generate a signature for the saved model or pipeline &quot;</span>
@@ -1678,7 +1688,7 @@
         <span class="n">feature_extractor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">image_processor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">processor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># pylint: disable=unused-argument</span>
     <span class="p">):</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">_validate_submitted_types</span><span class="p">(</span>
             <span class="n">model</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="p">,</span> <span class="n">image_processor</span><span class="p">,</span> <span class="n">processor</span>
@@ -1778,7 +1788,57 @@
                     <span class="p">)</span>
             <span class="k">return</span> <span class="n">parsed</span>
 
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_override_inference_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;params provided to the `predict` method will override the inference &quot;</span>
+                <span class="s2">&quot;configuration saved with the model. If the params provided are not &quot;</span>
+                <span class="s2">&quot;valid for the pipeline, MlflowException will be raised.&quot;</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Override the inference configuration with any additional kwargs provided by the user.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inference_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_inference_config_and_return_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">transformers</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">inference_config</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">inference_config</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;The following `model_kwargs` are not used by the model&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                    <span class="s2">&quot;The params provided to the `predict` method are not valid &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;for pipeline </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span>
+                <span class="p">(</span>
+                    <span class="n">transformers</span><span class="o">.</span><span class="n">AutomaticSpeechRecognitionPipeline</span><span class="p">,</span>
+                    <span class="n">transformers</span><span class="o">.</span><span class="n">AudioClassificationPipeline</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;Malformed soundfile&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                    <span class="s2">&quot;Failed to process the input audio data. Either the audio file is &quot;</span>
+                    <span class="s2">&quot;corrupted or a uri was passed in without overriding the default model &quot;</span>
+                    <span class="s2">&quot;signature. If submitting a string uri, please ensure that the model has &quot;</span>
+                    <span class="s2">&quot;been saved with a signature that defines a string input type.&quot;</span><span class="p">,</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+            <span class="k">raise</span>
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param data: Model input data.</span>
+<span class="sd">        :param params: Additional parameters to pass to the model for inference.</span>
+
+<span class="sd">                       .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                               release without warning.</span>
+
+<span class="sd">        :return: Model predictions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_override_inference_config</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="n">input_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_pandas_to_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -1800,7 +1860,7 @@
             <span class="n">input_data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-                <span class="s2">&quot;Input data must be either a pandas.DataFrame, a string, List[str], &quot;</span>
+                <span class="s2">&quot;Input data must be either a pandas.DataFrame, a string, bytes, List[str], &quot;</span>
                 <span class="s2">&quot;List[Dict[str, str]], List[Dict[str, Union[str, List[str]]]], &quot;</span>
                 <span class="s2">&quot;or Dict[str, Union[str, List[str]]].&quot;</span><span class="p">,</span>
                 <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
@@ -1816,11 +1876,11 @@
                 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">input_data</span>
             <span class="p">)</span>
 
-        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">predictions</span>
 
-    <span class="k">def</span> <span class="nf">_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">transformers</span>
 
         <span class="c1"># NB: the ordering of these conditional statements matters. TranslationPipeline and</span>
@@ -1888,8 +1948,6 @@
         <span class="n">include_prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;include_prompt&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="c1"># Optional stripping out of `\n` for specific generator pipelines.</span>
         <span class="n">collapse_whitespace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;collapse_whitespace&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">inference_config</span><span class="p">[</span><span class="s2">&quot;device&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">device</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_cast_lists_from_np_back_to_list</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
@@ -1897,30 +1955,8 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ConversationalPipeline</span><span class="p">):</span>
             <span class="n">conversation_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_conversation</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">conversation_output</span><span class="o">.</span><span class="n">generated_responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span>
-            <span class="p">(</span>
-                <span class="n">transformers</span><span class="o">.</span><span class="n">AutomaticSpeechRecognitionPipeline</span><span class="p">,</span>
-                <span class="n">transformers</span><span class="o">.</span><span class="n">AudioClassificationPipeline</span><span class="p">,</span>
-            <span class="p">),</span>
-        <span class="p">):</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">raw_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">inference_config</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s2">&quot;Malformed soundfile&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-                        <span class="s2">&quot;Failed to process the input audio data. Either the audio file is &quot;</span>
-                        <span class="s2">&quot;corrupted or a uri was passed in without overriding the default model &quot;</span>
-                        <span class="s2">&quot;signature. If submitting a string uri, please ensure that the model has &quot;</span>
-                        <span class="s2">&quot;been saved with a signature that defines a string input type.&quot;</span><span class="p">,</span>
-                        <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
-                    <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
-                <span class="k">raise</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">raw_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">inference_config</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">raw_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">inference_config</span><span class="p">)</span>
+            <span class="n">raw_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_inference_config_and_return_output</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
         <span class="c1"># Handle the pipeline outputs</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supported_custom_generator_types</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
@@ -1978,7 +2014,6 @@
                     <span class="n">transformers</span><span class="o">.</span><span class="n">FillMaskPipeline</span><span class="p">,</span>
                     <span class="n">transformers</span><span class="o">.</span><span class="n">TextGenerationPipeline</span><span class="p">,</span>
                     <span class="n">transformers</span><span class="o">.</span><span class="n">TranslationPipeline</span><span class="p">,</span>
-                    <span class="n">transformers</span><span class="o">.</span><span class="n">TextClassificationPipeline</span><span class="p">,</span>
                     <span class="n">transformers</span><span class="o">.</span><span class="n">SummarizationPipeline</span><span class="p">,</span>
                     <span class="n">transformers</span><span class="o">.</span><span class="n">TokenClassificationPipeline</span><span class="p">,</span>
                 <span class="p">),</span>
@@ -1987,8 +2022,95 @@
             <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
         <span class="p">):</span>
             <span class="k">return</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TextClassificationPipeline</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_text_classification_input</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">data</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_validate_text_classification_input</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform input type validation for TextClassification pipelines and casting of data</span>
+<span class="sd">        that is manipulated internally by the MLflow model server back to a structure that</span>
+<span class="sd">        can be used for pipeline inference.</span>
+
+<span class="sd">        To illustrate the input and outputs of this function, for the following inputs to</span>
+<span class="sd">        the pyfunc.predict() call for this pipeline type:</span>
+
+<span class="sd">        &quot;text to classify&quot;</span>
+<span class="sd">        [&quot;text to classify&quot;, &quot;other text to classify&quot;]</span>
+<span class="sd">        {&quot;text&quot;: &quot;text to classify&quot;, &quot;text_pair&quot;: &quot;pair text&quot;}</span>
+<span class="sd">        [{&quot;text&quot;: &quot;text&quot;, &quot;text_pair&quot;: &quot;pair&quot;}, {&quot;text&quot;: &quot;t&quot;, &quot;text_pair&quot;: &quot;tp&quot; }]</span>
+
+<span class="sd">        Pyfunc processing will convert these to the following structures:</span>
+
+<span class="sd">        [{0: &quot;text to classify&quot;}]</span>
+<span class="sd">        [{0: &quot;text to classify&quot;}, {0: &quot;other text to classify&quot;}]</span>
+<span class="sd">        [{&quot;text&quot;: &quot;text to classify&quot;, &quot;text_pair&quot;: &quot;pair text&quot;}]</span>
+<span class="sd">        [{&quot;text&quot;: &quot;text&quot;, &quot;text_pair&quot;: &quot;pair&quot;}, {&quot;text&quot;: &quot;t&quot;, &quot;text_pair&quot;: &quot;tp&quot; }]</span>
+
+<span class="sd">        The purpose of this function is to convert them into the correct format for input</span>
+<span class="sd">        to the pipeline (wrapping as a list has no bearing on the correctness of the</span>
+<span class="sd">        inferred classifications):</span>
+
+<span class="sd">        [&quot;text to classify&quot;]</span>
+<span class="sd">        [&quot;text to classify&quot;, &quot;other text to classify&quot;]</span>
+<span class="sd">        [{&quot;text&quot;: &quot;text to classify&quot;, &quot;text_pair&quot;: &quot;pair text&quot;}]</span>
+<span class="sd">        [{&quot;text&quot;: &quot;text&quot;, &quot;text_pair&quot;: &quot;pair&quot;}, {&quot;text&quot;: &quot;t&quot;, &quot;text_pair&quot;: &quot;tp&quot; }]</span>
+
+<span class="sd">        Additionally, for dict input types (the &#39;text&#39; &amp; &#39;text_pair&#39; input example), the dict</span>
+<span class="sd">        input will be JSON stringified within MLflow model serving. In order to reconvert this</span>
+<span class="sd">        structure back into the appropriate type, we use ast.literal_eval() to convert back</span>
+<span class="sd">        to a dict. We avoid using JSON.loads() due to pandas DataFrame conversions that invert</span>
+<span class="sd">        single and double quotes with escape sequences that are not consistent if the string</span>
+<span class="sd">        contains escaped quotes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_check_keys</span><span class="p">(</span><span class="n">payload</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Check if a dictionary contains only allowable keys.&quot;&quot;&quot;</span>
+            <span class="n">allowable_str_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;text_pair&quot;</span><span class="p">}</span>
+            <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span> <span class="o">-</span> <span class="n">allowable_str_keys</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">payload</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                    <span class="s2">&quot;Text Classification pipelines may only define dictionary inputs with keys &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;defined as </span><span class="si">{</span><span class="n">allowable_str_keys</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">data</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">_check_keys</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">data</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">data</span>
+            <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">payload</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="n">_check_keys</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># NB: To support MLflow serving signature validation, the value within dict</span>
+                    <span class="c1"># inputs is JSON encoded. In order for the proper data structure input support</span>
+                    <span class="c1"># for a {&quot;text&quot;: &quot;a&quot;, &quot;text_pair&quot;: &quot;b&quot;} (or the list of such a structure) as</span>
+                    <span class="c1"># an input, we have to convert the string encoded dict back to a dict.</span>
+                    <span class="c1"># Due to how unescaped characters (such as &quot;&#39;&quot;) are encoded, using an explicit</span>
+                    <span class="c1"># json.loads() attempted cast can result in invalid input data to the pipeline.</span>
+                    <span class="c1"># ast.literal_eval() shows correct conversion, as validated in unit tests.</span>
+                    <span class="k">return</span> <span class="p">[</span><span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">SyntaxError</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">data</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                    <span class="s2">&quot;An unsupported data type has been passed for Text Classification inference. &quot;</span>
+                    <span class="s2">&quot;Only str, list of str, dict, and list of dict are supported.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                <span class="s2">&quot;An unsupported data type has been passed for Text Classification inference. &quot;</span>
+                <span class="s2">&quot;Only str, list of str, dict, and list of dict are supported.&quot;</span>
+            <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_parse_conversation_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">transformers</span>
@@ -2255,12 +2377,12 @@
                         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span>
                             <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">value</span>
                         <span class="p">):</span>
-                            <span class="n">output_coll</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">_parse_lists_of_dict_to_list_of_str</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">target_dict_key</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="n">output_coll</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_parse_lists_of_dict_to_list_of_str</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">target_dict_key</span><span class="p">)</span>
                             <span class="p">)</span>
                 <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-                    <span class="n">output_coll</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_lists_of_dict_to_list_of_str</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">target_dict_key</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">output_coll</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_lists_of_dict_to_list_of_str</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">target_dict_key</span><span class="p">)</span>
                     <span class="p">)</span>
             <span class="k">return</span> <span class="n">output_coll</span>
         <span class="k">elif</span> <span class="n">target_dict_key</span><span class="p">:</span>
@@ -2663,6 +2785,7 @@
     <span class="n">exclusive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">disable_for_unsupported_versions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">extra_tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>  <span class="c1"># pylint: disable=unused-argument</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This autologging integration is solely used for disabling spurious autologging of irrelevant</span>
@@ -2725,7 +2848,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

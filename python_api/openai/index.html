@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.openai &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.openai &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/python_api/openai/index.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Python API" href="../index.html"/>
         <link rel="next" title="R API" href="/../../R-api.html"/>
         <link rel="prev" title="mlflow.xgboost" href="/../mlflow.xgboost.html"/> 
@@ -56,7 +57,6 @@
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -67,7 +67,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -115,6 +115,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -131,6 +132,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.entities.html">mlflow.entities</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.environment_variables.html">mlflow.environment_variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.fastai.html">mlflow.fastai</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mlflow.gateway.html">mlflow.gateway</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.gluon.html">mlflow.gluon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.h2o.html">mlflow.h2o</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.johnsnowlabs.html">mlflow.johnsnowlabs</a></li>
@@ -423,6 +425,32 @@ or <code class="docutils literal notranslate"><span class="pre">top_p</span></co
 metadata of the logged model.</p>
 </dd>
 </dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">import</span> <span class="nn">openai</span>
+
+<span class="c1"># Chat</span>
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">openai</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">,</span>
+        <span class="n">task</span><span class="o">=</span><span class="n">openai</span><span class="o">.</span><span class="n">ChatCompletion</span><span class="p">,</span>
+        <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Tell me a joke about </span><span class="si">{animal}</span><span class="s2">.&quot;</span><span class="p">}],</span>
+        <span class="n">artifact_path</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">model_uri</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;animal&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cats&quot;</span><span class="p">,</span> <span class="s2">&quot;dogs&quot;</span><span class="p">]})</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
+
+<span class="c1"># Embeddings</span>
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">openai</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;text-embedding-ada-002&quot;</span><span class="p">,</span>
+        <span class="n">task</span><span class="o">=</span><span class="n">openai</span><span class="o">.</span><span class="n">Embedding</span><span class="p">,</span>
+        <span class="n">artifact_path</span><span class="o">=</span><span class="s2">&quot;embeddings&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">model_uri</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;world&quot;</span><span class="p">]))</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -529,6 +557,25 @@ or <code class="docutils literal notranslate"><span class="pre">top_p</span></co
 </ul>
 </dd>
 </dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">import</span> <span class="nn">openai</span>
+
+<span class="c1"># Chat</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">openai</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">,</span>
+    <span class="n">task</span><span class="o">=</span><span class="n">openai</span><span class="o">.</span><span class="n">ChatCompletion</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Tell me a joke.&quot;</span><span class="p">}],</span>
+    <span class="n">path</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Embeddings</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">openai</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;text-embedding-ada-002&quot;</span><span class="p">,</span>
+    <span class="n">task</span><span class="o">=</span><span class="n">openai</span><span class="o">.</span><span class="n">Embedding</span><span class="p">,</span>
+    <span class="n">path</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </div>
@@ -572,7 +619,7 @@ or <code class="docutils literal notranslate"><span class="pre">top_p</span></co
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.sentence_transformers &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.sentence_transformers &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/_modules/mlflow/sentence_transformers.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -54,7 +55,6 @@
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -186,8 +187,10 @@
 
 <span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">pyfunc</span>
+<span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">ModelSignature</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">infer_pip_requirements</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.model</span> <span class="kn">import</span> <span class="n">MLMODEL_FILE_NAME</span>
+<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">_infer_signature_from_input_example</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">_save_example</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry</span> <span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
 <span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">Schema</span><span class="p">,</span> <span class="n">ColSpec</span><span class="p">,</span> <span class="n">TensorSpec</span>
@@ -281,17 +284,16 @@
 <span class="sd">                       path when the model is loaded.</span>
 <span class="sd">    :param mlflow_model: An MLflow model object that specifies the flavor that this model is being</span>
 <span class="sd">                         added to.</span>
-<span class="sd">    :param signature: A Model Signature object that describes the input and output Schema of the</span>
-<span class="sd">                      model. The model signature can be inferred using `infer_signature` function</span>
-<span class="sd">                      of `mlflow.models.signature`.</span>
-
-<span class="sd">                      If an input_example is provided and the signature is not, a signature will</span>
-<span class="sd">                      be inferred automatically and applied to the MLmodel file.</span>
-
-<span class="sd">    :param input_example: An example of valid input that the model can accept. The example can be</span>
-<span class="sd">                          used as a hint of what data to feed the model. The given example will be</span>
-<span class="sd">                          converted to a `Pandas DataFrame` and then serialized to JSON using the</span>
-<span class="sd">                          `Pandas` split-oriented format.</span>
+<span class="sd">    :param signature: an instance of the :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
+<span class="sd">                      class that describes the model&#39;s inputs and outputs. If not specified but an</span>
+<span class="sd">                      ``input_example`` is supplied, a signature will be automatically inferred</span>
+<span class="sd">                      based on the supplied input example and model. If both ``signature`` and</span>
+<span class="sd">                      ``input_example`` are not specified or the automatic signature inference</span>
+<span class="sd">                      fails, a default signature will be adopted. To prevent a signature from being</span>
+<span class="sd">                      adopted, set ``signature`` to ``False``. To manually infer a model signature,</span>
+<span class="sd">                      call :py:func:`infer_signature() &lt;mlflow.models.infer_signature&gt;` on datasets</span>
+<span class="sd">                      with valid model inputs and valid model outputs.</span>
+<span class="sd">    :param input_example: {{ input_example }}</span>
 <span class="sd">    :param pip_requirements: {{ pip_requirements }}</span>
 <span class="sd">    :param extra_pip_requirements: {{ extra_pip_requirements }}</span>
 <span class="sd">    :param conda_env: {{ conda_env }}</span>
@@ -313,12 +315,18 @@
 
     <span class="n">code_dir_subpath</span> <span class="o">=</span> <span class="n">_validate_and_copy_code_paths</span><span class="p">(</span><span class="n">code_paths</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
 
+    <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">input_example</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">wrapped_model</span> <span class="o">=</span> <span class="n">_SentenceTransformerModelWrapper</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="n">_infer_signature_from_input_example</span><span class="p">(</span><span class="n">input_example</span><span class="p">,</span> <span class="n">wrapped_model</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="n">_get_default_signature</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="kc">None</span>
+
     <span class="k">if</span> <span class="n">mlflow_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mlflow_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mlflow_model</span><span class="o">.</span><span class="n">signature</span> <span class="o">=</span> <span class="n">signature</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">mlflow_model</span><span class="o">.</span><span class="n">signature</span> <span class="o">=</span> <span class="n">_get_default_signature</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">input_example</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">_save_example</span><span class="p">(</span><span class="n">mlflow_model</span><span class="p">,</span> <span class="n">input_example</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -404,17 +412,16 @@
 <span class="sd">                                  future release without warning. If given, create a model</span>
 <span class="sd">                                  version under ``registered_model_name``, also creating a</span>
 <span class="sd">                                  registered model if one with the given name does not exist.</span>
-<span class="sd">    :param signature: A Model Signature object that describes the input and output Schema of the</span>
-<span class="sd">                      model. The model signature can be inferred using `infer_signature` function</span>
-<span class="sd">                      of `mlflow.models.signature`.</span>
-
-<span class="sd">                      If an input_example is provided and the signature is not, a signature will</span>
-<span class="sd">                      be inferred automatically and applied to the MLmodel file.</span>
-
-<span class="sd">    :param input_example: An example of valid input that the model can accept. The example can be</span>
-<span class="sd">                          used as a hint of what data to feed the model. The given example will be</span>
-<span class="sd">                          converted to a `Pandas DataFrame` and then serialized to JSON using the</span>
-<span class="sd">                          `Pandas` split-oriented format.</span>
+<span class="sd">    :param signature: an instance of the :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
+<span class="sd">                      class that describes the model&#39;s inputs and outputs. If not specified but an</span>
+<span class="sd">                      ``input_example`` is supplied, a signature will be automatically inferred</span>
+<span class="sd">                      based on the supplied input example and model. If both ``signature`` and</span>
+<span class="sd">                      ``input_example`` are not specified or the automatic signature inference</span>
+<span class="sd">                      fails, a default signature will be adopted. To prevent a signature from being</span>
+<span class="sd">                      adopted, set ``signature`` to ``False``. To manually infer a model signature,</span>
+<span class="sd">                      call :py:func:`infer_signature() &lt;mlflow.models.infer_signature&gt;` on datasets</span>
+<span class="sd">                      with valid model inputs and valid model outputs.</span>
+<span class="sd">    :param input_example: {{ input_example }}</span>
 <span class="sd">    :param pip_requirements: {{ pip_requirements }}</span>
 <span class="sd">    :param extra_pip_requirements: {{ extra_pip_requirements }}</span>
 <span class="sd">    :param conda_env: {{ conda_env }}</span>
@@ -505,7 +512,16 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
 
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param sentences: Model input data.</span>
+<span class="sd">        :param params: Additional parameters to pass to the model for inference.</span>
+
+<span class="sd">                       .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                               release without warning.</span>
+
+<span class="sd">        :return: Model predictions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># When the input is a single string, it is transformed into a DataFrame with one column</span>
         <span class="c1"># and row, but the encode function does not accept DataFrame input</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span> <span class="o">==</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -513,7 +529,14 @@
 
         <span class="c1"># The encode API has additional parameters that we can add as kwargs.</span>
         <span class="c1"># See https://www.sbert.net/docs/package_reference/SentenceTransformer.html#sentence_transformers.SentenceTransformer.encode</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>  <span class="c1"># numpy array</span>
+        <span class="k">if</span> <span class="n">params</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                    <span class="s2">&quot;Received invalid parameter value for `params` argument&quot;</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
 </pre></div>
 
               </div>
@@ -544,7 +567,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

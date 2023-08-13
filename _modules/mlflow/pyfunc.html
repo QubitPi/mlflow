@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.pyfunc &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.pyfunc &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/_modules/mlflow/pyfunc.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -54,7 +55,6 @@
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -397,7 +398,7 @@
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span>
@@ -414,6 +415,7 @@
 <span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">PyFuncInput</span><span class="p">,</span>
     <span class="n">PyFuncOutput</span><span class="p">,</span>
+    <span class="n">_enforce_params_schema</span><span class="p">,</span>
     <span class="n">_enforce_schema</span><span class="p">,</span>
     <span class="n">_save_example</span><span class="p">,</span>
 <span class="p">)</span>
@@ -426,7 +428,10 @@
     <span class="n">PythonModelContext</span><span class="p">,</span>
     <span class="n">get_default_conda_env</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.pyfunc.model</span> <span class="kn">import</span> <span class="n">get_default_pip_requirements</span>
+<span class="kn">from</span> <span class="nn">mlflow.pyfunc.model</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_default_pip_requirements</span><span class="p">,</span>
+    <span class="n">_log_warning_if_params_not_in_predict_signature</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry</span> <span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="n">_download_artifact_from_uri</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="p">(</span>
@@ -463,7 +468,7 @@
     <span class="n">_check_requirement_satisfied</span><span class="p">,</span>
     <span class="n">_parse_requirements</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.environment_variables</span> <span class="kn">import</span> <span class="n">MLFLOW_OPENAI_RETRIES_ENABLED</span><span class="p">,</span> <span class="n">_MLFLOW_OPENAI_TESTING</span>
+<span class="kn">from</span> <span class="nn">mlflow.environment_variables</span> <span class="kn">import</span> <span class="n">MLFLOW_OPENAI_RETRIES_ENABLED</span><span class="p">,</span> <span class="n">_MLFLOW_TESTING</span>
 
 <span class="n">FLAVOR_NAME</span> <span class="o">=</span> <span class="s2">&quot;python_function&quot;</span>
 <span class="n">MAIN</span> <span class="o">=</span> <span class="s2">&quot;loader_module&quot;</span>
@@ -542,6 +547,19 @@
     <span class="k">return</span> <span class="n">_get_flavor_configuration</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">flavor_name</span><span class="o">=</span><span class="n">FLAVOR_NAME</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ENV</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">_validate_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">model_metadata</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model_metadata</span><span class="p">,</span> <span class="s2">&quot;get_params_schema&quot;</span><span class="p">):</span>
+        <span class="n">params_schema</span> <span class="o">=</span> <span class="n">model_metadata</span><span class="o">.</span><span class="n">get_params_schema</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">_enforce_params_schema</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">params_schema</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">params</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+            <span class="s2">&quot;This model was not logged with a params schema and does not support &quot;</span>
+            <span class="s2">&quot;providing the params argument.&quot;</span>
+            <span class="s2">&quot;Please log the model with mlflow &gt;= 2.6.0 and specify a params schema.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span>
+
+
 <div class="viewcode-block" id="PyFuncModel"><a class="viewcode-back" href="../../python_api/mlflow.pyfunc.html#mlflow.pyfunc.PyFuncModel">[docs]</a><span class="k">class</span> <span class="nc">PyFuncModel</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    MLflow &#39;python function&#39; model.</span>
@@ -566,7 +584,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_model_impl</span> <span class="o">=</span> <span class="n">model_impl</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_predict_fn</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model_impl</span><span class="p">,</span> <span class="n">predict_fn</span><span class="p">)</span>
 
-<div class="viewcode-block" id="PyFuncModel.predict"><a class="viewcode-back" href="../../python_api/mlflow.pyfunc.html#mlflow.pyfunc.PyFuncModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">PyFuncInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyFuncOutput</span><span class="p">:</span>
+<div class="viewcode-block" id="PyFuncModel.predict"><a class="viewcode-back" href="../../python_api/mlflow.pyfunc.html#mlflow.pyfunc.PyFuncModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">PyFuncInput</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyFuncOutput</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate model predictions.</span>
 
@@ -587,23 +605,39 @@
 <span class="sd">                     (i.e. read / write the elements using C-like index order), and DataFrame</span>
 <span class="sd">                     column values will be cast as the required tensor spec type.</span>
 
+<span class="sd">        :param params: Additional parameters to pass to the model for inference.</span>
+
+<span class="sd">                       .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                               release without warning.</span>
+
 <span class="sd">        :return: Model predictions as one of pandas.DataFrame, pandas.Series, numpy.ndarray or list.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">input_schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get_input_schema</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">input_schema</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">_enforce_schema</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">input_schema</span><span class="p">)</span>
 
+        <span class="n">params</span> <span class="o">=</span> <span class="n">_validate_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_predict</span><span class="p">():</span>
+            <span class="c1"># Models saved prior to MLflow 2.5.0 do not support `params` in the pyfunc `predict()`</span>
+            <span class="c1"># function definition, nor do they support `**kwargs`. Accordingly, we only pass</span>
+            <span class="c1"># `params` to the `predict()` method if it defines the `params` argument</span>
+            <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_predict_fn</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_fn</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">_log_warning_if_params_not_in_predict_signature</span><span class="p">(</span><span class="n">_logger</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_fn</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="s2">&quot;openai&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span> <span class="ow">and</span> <span class="n">MLFLOW_OPENAI_RETRIES_ENABLED</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
             <span class="kn">from</span> <span class="nn">mlflow.openai.retry</span> <span class="kn">import</span> <span class="n">openai_auto_retry_patch</span>
 
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">with</span> <span class="n">openai_auto_retry_patch</span><span class="p">():</span>
-                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_fn</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">_predict</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">_MLFLOW_OPENAI_TESTING</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">_MLFLOW_TESTING</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
                     <span class="k">raise</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_fn</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_predict</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="PyFuncModel.unwrap_python_model"><a class="viewcode-back" href="../../python_api/mlflow.pyfunc.html#mlflow.pyfunc.PyFuncModel.unwrap_python_model">[docs]</a>    <span class="nd">@experimental</span>
     <span class="k">def</span> <span class="nf">unwrap_python_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -623,10 +657,10 @@
 
 <span class="sd">            # define a custom model</span>
 <span class="sd">            class MyModel(mlflow.pyfunc.PythonModel):</span>
-<span class="sd">                def predict(self, context, model_input):</span>
-<span class="sd">                    return self.my_custom_function(model_input)</span>
+<span class="sd">                def predict(self, context, model_input, params=None):</span>
+<span class="sd">                    return self.my_custom_function(model_input, params)</span>
 
-<span class="sd">                def my_custom_function(self, model_input):</span>
+<span class="sd">                def my_custom_function(self, model_input, params=None):</span>
 <span class="sd">                    # do something with the model input</span>
 <span class="sd">                    return 0</span>
 
@@ -719,7 +753,7 @@
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Encountered an unexpected error (</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">) while detecting model dependency &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Encountered an unexpected error (</span><span class="si">{</span><span class="n">e</span><span class="si">!r}</span><span class="s2">) while detecting model dependency &quot;</span>
             <span class="s2">&quot;mismatches. Set logging level to DEBUG to see the full traceback.&quot;</span>
         <span class="p">)</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -783,8 +817,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server_pid</span> <span class="o">=</span> <span class="n">server_pid</span>
 
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">get_predictions</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param data: Model input data.</span>
+<span class="sd">        :param params: Additional parameters to pass to the model for inference.</span>
+
+<span class="sd">                       .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                               release without warning.</span>
+
+<span class="sd">        :return: Model predictions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">invoke</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">get_predictions</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_log_warning_if_params_not_in_predict_signature</span><span class="p">(</span><span class="n">_logger</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">get_predictions</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
         <span class="k">return</span> <span class="n">result</span>
@@ -1006,7 +1053,165 @@
 <span class="n">_MLFLOW_SERVER_OUTPUT_TAIL_LINES_TO_KEEP</span> <span class="o">=</span> <span class="mi">200</span>
 
 
-<div class="viewcode-block" id="spark_udf"><a class="viewcode-back" href="../../python_api/mlflow.pyfunc.html#mlflow.pyfunc.spark_udf">[docs]</a><span class="k">def</span> <span class="nf">spark_udf</span><span class="p">(</span><span class="n">spark</span><span class="p">,</span> <span class="n">model_uri</span><span class="p">,</span> <span class="n">result_type</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">,</span> <span class="n">env_manager</span><span class="o">=</span><span class="n">_EnvManager</span><span class="o">.</span><span class="n">LOCAL</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_cast_output_spec_to_spark_type</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">ColSpec</span><span class="p">,</span> <span class="n">TensorSpec</span><span class="p">,</span> <span class="n">DataType</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">ArrayType</span>
+
+    <span class="c1"># TODO: handle optional output columns.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">ColSpec</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">spec</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">to_spark</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">TensorSpec</span><span class="p">):</span>
+        <span class="n">data_type</span> <span class="o">=</span> <span class="n">DataType</span><span class="o">.</span><span class="n">from_numpy_type</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Model output tensor spec type </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> is not supported in spark_udf.&quot;</span><span class="p">,</span>
+                <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ArrayType</span><span class="p">(</span><span class="n">data_type</span><span class="o">.</span><span class="n">to_spark</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ArrayType</span><span class="p">(</span><span class="n">ArrayType</span><span class="p">(</span><span class="n">data_type</span><span class="o">.</span><span class="n">to_spark</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                <span class="s2">&quot;Only 1D or 2D tensors are supported as spark_udf &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;return value, but model output &#39;</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; has shape </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+                <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unknown schema output spec </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_infer_spark_udf_return_type</span><span class="p">(</span><span class="n">model_output_schema</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">StructType</span><span class="p">,</span> <span class="n">StructField</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_output_schema</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_cast_output_spec_to_spark_type</span><span class="p">(</span><span class="n">model_output_schema</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">StructType</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">StructField</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">dataType</span><span class="o">=</span><span class="n">_cast_output_spec_to_spark_type</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model_output_schema</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_spark_datatype</span><span class="p">(</span><span class="n">datatype</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">udf</span>
+
+    <span class="n">return_type</span> <span class="o">=</span> <span class="s2">&quot;boolean&quot;</span> <span class="k">if</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;bool&quot;</span> <span class="k">else</span> <span class="n">datatype</span>
+    <span class="k">return</span> <span class="n">udf</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="n">returnType</span><span class="o">=</span><span class="n">return_type</span><span class="p">)</span><span class="o">.</span><span class="n">returnType</span>
+
+
+<span class="k">def</span> <span class="nf">_is_none_or_nan</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="c1"># The condition `isinstance(value, float)` is needed to avoid error</span>
+    <span class="c1"># from `np.isnan(value)` if value is a non-numeric type.</span>
+    <span class="k">return</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_convert_array_values</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">elem_type</span><span class="p">,</span> <span class="n">array_dim</span><span class="p">,</span> <span class="n">spark_primitive_type_to_np_type</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert list or numpy array values to spark dataframe column values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">np_type</span> <span class="o">=</span> <span class="n">spark_primitive_type_to_np_type</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">elem_type</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">np_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+            <span class="s2">&quot;Unsupported array type field with element type &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">elem_type</span><span class="o">.</span><span class="n">simpleString</span><span class="p">()</span><span class="si">}</span><span class="s2"> in struct type.&quot;</span><span class="p">,</span>
+            <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># For array type result values, if provided value is None or NaN, regard it as a null array.</span>
+    <span class="c1"># see https://github.com/mlflow/mlflow/issues/8986</span>
+    <span class="k">if</span> <span class="n">array_dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="n">_is_none_or_nan</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np_type</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="n">_is_none_or_nan</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np_type</span><span class="p">))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_get_spark_primitive_types</span><span class="p">():</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">types</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">types</span><span class="o">.</span><span class="n">IntegerType</span><span class="p">,</span>
+        <span class="n">types</span><span class="o">.</span><span class="n">LongType</span><span class="p">,</span>
+        <span class="n">types</span><span class="o">.</span><span class="n">FloatType</span><span class="p">,</span>
+        <span class="n">types</span><span class="o">.</span><span class="n">DoubleType</span><span class="p">,</span>
+        <span class="n">types</span><span class="o">.</span><span class="n">StringType</span><span class="p">,</span>
+        <span class="n">types</span><span class="o">.</span><span class="n">BooleanType</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_check_udf_return_struct_type</span><span class="p">(</span><span class="n">struct_type</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">ArrayType</span>
+
+    <span class="n">primitive_types</span> <span class="o">=</span> <span class="n">_get_spark_primitive_types</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">struct_type</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+        <span class="n">field_type</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">dataType</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field_type</span><span class="p">,</span> <span class="n">primitive_types</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field_type</span><span class="p">,</span> <span class="n">ArrayType</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_check_udf_return_array_type</span><span class="p">(</span>
+            <span class="n">field_type</span><span class="p">,</span> <span class="n">allow_struct</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">def</span> <span class="nf">_check_udf_return_array_type</span><span class="p">(</span><span class="n">array_type</span><span class="p">,</span> <span class="n">allow_struct</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">ArrayType</span><span class="p">,</span> <span class="n">StructType</span>
+
+    <span class="n">elem_type</span> <span class="o">=</span> <span class="n">array_type</span><span class="o">.</span><span class="n">elementType</span>
+    <span class="n">primitive_types</span> <span class="o">=</span> <span class="n">_get_spark_primitive_types</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="c1"># 1D array of primitives</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem_type</span><span class="p">,</span> <span class="n">primitive_types</span><span class="p">)</span>
+        <span class="ow">or</span>
+        <span class="c1"># 2D array of primitives</span>
+        <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">elem_type</span><span class="p">,</span> <span class="n">ArrayType</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem_type</span><span class="o">.</span><span class="n">elementType</span><span class="p">,</span> <span class="n">primitive_types</span><span class="p">))</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem_type</span><span class="p">,</span> <span class="n">StructType</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">allow_struct</span><span class="p">:</span>
+            <span class="c1"># Array of struct values.</span>
+            <span class="k">return</span> <span class="n">_check_udf_return_struct_type</span><span class="p">(</span><span class="n">elem_type</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">_check_udf_return_type</span><span class="p">(</span><span class="n">data_type</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">ArrayType</span><span class="p">,</span> <span class="n">StructType</span>
+
+    <span class="n">primitive_types</span> <span class="o">=</span> <span class="n">_get_spark_primitive_types</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">primitive_types</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">ArrayType</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_check_udf_return_array_type</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">allow_struct</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">StructType</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_check_udf_return_struct_type</span><span class="p">(</span><span class="n">data_type</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="spark_udf"><a class="viewcode-back" href="../../python_api/mlflow.pyfunc.html#mlflow.pyfunc.spark_udf">[docs]</a><span class="k">def</span> <span class="nf">spark_udf</span><span class="p">(</span>
+    <span class="n">spark</span><span class="p">,</span>
+    <span class="n">model_uri</span><span class="p">,</span>
+    <span class="n">result_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">env_manager</span><span class="o">=</span><span class="n">_EnvManager</span><span class="o">.</span><span class="n">LOCAL</span><span class="p">,</span>
+    <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Spark UDF that can be used to invoke the Python function formatted model.</span>
 
@@ -1062,6 +1267,10 @@
 <span class="sd">        ``pyspark.sql.types.DataType`` object or a DDL-formatted type string. Only a primitive</span>
 <span class="sd">        type, an array ``pyspark.sql.types.ArrayType`` of primitive type, or a struct type</span>
 <span class="sd">        containing fields of above 2 kinds of types are allowed.</span>
+<span class="sd">        If unspecified, it tries to infer result type from model signature</span>
+<span class="sd">        output schema, if model output schema is not available, it fallbacks to use ``double``</span>
+<span class="sd">        type.</span>
+
 <span class="sd">        The following classes of result type are supported:</span>
 
 <span class="sd">        - &quot;int&quot; or ``pyspark.sql.types.IntegerType``: The leftmost integer that can fit in an</span>
@@ -1106,6 +1315,11 @@
 <span class="sd">                           may differ from the environment used to train the model and may lead to</span>
 <span class="sd">                           errors or invalid predictions.</span>
 
+<span class="sd">    :param params: Additional parameters to pass to the model for inference.</span>
+
+<span class="sd">                   .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                           release without warning.</span>
+
 <span class="sd">    :return: Spark UDF that applies the model&#39;s ``predict`` method to the data and returns a</span>
 <span class="sd">             type specified by ``result_type``, which by default is a double.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1115,12 +1329,7 @@
     <span class="kn">from</span> <span class="nn">mlflow.pyfunc.spark_model_cache</span> <span class="kn">import</span> <span class="n">SparkModelCache</span>
     <span class="kn">from</span> <span class="nn">mlflow.utils._spark_utils</span> <span class="kn">import</span> <span class="n">_SparkDirectoryDistributor</span>
     <span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">pandas_udf</span>
-    <span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">_parse_datatype_string</span>
-    <span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="p">(</span>
-        <span class="n">ArrayType</span><span class="p">,</span>
-        <span class="n">DataType</span> <span class="k">as</span> <span class="n">SparkDataType</span><span class="p">,</span>
-        <span class="n">StructType</span> <span class="k">as</span> <span class="n">SparkStructType</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">ArrayType</span><span class="p">,</span> <span class="n">StructType</span> <span class="k">as</span> <span class="n">SparkStructType</span>
     <span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="p">(</span>
         <span class="n">DoubleType</span><span class="p">,</span>
         <span class="n">IntegerType</span><span class="p">,</span>
@@ -1133,7 +1342,7 @@
     <span class="c1"># Used in test to force install local version of mlflow when starting a model server</span>
     <span class="n">mlflow_home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MLFLOW_HOME&quot;</span><span class="p">)</span>
     <span class="n">openai_env_vars</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">openai</span><span class="o">.</span><span class="n">_OpenAIEnvVar</span><span class="o">.</span><span class="n">read_environ</span><span class="p">()</span>
-    <span class="n">mlflow_openai_testing</span> <span class="o">=</span> <span class="n">_MLFLOW_OPENAI_TESTING</span><span class="o">.</span><span class="n">get_raw</span><span class="p">()</span>
+    <span class="n">mlflow_testing</span> <span class="o">=</span> <span class="n">_MLFLOW_TESTING</span><span class="o">.</span><span class="n">get_raw</span><span class="p">()</span>
 
     <span class="n">_EnvManager</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">env_manager</span><span class="p">)</span>
 
@@ -1144,32 +1353,6 @@
     <span class="n">nfs_root_dir</span> <span class="o">=</span> <span class="n">get_nfs_cache_root_dir</span><span class="p">()</span>
     <span class="n">should_use_nfs</span> <span class="o">=</span> <span class="n">nfs_root_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
     <span class="n">should_use_spark_to_broadcast_file</span> <span class="o">=</span> <span class="ow">not</span> <span class="p">(</span><span class="n">is_spark_in_local_mode</span> <span class="ow">or</span> <span class="n">should_use_nfs</span><span class="p">)</span>
-
-    <span class="n">result_type</span> <span class="o">=</span> <span class="s2">&quot;boolean&quot;</span> <span class="k">if</span> <span class="n">result_type</span> <span class="o">==</span> <span class="s2">&quot;bool&quot;</span> <span class="k">else</span> <span class="n">result_type</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result_type</span><span class="p">,</span> <span class="n">SparkDataType</span><span class="p">):</span>
-        <span class="n">result_type</span> <span class="o">=</span> <span class="n">_parse_datatype_string</span><span class="p">(</span><span class="n">result_type</span><span class="p">)</span>
-
-    <span class="n">elem_type</span> <span class="o">=</span> <span class="n">result_type</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem_type</span><span class="p">,</span> <span class="n">ArrayType</span><span class="p">):</span>
-        <span class="n">elem_type</span> <span class="o">=</span> <span class="n">elem_type</span><span class="o">.</span><span class="n">elementType</span>
-
-    <span class="n">supported_types</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">IntegerType</span><span class="p">,</span>
-        <span class="n">LongType</span><span class="p">,</span>
-        <span class="n">FloatType</span><span class="p">,</span>
-        <span class="n">DoubleType</span><span class="p">,</span>
-        <span class="n">StringType</span><span class="p">,</span>
-        <span class="n">BooleanType</span><span class="p">,</span>
-        <span class="n">SparkStructType</span><span class="p">,</span>
-    <span class="p">]</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">elem_type</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">supported_types</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-            <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Invalid result_type &#39;</span><span class="si">{}</span><span class="s2">&#39;. Result type can only be one of or an array of one &quot;</span>
-            <span class="s2">&quot;of the following types: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">elem_type</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">supported_types</span><span class="p">)),</span>
-            <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
-        <span class="p">)</span>
 
     <span class="n">local_model_path</span> <span class="o">=</span> <span class="n">_download_artifact_from_uri</span><span class="p">(</span>
         <span class="n">artifact_uri</span><span class="o">=</span><span class="n">model_uri</span><span class="p">,</span>
@@ -1227,6 +1410,40 @@
 
     <span class="n">model_metadata</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">MLMODEL_FILE_NAME</span><span class="p">))</span>
 
+    <span class="k">if</span> <span class="n">result_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">model_output_schema</span> <span class="o">:=</span> <span class="n">model_metadata</span><span class="o">.</span><span class="n">get_output_schema</span><span class="p">():</span>
+            <span class="n">result_type</span> <span class="o">=</span> <span class="n">_infer_spark_udf_return_type</span><span class="p">(</span><span class="n">model_output_schema</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;No &#39;result_type&#39; provided for spark_udf and the model does not &quot;</span>
+                <span class="s2">&quot;have an output schema. &#39;result_type&#39; is set to &#39;double&#39; type.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">result_type</span> <span class="o">=</span> <span class="n">DoubleType</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">result_type</span> <span class="o">=</span> <span class="n">_parse_spark_datatype</span><span class="p">(</span><span class="n">result_type</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_check_udf_return_type</span><span class="p">(</span><span class="n">result_type</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Invalid &#39;spark_udf&#39; result type: </span><span class="si">{</span><span class="n">result_type</span><span class="si">}</span><span class="s2">.</span>
+<span class="s2">It must be one of the following types:</span>
+<span class="s2">Primitive types:</span>
+<span class="s2"> - int</span>
+<span class="s2"> - long</span>
+<span class="s2"> - float</span>
+<span class="s2"> - double</span>
+<span class="s2"> - string</span>
+<span class="s2"> - boolean</span>
+<span class="s2">Compound types:</span>
+<span class="s2"> - array&lt;primitive&gt;: An array of primitives, e.g., array&lt;int&gt;.</span>
+<span class="s2"> - array&lt;array&lt;primitive&gt;&gt;: A 2D array of primitives, e.g., array&lt;array&lt;int&gt;&gt;.</span>
+<span class="s2"> - struct&lt;field: primitive | array&lt;primitive&gt; | array&lt;array&lt;primitive&gt;&gt;, ...&gt;:</span>
+<span class="s2">   A struct with primitive, array&lt;primitive&gt;, or array&lt;array&lt;primitive&gt;&gt;,</span>
+<span class="s2">   e.g., struct&lt;a:int, b:array&lt;int&gt;&gt;.</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="p">)</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">_validate_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">model_metadata</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">_predict_row_batch</span><span class="p">(</span><span class="n">predict_fn</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
         <span class="n">input_schema</span> <span class="o">=</span> <span class="n">model_metadata</span><span class="o">.</span><span class="n">get_input_schema</span><span class="p">()</span>
         <span class="n">pdf</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1236,7 +1453,7 @@
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
                         <span class="s2">&quot;If passing a StructType column, there should be only one &quot;</span>
-                        <span class="s2">&quot;input column, but got </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+                        <span class="sa">f</span><span class="s2">&quot;input column, but got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
                     <span class="p">)</span>
                 <span class="n">pdf</span> <span class="o">=</span> <span class="n">x</span>
         <span class="k">if</span> <span class="n">pdf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1257,13 +1474,10 @@
                     <span class="p">)</span>
             <span class="n">pdf</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">x</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">)},</span> <span class="n">columns</span><span class="o">=</span><span class="n">names</span><span class="p">)</span>
 
-        <span class="n">result</span> <span class="o">=</span> <span class="n">predict_fn</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">predict_fn</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">result</span><span class="p">)</span>
 
         <span class="n">spark_primitive_type_to_np_type</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">IntegerType</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
@@ -1273,6 +1487,15 @@
             <span class="n">BooleanType</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">,</span>
             <span class="n">StringType</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">str_</span><span class="p">,</span>
         <span class="p">}</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result_type</span><span class="p">,</span> <span class="n">ArrayType</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result_type</span><span class="o">.</span><span class="n">elementType</span><span class="p">,</span> <span class="n">ArrayType</span><span class="p">):</span>
+            <span class="n">result_values</span> <span class="o">=</span> <span class="n">_convert_array_values</span><span class="p">(</span>
+                <span class="n">result</span><span class="p">,</span> <span class="n">result_type</span><span class="o">.</span><span class="n">elementType</span><span class="o">.</span><span class="n">elementType</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">spark_primitive_type_to_np_type</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">result_values</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">result</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result_type</span><span class="p">,</span> <span class="n">SparkStructType</span><span class="p">):</span>
             <span class="n">result_dict</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1284,26 +1507,22 @@
                     <span class="n">np_type</span> <span class="o">=</span> <span class="n">spark_primitive_type_to_np_type</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">field_type</span><span class="p">)]</span>
                     <span class="n">field_values</span> <span class="o">=</span> <span class="n">field_values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np_type</span><span class="p">)</span>
 
-                <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">field_type</span><span class="p">)</span> <span class="o">==</span> <span class="n">ArrayType</span><span class="p">:</span>
-                    <span class="n">elem_type</span> <span class="o">=</span> <span class="n">field_type</span><span class="o">.</span><span class="n">elementType</span>
-                    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">elem_type</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">spark_primitive_type_to_np_type</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-                            <span class="s2">&quot;Unsupported array type field with element type &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">elem_type</span><span class="o">.</span><span class="n">simpleString</span><span class="p">()</span><span class="si">}</span><span class="s2"> in struct type.&quot;</span><span class="p">,</span>
-                            <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
-                        <span class="p">)</span>
-                    <span class="n">np_type</span> <span class="o">=</span> <span class="n">spark_primitive_type_to_np_type</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">elem_type</span><span class="p">)]</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field_type</span><span class="p">,</span> <span class="n">ArrayType</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field_type</span><span class="o">.</span><span class="n">elementType</span><span class="p">,</span> <span class="n">ArrayType</span><span class="p">):</span>
+                        <span class="n">array_dim</span> <span class="o">=</span> <span class="mi">2</span>
+                        <span class="n">elem_type</span> <span class="o">=</span> <span class="n">field_type</span><span class="o">.</span><span class="n">elementType</span><span class="o">.</span><span class="n">elementType</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">array_dim</span> <span class="o">=</span> <span class="mi">1</span>
+                        <span class="n">elem_type</span> <span class="o">=</span> <span class="n">field_type</span><span class="o">.</span><span class="n">elementType</span>
 
-                    <span class="n">field_values</span> <span class="o">=</span> <span class="p">[</span>
-                        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">elem_type</span><span class="p">)))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">field_values</span>
-                    <span class="p">]</span>
-
+                    <span class="n">field_values</span> <span class="o">=</span> <span class="n">_convert_array_values</span><span class="p">(</span>
+                        <span class="n">field_values</span><span class="p">,</span> <span class="n">elem_type</span><span class="p">,</span> <span class="n">array_dim</span><span class="p">,</span> <span class="n">spark_primitive_type_to_np_type</span>
+                    <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Unsupported field type </span><span class="si">{</span><span class="n">field_type</span><span class="o">.</span><span class="n">simpleString</span><span class="p">()</span><span class="si">}</span><span class="s2"> in struct type.&quot;</span><span class="p">,</span>
                         <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
                     <span class="p">)</span>
-
                 <span class="n">result_dict</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_values</span>
 
             <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
@@ -1332,8 +1551,8 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
                 <span class="n">message</span><span class="o">=</span><span class="s2">&quot;The model did not produce any values compatible with the requested &quot;</span>
-                <span class="s2">&quot;type &#39;</span><span class="si">{}</span><span class="s2">&#39;. Consider requesting udf with StringType or &quot;</span>
-                <span class="s2">&quot;Arraytype(StringType).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">elem_type</span><span class="p">)),</span>
+                <span class="sa">f</span><span class="s2">&quot;type &#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">elem_type</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;. Consider requesting udf with StringType or &quot;</span>
+                <span class="s2">&quot;Arraytype(StringType).&quot;</span><span class="p">,</span>
                 <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -1365,8 +1584,8 @@
             <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MLFLOW_HOME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mlflow_home</span>
         <span class="k">if</span> <span class="n">openai_env_vars</span><span class="p">:</span>
             <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">openai_env_vars</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">mlflow_openai_testing</span><span class="p">:</span>
-            <span class="n">_MLFLOW_OPENAI_TESTING</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">mlflow_openai_testing</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mlflow_testing</span><span class="p">:</span>
+            <span class="n">_MLFLOW_TESTING</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">mlflow_testing</span><span class="p">)</span>
         <span class="n">scoring_server_proc</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">env_manager</span> <span class="o">!=</span> <span class="n">_EnvManager</span><span class="o">.</span><span class="n">LOCAL</span><span class="p">:</span>
@@ -1425,8 +1644,8 @@
             <span class="n">server_redirect_log_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span>
                 <span class="n">target</span><span class="o">=</span><span class="n">server_redirect_log_thread_func</span><span class="p">,</span>
                 <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">scoring_server_proc</span><span class="o">.</span><span class="n">stdout</span><span class="p">,),</span>
+                <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">server_redirect_log_thread</span><span class="o">.</span><span class="n">setDaemon</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">server_redirect_log_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
             <span class="k">try</span><span class="p">:</span>
@@ -1443,7 +1662,10 @@
                 <span class="n">err_msg</span> <span class="o">+=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">server_tail_logs</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
 
-            <span class="k">def</span> <span class="nf">batch_predict_fn</span><span class="p">(</span><span class="n">pdf</span><span class="p">):</span>
+            <span class="k">def</span> <span class="nf">batch_predict_fn</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">invoke</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">get_predictions</span><span class="p">()</span>
+                <span class="n">_log_warning_if_params_not_in_predict_signature</span><span class="p">(</span><span class="n">_logger</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span><span class="o">.</span><span class="n">get_predictions</span><span class="p">()</span>
 
         <span class="k">elif</span> <span class="n">env_manager</span> <span class="o">==</span> <span class="n">_EnvManager</span><span class="o">.</span><span class="n">LOCAL</span><span class="p">:</span>
@@ -1452,7 +1674,10 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">loaded_model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">)</span>
 
-            <span class="k">def</span> <span class="nf">batch_predict_fn</span><span class="p">(</span><span class="n">pdf</span><span class="p">):</span>
+            <span class="k">def</span> <span class="nf">batch_predict_fn</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">loaded_model</span><span class="o">.</span><span class="n">predict</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">loaded_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+                <span class="n">_log_warning_if_params_not_in_predict_signature</span><span class="p">(</span><span class="n">_logger</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">loaded_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -1603,7 +1828,7 @@
 
 
 <span class="sd">            class MyModel(mlflow.pyfunc.PythonModel):</span>
-<span class="sd">                def predict(self, context, model_input: List[str]) -&gt; List[str]:</span>
+<span class="sd">                def predict(self, context, model_input: List[str], params=None) -&gt; List[str]:</span>
 <span class="sd">                    return [i.upper() for i in model_input]</span>
 
 
@@ -1700,7 +1925,7 @@
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;save_model() got unexpected keyword arguments: </span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">code_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">code_path</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Argument code_path should be a list, not </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">code_path</span><span class="p">)))</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Argument code_path should be a list, not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">code_path</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="n">first_argument_set</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;loader_module&quot;</span><span class="p">:</span> <span class="n">loader_module</span><span class="p">,</span>
@@ -1856,7 +2081,7 @@
 
 
 <span class="sd">            class MyModel(mlflow.pyfunc.PythonModel):</span>
-<span class="sd">                def predict(self, context, model_input: List[str]) -&gt; List[str]:</span>
+<span class="sd">                def predict(self, context, model_input: List[str], params=None) -&gt; List[str]:</span>
 <span class="sd">                    return [i.upper() for i in model_input]</span>
 
 
@@ -2045,18 +2270,6 @@
 
     <span class="n">_PythonEnv</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">_PYTHON_ENV_FILE_NAME</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">mlflow_model</span>
-
-
-<span class="n">loader_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-
-<span class="s2">import importlib</span>
-<span class="s2">import os</span>
-<span class="s2">import sys</span>
-
-<span class="s2">def load_pyfunc():</span>
-<span class="s2">    </span><span class="si">{update_path}</span><span class="s2">return importlib.import_module(&#39;</span><span class="si">{main}</span><span class="s2">&#39;)._load_pyfunc(&#39;</span><span class="si">{data_path}</span><span class="s2">&#39;)</span>
-
-<span class="s2">&quot;&quot;&quot;</span>
 </pre></div>
 
               </div>
@@ -2087,7 +2300,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

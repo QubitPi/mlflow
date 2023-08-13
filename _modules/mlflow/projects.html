@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.projects &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.projects &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/_modules/mlflow/projects.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -54,7 +55,6 @@
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -367,8 +368,7 @@
 
     <span class="n">supported_backends</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;databricks&quot;</span><span class="p">,</span> <span class="s2">&quot;kubernetes&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">MLFLOW_BACKENDS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="k">raise</span> <span class="n">ExecutionException</span><span class="p">(</span>
-        <span class="s2">&quot;Got unsupported execution mode </span><span class="si">%s</span><span class="s2">. Supported &quot;</span>
-        <span class="s2">&quot;values: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">backend_name</span><span class="p">,</span> <span class="n">supported_backends</span><span class="p">)</span>
+        <span class="sa">f</span><span class="s2">&quot;Got unsupported execution mode </span><span class="si">{</span><span class="n">backend_name</span><span class="si">}</span><span class="s2">. Supported values: </span><span class="si">{</span><span class="n">supported_backends</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="p">)</span>
 
 
@@ -547,7 +547,7 @@
             <span class="n">_maybe_set_run_terminated</span><span class="p">(</span><span class="n">active_run</span><span class="p">,</span> <span class="s2">&quot;FINISHED&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">_maybe_set_run_terminated</span><span class="p">(</span><span class="n">active_run</span><span class="p">,</span> <span class="s2">&quot;FAILED&quot;</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="n">ExecutionException</span><span class="p">(</span><span class="s2">&quot;Run (ID &#39;</span><span class="si">%s</span><span class="s2">&#39;) failed&quot;</span> <span class="o">%</span> <span class="n">run_id</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ExecutionException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Run (ID &#39;</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&#39;) failed&quot;</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;=== Run (ID &#39;</span><span class="si">%s</span><span class="s2">&#39;) interrupted, cancelling run ===&quot;</span><span class="p">,</span> <span class="n">run_id</span><span class="p">)</span>
         <span class="n">submitted_run_obj</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
@@ -636,7 +636,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

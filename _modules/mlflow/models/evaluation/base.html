@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.models.evaluation.base &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.models.evaluation.base &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/_modules/mlflow/models/evaluation/base.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../../../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../../../index.html"/>
         <link rel="up" title="mlflow.models" href="../../models.html"/> 
 
   
@@ -54,7 +55,6 @@
 <script type="text/javascript" src="../../../../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -65,7 +65,7 @@
     <a href="../../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">Command-Line Interface</a></li>
@@ -1261,17 +1262,66 @@
 <span class="sd">          precision_recall_auc), precision-recall merged curves plot, ROC merged curves plot.</span>
 
 <span class="sd">     - For question-answering models, the default evaluator logs:</span>
-<span class="sd">        - **metrics**: ``exact_match``.</span>
-<span class="sd">        - **artifacts**: A JSON file containing the inputs, outputs, and targets (if the ``targets``</span>
-<span class="sd">          argument is supplied) of the model in tabular format.</span>
+<span class="sd">        - **metrics**: ``exact_match``, `mean_perplexity`_ (requires `evaluate`_, `pytorch`_,</span>
+<span class="sd">          `transformers`_), `toxicity_ratio`_ (requires `evaluate`_, `pytorch`_, `transformers`_),</span>
+<span class="sd">          `mean_ari_grade_level`_ (requires `textstat`_), `mean_flesch_kincaid_grade_level`_</span>
+<span class="sd">          (requires `textstat`_).</span>
+<span class="sd">        - **artifacts**: A JSON file containing the inputs, outputs, targets (if the ``targets``</span>
+<span class="sd">          argument is supplied), and per-row metrics of the model in tabular format.</span>
+
+<span class="sd">        .. _mean_perplexity:</span>
+<span class="sd">            https://huggingface.co/spaces/evaluate-metric/perplexity</span>
+
+<span class="sd">        .. _toxicity_ratio:</span>
+<span class="sd">            https://huggingface.co/spaces/evaluate-measurement/toxicity</span>
+
+<span class="sd">        .. _pytorch:</span>
+<span class="sd">            https://pytorch.org/get-started/locally/</span>
+
+<span class="sd">        .. _transformers:</span>
+<span class="sd">            https://huggingface.co/docs/transformers/installation</span>
+
+<span class="sd">        .. _mean_ari_grade_level:</span>
+<span class="sd">            https://en.wikipedia.org/wiki/Automated_readability_index</span>
+
+<span class="sd">        .. _mean_flesch_kincaid_grade_level:</span>
+<span class="sd">            https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests#Flesch%E2%80%93Kincaid_grade_level</span>
+
+<span class="sd">        .. _evaluate:</span>
+<span class="sd">            https://pypi.org/project/evaluate</span>
+
+<span class="sd">        .. _textstat:</span>
+<span class="sd">            https://pypi.org/project/textstat</span>
 
 <span class="sd">     - For text-summarization models, the default evaluator logs:</span>
-<span class="sd">        - **metrics**: `ROUGE`_ (requires `evaluate`_, `nltk`_, and `rouge_score` to be installed).</span>
-<span class="sd">        - **artifacts**: A JSON file containing the inputs, outputs, and targets (if the ``targets``</span>
-<span class="sd">          argument is supplied) of the model in the tabular format.</span>
+<span class="sd">        - **metrics**: `ROUGE`_ (requires `evaluate`_, `nltk`_, and `rouge_score`_ to be installed),</span>
+<span class="sd">          `mean_perplexity`_ (requires `evaluate`_, `pytorch`_,</span>
+<span class="sd">          `transformers`_), `toxicity_ratio`_ (requires `evaluate`_, `pytorch`_, `transformers`_),</span>
+<span class="sd">          `mean_ari_grade_level`_ (requires `textstat`_), `mean_flesch_kincaid_grade_level`_</span>
+<span class="sd">          (requires `textstat`_).</span>
+<span class="sd">        - **artifacts**: A JSON file containing the inputs, outputs, targets (if the ``targets``</span>
+<span class="sd">          argument is supplied), and per-row metrics of the model in the tabular format.</span>
 
 <span class="sd">        .. _ROUGE:</span>
 <span class="sd">            https://huggingface.co/spaces/evaluate-metric/rouge</span>
+
+<span class="sd">        .. _mean_perplexity:</span>
+<span class="sd">            https://huggingface.co/spaces/evaluate-metric/perplexity</span>
+
+<span class="sd">        .. _toxicity_ratio:</span>
+<span class="sd">            https://huggingface.co/spaces/evaluate-measurement/toxicity</span>
+
+<span class="sd">        .. _pytorch:</span>
+<span class="sd">            https://pytorch.org/get-started/locally/</span>
+
+<span class="sd">        .. _transformers:</span>
+<span class="sd">            https://huggingface.co/docs/transformers/installation</span>
+
+<span class="sd">        .. _mean_ari_grade_level:</span>
+<span class="sd">            https://en.wikipedia.org/wiki/Automated_readability_index</span>
+
+<span class="sd">        .. _mean_flesch_kincaid_grade_level:</span>
+<span class="sd">            https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests#Flesch%E2%80%93Kincaid_grade_level</span>
 
 <span class="sd">        .. _evaluate:</span>
 <span class="sd">            https://pypi.org/project/evaluate</span>
@@ -1282,9 +1332,40 @@
 <span class="sd">        .. _rouge_score:</span>
 <span class="sd">            https://pypi.org/project/rouge-score</span>
 
+<span class="sd">        .. _textstat:</span>
+<span class="sd">            https://pypi.org/project/textstat</span>
+
 <span class="sd">     - For text models, the default evaluator logs:</span>
-<span class="sd">        - **artifacts**: A JSON file containing the inputs, outputs, and targets (if the ``targets``</span>
-<span class="sd">          argument is supplied) of the model in tabular format.</span>
+<span class="sd">        - **metrics**: `mean_perplexity`_ (requires `evaluate`_, `pytorch`_,</span>
+<span class="sd">          `transformers`_), `toxicity_ratio`_ (requires `evaluate`_, `pytorch`_, `transformers`_),</span>
+<span class="sd">          `mean_ari_grade_level`_ (requires `textstat`_), `mean_flesch_kincaid_grade_level`_</span>
+<span class="sd">          (requires `textstat`_).</span>
+<span class="sd">        - **artifacts**: A JSON file containing the inputs, outputs, targets (if the ``targets``</span>
+<span class="sd">          argument is supplied), and per-row metrics of the model in tabular format.</span>
+
+<span class="sd">        .. _evaluate:</span>
+<span class="sd">            https://pypi.org/project/evaluate</span>
+
+<span class="sd">        .. _mean_perplexity:</span>
+<span class="sd">            https://huggingface.co/spaces/evaluate-metric/perplexity</span>
+
+<span class="sd">        .. _toxicity_ratio:</span>
+<span class="sd">            https://huggingface.co/spaces/evaluate-measurement/toxicity</span>
+
+<span class="sd">        .. _pytorch:</span>
+<span class="sd">            https://pytorch.org/get-started/locally/</span>
+
+<span class="sd">        .. _transformers:</span>
+<span class="sd">            https://huggingface.co/docs/transformers/installation</span>
+
+<span class="sd">        .. _mean_ari_grade_level:</span>
+<span class="sd">            https://en.wikipedia.org/wiki/Automated_readability_index</span>
+
+<span class="sd">        .. _mean_flesch_kincaid_grade_level:</span>
+<span class="sd">            https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests#Flesch%E2%80%93Kincaid_grade_level</span>
+
+<span class="sd">        .. _textstat:</span>
+<span class="sd">            https://pypi.org/project/textstat</span>
 
 <span class="sd">     - For sklearn models, the default evaluator additionally logs the model&#39;s evaluation criterion</span>
 <span class="sd">       (e.g. mean accuracy for a classifier) computed by `model.score` method.</span>
@@ -1719,7 +1800,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

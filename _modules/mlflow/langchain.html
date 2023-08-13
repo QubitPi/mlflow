@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.langchain &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.langchain &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/_modules/mlflow/langchain.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -54,7 +55,6 @@
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -191,7 +192,11 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">types</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">from</span> <span class="nn">packaging</span> <span class="kn">import</span> <span class="n">version</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">NamedTuple</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">cloudpickle</span>
@@ -200,7 +205,7 @@
 
 <span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">pyfunc</span>
-<span class="kn">from</span> <span class="nn">mlflow.environment_variables</span> <span class="kn">import</span> <span class="n">_MLFLOW_OPENAI_TESTING</span>
+<span class="kn">from</span> <span class="nn">mlflow.environment_variables</span> <span class="kn">import</span> <span class="n">_MLFLOW_TESTING</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">ModelSignature</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.model</span> <span class="kn">import</span> <span class="n">MLMODEL_FILE_NAME</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">_save_example</span>
@@ -208,6 +213,7 @@
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="n">_download_artifact_from_uri</span>
 <span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">ColSpec</span><span class="p">,</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">Schema</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">experimental</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.class_utils</span> <span class="kn">import</span> <span class="n">_get_class_from_string</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.docstring_utils</span> <span class="kn">import</span> <span class="n">LOG_MODEL_PARAM_DOCS</span><span class="p">,</span> <span class="n">format_docstring</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.environment</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">_CONDA_ENV_FILE_NAME</span><span class="p">,</span>
@@ -228,7 +234,6 @@
     <span class="n">_validate_and_prepare_target_save_path</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.requirements_utils</span> <span class="kn">import</span> <span class="n">_get_pinned_requirement</span>
-<span class="kn">from</span> <span class="nn">mlflow.openai.utils</span> <span class="kn">import</span> <span class="n">TEST_CONTENT</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -242,8 +247,13 @@
 <span class="n">_TOOLS_DATA_FILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;tools.pkl&quot;</span>
 <span class="n">_TOOLS_DATA_KEY</span> <span class="o">=</span> <span class="s2">&quot;tools_data&quot;</span>
 <span class="n">_MODEL_TYPE_KEY</span> <span class="o">=</span> <span class="s2">&quot;model_type&quot;</span>
+<span class="n">_LOADER_FN_FILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;loader_fn.pkl&quot;</span>
+<span class="n">_LOADER_FN_KEY</span> <span class="o">=</span> <span class="s2">&quot;loader_fn&quot;</span>
+<span class="n">_LOADER_ARG_KEY</span> <span class="o">=</span> <span class="s2">&quot;loader_arg&quot;</span>
+<span class="n">_PERSIST_DIR_NAME</span> <span class="o">=</span> <span class="s2">&quot;persist_dir_data&quot;</span>
+<span class="n">_PERSIST_DIR_KEY</span> <span class="o">=</span> <span class="s2">&quot;persist_dir&quot;</span>
 <span class="n">_UNSUPPORTED_MODEL_ERROR_MESSAGE</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;MLflow langchain flavor only supports logging subclasses of &quot;</span>
+    <span class="s2">&quot;MLflow langchain flavor only supports subclasses of &quot;</span>
     <span class="s2">&quot;langchain.chains.base.Chain and langchain.agents.agent.AgentExecutor instances, &quot;</span>
     <span class="s2">&quot;found </span><span class="si">{instance_type}</span><span class="s2">&quot;</span>
 <span class="p">)</span>
@@ -252,6 +262,9 @@
 <span class="p">)</span>
 <span class="n">_UNSUPPORTED_MODEL_WARNING_MESSAGE</span> <span class="o">=</span> <span class="p">(</span>
     <span class="s2">&quot;MLflow does not guarantee support for Chains outside of the subclasses of LLMChain, found </span><span class="si">%s</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="n">_UNSUPPORTED_LANGCHAIN_VERSION_ERROR_MESSAGE</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;Saving </span><span class="si">{instance_type}</span><span class="s2"> models is only supported in langchain 0.0.194 and above.&quot;</span>
 <span class="p">)</span>
 
 
@@ -272,6 +285,56 @@
     <span class="k">return</span> <span class="n">_mlflow_conda_env</span><span class="p">(</span><span class="n">additional_pip_deps</span><span class="o">=</span><span class="n">get_default_pip_requirements</span><span class="p">())</span></div>
 
 
+<span class="k">class</span> <span class="nc">_SpecialChainInfo</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="n">loader_arg</span><span class="p">:</span> <span class="nb">str</span>
+
+
+<span class="k">def</span> <span class="nf">_get_special_chain_info_or_none</span><span class="p">(</span><span class="n">chain</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">special_chain_class</span><span class="p">,</span> <span class="n">loader_arg</span> <span class="ow">in</span> <span class="n">_get_map_of_special_chain_class_to_loader_arg</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">chain</span><span class="p">,</span> <span class="n">special_chain_class</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">_SpecialChainInfo</span><span class="p">(</span><span class="n">loader_arg</span><span class="o">=</span><span class="n">loader_arg</span><span class="p">)</span>
+
+
+<span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span>
+<span class="k">def</span> <span class="nf">_get_map_of_special_chain_class_to_loader_arg</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">langchain</span>
+    <span class="kn">from</span> <span class="nn">mlflow.langchain.retriever_chain</span> <span class="kn">import</span> <span class="n">_RetrieverChain</span>
+
+    <span class="n">class_name_to_loader_arg</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;langchain.chains.RetrievalQA&quot;</span><span class="p">:</span> <span class="s2">&quot;retriever&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;langchain.chains.APIChain&quot;</span><span class="p">:</span> <span class="s2">&quot;requests_wrapper&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;langchain.chains.HypotheticalDocumentEmbedder&quot;</span><span class="p">:</span> <span class="s2">&quot;embeddings&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="c1"># NB: SQLDatabaseChain was migrated to langchain_experimental beginning with version 0.0.247</span>
+    <span class="k">if</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">langchain</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;0.0.246&quot;</span><span class="p">):</span>
+        <span class="n">class_name_to_loader_arg</span><span class="p">[</span><span class="s2">&quot;langchain.chains.SQLDatabaseChain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;database&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">langchain.experimental</span>
+
+            <span class="n">class_name_to_loader_arg</span><span class="p">[</span><span class="s2">&quot;langchain_experimental.sql.SQLDatabaseChain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;database&quot;</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="c1"># Users may not have langchain_experimental installed, which is completely normal</span>
+            <span class="k">pass</span>
+
+    <span class="n">class_to_loader_arg</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">_RetrieverChain</span><span class="p">:</span> <span class="s2">&quot;retriever&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">class_name</span><span class="p">,</span> <span class="n">loader_arg</span> <span class="ow">in</span> <span class="n">class_name_to_loader_arg</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">cls</span> <span class="o">=</span> <span class="n">_get_class_from_string</span><span class="p">(</span><span class="n">class_name</span><span class="p">)</span>
+            <span class="n">class_to_loader_arg</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span> <span class="o">=</span> <span class="n">loader_arg</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Unexpected import failure for class &#39;</span><span class="si">%s</span><span class="s2">&#39;. Please file an issue at&quot;</span>
+                <span class="s2">&quot; https://github.com/mlflow/mlflow/issues/.&quot;</span><span class="p">,</span>
+                <span class="n">class_name</span><span class="p">,</span>
+                <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">class_to_loader_arg</span>
+
+
 <div class="viewcode-block" id="save_model"><a class="viewcode-back" href="../../python_api/mlflow.langchain.html#mlflow.langchain.save_model">[docs]</a><span class="nd">@experimental</span>
 <span class="nd">@format_docstring</span><span class="p">(</span><span class="n">LOG_MODEL_PARAM_DOCS</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package_name</span><span class="o">=</span><span class="n">FLAVOR_NAME</span><span class="p">))</span>
 <span class="k">def</span> <span class="nf">save_model</span><span class="p">(</span>
@@ -285,11 +348,16 @@
     <span class="n">pip_requirements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">extra_pip_requirements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">loader_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">persist_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Save a LangChain model to a path on the local file system.</span>
 
-<span class="sd">    :param lc_model: An LLMChain model.</span>
+<span class="sd">    :param lc_model: A LangChain model, which could be a</span>
+<span class="sd">                     `Chain &lt;https://python.langchain.com/docs/modules/chains/&gt;`_,</span>
+<span class="sd">                     `Agent &lt;https://python.langchain.com/docs/modules/agents/&gt;`_, or</span>
+<span class="sd">                     `retriever &lt;https://python.langchain.com/docs/modules/data_connection/retrievers/&gt;`_.</span>
 <span class="sd">    :param path: Local path where the serialized model (as YAML) is to be saved.</span>
 <span class="sd">    :param conda_env: {{ conda_env }}</span>
 <span class="sd">    :param code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
@@ -329,8 +397,52 @@
 
 <span class="sd">                     .. Note:: Experimental: This parameter may change or be removed in a future</span>
 <span class="sd">                                             release without warning.</span>
+<span class="sd">    :param loader_fn: A function that&#39;s required for models containing objects that aren&#39;t natively</span>
+<span class="sd">                      serialized by LangChain.</span>
+<span class="sd">                      This function takes a string `persist_dir` as an argument and returns the</span>
+<span class="sd">                      specific object that the model needs. Depending on the model,</span>
+<span class="sd">                      this could be a retriever, vectorstore, requests_wrapper, embeddings, or</span>
+<span class="sd">                      database. For RetrievalQA Chain and retriever models, the object is a</span>
+<span class="sd">                      (`retriever &lt;https://python.langchain.com/docs/modules/data_connection/retrievers/&gt;`_).</span>
+<span class="sd">                      For APIChain models, it&#39;s a</span>
+<span class="sd">                      (`requests_wrapper &lt;https://python.langchain.com/docs/modules/agents/tools/integrations/requests&gt;`_).</span>
+<span class="sd">                      For HypotheticalDocumentEmbedder models, it&#39;s an</span>
+<span class="sd">                      (`embeddings &lt;https://python.langchain.com/docs/modules/data_connection/text_embedding/&gt;`_).</span>
+<span class="sd">                      For SQLDatabaseChain models, it&#39;s a</span>
+<span class="sd">                      (`database &lt;https://python.langchain.com/docs/modules/agents/toolkits/sql_database&gt;`_).</span>
+<span class="sd">    :param persist_dir: The directory where the object is stored. The `loader_fn`</span>
+<span class="sd">                        takes this string as the argument to load the object.</span>
+<span class="sd">                        This is optional for models containing objects that aren&#39;t natively</span>
+<span class="sd">                        serialized by LangChain. MLflow logs the content in this directory as</span>
+<span class="sd">                        artifacts in the subdirectory named `persist_dir_data`.</span>
+
+<span class="sd">                        Here is the code snippet for logging a RetrievalQA chain with `loader_fn`</span>
+<span class="sd">                        and `persist_dir`:</span>
+
+<span class="sd">                        .. code-block:: python</span>
+
+<span class="sd">                            qa = RetrievalQA.from_llm(llm=OpenAI(), retriever=db.as_retriever())</span>
+
+
+<span class="sd">                            def load_retriever(persist_directory):</span>
+<span class="sd">                                embeddings = OpenAIEmbeddings()</span>
+<span class="sd">                                vectorstore = FAISS.load_local(persist_directory, embeddings)</span>
+<span class="sd">                                return vectorstore.as_retriever()</span>
+
+
+<span class="sd">                            with mlflow.start_run() as run:</span>
+<span class="sd">                                logged_model = mlflow.langchain.log_model(</span>
+<span class="sd">                                    qa,</span>
+<span class="sd">                                    artifact_path=&quot;retrieval_qa&quot;,</span>
+<span class="sd">                                    loader_fn=load_retriever,</span>
+<span class="sd">                                    persist_dir=persist_dir,</span>
+<span class="sd">                                )</span>
+
+<span class="sd">                        See a complete example in examples/langchain/retrieval_qa_chain.py.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">langchain</span>
+
+    <span class="n">lc_model</span> <span class="o">=</span> <span class="n">_validate_and_wrap_lc_model</span><span class="p">(</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">loader_fn</span><span class="p">)</span>
 
     <span class="n">_validate_env_arguments</span><span class="p">(</span><span class="n">conda_env</span><span class="p">,</span> <span class="n">pip_requirements</span><span class="p">,</span> <span class="n">extra_pip_requirements</span><span class="p">)</span>
 
@@ -342,23 +454,13 @@
         <span class="n">mlflow_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mlflow_model</span><span class="o">.</span><span class="n">signature</span> <span class="o">=</span> <span class="n">signature</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">input_columns</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">ColSpec</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">DataType</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">input_key</span><span class="p">)</span> <span class="k">for</span> <span class="n">input_key</span> <span class="ow">in</span> <span class="n">lc_model</span><span class="o">.</span><span class="n">input_keys</span>
-        <span class="p">]</span>
-        <span class="n">input_schema</span> <span class="o">=</span> <span class="n">Schema</span><span class="p">(</span><span class="n">input_columns</span><span class="p">)</span>
-        <span class="n">output_columns</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">ColSpec</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">DataType</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">output_key</span><span class="p">)</span> <span class="k">for</span> <span class="n">output_key</span> <span class="ow">in</span> <span class="n">lc_model</span><span class="o">.</span><span class="n">output_keys</span>
-        <span class="p">]</span>
-        <span class="n">output_schema</span> <span class="o">=</span> <span class="n">Schema</span><span class="p">(</span><span class="n">output_columns</span><span class="p">)</span>
-        <span class="n">mlflow_model</span><span class="o">.</span><span class="n">signature</span> <span class="o">=</span> <span class="n">ModelSignature</span><span class="p">(</span><span class="n">input_schema</span><span class="p">,</span> <span class="n">output_schema</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">input_example</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">_save_example</span><span class="p">(</span><span class="n">mlflow_model</span><span class="p">,</span> <span class="n">input_example</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mlflow_model</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
 
-    <span class="n">model_data_kwargs</span> <span class="o">=</span> <span class="n">_save_model</span><span class="p">(</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">model_data_kwargs</span> <span class="o">=</span> <span class="n">_save_model</span><span class="p">(</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">loader_fn</span><span class="p">,</span> <span class="n">persist_dir</span><span class="p">)</span>
 
     <span class="n">pyfunc</span><span class="o">.</span><span class="n">add_to_model</span><span class="p">(</span>
         <span class="n">mlflow_model</span><span class="p">,</span>
@@ -406,6 +508,75 @@
     <span class="n">_PythonEnv</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">_PYTHON_ENV_FILE_NAME</span><span class="p">))</span></div>
 
 
+<span class="k">def</span> <span class="nf">_validate_and_wrap_lc_model</span><span class="p">(</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">loader_fn</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">langchain</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+        <span class="n">lc_model</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="n">langchain</span><span class="o">.</span><span class="n">chains</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">Chain</span><span class="p">,</span>
+            <span class="n">langchain</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">AgentExecutor</span><span class="p">,</span>
+            <span class="n">langchain</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">BaseRetriever</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+            <span class="n">_UNSUPPORTED_MODEL_ERROR_MESSAGE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">instance_type</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">lc_model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">_SUPPORTED_LLMS</span> <span class="o">=</span> <span class="p">{</span><span class="n">langchain</span><span class="o">.</span><span class="n">llms</span><span class="o">.</span><span class="n">openai</span><span class="o">.</span><span class="n">OpenAI</span><span class="p">,</span> <span class="n">langchain</span><span class="o">.</span><span class="n">llms</span><span class="o">.</span><span class="n">huggingface_hub</span><span class="o">.</span><span class="n">HuggingFaceHub</span><span class="p">}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">langchain</span><span class="o">.</span><span class="n">chains</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">LLMChain</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">lc_model</span><span class="o">.</span><span class="n">llm</span><span class="p">,</span> <span class="n">supported_llm</span><span class="p">)</span> <span class="k">for</span> <span class="n">supported_llm</span> <span class="ow">in</span> <span class="n">_SUPPORTED_LLMS</span>
+    <span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="n">_UNSUPPORTED_LLM_WARNING_MESSAGE</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">(</span><span class="n">lc_model</span><span class="o">.</span><span class="n">llm</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">langchain</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">AgentExecutor</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">lc_model</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">llm_chain</span><span class="o">.</span><span class="n">llm</span><span class="p">,</span> <span class="n">supported_llm</span><span class="p">)</span> <span class="k">for</span> <span class="n">supported_llm</span> <span class="ow">in</span> <span class="n">_SUPPORTED_LLMS</span>
+    <span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="n">_UNSUPPORTED_LLM_WARNING_MESSAGE</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">(</span><span class="n">lc_model</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">llm_chain</span><span class="o">.</span><span class="n">llm</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">special_chain_info</span> <span class="o">:=</span> <span class="n">_get_special_chain_info_or_none</span><span class="p">(</span><span class="n">lc_model</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">langchain</span><span class="o">.</span><span class="n">chains</span><span class="o">.</span><span class="n">RetrievalQA</span><span class="p">)</span> <span class="ow">and</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span>
+            <span class="n">langchain</span><span class="o">.</span><span class="n">__version__</span>
+        <span class="p">)</span> <span class="o">&lt;</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;0.0.194&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                <span class="n">_UNSUPPORTED_LANGCHAIN_VERSION_ERROR_MESSAGE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">instance_type</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">lc_model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">loader_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;For </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">lc_model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> models, a `loader_fn` must be provided.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loader_fn</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">FunctionType</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                <span class="s2">&quot;The `loader_fn` must be a function that returns a </span><span class="si">{loader_arg}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">loader_arg</span><span class="o">=</span><span class="n">special_chain_info</span><span class="o">.</span><span class="n">loader_arg</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="c1"># If lc_model is a retriever, wrap it in a _RetrieverChain</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">langchain</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">BaseRetriever</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">mlflow.langchain.retriever_chain</span> <span class="kn">import</span> <span class="n">_RetrieverChain</span>
+
+        <span class="k">if</span> <span class="n">loader_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;For </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">lc_model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> models, a `loader_fn` must be provided.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loader_fn</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">FunctionType</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                <span class="s2">&quot;The `loader_fn` must be a function that returns a retriever.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">lc_model</span> <span class="o">=</span> <span class="n">_RetrieverChain</span><span class="p">(</span><span class="n">retriever</span><span class="o">=</span><span class="n">lc_model</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">lc_model</span>
+
+
 <div class="viewcode-block" id="log_model"><a class="viewcode-back" href="../../python_api/mlflow.langchain.html#mlflow.langchain.log_model">[docs]</a><span class="nd">@experimental</span>
 <span class="nd">@format_docstring</span><span class="p">(</span><span class="n">LOG_MODEL_PARAM_DOCS</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package_name</span><span class="o">=</span><span class="n">FLAVOR_NAME</span><span class="p">))</span>
 <span class="k">def</span> <span class="nf">log_model</span><span class="p">(</span>
@@ -420,11 +591,16 @@
     <span class="n">pip_requirements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">extra_pip_requirements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">loader_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">persist_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Log a LangChain model as an MLflow artifact for the current run.</span>
 
-<span class="sd">    :param lc_model: LangChain model to be saved.</span>
+<span class="sd">    :param lc_model: A LangChain model, which could be a</span>
+<span class="sd">                     `Chain &lt;https://python.langchain.com/docs/modules/chains/&gt;`_,</span>
+<span class="sd">                     `Agent &lt;https://python.langchain.com/docs/modules/agents/&gt;`_, or</span>
+<span class="sd">                     `retriever &lt;https://python.langchain.com/docs/modules/data_connection/retrievers/&gt;`_.</span>
 <span class="sd">    :param artifact_path: Run-relative artifact path.</span>
 <span class="sd">    :param conda_env: {{ conda_env }}</span>
 <span class="sd">    :param code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
@@ -475,36 +651,64 @@
 
 <span class="sd">                     .. Note:: Experimental: This parameter may change or be removed in a future</span>
 <span class="sd">                                             release without warning.</span>
+<span class="sd">    :param loader_fn: A function that&#39;s required for models containing objects that aren&#39;t natively</span>
+<span class="sd">                      serialized by LangChain.</span>
+<span class="sd">                      This function takes a string `persist_dir` as an argument and returns the</span>
+<span class="sd">                      specific object that the model needs. Depending on the model,</span>
+<span class="sd">                      this could be a retriever, vectorstore, requests_wrapper, embeddings, or</span>
+<span class="sd">                      database. For RetrievalQA Chain and retriever models, the object is a</span>
+<span class="sd">                      (`retriever &lt;https://python.langchain.com/docs/modules/data_connection/retrievers/&gt;`_).</span>
+<span class="sd">                      For APIChain models, it&#39;s a</span>
+<span class="sd">                      (`requests_wrapper &lt;https://python.langchain.com/docs/modules/agents/tools/integrations/requests&gt;`_).</span>
+<span class="sd">                      For HypotheticalDocumentEmbedder models, it&#39;s an</span>
+<span class="sd">                      (`embeddings &lt;https://python.langchain.com/docs/modules/data_connection/text_embedding/&gt;`_).</span>
+<span class="sd">                      For SQLDatabaseChain models, it&#39;s a</span>
+<span class="sd">                      (`database &lt;https://python.langchain.com/docs/modules/agents/toolkits/sql_database&gt;`_).</span>
+<span class="sd">    :param persist_dir: The directory where the object is stored. The `loader_fn`</span>
+<span class="sd">                        takes this string as the argument to load the object.</span>
+<span class="sd">                        This is optional for models containing objects that aren&#39;t natively</span>
+<span class="sd">                        serialized by LangChain. MLflow logs the content in this directory as</span>
+<span class="sd">                        artifacts in the subdirectory named `persist_dir_data`.</span>
+
+<span class="sd">                        Here is the code snippet for logging a RetrievalQA chain with `loader_fn`</span>
+<span class="sd">                        and `persist_dir`:</span>
+
+<span class="sd">                        .. code-block:: python</span>
+
+<span class="sd">                            qa = RetrievalQA.from_llm(llm=OpenAI(), retriever=db.as_retriever())</span>
+
+
+<span class="sd">                            def load_retriever(persist_directory):</span>
+<span class="sd">                                embeddings = OpenAIEmbeddings()</span>
+<span class="sd">                                vectorstore = FAISS.load_local(persist_directory, embeddings)</span>
+<span class="sd">                                return vectorstore.as_retriever()</span>
+
+
+<span class="sd">                            with mlflow.start_run() as run:</span>
+<span class="sd">                                logged_model = mlflow.langchain.log_model(</span>
+<span class="sd">                                    qa,</span>
+<span class="sd">                                    artifact_path=&quot;retrieval_qa&quot;,</span>
+<span class="sd">                                    loader_fn=load_retriever,</span>
+<span class="sd">                                    persist_dir=persist_dir,</span>
+<span class="sd">                                )</span>
+
+<span class="sd">                        See a complete example in examples/langchain/retrieval_qa_chain.py.</span>
 <span class="sd">    :return: A :py:class:`ModelInfo &lt;mlflow.models.model.ModelInfo&gt;` instance that contains the</span>
 <span class="sd">             metadata of the logged model.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">import</span> <span class="nn">langchain</span>
+    <span class="n">lc_model</span> <span class="o">=</span> <span class="n">_validate_and_wrap_lc_model</span><span class="p">(</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">loader_fn</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
-        <span class="n">lc_model</span><span class="p">,</span> <span class="p">(</span><span class="n">langchain</span><span class="o">.</span><span class="n">chains</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">Chain</span><span class="p">,</span> <span class="n">langchain</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">AgentExecutor</span><span class="p">)</span>
-    <span class="p">):</span>
-        <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
-            <span class="n">_UNSUPPORTED_MODEL_ERROR_MESSAGE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">instance_type</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">lc_model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
-        <span class="p">)</span>
-
-    <span class="n">_SUPPORTED_LLMS</span> <span class="o">=</span> <span class="p">{</span><span class="n">langchain</span><span class="o">.</span><span class="n">llms</span><span class="o">.</span><span class="n">openai</span><span class="o">.</span><span class="n">OpenAI</span><span class="p">,</span> <span class="n">langchain</span><span class="o">.</span><span class="n">llms</span><span class="o">.</span><span class="n">huggingface_hub</span><span class="o">.</span><span class="n">HuggingFaceHub</span><span class="p">}</span>
-    <span class="k">if</span> <span class="p">(</span>
-        <span class="nb">isinstance</span><span class="p">(</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">langchain</span><span class="o">.</span><span class="n">chains</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">LLMChain</span><span class="p">)</span>
-        <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">lc_model</span><span class="o">.</span><span class="n">llm</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_SUPPORTED_LLMS</span>
-    <span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="n">_UNSUPPORTED_LLM_WARNING_MESSAGE</span><span class="p">,</span>
-            <span class="nb">type</span><span class="p">(</span><span class="n">lc_model</span><span class="o">.</span><span class="n">llm</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="k">if</span> <span class="p">(</span>
-        <span class="nb">isinstance</span><span class="p">(</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">langchain</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">AgentExecutor</span><span class="p">)</span>
-        <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">lc_model</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">llm_chain</span><span class="o">.</span><span class="n">llm</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_SUPPORTED_LLMS</span>
-    <span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="n">_UNSUPPORTED_LLM_WARNING_MESSAGE</span><span class="p">,</span>
-            <span class="nb">type</span><span class="p">(</span><span class="n">lc_model</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">llm_chain</span><span class="o">.</span><span class="n">llm</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="c1"># infer signature if signature is not provided</span>
+    <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">input_columns</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ColSpec</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">DataType</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">input_key</span><span class="p">)</span> <span class="k">for</span> <span class="n">input_key</span> <span class="ow">in</span> <span class="n">lc_model</span><span class="o">.</span><span class="n">input_keys</span>
+        <span class="p">]</span>
+        <span class="n">input_schema</span> <span class="o">=</span> <span class="n">Schema</span><span class="p">(</span><span class="n">input_columns</span><span class="p">)</span>
+        <span class="n">output_columns</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ColSpec</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">DataType</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">output_key</span><span class="p">)</span> <span class="k">for</span> <span class="n">output_key</span> <span class="ow">in</span> <span class="n">lc_model</span><span class="o">.</span><span class="n">output_keys</span>
+        <span class="p">]</span>
+        <span class="n">output_schema</span> <span class="o">=</span> <span class="n">Schema</span><span class="p">(</span><span class="n">output_columns</span><span class="p">)</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="n">ModelSignature</span><span class="p">(</span><span class="n">input_schema</span><span class="p">,</span> <span class="n">output_schema</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">Model</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
         <span class="n">artifact_path</span><span class="o">=</span><span class="n">artifact_path</span><span class="p">,</span>
@@ -519,10 +723,12 @@
         <span class="n">pip_requirements</span><span class="o">=</span><span class="n">pip_requirements</span><span class="p">,</span>
         <span class="n">extra_pip_requirements</span><span class="o">=</span><span class="n">extra_pip_requirements</span><span class="p">,</span>
         <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+        <span class="n">loader_fn</span><span class="o">=</span><span class="n">loader_fn</span><span class="p">,</span>
+        <span class="n">persist_dir</span><span class="o">=</span><span class="n">persist_dir</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">_save_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_save_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">loader_fn</span><span class="p">,</span> <span class="n">persist_dir</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">langchain</span>
 
     <span class="n">model_data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">_MODEL_DATA_FILE_NAME</span><span class="p">)</span>
@@ -557,6 +763,28 @@
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">temp_dict</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
         <span class="n">model_data_kwargs</span><span class="p">[</span><span class="n">_AGENT_PRIMITIVES_DATA_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="n">_AGENT_PRIMITIVES_FILE_NAME</span>
+
+    <span class="k">elif</span> <span class="n">special_chain_info</span> <span class="o">:=</span> <span class="n">_get_special_chain_info_or_none</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+        <span class="c1"># Save loader_fn by pickling</span>
+        <span class="n">loader_fn_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">_LOADER_FN_FILE_NAME</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">loader_fn_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">cloudpickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">loader_fn</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+        <span class="n">model_data_kwargs</span><span class="p">[</span><span class="n">_LOADER_FN_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="n">_LOADER_FN_FILE_NAME</span>
+        <span class="n">model_data_kwargs</span><span class="p">[</span><span class="n">_LOADER_ARG_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="n">special_chain_info</span><span class="o">.</span><span class="n">loader_arg</span>
+
+        <span class="k">if</span> <span class="n">persist_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">persist_dir</span><span class="p">):</span>
+                <span class="c1"># Save persist_dir by copying into subdir _PERSIST_DIR_NAME</span>
+                <span class="n">persist_dir_data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">_PERSIST_DIR_NAME</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">persist_dir</span><span class="p">,</span> <span class="n">persist_dir_data_path</span><span class="p">)</span>
+                <span class="n">model_data_kwargs</span><span class="p">[</span><span class="n">_PERSIST_DIR_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="n">_PERSIST_DIR_NAME</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                    <span class="s2">&quot;The directory provided for persist_dir does not exist.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Save model</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model_data_path</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">langchain</span><span class="o">.</span><span class="n">chains</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">Chain</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
             <span class="n">_UNSUPPORTED_MODEL_WARNING_MESSAGE</span><span class="p">,</span>
@@ -571,14 +799,39 @@
     <span class="k">return</span> <span class="n">model_data_kwargs</span>
 
 
-<span class="k">def</span> <span class="nf">_load_model</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">agent_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tools_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">agent_primitive_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">agent_path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tools_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">langchain.chains.loading</span> <span class="kn">import</span> <span class="n">load_chain</span>
+<span class="k">def</span> <span class="nf">_load_from_pickle</span><span class="p">(</span><span class="n">loader_fn_path</span><span class="p">,</span> <span class="n">persist_dir</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">loader_fn_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">loader_fn</span> <span class="o">=</span> <span class="n">cloudpickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">loader_fn</span><span class="p">(</span><span class="n">persist_dir</span><span class="p">)</span>
 
+
+<span class="k">def</span> <span class="nf">_load_model</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">,</span>
+    <span class="n">model_type</span><span class="p">,</span>
+    <span class="n">loader_arg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">agent_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">tools_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">agent_primitive_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">loader_fn_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">persist_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">langchain.chains.loading</span> <span class="kn">import</span> <span class="n">load_chain</span>
+    <span class="kn">from</span> <span class="nn">mlflow.langchain.retriever_chain</span> <span class="kn">import</span> <span class="n">_RetrieverChain</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">loader_arg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">loader_fn_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                <span class="s2">&quot;Missing file for loader_fn which is required to build the model.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">loader_arg</span><span class="p">:</span> <span class="n">_load_from_pickle</span><span class="p">(</span><span class="n">loader_fn_path</span><span class="p">,</span> <span class="n">persist_dir</span><span class="p">)}</span>
+        <span class="k">if</span> <span class="n">model_type</span> <span class="o">==</span> <span class="n">_RetrieverChain</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">_RetrieverChain</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">retriever</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">load_chain</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">agent_path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tools_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">load_chain</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">langchain.chains.loading</span> <span class="kn">import</span> <span class="n">load_chain</span>
         <span class="kn">from</span> <span class="nn">langchain.agents</span> <span class="kn">import</span> <span class="n">initialize_agent</span>
 
         <span class="n">llm</span> <span class="o">=</span> <span class="n">load_chain</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -594,7 +847,7 @@
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">agent_primitive_path</span><span class="p">):</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">agent_primitive_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">agent_primitive_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
                 <span class="n">kwargs</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
 
         <span class="n">model</span> <span class="o">=</span> <span class="n">initialize_agent</span><span class="p">(</span><span class="n">tools</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span> <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">agent_path</span><span class="o">=</span><span class="n">agent_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -605,7 +858,20 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lc_model</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lc_model</span> <span class="o">=</span> <span class="n">lc_model</span>
 
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>  <span class="c1"># pylint: disable=unused-argument</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]],</span>
+        <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># pylint: disable=unused-argument</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param data: Model input data.</span>
+<span class="sd">        :param params: Additional parameters to pass to the model for inference.</span>
+
+<span class="sd">                       .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                               release without warning.</span>
+
+<span class="sd">        :return: Model predictions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">mlflow.langchain.api_request_parallel_processor</span> <span class="kn">import</span> <span class="n">process_api_requests</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
@@ -626,11 +892,30 @@
 <span class="sd">    A wrapper class that should be used for testing purposes only.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># pylint: disable=unused-argument</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param data: Model input data.</span>
+<span class="sd">        :param params: Additional parameters to pass to the model for inference.</span>
+
+<span class="sd">                       .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                               release without warning.</span>
+
+<span class="sd">        :return: Model predictions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">langchain</span>
+        <span class="kn">from</span> <span class="nn">mlflow.openai.utils</span> <span class="kn">import</span> <span class="n">TEST_CONTENT</span>
         <span class="kn">from</span> <span class="nn">tests.langchain.test_langchain_model_export</span> <span class="kn">import</span> <span class="n">_mock_async_request</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">langchain</span><span class="o">.</span><span class="n">chains</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">LLMChain</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lc_model</span><span class="p">,</span>
+            <span class="p">(</span>
+                <span class="n">langchain</span><span class="o">.</span><span class="n">chains</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">LLMChain</span><span class="p">,</span>
+                <span class="n">langchain</span><span class="o">.</span><span class="n">chains</span><span class="o">.</span><span class="n">RetrievalQA</span><span class="p">,</span>
+                <span class="n">langchain</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">retriever</span><span class="o">.</span><span class="n">BaseRetriever</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">):</span>
             <span class="n">mockContent</span> <span class="o">=</span> <span class="n">TEST_CONTENT</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">langchain</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">AgentExecutor</span><span class="p">):</span>
             <span class="n">mockContent</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Final Answer: </span><span class="si">{</span><span class="n">TEST_CONTENT</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -644,7 +929,7 @@
 <span class="sd">    Load PyFunc implementation for LangChain. Called by ``pyfunc.load_model``.</span>
 <span class="sd">    :param path: Local filesystem path to the MLflow Model with the ``langchain`` flavor.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">wrapper_cls</span> <span class="o">=</span> <span class="n">_TestLangChainWrapper</span> <span class="k">if</span> <span class="n">_MLFLOW_OPENAI_TESTING</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">else</span> <span class="n">_LangChainModelWrapper</span>
+    <span class="n">wrapper_cls</span> <span class="o">=</span> <span class="n">_TestLangChainWrapper</span> <span class="k">if</span> <span class="n">_MLFLOW_TESTING</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">else</span> <span class="n">_LangChainModelWrapper</span>
     <span class="k">return</span> <span class="n">wrapper_cls</span><span class="p">(</span><span class="n">_load_model_from_local_fs</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
 
 
@@ -655,7 +940,7 @@
         <span class="n">local_model_path</span><span class="p">,</span> <span class="n">flavor_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_MODEL_DATA_KEY</span><span class="p">,</span> <span class="n">_MODEL_DATA_FILE_NAME</span><span class="p">)</span>
     <span class="p">)</span>
 
-    <span class="n">agent_model_path</span> <span class="o">=</span> <span class="n">tools_model_path</span> <span class="o">=</span> <span class="n">agent_primitive_path</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">agent_model_path</span> <span class="o">=</span> <span class="n">tools_model_path</span> <span class="o">=</span> <span class="n">agent_primitive_path</span> <span class="o">=</span> <span class="n">loader_fn_path</span> <span class="o">=</span> <span class="n">persist_dir</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">agent_path</span> <span class="o">:=</span> <span class="n">flavor_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_AGENT_DATA_KEY</span><span class="p">):</span>
         <span class="n">agent_model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">agent_path</span><span class="p">)</span>
 
@@ -665,7 +950,25 @@
     <span class="k">if</span> <span class="n">primitive_path</span> <span class="o">:=</span> <span class="n">flavor_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_AGENT_PRIMITIVES_DATA_KEY</span><span class="p">):</span>
         <span class="n">agent_primitive_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">primitive_path</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">_load_model</span><span class="p">(</span><span class="n">lc_model_path</span><span class="p">,</span> <span class="n">agent_model_path</span><span class="p">,</span> <span class="n">tools_model_path</span><span class="p">,</span> <span class="n">agent_primitive_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">loader_fn_file_name</span> <span class="o">:=</span> <span class="n">flavor_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_LOADER_FN_KEY</span><span class="p">):</span>
+        <span class="n">loader_fn_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">loader_fn_file_name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">persist_dir_name</span> <span class="o">:=</span> <span class="n">flavor_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_PERSIST_DIR_KEY</span><span class="p">):</span>
+        <span class="n">persist_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">persist_dir_name</span><span class="p">)</span>
+
+    <span class="n">model_type</span> <span class="o">=</span> <span class="n">flavor_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_MODEL_TYPE_KEY</span><span class="p">)</span>
+    <span class="n">loader_arg</span> <span class="o">=</span> <span class="n">flavor_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_LOADER_ARG_KEY</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_load_model</span><span class="p">(</span>
+        <span class="n">lc_model_path</span><span class="p">,</span>
+        <span class="n">model_type</span><span class="p">,</span>
+        <span class="n">loader_arg</span><span class="p">,</span>
+        <span class="n">agent_model_path</span><span class="p">,</span>
+        <span class="n">tools_model_path</span><span class="p">,</span>
+        <span class="n">agent_primitive_path</span><span class="p">,</span>
+        <span class="n">loader_fn_path</span><span class="p">,</span>
+        <span class="n">persist_dir</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../python_api/mlflow.langchain.html#mlflow.langchain.load_model">[docs]</a><span class="nd">@experimental</span>
@@ -721,7 +1024,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

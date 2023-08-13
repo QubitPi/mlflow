@@ -9,9 +9,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.langchain &mdash; MLflow 2.4.2.dev0 documentation</title>
+  <title>mlflow.langchain &mdash; MLflow 2.5.1.dev0 documentation</title>
   
    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="canonical" href="https://mlflow.org/docs/latest/python_api/mlflow.langchain.html">
   
   
@@ -41,7 +42,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.4.2.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.lightgbm" href="/mlflow.lightgbm.html"/>
         <link rel="prev" title="mlflow.johnsnowlabs" href="/mlflow.johnsnowlabs.html"/> 
@@ -56,7 +57,6 @@
 <script type="text/javascript" src="../_static/languagesections.js"></script>
 
 <body class="wy-body-for-nav" role="document">
-
   
 
   
@@ -67,7 +67,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.4.2.dev0</span>
+    <span class="version">2.5.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -115,6 +115,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../recipes.html">MLflow Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command-Line Interface</a></li>
@@ -131,6 +132,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.entities.html">mlflow.entities</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.environment_variables.html">mlflow.environment_variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.fastai.html">mlflow.fastai</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.gateway.html">mlflow.gateway</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.gluon.html">mlflow.gluon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.h2o.html">mlflow.h2o</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.johnsnowlabs.html">mlflow.johnsnowlabs</a></li>
@@ -288,7 +290,7 @@ path will be created.</p></li>
 
 <dl class="py function">
 <dt id="mlflow.langchain.log_model">
-<code class="sig-prename descclassname"><span class="pre">mlflow.langchain.</span></code><code class="sig-name descname"><span class="pre">log_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conda_env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registered_model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">mlflow.models.signature.ModelSignature</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_example</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">,</span> </span><span class="pre">csr_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">csc_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">await_registration_for</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pip_requirements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_pip_requirements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/langchain.html#log_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.langchain.log_model" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.langchain.</span></code><code class="sig-name descname"><span class="pre">log_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conda_env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registered_model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">mlflow.models.signature.ModelSignature</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_example</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">,</span> </span><span class="pre">csr_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">csc_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">await_registration_for</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pip_requirements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_pip_requirements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persist_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/langchain.html#log_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.langchain.log_model" title="Permalink to this definition"> </a></dt>
 <dd><div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Experimental: This function may change or be removed in a future release without warning.</p>
@@ -297,7 +299,10 @@ path will be created.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lc_model</strong> – LangChain model to be saved.</p></li>
+<li><p><strong>lc_model</strong> – A LangChain model, which could be a
+<a class="reference external" href="https://python.langchain.com/docs/modules/chains/">Chain</a>,
+<a class="reference external" href="https://python.langchain.com/docs/modules/agents/">Agent</a>, or
+<a class="reference external" href="https://python.langchain.com/docs/modules/data_connection/retrievers/">retriever</a>.</p></li>
 <li><p><strong>artifact_path</strong> – Run-relative artifact path.</p></li>
 <li><p><strong>conda_env</strong> – <p>Either a dictionary representation of a Conda environment or the path to a conda environment yaml
 file. If provided, this describes the environment this model should be run in. At minimum, it
@@ -396,6 +401,47 @@ section of the model’s conda environment (<code class="docutils literal notran
 release without warning.</p>
 </div>
 </p></li>
+<li><p><strong>loader_fn</strong> – <p>A function that’s required for models containing objects that aren’t natively
+serialized by LangChain.
+This function takes a string <cite>persist_dir</cite> as an argument and returns the
+specific object that the model needs. Depending on the model,
+this could be a retriever, vectorstore, requests_wrapper, embeddings, or
+database. For RetrievalQA Chain and retriever models, the object is a
+(<a class="reference external" href="https://python.langchain.com/docs/modules/data_connection/retrievers/">retriever</a>).
+For APIChain models, it’s a
+(<a class="reference external" href="https://python.langchain.com/docs/modules/agents/tools/integrations/requests">requests_wrapper</a>).
+For HypotheticalDocumentEmbedder models, it’s an
+(<a class="reference external" href="https://python.langchain.com/docs/modules/data_connection/text_embedding/">embeddings</a>).
+For SQLDatabaseChain models, it’s a
+(<a class="reference external" href="https://python.langchain.com/docs/modules/agents/toolkits/sql_database">database</a>).</p>
+</p></li>
+<li><p><strong>persist_dir</strong> – <p>The directory where the object is stored. The <cite>loader_fn</cite>
+takes this string as the argument to load the object.
+This is optional for models containing objects that aren’t natively
+serialized by LangChain. MLflow logs the content in this directory as
+artifacts in the subdirectory named <cite>persist_dir_data</cite>.</p>
+<p>Here is the code snippet for logging a RetrievalQA chain with <cite>loader_fn</cite>
+and <cite>persist_dir</cite>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qa</span> <span class="o">=</span> <span class="n">RetrievalQA</span><span class="o">.</span><span class="n">from_llm</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">OpenAI</span><span class="p">(),</span> <span class="n">retriever</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">load_retriever</span><span class="p">(</span><span class="n">persist_directory</span><span class="p">):</span>
+    <span class="n">embeddings</span> <span class="o">=</span> <span class="n">OpenAIEmbeddings</span><span class="p">()</span>
+    <span class="n">vectorstore</span> <span class="o">=</span> <span class="n">FAISS</span><span class="o">.</span><span class="n">load_local</span><span class="p">(</span><span class="n">persist_directory</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vectorstore</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">()</span>
+
+
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
+    <span class="n">logged_model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">langchain</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span>
+        <span class="n">qa</span><span class="p">,</span>
+        <span class="n">artifact_path</span><span class="o">=</span><span class="s2">&quot;retrieval_qa&quot;</span><span class="p">,</span>
+        <span class="n">loader_fn</span><span class="o">=</span><span class="n">load_retriever</span><span class="p">,</span>
+        <span class="n">persist_dir</span><span class="o">=</span><span class="n">persist_dir</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>See a complete example in examples/langchain/retrieval_qa_chain.py.</p>
+</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -407,7 +453,7 @@ metadata of the logged model.</p>
 
 <dl class="py function">
 <dt id="mlflow.langchain.save_model">
-<code class="sig-prename descclassname"><span class="pre">mlflow.langchain.</span></code><code class="sig-name descname"><span class="pre">save_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conda_env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlflow_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">mlflow.models.signature.ModelSignature</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_example</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">,</span> </span><span class="pre">csr_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">csc_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pip_requirements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_pip_requirements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/langchain.html#save_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.langchain.save_model" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.langchain.</span></code><code class="sig-name descname"><span class="pre">save_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conda_env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlflow_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">mlflow.models.signature.ModelSignature</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_example</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">,</span> </span><span class="pre">csr_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">csc_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pip_requirements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_pip_requirements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persist_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/langchain.html#save_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.langchain.save_model" title="Permalink to this definition"> </a></dt>
 <dd><div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Experimental: This function may change or be removed in a future release without warning.</p>
@@ -416,7 +462,11 @@ metadata of the logged model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lc_model</strong> – An LLMChain model.</p></li>
+<li><p><strong>lc_model</strong> – <p>A LangChain model, which could be a
+<a class="reference external" href="https://python.langchain.com/docs/modules/chains/">Chain</a>,
+<a class="reference external" href="https://python.langchain.com/docs/modules/agents/">Agent</a>, or
+<a class="reference external" href="https://python.langchain.com/docs/modules/data_connection/retrievers/">retriever</a>.</p>
+</p></li>
 <li><p><strong>path</strong> – Local path where the serialized model (as YAML) is to be saved.</p></li>
 <li><p><strong>conda_env</strong> – <p>Either a dictionary representation of a Conda environment or the path to a conda environment yaml
 file. If provided, this describes the environment this model should be run in. At minimum, it
@@ -507,6 +557,47 @@ section of the model’s conda environment (<code class="docutils literal notran
 release without warning.</p>
 </div>
 </p></li>
+<li><p><strong>loader_fn</strong> – <p>A function that’s required for models containing objects that aren’t natively
+serialized by LangChain.
+This function takes a string <cite>persist_dir</cite> as an argument and returns the
+specific object that the model needs. Depending on the model,
+this could be a retriever, vectorstore, requests_wrapper, embeddings, or
+database. For RetrievalQA Chain and retriever models, the object is a
+(<a class="reference external" href="https://python.langchain.com/docs/modules/data_connection/retrievers/">retriever</a>).
+For APIChain models, it’s a
+(<a class="reference external" href="https://python.langchain.com/docs/modules/agents/tools/integrations/requests">requests_wrapper</a>).
+For HypotheticalDocumentEmbedder models, it’s an
+(<a class="reference external" href="https://python.langchain.com/docs/modules/data_connection/text_embedding/">embeddings</a>).
+For SQLDatabaseChain models, it’s a
+(<a class="reference external" href="https://python.langchain.com/docs/modules/agents/toolkits/sql_database">database</a>).</p>
+</p></li>
+<li><p><strong>persist_dir</strong> – <p>The directory where the object is stored. The <cite>loader_fn</cite>
+takes this string as the argument to load the object.
+This is optional for models containing objects that aren’t natively
+serialized by LangChain. MLflow logs the content in this directory as
+artifacts in the subdirectory named <cite>persist_dir_data</cite>.</p>
+<p>Here is the code snippet for logging a RetrievalQA chain with <cite>loader_fn</cite>
+and <cite>persist_dir</cite>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qa</span> <span class="o">=</span> <span class="n">RetrievalQA</span><span class="o">.</span><span class="n">from_llm</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">OpenAI</span><span class="p">(),</span> <span class="n">retriever</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">load_retriever</span><span class="p">(</span><span class="n">persist_directory</span><span class="p">):</span>
+    <span class="n">embeddings</span> <span class="o">=</span> <span class="n">OpenAIEmbeddings</span><span class="p">()</span>
+    <span class="n">vectorstore</span> <span class="o">=</span> <span class="n">FAISS</span><span class="o">.</span><span class="n">load_local</span><span class="p">(</span><span class="n">persist_directory</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vectorstore</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">()</span>
+
+
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
+    <span class="n">logged_model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">langchain</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span>
+        <span class="n">qa</span><span class="p">,</span>
+        <span class="n">artifact_path</span><span class="o">=</span><span class="s2">&quot;retrieval_qa&quot;</span><span class="p">,</span>
+        <span class="n">loader_fn</span><span class="o">=</span><span class="n">load_retriever</span><span class="p">,</span>
+        <span class="n">persist_dir</span><span class="o">=</span><span class="n">persist_dir</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>See a complete example in examples/langchain/retrieval_qa_chain.py.</p>
+</p></li>
 </ul>
 </dd>
 </dl>
@@ -552,7 +643,7 @@ release without warning.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.4.2.dev0',
+      VERSION:'2.5.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

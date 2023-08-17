@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.mleap &mdash; MLflow 2.5.1.dev0 documentation</title>
+  <title>mlflow.mleap &mdash; MLflow 2.6.1.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.models" href="/mlflow.models.html"/>
         <link rel="prev" title="mlflow.llm" href="/mlflow.llm.html"/> 
@@ -67,7 +67,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.5.1.dev0</span>
+    <span class="version">2.6.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -226,12 +226,6 @@
 <span id="mlflow-mleap"></span><h1>mlflow.mleap<a class="headerlink" href="#module-mlflow.mleap" title="Permalink to this headline"> </a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">mlflow.mleap</span></code> module provides an API for saving Spark MLLib models using the
 <a class="reference external" href="https://github.com/combust/mleap">MLeap</a> persistence mechanism.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>You cannot load the MLeap model flavor in Python; you must download it using the
-Java API method <code class="docutils literal notranslate"><span class="pre">downloadArtifacts(String</span> <span class="pre">runId)</span></code> and load the model
-using the method <code class="docutils literal notranslate"><span class="pre">MLeapLoader.loadPipeline(String</span> <span class="pre">modelRootPath)</span></code>.</p>
-</div>
 <dl class="py exception">
 <dt id="mlflow.mleap.MLeapSerializationException">
 <em class="property"><span class="pre">exception</span> </em><code class="sig-prename descclassname"><span class="pre">mlflow.mleap.</span></code><code class="sig-name descname"><span class="pre">MLeapSerializationException</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/mleap.html#MLeapSerializationException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.mleap.MLeapSerializationException" title="Permalink to this definition"> </a></dt>
@@ -242,52 +236,70 @@ using the method <code class="docutils literal notranslate"><span class="pre">ML
 <dl class="py function">
 <dt id="mlflow.mleap.add_to_model">
 <code class="sig-prename descclassname"><span class="pre">mlflow.mleap.</span></code><code class="sig-name descname"><span class="pre">add_to_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mlflow_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spark_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/mleap.html#add_to_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.mleap.add_to_model" title="Permalink to this definition"> </a></dt>
-<dd><div class="admonition note">
+<dd><div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">mlflow.mleap.add_to_model</span></code> is deprecated since 2.6.0. This method will be removed in a future release. Use <code class="docutils literal notranslate"><span class="pre">mlflow.onnx</span></code> instead.</p>
+</div>
+<div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This method requires all argument be specified by keyword.</p>
-</div>
 <p>Add the MLeap flavor to an existing MLflow model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mlflow_model</strong> – <a class="reference internal" href="mlflow.models.html#mlflow.models.Model" title="mlflow.models.Model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.models.Model</span></code></a> to which this flavor is being added.</p></li>
-<li><p><strong>path</strong> – Path of the model to which this flavor is being added.</p></li>
-<li><p><strong>spark_model</strong> – Spark PipelineModel to be saved. This model must be MLeap-compatible and
-cannot contain any custom transformers.</p></li>
-<li><p><strong>sample_input</strong> – Sample PySpark DataFrame input that the model can evaluate. This is
-required by MLeap for data schema inference.</p></li>
-</ul>
+<dt class="field-odd">param mlflow_model</dt>
+<dd class="field-odd"><p><a class="reference internal" href="mlflow.models.html#mlflow.models.Model" title="mlflow.models.Model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.models.Model</span></code></a> to which this flavor is being added.</p>
+</dd>
+<dt class="field-even">param path</dt>
+<dd class="field-even"><p>Path of the model to which this flavor is being added.</p>
+</dd>
+<dt class="field-odd">param spark_model</dt>
+<dd class="field-odd"><p>Spark PipelineModel to be saved. This model must be MLeap-compatible and
+cannot contain any custom transformers.</p>
+</dd>
+<dt class="field-even">param sample_input</dt>
+<dd class="field-even"><p>Sample PySpark DataFrame input that the model can evaluate. This is
+required by MLeap for data schema inference.</p>
 </dd>
 </dl>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt id="mlflow.mleap.log_model">
 <code class="sig-prename descclassname"><span class="pre">mlflow.mleap.</span></code><code class="sig-name descname"><span class="pre">log_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spark_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registered_model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">mlflow.models.signature.ModelSignature</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_example</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">,</span> </span><span class="pre">csr_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">csc_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/mleap.html#log_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.mleap.log_model" title="Permalink to this definition"> </a></dt>
-<dd><div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This method requires all argument be specified by keyword.</p>
+<dd><div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">mlflow.mleap.log_model</span></code> is deprecated since 2.6.0. This method will be removed in a future release. Use <code class="docutils literal notranslate"><span class="pre">mlflow.onnx</span></code> instead.</p>
 </div>
-<p>Log a Spark MLLib model in MLeap format as an MLflow artifact
-for the current run. The logged model will have the MLeap flavor.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You cannot load the MLeap model flavor in Python; you must download it using the
+<p>This method requires all argument be specified by keyword.</p>
+<p>Log a Spark MLLib model in MLeap format as an MLflow artifact
+for the current run. The logged model will have the MLeap flavor.</p>
+<p>NOTE:</p>
+<blockquote>
+<div><p>You cannot load the MLeap model flavor in Python; you must download it using the
 Java API method <code class="docutils literal notranslate"><span class="pre">downloadArtifacts(String</span> <span class="pre">runId)</span></code> and load the model
 using the method <code class="docutils literal notranslate"><span class="pre">MLeapLoader.loadPipeline(String</span> <span class="pre">modelRootPath)</span></code>.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>spark_model</strong> – Spark PipelineModel to be saved. This model must be MLeap-compatible and
-cannot contain any custom transformers.</p></li>
-<li><p><strong>sample_input</strong> – Sample PySpark DataFrame input that the model can evaluate. This is
-required by MLeap for data schema inference.</p></li>
-<li><p><strong>artifact_path</strong> – Run-relative artifact path.</p></li>
-<li><p><strong>registered_model_name</strong> – If given, create a model version under
+</div></blockquote>
+<dl class="field-list">
+<dt class="field-odd">param spark_model</dt>
+<dd class="field-odd"><p>Spark PipelineModel to be saved. This model must be MLeap-compatible and
+cannot contain any custom transformers.</p>
+</dd>
+<dt class="field-even">param sample_input</dt>
+<dd class="field-even"><p>Sample PySpark DataFrame input that the model can evaluate. This is
+required by MLeap for data schema inference.</p>
+</dd>
+<dt class="field-odd">param artifact_path</dt>
+<dd class="field-odd"><p>Run-relative artifact path.</p>
+</dd>
+<dt class="field-even">param registered_model_name</dt>
+<dd class="field-even"><p>If given, create a model version under
 <code class="docutils literal notranslate"><span class="pre">registered_model_name</span></code>, also creating a registered model if one
-with the given name does not exist.</p></li>
-<li><p><strong>signature</strong> – <p><a class="reference internal" href="mlflow.models.html#mlflow.models.ModelSignature" title="mlflow.models.ModelSignature"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSignature</span></code></a>
+with the given name does not exist.</p>
+</dd>
+<dt class="field-odd">param signature</dt>
+<dd class="field-odd"><p><a class="reference internal" href="mlflow.models.html#mlflow.models.ModelSignature" title="mlflow.models.ModelSignature"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSignature</span></code></a>
 describes model input and output <a class="reference internal" href="mlflow.types.html#mlflow.types.Schema" title="mlflow.types.Schema"><code class="xref py py-class docutils literal notranslate"><span class="pre">Schema</span></code></a>.
 The model signature can be <a class="reference internal" href="mlflow.models.html#mlflow.models.infer_signature" title="mlflow.models.infer_signature"><code class="xref py py-func docutils literal notranslate"><span class="pre">inferred</span></code></a>
 from datasets with valid model input (e.g. the training dataset with target
@@ -300,22 +312,23 @@ the training dataset), for example:</p>
 <span class="n">signature</span> <span class="o">=</span> <span class="n">infer_signature</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
 </pre></div>
 </div>
-</p></li>
-<li><p><strong>input_example</strong> – Input example provides one or several instances of valid
+</dd>
+<dt class="field-even">param input_example</dt>
+<dd class="field-even"><p>Input example provides one or several instances of valid
 model input. The example can be used as a hint of what data to feed the
 model. The given example will be converted to a Pandas DataFrame and then
 serialized to json using the Pandas split-oriented format. Bytes are
-base64-encoded.</p></li>
-<li><p><strong>metadata</strong> – <p>Custom metadata dictionary passed to the model and stored in the MLmodel file.</p>
+base64-encoded.</p>
+</dd>
+<dt class="field-odd">param metadata</dt>
+<dd class="field-odd"><p>Custom metadata dictionary passed to the model and stored in the MLmodel file.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Experimental: This parameter may change or be removed in a future
 release without warning.</p>
 </div>
-</p></li>
-</ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">return</dt>
 <dd class="field-even"><p>A <a class="reference internal" href="mlflow.models.html#mlflow.models.model.ModelInfo" title="mlflow.models.model.ModelInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelInfo</span></code></a> instance that contains the
 metadata of the logged model.</p>
 </dd>
@@ -360,33 +373,44 @@ metadata of the logged model.</p>
 </pre></div>
 </div>
 </div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt id="mlflow.mleap.save_model">
 <code class="sig-prename descclassname"><span class="pre">mlflow.mleap.</span></code><code class="sig-name descname"><span class="pre">save_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spark_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlflow_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">mlflow.models.signature.ModelSignature</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_example</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">,</span> </span><span class="pre">csr_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">csc_matrix</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/mleap.html#save_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.mleap.save_model" title="Permalink to this definition"> </a></dt>
-<dd><div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This method requires all argument be specified by keyword.</p>
+<dd><div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">mlflow.mleap.save_model</span></code> is deprecated since 2.6.0. This method will be removed in a future release. Use <code class="docutils literal notranslate"><span class="pre">mlflow.onnx</span></code> instead.</p>
 </div>
-<p>Save a Spark MLlib PipelineModel in MLeap format at a local path.
-The saved model will have the MLeap flavor.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You cannot load the MLeap model flavor in Python; you must download it using the
+<p>This method requires all argument be specified by keyword.</p>
+<p>Save a Spark MLlib PipelineModel in MLeap format at a local path.
+The saved model will have the MLeap flavor.</p>
+<p>NOTE:</p>
+<blockquote>
+<div><p>You cannot load the MLeap model flavor in Python; you must download it using the
 Java API method <code class="docutils literal notranslate"><span class="pre">downloadArtifacts(String</span> <span class="pre">runId)</span></code> and load the model
 using the method <code class="docutils literal notranslate"><span class="pre">MLeapLoader.loadPipeline(String</span> <span class="pre">modelRootPath)</span></code>.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>spark_model</strong> – Spark PipelineModel to be saved. This model must be MLeap-compatible and
-cannot contain any custom transformers.</p></li>
-<li><p><strong>sample_input</strong> – Sample PySpark DataFrame input that the model can evaluate. This is
-required by MLeap for data schema inference.</p></li>
-<li><p><strong>path</strong> – Local path where the model is to be saved.</p></li>
-<li><p><strong>mlflow_model</strong> – <a class="reference internal" href="mlflow.models.html#mlflow.models.Model" title="mlflow.models.Model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.models.Model</span></code></a> to which this flavor is being added.</p></li>
-<li><p><strong>signature</strong> – <p><a class="reference internal" href="mlflow.models.html#mlflow.models.ModelSignature" title="mlflow.models.ModelSignature"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSignature</span></code></a>
+</div></blockquote>
+<dl class="field-list">
+<dt class="field-odd">param spark_model</dt>
+<dd class="field-odd"><p>Spark PipelineModel to be saved. This model must be MLeap-compatible and
+cannot contain any custom transformers.</p>
+</dd>
+<dt class="field-even">param sample_input</dt>
+<dd class="field-even"><p>Sample PySpark DataFrame input that the model can evaluate. This is
+required by MLeap for data schema inference.</p>
+</dd>
+<dt class="field-odd">param path</dt>
+<dd class="field-odd"><p>Local path where the model is to be saved.</p>
+</dd>
+<dt class="field-even">param mlflow_model</dt>
+<dd class="field-even"><p><a class="reference internal" href="mlflow.models.html#mlflow.models.Model" title="mlflow.models.Model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.models.Model</span></code></a> to which this flavor is being added.</p>
+</dd>
+<dt class="field-odd">param signature</dt>
+<dd class="field-odd"><p><a class="reference internal" href="mlflow.models.html#mlflow.models.ModelSignature" title="mlflow.models.ModelSignature"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSignature</span></code></a>
 describes model input and output <a class="reference internal" href="mlflow.types.html#mlflow.types.Schema" title="mlflow.types.Schema"><code class="xref py py-class docutils literal notranslate"><span class="pre">Schema</span></code></a>.
 The model signature can be <a class="reference internal" href="mlflow.models.html#mlflow.models.infer_signature" title="mlflow.models.infer_signature"><code class="xref py py-func docutils literal notranslate"><span class="pre">inferred</span></code></a>
 from datasets with valid model input (e.g. the training dataset) and valid
@@ -398,13 +422,16 @@ for example:</p>
 <span class="n">signature</span> <span class="o">=</span> <span class="n">infer_signature</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">train</span><span class="p">))</span>
 </pre></div>
 </div>
-</p></li>
-<li><p><strong>input_example</strong> – Input example provides one or several instances of valid
+</dd>
+<dt class="field-even">param input_example</dt>
+<dd class="field-even"><p>Input example provides one or several instances of valid
 model input. The example can be used as a hint of what data to feed the
 model. The given example will be converted to a Pandas DataFrame and then
 serialized to json using the Pandas split-oriented format. Bytes are
-base64-encoded.</p></li>
-<li><p><strong>signature</strong> – <p><a class="reference internal" href="mlflow.models.html#mlflow.models.ModelSignature" title="mlflow.models.ModelSignature"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSignature</span></code></a>
+base64-encoded.</p>
+</dd>
+<dt class="field-odd">param signature</dt>
+<dd class="field-odd"><p><a class="reference internal" href="mlflow.models.html#mlflow.models.ModelSignature" title="mlflow.models.ModelSignature"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSignature</span></code></a>
 describes model input and output <a class="reference internal" href="mlflow.types.html#mlflow.types.Schema" title="mlflow.types.Schema"><code class="xref py py-class docutils literal notranslate"><span class="pre">Schema</span></code></a>.
 The model signature can be <a class="reference internal" href="mlflow.models.html#mlflow.models.infer_signature" title="mlflow.models.infer_signature"><code class="xref py py-func docutils literal notranslate"><span class="pre">inferred</span></code></a>
 from datasets with valid model input (e.g. the training dataset with target
@@ -417,22 +444,24 @@ the training dataset), for example:</p>
 <span class="n">signature</span> <span class="o">=</span> <span class="n">infer_signature</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
 </pre></div>
 </div>
-</p></li>
-<li><p><strong>input_example</strong> – Input example provides one or several instances of valid
+</dd>
+<dt class="field-even">param input_example</dt>
+<dd class="field-even"><p>Input example provides one or several instances of valid
 model input. The example can be used as a hint of what data to feed the
 model. The given example will be converted to a Pandas DataFrame and then
 serialized to json using the Pandas split-oriented format. Bytes are
-base64-encoded.</p></li>
-<li><p><strong>metadata</strong> – <p>Custom metadata dictionary passed to the model and stored in the MLmodel file.</p>
+base64-encoded.</p>
+</dd>
+<dt class="field-odd">param metadata</dt>
+<dd class="field-odd"><p>Custom metadata dictionary passed to the model and stored in the MLmodel file.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Experimental: This parameter may change or be removed in a future
 release without warning.</p>
 </div>
-</p></li>
-</ul>
 </dd>
 </dl>
+</div>
 </dd></dl>
 
 </div>
@@ -475,7 +504,7 @@ release without warning.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.5.1.dev0',
+      VERSION:'2.6.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

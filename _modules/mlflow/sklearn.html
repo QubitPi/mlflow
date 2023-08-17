@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.sklearn &mdash; MLflow 2.5.1.dev0 documentation</title>
+  <title>mlflow.sklearn &mdash; MLflow 2.6.1.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.5.1.dev0</span>
+    <span class="version">2.6.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -1488,9 +1488,7 @@
         <span class="n">_gen_xgboost_sklearn_estimators_to_patch</span><span class="p">,</span>
         <span class="n">_gen_lightgbm_sklearn_estimators_to_patch</span><span class="p">,</span>
         <span class="n">_log_estimator_content</span><span class="p">,</span>
-        <span class="n">_all_estimators</span><span class="p">,</span>
         <span class="n">_get_estimator_info_tags</span><span class="p">,</span>
-        <span class="n">_get_meta_estimators_for_autologging</span><span class="p">,</span>
         <span class="n">_is_parameter_search_estimator</span><span class="p">,</span>
         <span class="n">_log_parameter_search_results_as_artifact</span><span class="p">,</span>
         <span class="n">_create_child_runs_for_parameter_search</span><span class="p">,</span>
@@ -1765,11 +1763,10 @@
                         <span class="n">child_tags</span><span class="o">=</span><span class="n">child_tags</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                         <span class="s2">&quot;Encountered exception during creation of child runs for parameter search.&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot; Child runs may be missing. Exception: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot; Child runs may be missing. Exception: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
-                    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">cv_results_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">estimator</span><span class="o">.</span><span class="n">cv_results_</span><span class="p">)</span>
@@ -1777,11 +1774,9 @@
                         <span class="n">cv_results_df</span><span class="p">,</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">active_run</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
                     <span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="s2">&quot;Failed to log parameter search results as an artifact.&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot; Exception: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Failed to log parameter search results as an artifact. Exception: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
-                    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">patched_fit</span><span class="p">(</span><span class="n">fit_impl</span><span class="p">,</span> <span class="n">allow_children_patch</span><span class="p">,</span> <span class="n">original</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2118,7 +2113,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.5.1.dev0',
+      VERSION:'2.6.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

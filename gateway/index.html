@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>MLflow AI Gateway (Experimental) &mdash; MLflow 2.5.1.dev0 documentation</title>
+  <title>MLflow AI Gateway (Experimental) &mdash; MLflow 2.6.1.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../index.html"/>
         <link rel="next" title="MLflow Plugins" href="/../plugins.html"/>
         <link rel="prev" title="MLflow Recipes" href="/../recipes.html"/> 
 
@@ -66,7 +66,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.5.1.dev0</span>
+    <span class="version">2.6.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -430,11 +430,12 @@ below can be used as a helpful guide when configuring a given route for any newl
 <code class="docutils literal notranslate"><span class="pre">N/A</span></code> means that the provider currently doesn’t support the route type.</p>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 17%" />
-<col style="width: 22%" />
-<col style="width: 15%" />
-<col style="width: 24%" />
-<col style="width: 22%" />
+<col style="width: 14%" />
+<col style="width: 18%" />
+<col style="width: 12%" />
+<col style="width: 20%" />
+<col style="width: 18%" />
+<col style="width: 18%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Route Type</p></th>
@@ -442,6 +443,7 @@ below can be used as a helpful guide when configuring a given route for any newl
 <th class="head"><p>Anthropic</p></th>
 <th class="head"><p>Cohere</p></th>
 <th class="head"><p>Azure OpenAI</p></th>
+<th class="head"><p>MLflow</p></th>
 </tr>
 </thead>
 <tbody>
@@ -466,6 +468,10 @@ below can be used as a helpful guide when configuring a given route for any newl
 <li><p>gpt-35-turbo</p></li>
 </ul>
 </td>
+<td><ul class="simple">
+<li><p>MLflow served models*</p></li>
+</ul>
+</td>
 </tr>
 <tr class="row-odd"><td><p>llm/v1/chat</p></td>
 <td><ul class="simple">
@@ -478,6 +484,10 @@ below can be used as a helpful guide when configuring a given route for any newl
 <td><ul class="simple">
 <li><p>gpt-35-turbo</p></li>
 <li><p>gpt-4</p></li>
+</ul>
+</td>
+<td><ul class="simple">
+<li><p>MLflow served models*</p></li>
 </ul>
 </td>
 </tr>
@@ -496,11 +506,24 @@ below can be used as a helpful guide when configuring a given route for any newl
 <li><p>text-embedding-ada-002</p></li>
 </ul>
 </td>
+<td><ul class="simple">
+<li><p>MLflow served models**</p></li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
 <p>Within each model block in the configuration file, the provider field is used to specify the name
 of the provider for that model. This is a string value that needs to correspond to a provider the MLflow AI Gateway supports.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><cite>*</cite> MLflow Model Serving will only work for chat or completions if the output return is in a route-compatible format. The
+response must conform to either an output of <code class="docutils literal notranslate"><span class="pre">{&quot;predictions&quot;:</span> <span class="pre">str}</span></code> or <code class="docutils literal notranslate"><span class="pre">{&quot;predictions&quot;:</span> <span class="pre">{&quot;candidates&quot;:</span> <span class="pre">str}}</span></code>. Any complex return type from a model that
+does not conform to these structures will raise an exception at query time.</p>
+<p><cite>**</cite> Embeddings support is only available for models whose response signatures conform to the structured format of <code class="docutils literal notranslate"><span class="pre">{&quot;predictions&quot;:</span> <span class="pre">List[float]}</span></code>
+or <code class="docutils literal notranslate"><span class="pre">{&quot;predictions&quot;:</span> <span class="pre">List[List[float]]}</span></code>. Any other return type will raise an exception at query time. <code class="docutils literal notranslate"><span class="pre">FeatureExtractionPipeline</span></code> in <code class="docutils literal notranslate"><span class="pre">transformers</span></code> and
+models using the <code class="docutils literal notranslate"><span class="pre">sentence_transformers</span></code> flavor will return the correct data structures for the embeddings route.</p>
+</div>
 <p>Here’s an example of a provider configuration within a route:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">routes</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chat</span>
@@ -673,6 +696,7 @@ environment. For example:</p>
 <li><p>“anthropic”</p></li>
 <li><p>“cohere”</p></li>
 <li><p>“azure” / “azuread”</p></li>
+<li><p>“mlflow-model-serving”</p></li>
 </ul>
 </li>
 <li><p><strong>name</strong>: This is an optional field to specify the name of the model.</p></li>
@@ -780,6 +804,34 @@ OpenAI.</p></td>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section" id="mlflow-model-serving">
+<h6>MLflow Model Serving<a class="headerlink" href="#mlflow-model-serving" title="Permalink to this headline"> </a></h6>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 9%" />
+<col style="width: 22%" />
+<col style="width: 47%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Configuration Parameter</p></th>
+<th class="head"><p>Required</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>model_server_url</strong></p></td>
+<td><p>Yes</p></td>
+<td><p>N/A</p></td>
+<td><p>This is the url of the MLflow Model Server.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Note that with MLflow model serving, the <code class="docutils literal notranslate"><span class="pre">name</span></code> parameter for the <code class="docutils literal notranslate"><span class="pre">model</span></code> definition is not used for validation and is only present for reference purposes. This alias can be
+useful for understanding a particular version or route definition that was used that can be referenced back to a deployed model. You may choose any name that you wish, provided that
+it is JSON serializable.</p>
 </div>
 <div class="section" id="azure-openai">
 <h6>Azure OpenAI<a class="headerlink" href="#azure-openai" title="Permalink to this headline"> </a></h6>
@@ -1228,6 +1280,16 @@ This integration enable users to use prompt engineering, retrieval augmented gen
 </div>
 <div class="section" id="mlflow-models">
 <span id="gateway-mlflow-models"></span><h4>MLflow Models<a class="headerlink" href="#mlflow-models" title="Permalink to this headline"> </a></h4>
+<p>Interfacing with MLflow Models can be done in two ways. With the use of a custom PyFunc Model, a query can be issued directly to an AI Gateway endpoint and used in a broader context within a model.
+Data may be augmented, manipulated, or used in a mixture of experts paradigm. The other means of utilizing the AI Gateway along with MLflow Models is to define a served MLflow model directly as a
+route within the AI Gateway.</p>
+<div class="section" id="using-the-ai-gateway-to-query-a-served-mlflow-model">
+<h5>Using the AI Gateway to Query a served MLflow Model<a class="headerlink" href="#using-the-ai-gateway-to-query-a-served-mlflow-model" title="Permalink to this headline"> </a></h5>
+<p>For a full walkthrough and example of using the MLflow serving integration to query a model directly through the MLflow AI Gateway, please see <a class="reference external" href="https://github.com/mlflow/mlflow/tree/master/examples/gateway/mlflow_serving/README.md">the full example</a>.
+Within the guide, you will see the entire end-to-end process of serving multiple models from different servers and configuring an MLflow AI Gateway server instance to provide a single unified point to handle queries from.</p>
+</div>
+<div class="section" id="using-an-mlflow-model-to-query-the-ai-gateway">
+<h5>Using an MLflow Model to Query the AI Gateway<a class="headerlink" href="#using-an-mlflow-model-to-query-the-ai-gateway" title="Permalink to this headline"> </a></h5>
 <p>You can also build and deploy MLflow Models that call the MLflow AI Gateway.
 The example below demonstrates how to use an AI Gateway server from within a custom <code class="docutils literal notranslate"><span class="pre">pyfunc</span></code> model.</p>
 <div class="admonition note">
@@ -1283,6 +1345,7 @@ definition or can be applied via <a class="reference internal" href="../python_a
 </pre></div>
 </div>
 <p>This custom MLflow model can be used in the same way as any other MLflow model. It can be used within a <code class="docutils literal notranslate"><span class="pre">spark_udf</span></code>, used with <a class="reference internal" href="../python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a>, or <a class="reference external" href="https://mlflow.org/docs/latest/models.html#built-in-deployment-tools">deploy</a> like any other model.</p>
+</div>
 </div>
 <div class="section" id="rest-api">
 <span id="gateway-rest-api"></span><h4>REST API<a class="headerlink" href="#rest-api" title="Permalink to this headline"> </a></h4>
@@ -1406,7 +1469,7 @@ This provides information about the name and type, as well as the model details 
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.5.1.dev0',
+      VERSION:'2.6.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

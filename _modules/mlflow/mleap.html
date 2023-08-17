@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.mleap &mdash; MLflow 2.5.1.dev0 documentation</title>
+  <title>mlflow.mleap &mdash; MLflow 2.6.1.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.5.1.dev0</span>
+    <span class="version">2.6.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -181,7 +181,11 @@
 <span class="sd">The ``mlflow.mleap`` module provides an API for saving Spark MLLib models using the</span>
 <span class="sd">`MLeap &lt;https://github.com/combust/mleap&gt;`_ persistence mechanism.</span>
 
-<span class="sd">NOTE:</span>
+<span class="sd">.. warning:</span>
+
+<span class="sd">    The mleap flavor is deprecated and will be removed in a future release of MLflow.</span>
+
+<span class="sd">.. note:</span>
 
 <span class="sd">    You cannot load the MLeap model flavor in Python; you must download it using the</span>
 <span class="sd">    Java API method ``downloadArtifacts(String runId)`` and load the model</span>
@@ -200,14 +204,15 @@
 <span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">_save_example</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">reraise</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.file_utils</span> <span class="kn">import</span> <span class="n">path_to_local_file_uri</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">keyword_only</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">keyword_only</span><span class="p">,</span> <span class="n">deprecated</span>
 
 <span class="n">FLAVOR_NAME</span> <span class="o">=</span> <span class="s2">&quot;mleap&quot;</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="log_model"><a class="viewcode-back" href="../../python_api/mlflow.mleap.html#mlflow.mleap.log_model">[docs]</a><span class="nd">@keyword_only</span>
+<div class="viewcode-block" id="log_model"><a class="viewcode-back" href="../../python_api/mlflow.mleap.html#mlflow.mleap.log_model">[docs]</a><span class="nd">@deprecated</span><span class="p">(</span><span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;mlflow.onnx&quot;</span><span class="p">,</span> <span class="n">since</span><span class="o">=</span><span class="s2">&quot;2.6.0&quot;</span><span class="p">)</span>
+<span class="nd">@keyword_only</span>
 <span class="k">def</span> <span class="nf">log_model</span><span class="p">(</span>
     <span class="n">spark_model</span><span class="p">,</span>
     <span class="n">sample_input</span><span class="p">,</span>
@@ -315,7 +320,8 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="save_model"><a class="viewcode-back" href="../../python_api/mlflow.mleap.html#mlflow.mleap.save_model">[docs]</a><span class="nd">@keyword_only</span>
+<div class="viewcode-block" id="save_model"><a class="viewcode-back" href="../../python_api/mlflow.mleap.html#mlflow.mleap.save_model">[docs]</a><span class="nd">@deprecated</span><span class="p">(</span><span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;mlflow.onnx&quot;</span><span class="p">,</span> <span class="n">since</span><span class="o">=</span><span class="s2">&quot;2.6.0&quot;</span><span class="p">)</span>
+<span class="nd">@keyword_only</span>
 <span class="k">def</span> <span class="nf">save_model</span><span class="p">(</span>
     <span class="n">spark_model</span><span class="p">,</span>
     <span class="n">sample_input</span><span class="p">,</span>
@@ -400,7 +406,8 @@
     <span class="n">mlflow_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">MLMODEL_FILE_NAME</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="add_to_model"><a class="viewcode-back" href="../../python_api/mlflow.mleap.html#mlflow.mleap.add_to_model">[docs]</a><span class="nd">@keyword_only</span>
+<div class="viewcode-block" id="add_to_model"><a class="viewcode-back" href="../../python_api/mlflow.mleap.html#mlflow.mleap.add_to_model">[docs]</a><span class="nd">@deprecated</span><span class="p">(</span><span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;mlflow.onnx&quot;</span><span class="p">,</span> <span class="n">since</span><span class="o">=</span><span class="s2">&quot;2.6.0&quot;</span><span class="p">)</span>
+<span class="nd">@keyword_only</span>
 <span class="k">def</span> <span class="nf">add_to_model</span><span class="p">(</span><span class="n">mlflow_model</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">spark_model</span><span class="p">,</span> <span class="n">sample_input</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add the MLeap flavor to an existing MLflow model.</span>
@@ -418,7 +425,7 @@
 
     <span class="c1"># This import statement adds `serializeToBundle` and `deserializeFromBundle` to `Transformer`:</span>
     <span class="c1"># https://github.com/combust/mleap/blob/37f6f61634798118e2c2eb820ceeccf9d234b810/python/mleap/pyspark/spark_support.py#L32-L33</span>
-    <span class="kn">from</span> <span class="nn">mleap.pyspark.spark_support</span> <span class="kn">import</span> <span class="n">SimpleSparkSerializer</span>  <span class="c1"># pylint: disable=unused-import</span>
+    <span class="kn">from</span> <span class="nn">mleap.pyspark.spark_support</span> <span class="kn">import</span> <span class="n">SimpleSparkSerializer</span>  <span class="c1"># noqa: F401</span>
     <span class="kn">from</span> <span class="nn">py4j.protocol</span> <span class="kn">import</span> <span class="n">Py4JError</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spark_model</span><span class="p">,</span> <span class="n">PipelineModel</span><span class="p">):</span>
@@ -514,7 +521,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.5.1.dev0',
+      VERSION:'2.6.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.gateway.client &mdash; MLflow 2.5.1.dev0 documentation</title>
+  <title>mlflow.gateway.client &mdash; MLflow 2.6.1.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.5.1.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.5.1.dev0</span>
+    <span class="version">2.6.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -352,15 +352,13 @@
 <span class="sd">            openai_api_key = ...</span>
 
 <span class="sd">            new_route = gateway_client.create_route(</span>
-<span class="sd">                &quot;my-new-route&quot;,</span>
-<span class="sd">                &quot;llm/v1/completions&quot;,</span>
-<span class="sd">                {</span>
-<span class="sd">                    &quot;name&quot;: &quot;question-answering-bot-1&quot;,</span>
+<span class="sd">                name=&quot;my-route&quot;,</span>
+<span class="sd">                route_type=&quot;llm/v1/completions&quot;,</span>
+<span class="sd">                model={</span>
+<span class="sd">                    &quot;name&quot;: &quot;question-answering-bot&quot;,</span>
 <span class="sd">                    &quot;provider&quot;: &quot;openai&quot;,</span>
-<span class="sd">                    &quot;config&quot;: {</span>
+<span class="sd">                    &quot;openai_config&quot;: {</span>
 <span class="sd">                        &quot;openai_api_key&quot;: openai_api_key,</span>
-<span class="sd">                        &quot;openai_api_version&quot;: &quot;2023-05-10&quot;,</span>
-<span class="sd">                        &quot;openai_api_type&quot;: &quot;openai/v1/chat/completions&quot;,</span>
 <span class="sd">                    },</span>
 <span class="sd">                },</span>
 <span class="sd">            )</span>
@@ -468,6 +466,25 @@
 <span class="sd">                {&quot;text&quot;: [&quot;It was the best of times&quot;, &quot;It was the worst of times&quot;]},</span>
 <span class="sd">            )</span>
 
+<span class="sd">        Additional parameters that are valid for a given provider and route configuration can be</span>
+<span class="sd">        included with the request as shown below, using an openai completions route request as</span>
+<span class="sd">        an example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from mlflow.gateway import MlflowGatewayClient</span>
+
+<span class="sd">            gateway_client = MlflowGatewayClient(&quot;http://my.gateway:8888&quot;)</span>
+
+<span class="sd">            response = gateway_client.query(</span>
+<span class="sd">                &quot;my-completions-route&quot;,</span>
+<span class="sd">                {</span>
+<span class="sd">                    &quot;prompt&quot;: &quot;Give me an example of a properly formatted pytest unit test&quot;,</span>
+<span class="sd">                    &quot;temperature&quot;: 0.3,</span>
+<span class="sd">                    &quot;max_tokens&quot;: 500,</span>
+<span class="sd">                },</span>
+<span class="sd">            )</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -519,7 +536,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.5.1.dev0',
+      VERSION:'2.6.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

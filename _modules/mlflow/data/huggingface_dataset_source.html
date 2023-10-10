@@ -191,9 +191,7 @@
 
 <div class="viewcode-block" id="HuggingFaceDatasetSource"><a class="viewcode-back" href="../../../python_api/mlflow.data.html#mlflow.data.huggingface_dataset_source.HuggingFaceDatasetSource">[docs]</a><span class="nd">@experimental</span>
 <span class="k">class</span> <span class="nc">HuggingFaceDatasetSource</span><span class="p">(</span><span class="n">DatasetSource</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Represents the source of a Hugging Face dataset used in MLflow Tracking.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents the source of a Hugging Face dataset used in MLflow Tracking.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -205,53 +203,61 @@
         <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">split</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;datasets.Split&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">revision</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;datasets.Version&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;datasets.TaskTemplate&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param path: The path of the Hugging Face dataset.</span>
-<span class="sd">        :param config_name: The name of of the Hugging Face dataset configuration.</span>
-<span class="sd">        :param data_dir: The `data_dir` of the Hugging Face dataset configuration.</span>
-<span class="sd">        :param data_files: Paths to source data file(s) for the Hugging Face dataset configuration.</span>
-<span class="sd">        :param revision: Version of the dataset script to load.</span>
-<span class="sd">        :param task: The task to prepare the Hugging Face dataset for during training and</span>
-<span class="sd">                     evaluation.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a `HuggingFaceDatasetSource` instance.</span>
+
+<span class="sd">        Arguments in `__init__` match arguments of the same name in</span>
+<span class="sd">        [`datasets.load_dataset()`](https://huggingface.co/docs/datasets/v2.14.5/en/package_reference/loading_methods#datasets.load_dataset).</span>
+<span class="sd">        The only exception is `config_name` matches `name` in `datasets.load_dataset()`, because</span>
+<span class="sd">        we need to differentiate from `mlflow.data.Dataset` `name` attribute.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: The path of the Hugging Face dataset, if it is a dataset from HuggingFace hub,</span>
+<span class="sd">                `path` must match the hub path, e.g., &quot;databricks/databricks-dolly-15k&quot;.</span>
+<span class="sd">            config_name: The name of of the Hugging Face dataset configuration.</span>
+<span class="sd">            data_dir: The `data_dir` of the Hugging Face dataset configuration.</span>
+<span class="sd">            data_files: Paths to source data file(s) for the Hugging Face dataset configuration.</span>
+<span class="sd">            split: Which split of the data to load.</span>
+<span class="sd">            revision: Version of the dataset script to load.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_config_name</span> <span class="o">=</span> <span class="n">config_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span> <span class="o">=</span> <span class="n">data_dir</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_data_files</span> <span class="o">=</span> <span class="n">data_files</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_split</span> <span class="o">=</span> <span class="n">split</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_revision</span> <span class="o">=</span> <span class="n">revision</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="o">=</span> <span class="n">task</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_name</span> <span class="o">=</span> <span class="n">config_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">data_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_files</span> <span class="o">=</span> <span class="n">data_files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">split</span> <span class="o">=</span> <span class="n">split</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">revision</span> <span class="o">=</span> <span class="n">revision</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_get_source_type</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;hugging_face&quot;</span>
 
 <div class="viewcode-block" id="HuggingFaceDatasetSource.load"><a class="viewcode-back" href="../../../python_api/mlflow.data.html#mlflow.data.huggingface_dataset_source.HuggingFaceDatasetSource.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Loads the dataset source as a Hugging Face Dataset.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load the Hugging Face dataset based on `HuggingFaceDatasetSource`.</span>
 
-<span class="sd">        :param kwargs: Additional keyword arguments used for loading the dataset with</span>
-<span class="sd">                       the Hugging Face ``datasets.load_dataset()`` method. The following keyword</span>
-<span class="sd">                       arguments are used automatically from the dataset source but may be</span>
-<span class="sd">                       overridden by values passed in ``**kwargs``: ``path``, ``name``,</span>
-<span class="sd">                       ``data_dir``, ``data_files``, ``split``, ``revision``, ``task``.</span>
-<span class="sd">        :return: An instance of ``datasets.Dataset``.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            kwargs: Additional keyword arguments used for loading the dataset with the Hugging Face</span>
+<span class="sd">                `datasets.load_dataset()` method.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            An instance of `datasets.Dataset`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">datasets</span>
 
         <span class="n">load_kwargs</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_name</span><span class="p">,</span>
-            <span class="s2">&quot;data_dir&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">,</span>
-            <span class="s2">&quot;data_files&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_files</span><span class="p">,</span>
-            <span class="s2">&quot;split&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">,</span>
-            <span class="s2">&quot;revision&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_revision</span><span class="p">,</span>
-            <span class="s2">&quot;task&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span><span class="p">,</span>
+            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_name</span><span class="p">,</span>
+            <span class="s2">&quot;data_dir&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span>
+            <span class="s2">&quot;data_files&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_files</span><span class="p">,</span>
+            <span class="s2">&quot;split&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">split</span><span class="p">,</span>
+            <span class="s2">&quot;revision&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">revision</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="n">load_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
-
+        <span class="n">intersecting_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">load_kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">intersecting_keys</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Found duplicated arguments in `HuggingFaceDatasetSource` and &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;`kwargs`: </span><span class="si">{</span><span class="n">intersecting_keys</span><span class="si">}</span><span class="s2">. Please remove them from `kwargs`.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">load_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="o">**</span><span class="n">load_kwargs</span><span class="p">)</span></div>
 
     <span class="nd">@staticmethod</span>
@@ -267,13 +273,12 @@
 
     <span class="k">def</span> <span class="nf">_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span>
-            <span class="s2">&quot;config_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_name</span><span class="p">,</span>
-            <span class="s2">&quot;data_dir&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">,</span>
-            <span class="s2">&quot;data_files&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_files</span><span class="p">,</span>
-            <span class="s2">&quot;split&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">),</span>
-            <span class="s2">&quot;revision&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_revision</span><span class="p">,</span>
-            <span class="s2">&quot;task&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span><span class="p">,</span>
+            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+            <span class="s2">&quot;config_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_name</span><span class="p">,</span>
+            <span class="s2">&quot;data_dir&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span>
+            <span class="s2">&quot;data_files&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_files</span><span class="p">,</span>
+            <span class="s2">&quot;split&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">split</span><span class="p">),</span>
+            <span class="s2">&quot;revision&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">revision</span><span class="p">,</span>
         <span class="p">}</span>
 
     <span class="nd">@classmethod</span>
@@ -285,7 +290,6 @@
             <span class="n">data_files</span><span class="o">=</span><span class="n">source_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_files&quot;</span><span class="p">),</span>
             <span class="n">split</span><span class="o">=</span><span class="n">source_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;split&quot;</span><span class="p">),</span>
             <span class="n">revision</span><span class="o">=</span><span class="n">source_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;revision&quot;</span><span class="p">),</span>
-            <span class="n">task</span><span class="o">=</span><span class="n">source_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;task&quot;</span><span class="p">),</span>
         <span class="p">)</span></div>
 </pre></div>
 

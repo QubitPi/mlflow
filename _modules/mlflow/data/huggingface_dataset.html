@@ -363,44 +363,37 @@
     <span class="n">data_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">data_files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">digest</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HuggingFaceDataset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Given a Hugging Face ``datasets.Dataset``, constructs an MLflow :py:class:`HuggingFaceDataset`</span>
-<span class="sd">    object for use with MLflow Tracking.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a `mlflow.data.huggingface_dataset.HuggingFaceDataset` from a Hugging Face dataset.</span>
 
-<span class="sd">    :param ds: A Hugging Face dataset. Must be an instance of ``datasets.Dataset``.</span>
-<span class="sd">               Other types, such as ``datasets.DatasetDict``, are not supported.</span>
-<span class="sd">    :param path: The path of the Hugging Face dataset used to construct the source. This is used by</span>
-<span class="sd">                 the ``datasets.load_dataset()`` function to reload the dataset upon request via</span>
-<span class="sd">                 :py:func:`HuggingFaceDataset.source.load()</span>
-<span class="sd">                 &lt;mlflow.data.huggingface_dataset_source.HuggingFaceDatasetSource.load&gt;`.</span>
-<span class="sd">                 If no path is specified, a CodeDatasetSource is used, which will source</span>
-<span class="sd">                 information from the run context.</span>
-<span class="sd">    :param targets: The name of the Hugging Face ``dataset.Dataset`` column containing targets</span>
-<span class="sd">                    (labels) for supervised learning.</span>
-<span class="sd">    :param data_dir: The `data_dir` of the Hugging Face dataset configuration. This is used by the</span>
-<span class="sd">                     ``datasets.load_dataset()`` function to reload the dataset upon request via</span>
-<span class="sd">                     :py:func:`HuggingFaceDataset.source.load()</span>
-<span class="sd">                     &lt;mlflow.data.huggingface_dataset_source.HuggingFaceDatasetSource.load&gt;`.</span>
-<span class="sd">    :param data_files: Paths to source data file(s) for the Hugging Face dataset configuration.</span>
-<span class="sd">                       This is used by the ``datasets.load_dataset()`` function to reload the</span>
-<span class="sd">                       dataset upon request via :py:func:`HuggingFaceDataset.source.load()</span>
-<span class="sd">                       &lt;mlflow.data.huggingface_dataset_source.HuggingFaceDatasetSource.load&gt;`.</span>
-<span class="sd">    :param revision: Version of the dataset script to load. This is used by the</span>
-<span class="sd">                     ``datasets.load_dataset()`` function to reload the dataset upon request via</span>
-<span class="sd">                     :py:func:`HuggingFaceDataset.source.load()</span>
-<span class="sd">                     &lt;mlflow.data.huggingface_dataset_source.HuggingFaceDatasetSource.load&gt;`.</span>
-<span class="sd">    :param task: The task to prepare the Hugging Face dataset for during training and evaluation.</span>
-<span class="sd">                 This is used by the ``datasets.load_dataset()`` function to reload the dataset</span>
-<span class="sd">                 upon request via :py:func:`HuggingFaceDataset.source.load()</span>
-<span class="sd">                 &lt;mlflow.data.huggingface_dataset_source.HuggingFaceDatasetSource.load&gt;`.</span>
-<span class="sd">    :param name: The name of the dataset. E.g. &quot;wiki_train&quot;. If unspecified, a name is</span>
-<span class="sd">                 automatically generated.</span>
-<span class="sd">    :param digest: The digest (hash, fingerprint) of the dataset. If unspecified, a digest</span>
-<span class="sd">                   is automatically computed.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        ds: A Hugging Face dataset. Must be an instance of `datasets.Dataset`. Other types, such as</span>
+<span class="sd">            `datasets.DatasetDict`, are not supported.</span>
+<span class="sd">        path: The path of the Hugging Face dataset used to construct the source. This is the same</span>
+<span class="sd">            argument as `path` in `datasets.load_dataset()` function. To be able to reload the</span>
+<span class="sd">            dataset via MLflow, `path` must match the path of the dataset on the hub, e.g.,</span>
+<span class="sd">            &quot;databricks/databricks-dolly-15k&quot;. If no path is specified, a `CodeDatasetSource` is,</span>
+<span class="sd">            used which will source information from the run context.</span>
+<span class="sd">        targets: The name of the Hugging Face `dataset.Dataset` column containing targets (labels)</span>
+<span class="sd">            for supervised learning.</span>
+<span class="sd">        data_dir: The `data_dir` of the Hugging Face dataset configuration. This is used by the</span>
+<span class="sd">            `datasets.load_dataset()` function to reload the dataset upon request via</span>
+<span class="sd">            :py:func:`HuggingFaceDataset.source.load()</span>
+<span class="sd">            &lt;mlflow.data.huggingface_dataset_source.HuggingFaceDatasetSource.load&gt;`.</span>
+<span class="sd">        data_files: Paths to source data file(s) for the Hugging Face dataset configuration.</span>
+<span class="sd">            This is used by the `datasets.load_dataset()` function to reload the</span>
+<span class="sd">            dataset upon request via :py:func:`HuggingFaceDataset.source.load()</span>
+<span class="sd">            &lt;mlflow.data.huggingface_dataset_source.HuggingFaceDatasetSource.load&gt;`.</span>
+<span class="sd">        revision: Version of the dataset script to load. This is used by the</span>
+<span class="sd">            `datasets.load_dataset()` function to reload the dataset upon request via</span>
+<span class="sd">            :py:func:`HuggingFaceDataset.source.load()</span>
+<span class="sd">            &lt;mlflow.data.huggingface_dataset_source.HuggingFaceDatasetSource.load&gt;`.</span>
+<span class="sd">        name: The name of the dataset. E.g. &quot;wiki_train&quot;. If unspecified, a name is automatically</span>
+<span class="sd">            generated.</span>
+<span class="sd">        digest: The digest (hash, fingerprint) of the dataset. If unspecified, a digest is</span>
+<span class="sd">            automatically computed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">datasets</span>
 
@@ -409,13 +402,13 @@
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">datasets</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;The specified Hugging Face dataset must be an instance of ``datasets.Dataset``.&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;The specified Hugging Face dataset must be an instance of `datasets.Dataset`.&quot;</span>
             <span class="sa">f</span><span class="s2">&quot; Instead, found an instance of: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="c1"># if arguments for source are passed in directly, use them.</span>
-    <span class="c1"># otherwise construct a CodeDatasetSource.</span>
+    <span class="c1"># Set the source to a `HuggingFaceDatasetSource` if a path is specified, otherwise set it to a</span>
+    <span class="c1"># `CodeDatasetSource`.</span>
     <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">source</span> <span class="o">=</span> <span class="n">HuggingFaceDatasetSource</span><span class="p">(</span>
             <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
@@ -424,7 +417,6 @@
             <span class="n">data_files</span><span class="o">=</span><span class="n">data_files</span><span class="p">,</span>
             <span class="n">split</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">split</span><span class="p">,</span>
             <span class="n">revision</span><span class="o">=</span><span class="n">revision</span><span class="p">,</span>
-            <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">context_tags</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">resolve_tags</span><span class="p">()</span>

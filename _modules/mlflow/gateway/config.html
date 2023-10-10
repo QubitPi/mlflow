@@ -218,6 +218,7 @@
     <span class="n">AI21LABS</span> <span class="o">=</span> <span class="s2">&quot;ai21labs&quot;</span>
     <span class="n">MLFLOW_MODEL_SERVING</span> <span class="o">=</span> <span class="s2">&quot;mlflow-model-serving&quot;</span>
     <span class="n">MOSAICML</span> <span class="o">=</span> <span class="s2">&quot;mosaicml&quot;</span>
+    <span class="n">PALM</span> <span class="o">=</span> <span class="s2">&quot;palm&quot;</span>
     <span class="c1"># Note: The following providers are only supported on Databricks</span>
     <span class="n">DATABRICKS_MODEL_SERVING</span> <span class="o">=</span> <span class="s2">&quot;databricks-model-serving&quot;</span>
     <span class="n">DATABRICKS</span> <span class="o">=</span> <span class="s2">&quot;databricks&quot;</span>
@@ -347,6 +348,15 @@
         <span class="k">return</span> <span class="n">_resolve_api_key_from_input</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div></div>
 
 
+<div class="viewcode-block" id="PaLMConfig"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.PaLMConfig">[docs]</a><span class="k">class</span> <span class="nc">PaLMConfig</span><span class="p">(</span><span class="n">ConfigModel</span><span class="p">):</span>
+    <span class="n">palm_api_key</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="c1"># pylint: disable=no-self-argument</span>
+<div class="viewcode-block" id="PaLMConfig.validate_palm_api_key"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.PaLMConfig.validate_palm_api_key">[docs]</a>    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;palm_api_key&quot;</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">validate_palm_api_key</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_resolve_api_key_from_input</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div></div>
+
+
 <div class="viewcode-block" id="MlflowModelServingConfig"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.MlflowModelServingConfig">[docs]</a><span class="k">class</span> <span class="nc">MlflowModelServingConfig</span><span class="p">(</span><span class="n">ConfigModel</span><span class="p">):</span>
     <span class="n">model_server_url</span><span class="p">:</span> <span class="nb">str</span></div>
 
@@ -358,6 +368,7 @@
     <span class="n">Provider</span><span class="o">.</span><span class="n">AI21LABS</span><span class="p">:</span> <span class="n">AI21LabsConfig</span><span class="p">,</span>
     <span class="n">Provider</span><span class="o">.</span><span class="n">MOSAICML</span><span class="p">:</span> <span class="n">MosaicMLConfig</span><span class="p">,</span>
     <span class="n">Provider</span><span class="o">.</span><span class="n">MLFLOW_MODEL_SERVING</span><span class="p">:</span> <span class="n">MlflowModelServingConfig</span><span class="p">,</span>
+    <span class="n">Provider</span><span class="o">.</span><span class="n">PALM</span><span class="p">:</span> <span class="n">PaLMConfig</span><span class="p">,</span>
 <span class="p">}</span>
 
 
@@ -414,6 +425,7 @@
             <span class="n">AnthropicConfig</span><span class="p">,</span>
             <span class="n">MosaicMLConfig</span><span class="p">,</span>
             <span class="n">MlflowModelServingConfig</span><span class="p">,</span>
+            <span class="n">PaLMConfig</span><span class="p">,</span>
         <span class="p">]</span>
     <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 

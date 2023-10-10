@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.tracking._model_registry.fluent &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow.tracking._model_registry.fluent &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../../../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../../../index.html"/>
         <link rel="up" title="Module code" href="../../../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,6 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">Command-Line Interface</a></li>
@@ -177,20 +178,20 @@
               <div itemprop="articleBody">
                 
   <h1>Source code for mlflow.tracking._model_registry.fluent</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">mlflow.tracking.client</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">mlflow.entities.model_registry</span> <span class="kn">import</span> <span class="n">ModelVersion</span><span class="p">,</span> <span class="n">RegisteredModel</span>
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
-<span class="kn">from</span> <span class="nn">mlflow.entities.model_registry</span> <span class="kn">import</span> <span class="n">ModelVersion</span>
-<span class="kn">from</span> <span class="nn">mlflow.entities.model_registry</span> <span class="kn">import</span> <span class="n">RegisteredModel</span>
-<span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">RESOURCE_ALREADY_EXISTS</span><span class="p">,</span> <span class="n">ALREADY_EXISTS</span><span class="p">,</span> <span class="n">ErrorCode</span>
+<span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">ALREADY_EXISTS</span><span class="p">,</span> <span class="n">RESOURCE_ALREADY_EXISTS</span><span class="p">,</span> <span class="n">ErrorCode</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.artifact.runs_artifact_repo</span> <span class="kn">import</span> <span class="n">RunsArtifactRepository</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.logging_utils</span> <span class="kn">import</span> <span class="n">eprint</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">get_results_from_paginated_fn</span>
-<span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry</span> <span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.model_registry</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">SEARCH_REGISTERED_MODEL_MAX_RESULTS_DEFAULT</span><span class="p">,</span>
     <span class="n">SEARCH_MODEL_VERSION_MAX_RESULTS_DEFAULT</span><span class="p">,</span>
+    <span class="n">SEARCH_REGISTERED_MODEL_MAX_RESULTS_DEFAULT</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry</span> <span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
+<span class="kn">from</span> <span class="nn">mlflow.tracking.client</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">get_results_from_paginated_fn</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.logging_utils</span> <span class="kn">import</span> <span class="n">eprint</span>
 
 
 <div class="viewcode-block" id="register_model"><a class="viewcode-back" href="../../../../python_api/mlflow.html#mlflow.register_model">[docs]</a><span class="k">def</span> <span class="nf">register_model</span><span class="p">(</span>
@@ -206,8 +207,10 @@
 <span class="sd">    tracking backend.</span>
 
 <span class="sd">    :param model_uri: URI referring to the MLmodel directory. Use a ``runs:/`` URI if you want to</span>
-<span class="sd">                      record the run ID with the model in model registry. ``models:/`` URIs are</span>
-<span class="sd">                      currently not supported.</span>
+<span class="sd">                      record the run ID with the model in model registry (recommended), or pass the</span>
+<span class="sd">                      local filesystem path of the model if registering a locally-persisted MLflow</span>
+<span class="sd">                      model that was previously saved using ``save_model``.</span>
+<span class="sd">                      ``models:/`` URIs are currently not supported.</span>
 <span class="sd">    :param name: Name of the registered model under which to create a new model version. If a</span>
 <span class="sd">                 registered model with the given name does not exist, it will be created</span>
 <span class="sd">                 automatically.</span>
@@ -219,7 +222,7 @@
 <span class="sd">    :return: Single :py:class:`mlflow.entities.model_registry.ModelVersion` object created by</span>
 <span class="sd">             backend.</span>
 
-<span class="sd">    .. test-code-block:: python</span>
+<span class="sd">    .. testcode:: python</span>
 <span class="sd">        :caption: Example</span>
 
 <span class="sd">        import mlflow.sklearn</span>
@@ -238,10 +241,10 @@
 <span class="sd">            mlflow.log_params(params)</span>
 <span class="sd">            mlflow.sklearn.log_model(rfr, artifact_path=&quot;sklearn-model&quot;, signature=signature)</span>
 
-<span class="sd">        model_uri = &quot;runs:/{}/sklearn-model&quot;.format(run.info.run_id)</span>
+<span class="sd">        model_uri = f&quot;runs:/{run.info.run_id}/sklearn-model&quot;</span>
 <span class="sd">        mv = mlflow.register_model(model_uri, &quot;RandomForestRegressionModel&quot;)</span>
-<span class="sd">        print(&quot;Name: {}&quot;.format(mv.name))</span>
-<span class="sd">        print(&quot;Version: {}&quot;.format(mv.version))</span>
+<span class="sd">        print(f&quot;Name: {mv.name}&quot;)</span>
+<span class="sd">        print(f&quot;Version: {mv.version}&quot;)</span>
 
 <span class="sd">    .. code-block:: text</span>
 <span class="sd">        :caption: Output</span>
@@ -333,7 +336,7 @@
 <span class="sd">    :return: A list of :py:class:`mlflow.entities.model_registry.RegisteredModel` objects</span>
 <span class="sd">             that satisfy the search expressions.</span>
 
-<span class="sd">    .. test-code-block:: python</span>
+<span class="sd">    .. testcode:: python</span>
 <span class="sd">        :caption: Example</span>
 
 <span class="sd">        import mlflow</span>
@@ -357,7 +360,7 @@
 <span class="sd">        print(&quot;-&quot; * 80)</span>
 <span class="sd">        for res in results:</span>
 <span class="sd">            for mv in res.latest_versions:</span>
-<span class="sd">                print(&quot;name={}; run_id={}; version={}&quot;.format(mv.name, mv.run_id, mv.version))</span>
+<span class="sd">                print(f&quot;name={mv.name}; run_id={mv.run_id}; version={mv.version}&quot;)</span>
 
 <span class="sd">        # Get search results filtered by the registered model name that matches</span>
 <span class="sd">        # prefix pattern</span>
@@ -366,14 +369,14 @@
 <span class="sd">        print(&quot;-&quot; * 80)</span>
 <span class="sd">        for res in results:</span>
 <span class="sd">            for mv in res.latest_versions:</span>
-<span class="sd">                print(&quot;name={}; run_id={}; version={}&quot;.format(mv.name, mv.run_id, mv.version))</span>
+<span class="sd">                print(f&quot;name={mv.name}; run_id={mv.run_id}; version={mv.version}&quot;)</span>
 
 <span class="sd">        # Get all registered models and order them by ascending order of the names</span>
 <span class="sd">        results = mlflow.search_registered_models(order_by=[&quot;name ASC&quot;])</span>
 <span class="sd">        print(&quot;-&quot; * 80)</span>
 <span class="sd">        for res in results:</span>
 <span class="sd">            for mv in res.latest_versions:</span>
-<span class="sd">                print(&quot;name={}; run_id={}; version={}&quot;.format(mv.name, mv.run_id, mv.version))</span>
+<span class="sd">                print(f&quot;name={mv.name}; run_id={mv.run_id}; version={mv.version}&quot;)</span>
 
 <span class="sd">    .. code-block:: text</span>
 <span class="sd">        :caption: Output</span>
@@ -440,7 +443,7 @@
 <span class="sd">    :return: A list of :py:class:`mlflow.entities.model_registry.ModelVersion` objects</span>
 <span class="sd">            that satisfy the search expressions.</span>
 
-<span class="sd">    .. test-code-block:: python</span>
+<span class="sd">    .. testcode:: python</span>
 <span class="sd">        :caption: Example</span>
 
 <span class="sd">        import mlflow</span>
@@ -459,14 +462,14 @@
 <span class="sd">        results = mlflow.search_model_versions(filter_string=filter_string)</span>
 <span class="sd">        print(&quot;-&quot; * 80)</span>
 <span class="sd">        for res in results:</span>
-<span class="sd">            print(&quot;name={}; run_id={}; version={}&quot;.format(res.name, res.run_id, res.version))</span>
+<span class="sd">            print(f&quot;name={res.name}; run_id={res.run_id}; version={res.version}&quot;)</span>
 
 <span class="sd">        # Get the version of the model filtered by run_id</span>
 <span class="sd">        filter_string = &quot;run_id = &#39;ae9a606a12834c04a8ef1006d0cff779&#39;&quot;</span>
 <span class="sd">        results = mlflow.search_model_versions(filter_string=filter_string)</span>
 <span class="sd">        print(&quot;-&quot; * 80)</span>
 <span class="sd">        for res in results:</span>
-<span class="sd">            print(&quot;name={}; run_id={}; version={}&quot;.format(res.name, res.run_id, res.version))</span>
+<span class="sd">            print(f&quot;name={res.name}; run_id={res.run_id}; version={res.version}&quot;)</span>
 
 <span class="sd">    .. code-block:: text</span>
 <span class="sd">        :caption: Output</span>
@@ -522,7 +525,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

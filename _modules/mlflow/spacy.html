@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.spacy &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow.spacy &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,6 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -202,26 +203,26 @@
 <span class="kn">from</span> <span class="nn">mlflow.models.model</span> <span class="kn">import</span> <span class="n">MLMODEL_FILE_NAME</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">_save_example</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="n">_download_artifact_from_uri</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.docstring_utils</span> <span class="kn">import</span> <span class="n">LOG_MODEL_PARAM_DOCS</span><span class="p">,</span> <span class="n">format_docstring</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.environment</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_mlflow_conda_env</span><span class="p">,</span>
-    <span class="n">_validate_env_arguments</span><span class="p">,</span>
-    <span class="n">_process_pip_requirements</span><span class="p">,</span>
-    <span class="n">_process_conda_env</span><span class="p">,</span>
     <span class="n">_CONDA_ENV_FILE_NAME</span><span class="p">,</span>
-    <span class="n">_REQUIREMENTS_FILE_NAME</span><span class="p">,</span>
     <span class="n">_CONSTRAINTS_FILE_NAME</span><span class="p">,</span>
     <span class="n">_PYTHON_ENV_FILE_NAME</span><span class="p">,</span>
+    <span class="n">_REQUIREMENTS_FILE_NAME</span><span class="p">,</span>
+    <span class="n">_mlflow_conda_env</span><span class="p">,</span>
+    <span class="n">_process_conda_env</span><span class="p">,</span>
+    <span class="n">_process_pip_requirements</span><span class="p">,</span>
     <span class="n">_PythonEnv</span><span class="p">,</span>
+    <span class="n">_validate_env_arguments</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.requirements_utils</span> <span class="kn">import</span> <span class="n">_get_pinned_requirement</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.docstring_utils</span> <span class="kn">import</span> <span class="n">format_docstring</span><span class="p">,</span> <span class="n">LOG_MODEL_PARAM_DOCS</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.file_utils</span> <span class="kn">import</span> <span class="n">write_to</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.model_utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_add_code_from_conf_to_system_path</span><span class="p">,</span>
     <span class="n">_get_flavor_configuration</span><span class="p">,</span>
     <span class="n">_validate_and_copy_code_paths</span><span class="p">,</span>
-    <span class="n">_add_code_from_conf_to_system_path</span><span class="p">,</span>
     <span class="n">_validate_and_prepare_target_save_path</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.requirements_utils</span> <span class="kn">import</span> <span class="n">_get_pinned_requirement</span>
 
 <span class="n">FLAVOR_NAME</span> <span class="o">=</span> <span class="s2">&quot;spacy&quot;</span>
 
@@ -230,17 +231,19 @@
 
 <div class="viewcode-block" id="get_default_pip_requirements"><a class="viewcode-back" href="../../python_api/mlflow.spacy.html#mlflow.spacy.get_default_pip_requirements">[docs]</a><span class="k">def</span> <span class="nf">get_default_pip_requirements</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :return: A list of default pip requirements for MLflow Models produced by this flavor.</span>
-<span class="sd">             Calls to :func:`save_model()` and :func:`log_model()` produce a pip environment</span>
-<span class="sd">             that, at minimum, contains these requirements.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        A list of default pip requirements for MLflow Models produced by this flavor.</span>
+<span class="sd">        Calls to :func:`save_model()` and :func:`log_model()` produce a pip environment</span>
+<span class="sd">        that, at minimum, contains these requirements.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">_get_pinned_requirement</span><span class="p">(</span><span class="s2">&quot;spacy&quot;</span><span class="p">)]</span></div>
 
 
 <div class="viewcode-block" id="get_default_conda_env"><a class="viewcode-back" href="../../python_api/mlflow.spacy.html#mlflow.spacy.get_default_conda_env">[docs]</a><span class="k">def</span> <span class="nf">get_default_conda_env</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :return: The default Conda environment for MLflow Models produced by calls to</span>
-<span class="sd">             :func:`save_model()` and :func:`log_model()`.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        The default Conda environment for MLflow Models produced by calls to</span>
+<span class="sd">        :func:`save_model()` and :func:`log_model()`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_mlflow_conda_env</span><span class="p">(</span><span class="n">additional_pip_deps</span><span class="o">=</span><span class="n">get_default_pip_requirements</span><span class="p">())</span></div>
 
@@ -261,36 +264,33 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Save a spaCy model to a path on the local file system.</span>
 
-<span class="sd">    :param spacy_model: spaCy model to be saved.</span>
-<span class="sd">    :param path: Local path where the model is to be saved.</span>
-<span class="sd">    :param conda_env: {{ conda_env }}</span>
-<span class="sd">    :param code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
-<span class="sd">                       containing file dependencies). These files are *prepended* to the system</span>
-<span class="sd">                       path when the model is loaded.</span>
-<span class="sd">    :param mlflow_model: :py:mod:`mlflow.models.Model` this flavor is being added to.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        spacy_model: spaCy model to be saved.</span>
+<span class="sd">        path: Local path where the model is to be saved.</span>
+<span class="sd">        conda_env: {{ conda_env }}</span>
+<span class="sd">        code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
+<span class="sd">                    containing file dependencies). These files are *prepended* to the system</span>
+<span class="sd">                    path when the model is loaded.</span>
+<span class="sd">        mlflow_model: :py:mod:`mlflow.models.Model` this flavor is being added to.</span>
 
-<span class="sd">    :param signature: :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
-<span class="sd">                      describes model input and output :py:class:`Schema &lt;mlflow.types.Schema&gt;`.</span>
-<span class="sd">                      The model signature can be :py:func:`inferred &lt;mlflow.models.infer_signature&gt;`</span>
-<span class="sd">                      from datasets with valid model input (e.g. the training dataset with target</span>
-<span class="sd">                      column omitted) and valid model output (e.g. model predictions generated on</span>
-<span class="sd">                      the training dataset), for example:</span>
+<span class="sd">        signature: :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
+<span class="sd">                   describes model input and output :py:class:`Schema &lt;mlflow.types.Schema&gt;`.</span>
+<span class="sd">                   The model signature can be :py:func:`inferred &lt;mlflow.models.infer_signature&gt;`</span>
+<span class="sd">                   from datasets with valid model input (e.g. the training dataset with target</span>
+<span class="sd">                   column omitted) and valid model output (e.g. model predictions generated on</span>
+<span class="sd">                   the training dataset), for example:</span>
 
-<span class="sd">                      .. code-block:: python</span>
+<span class="sd">                   .. code-block:: python</span>
 
-<span class="sd">                        from mlflow.models import infer_signature</span>
+<span class="sd">                      from mlflow.models import infer_signature</span>
 
-<span class="sd">                        train = df.drop_column(&quot;target_label&quot;)</span>
-<span class="sd">                        predictions = ...  # compute model predictions</span>
-<span class="sd">                        signature = infer_signature(train, predictions)</span>
-<span class="sd">    :param input_example: Input example provides one or several instances of valid</span>
-<span class="sd">                          model input. The example can be used as a hint of what data to feed the</span>
-<span class="sd">                          model. The given example will be converted to a Pandas DataFrame and then</span>
-<span class="sd">                          serialized to json using the Pandas split-oriented format. Bytes are</span>
-<span class="sd">                          base64-encoded.</span>
-<span class="sd">    :param pip_requirements: {{ pip_requirements }}</span>
-<span class="sd">    :param extra_pip_requirements: {{ extra_pip_requirements }}</span>
-<span class="sd">    :param metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
+<span class="sd">                      train = df.drop_column(&quot;target_label&quot;)</span>
+<span class="sd">                      predictions = ...  # compute model predictions</span>
+<span class="sd">                      signature = infer_signature(train, predictions)</span>
+<span class="sd">        input_example: {{ input_example }}</span>
+<span class="sd">        pip_requirements: {{ pip_requirements }}</span>
+<span class="sd">        extra_pip_requirements: {{ extra_pip_requirements }}</span>
+<span class="sd">        metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
 
 <span class="sd">                     .. Note:: Experimental: This parameter may change or be removed in a future</span>
 <span class="sd">                                             release without warning.</span>
@@ -396,44 +396,43 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Log a spaCy model as an MLflow artifact for the current run.</span>
 
-<span class="sd">    :param spacy_model: spaCy model to be saved.</span>
-<span class="sd">    :param artifact_path: Run-relative artifact path.</span>
-<span class="sd">    :param conda_env: {{ conda_env }}</span>
-<span class="sd">    :param code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
-<span class="sd">                       containing file dependencies). These files are *prepended* to the system</span>
-<span class="sd">                       path when the model is loaded.</span>
-<span class="sd">    :param registered_model_name: If given, create a model version under</span>
-<span class="sd">                                  ``registered_model_name``, also creating a registered model if one</span>
-<span class="sd">                                  with the given name does not exist.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        spacy_model: spaCy model to be saved.</span>
+<span class="sd">        artifact_path: Run-relative artifact path.</span>
+<span class="sd">        conda_env: {{ conda_env }}</span>
+<span class="sd">        code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
+<span class="sd">                    containing file dependencies). These files are *prepended* to the system</span>
+<span class="sd">                    path when the model is loaded.</span>
+<span class="sd">        registered_model_name: If given, create a model version under</span>
+<span class="sd">                               ``registered_model_name``, also creating a registered model if one</span>
+<span class="sd">                               with the given name does not exist.</span>
 
-<span class="sd">    :param signature: :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
-<span class="sd">                      describes model input and output :py:class:`Schema &lt;mlflow.types.Schema&gt;`.</span>
-<span class="sd">                      The model signature can be :py:func:`inferred &lt;mlflow.models.infer_signature&gt;`</span>
-<span class="sd">                      from datasets with valid model input (e.g. the training dataset with target</span>
-<span class="sd">                      column omitted) and valid model output (e.g. model predictions generated on</span>
-<span class="sd">                      the training dataset), for example:</span>
+<span class="sd">        signature: :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
+<span class="sd">                   describes model input and output :py:class:`Schema &lt;mlflow.types.Schema&gt;`.</span>
+<span class="sd">                   The model signature can be :py:func:`inferred &lt;mlflow.models.infer_signature&gt;`</span>
+<span class="sd">                   from datasets with valid model input (e.g. the training dataset with target</span>
+<span class="sd">                   column omitted) and valid model output (e.g. model predictions generated on</span>
+<span class="sd">                   the training dataset), for example:</span>
 
-<span class="sd">                      .. code-block:: python</span>
+<span class="sd">                   .. code-block:: python</span>
 
-<span class="sd">                        from mlflow.models import infer_signature</span>
+<span class="sd">                      from mlflow.models import infer_signature</span>
 
-<span class="sd">                        train = df.drop_column(&quot;target_label&quot;)</span>
-<span class="sd">                        predictions = ...  # compute model predictions</span>
-<span class="sd">                        signature = infer_signature(train, predictions)</span>
-<span class="sd">    :param input_example: Input example provides one or several instances of valid</span>
-<span class="sd">                          model input. The example can be used as a hint of what data to feed the</span>
-<span class="sd">                          model. The given example will be converted to a Pandas DataFrame and then</span>
-<span class="sd">                          serialized to json using the Pandas split-oriented format. Bytes are</span>
-<span class="sd">                          base64-encoded.</span>
-<span class="sd">    :param pip_requirements: {{ pip_requirements }}</span>
-<span class="sd">    :param extra_pip_requirements: {{ extra_pip_requirements }}</span>
-<span class="sd">    :param metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
+<span class="sd">                      train = df.drop_column(&quot;target_label&quot;)</span>
+<span class="sd">                      predictions = ...  # compute model predictions</span>
+<span class="sd">                      signature = infer_signature(train, predictions)</span>
+<span class="sd">        input_example: {{ input_example }}</span>
+<span class="sd">        pip_requirements: {{ pip_requirements }}</span>
+<span class="sd">        extra_pip_requirements: {{ extra_pip_requirements }}</span>
+<span class="sd">        metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
 
 <span class="sd">                     .. Note:: Experimental: This parameter may change or be removed in a future</span>
 <span class="sd">                                             release without warning.</span>
-<span class="sd">    :param kwargs: kwargs to pass to ``spacy.save_model`` method.</span>
-<span class="sd">    :return: A :py:class:`ModelInfo &lt;mlflow.models.model.ModelInfo&gt;` instance that contains the</span>
-<span class="sd">             metadata of the logged model.</span>
+<span class="sd">        kwargs: kwargs to pass to ``spacy.save_model`` method.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :py:class:`ModelInfo &lt;mlflow.models.model.ModelInfo&gt;` instance that contains the</span>
+<span class="sd">        metadata of the logged model.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Model</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
         <span class="n">artifact_path</span><span class="o">=</span><span class="n">artifact_path</span><span class="p">,</span>
@@ -468,14 +467,17 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Only works for predicting using text categorizer.</span>
 <span class="sd">        Not suitable for other pipeline components (e.g: parser)</span>
-<span class="sd">        :param dataframe: pandas dataframe containing texts to be categorized</span>
-<span class="sd">                          expected shape is (n_rows,1 column)</span>
-<span class="sd">        :param params: Additional parameters to pass to the model for inference.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataframe: pandas dataframe containing texts to be categorized</span>
+<span class="sd">                       expected shape is (n_rows,1 column)</span>
+<span class="sd">            params: Additional parameters to pass to the model for inference.</span>
 
 <span class="sd">                       .. Note:: Experimental: This parameter may change or be removed in a future</span>
 <span class="sd">                                               release without warning.</span>
 
-<span class="sd">        :return: dataframe with predictions</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            dataframe with predictions</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataframe</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span><span class="s2">&quot;Shape of input dataframe must be (n_rows, 1column)&quot;</span><span class="p">)</span>
@@ -489,7 +491,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load PyFunc implementation. Called by ``pyfunc.load_model``.</span>
 
-<span class="sd">    :param path: Local filesystem path to the MLflow Model with the ``spacy`` flavor.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        path: Local filesystem path to the MLflow Model with the ``spacy`` flavor.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_SpacyModelWrapper</span><span class="p">(</span><span class="n">_load_model</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
 
@@ -498,7 +501,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load a spaCy model from a local file (if ``run_id`` is ``None``) or a run.</span>
 
-<span class="sd">    :param model_uri: The location, in URI format, of the MLflow model. For example:</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model_uri: The location, in URI format, of the MLflow model. For example:</span>
 
 <span class="sd">                      - ``/Users/me/path/to/local/model``</span>
 <span class="sd">                      - ``relative/path/to/local/model``</span>
@@ -510,11 +514,12 @@
 <span class="sd">                      For more information about supported URI schemes, see</span>
 <span class="sd">                      `Referencing Artifacts &lt;https://www.mlflow.org/docs/latest/concepts.html#</span>
 <span class="sd">                      artifact-locations&gt;`_.</span>
-<span class="sd">    :param dst_path: The local filesystem path to which to download the model artifact.</span>
-<span class="sd">                     This directory must already exist. If unspecified, a local output</span>
-<span class="sd">                     path will be created.</span>
+<span class="sd">        dst_path: The local filesystem path to which to download the model artifact.</span>
+<span class="sd">                  This directory must already exist. If unspecified, a local output</span>
+<span class="sd">                  path will be created.</span>
 
-<span class="sd">    :return: A spaCy loaded model</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        A spaCy loaded model</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">local_model_path</span> <span class="o">=</span> <span class="n">_download_artifact_from_uri</span><span class="p">(</span><span class="n">artifact_uri</span><span class="o">=</span><span class="n">model_uri</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">dst_path</span><span class="p">)</span>
     <span class="n">flavor_conf</span> <span class="o">=</span> <span class="n">_get_flavor_configuration</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">flavor_name</span><span class="o">=</span><span class="n">FLAVOR_NAME</span><span class="p">)</span>
@@ -553,7 +558,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

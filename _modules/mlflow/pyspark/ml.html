@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.pyspark.ml &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow.pyspark.ml &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,6 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command-Line Interface</a></li>
@@ -177,37 +178,40 @@
               <div itemprop="articleBody">
                 
   <h1>Source code for mlflow.pyspark.ml</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">namedtuple</span><span class="p">,</span> <span class="n">OrderedDict</span>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
-<span class="kn">import</span> <span class="nn">weakref</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">traceback</span>
-<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">weakref</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">namedtuple</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">zip_longest</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
 <span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow.data.code_dataset_source</span> <span class="kn">import</span> <span class="n">CodeDatasetSource</span>
 <span class="kn">from</span> <span class="nn">mlflow.data.spark_dataset</span> <span class="kn">import</span> <span class="n">SparkDataset</span>
+<span class="kn">from</span> <span class="nn">mlflow.entities</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">Param</span>
 <span class="kn">from</span> <span class="nn">mlflow.entities.dataset_input</span> <span class="kn">import</span> <span class="n">DatasetInput</span>
 <span class="kn">from</span> <span class="nn">mlflow.entities.input_tag</span> <span class="kn">import</span> <span class="n">InputTag</span>
-<span class="kn">from</span> <span class="nn">mlflow.tracking.client</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
-<span class="kn">from</span> <span class="nn">mlflow.entities</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">Param</span>
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
+<span class="kn">from</span> <span class="nn">mlflow.tracking.client</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">_chunk_dict</span><span class="p">,</span>
-    <span class="n">_truncate_dict</span><span class="p">,</span>
     <span class="n">_get_fully_qualified_class_name</span><span class="p">,</span>
     <span class="n">_inspect_original_var_name</span><span class="p">,</span>
+    <span class="n">_truncate_dict</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.autologging_utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">INPUT_EXAMPLE_SAMPLE_ROWS</span><span class="p">,</span>
     <span class="n">_get_new_training_session_class</span><span class="p">,</span>
     <span class="n">autologging_integration</span><span class="p">,</span>
-    <span class="n">safe_patch</span><span class="p">,</span>
+    <span class="n">get_method_call_arg_value</span><span class="p">,</span>
     <span class="n">resolve_input_example_and_signature</span><span class="p">,</span>
+    <span class="n">safe_patch</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.autologging_utils</span> <span class="kn">import</span> <span class="n">get_method_call_arg_value</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.file_utils</span> <span class="kn">import</span> <span class="n">TempDir</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.mlflow_tags</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">MLFLOW_AUTOLOGGING</span><span class="p">,</span>
@@ -215,19 +219,16 @@
     <span class="n">MLFLOW_PARENT_RUN_ID</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.rest_utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MlflowHostCreds</span><span class="p">,</span>
     <span class="n">augmented_raise_for_status</span><span class="p">,</span>
     <span class="n">http_request</span><span class="p">,</span>
-    <span class="n">MlflowHostCreds</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.time</span> <span class="kn">import</span> <span class="n">get_current_time_millis</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.validation</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">MAX_PARAMS_TAGS_PER_BATCH</span><span class="p">,</span>
-    <span class="n">MAX_PARAM_VAL_LENGTH</span><span class="p">,</span>
     <span class="n">MAX_ENTITY_KEY_LENGTH</span><span class="p">,</span>
+    <span class="n">MAX_PARAM_VAL_LENGTH</span><span class="p">,</span>
+    <span class="n">MAX_PARAMS_TAGS_PER_BATCH</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.autologging_utils</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">INPUT_EXAMPLE_SAMPLE_ROWS</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.time_utils</span> <span class="kn">import</span> <span class="n">get_current_time_millis</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">_SparkTrainingSession</span> <span class="o">=</span> <span class="n">_get_new_training_session_class</span><span class="p">()</span>
@@ -1102,9 +1103,10 @@
 
 <span class="sd">    :param extra_tags: A dictionary of extra tags to set on each managed run created by autologging.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">mlflow.tracking.context</span> <span class="kn">import</span> <span class="n">registry</span> <span class="k">as</span> <span class="n">context_registry</span>
     <span class="kn">from</span> <span class="nn">pyspark.ml.base</span> <span class="kn">import</span> <span class="n">Estimator</span><span class="p">,</span> <span class="n">Model</span>
     <span class="kn">from</span> <span class="nn">pyspark.ml.evaluation</span> <span class="kn">import</span> <span class="n">Evaluator</span>
+
+    <span class="kn">from</span> <span class="nn">mlflow.tracking.context</span> <span class="kn">import</span> <span class="n">registry</span> <span class="k">as</span> <span class="n">context_registry</span>
 
     <span class="k">global</span> <span class="n">_log_model_allowlist</span>
 
@@ -1211,13 +1213,14 @@
 
         <span class="k">if</span> <span class="n">log_models</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">_should_log_model</span><span class="p">(</span><span class="n">spark_model</span><span class="p">):</span>
+                <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
+
                 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
                 <span class="kn">from</span> <span class="nn">mlflow.pyspark.ml._autolog</span> <span class="kn">import</span> <span class="p">(</span>
                     <span class="n">cast_spark_df_with_vector_to_array</span><span class="p">,</span>
                     <span class="n">get_feature_cols</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="kn">from</span> <span class="nn">mlflow.spark</span> <span class="kn">import</span> <span class="n">_find_and_set_features_col_as_vector_if_needed</span>
-                <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
 
                 <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
 
@@ -1447,7 +1450,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

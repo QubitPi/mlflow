@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.langchain &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow.langchain &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,6 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -190,18 +191,19 @@
 <span class="sd">.. _LangChain:</span>
 <span class="sd">    https://python.langchain.com/en/latest/index.html</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">types</span>
-<span class="kn">import</span> <span class="nn">functools</span>
-<span class="kn">from</span> <span class="nn">packaging</span> <span class="kn">import</span> <span class="n">version</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">NamedTuple</span>
+<span class="kn">from</span> <span class="nn">importlib.util</span> <span class="kn">import</span> <span class="n">find_spec</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">cloudpickle</span>
-<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">packaging</span> <span class="kn">import</span> <span class="n">version</span>
 
 <span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">pyfunc</span>
@@ -298,6 +300,7 @@
 <span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span>
 <span class="k">def</span> <span class="nf">_get_map_of_special_chain_class_to_loader_arg</span><span class="p">():</span>
     <span class="kn">import</span> <span class="nn">langchain</span>
+
     <span class="kn">from</span> <span class="nn">mlflow.langchain.retriever_chain</span> <span class="kn">import</span> <span class="n">_RetrieverChain</span>
 
     <span class="n">class_name_to_loader_arg</span> <span class="o">=</span> <span class="p">{</span>
@@ -309,13 +312,9 @@
     <span class="k">if</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">langchain</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;0.0.246&quot;</span><span class="p">):</span>
         <span class="n">class_name_to_loader_arg</span><span class="p">[</span><span class="s2">&quot;langchain.chains.SQLDatabaseChain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;database&quot;</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="kn">import</span> <span class="nn">langchain.experimental</span>
-
+        <span class="k">if</span> <span class="n">find_spec</span><span class="p">(</span><span class="s2">&quot;langchain_experimental&quot;</span><span class="p">):</span>
+            <span class="c1"># Add this entry only if langchain_experimental is installed</span>
             <span class="n">class_name_to_loader_arg</span><span class="p">[</span><span class="s2">&quot;langchain_experimental.sql.SQLDatabaseChain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;database&quot;</span>
-        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-            <span class="c1"># Users may not have langchain_experimental installed, which is completely normal</span>
-            <span class="k">pass</span>
 
     <span class="n">class_to_loader_arg</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">_RetrieverChain</span><span class="p">:</span> <span class="s2">&quot;retriever&quot;</span><span class="p">,</span>
@@ -386,11 +385,7 @@
 <span class="sd">                        ]</span>
 <span class="sd">                        signature = infer_signature(input_columns, predictions)</span>
 
-<span class="sd">    :param input_example: Input example provides one or several instances of valid</span>
-<span class="sd">                          model input. The example can be used as a hint of what data to feed the</span>
-<span class="sd">                          model. The given example will be converted to a Pandas DataFrame and then</span>
-<span class="sd">                          serialized to json using the Pandas split-oriented format. Bytes are</span>
-<span class="sd">                          base64-encoded.</span>
+<span class="sd">    :param input_example: {{ input_example }}</span>
 <span class="sd">    :param pip_requirements: {{ pip_requirements }}</span>
 <span class="sd">    :param extra_pip_requirements: {{ extra_pip_requirements }}</span>
 <span class="sd">    :param metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
@@ -509,7 +504,11 @@
 
 
 <span class="k">def</span> <span class="nf">_validate_and_wrap_lc_model</span><span class="p">(</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">loader_fn</span><span class="p">):</span>
-    <span class="kn">import</span> <span class="nn">langchain</span>
+    <span class="kn">import</span> <span class="nn">langchain.agents</span>
+    <span class="kn">import</span> <span class="nn">langchain.chains</span>
+    <span class="kn">import</span> <span class="nn">langchain.llms.huggingface_hub</span>
+    <span class="kn">import</span> <span class="nn">langchain.llms.openai</span>
+    <span class="kn">import</span> <span class="nn">langchain.schema</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
         <span class="n">lc_model</span><span class="p">,</span>
@@ -635,11 +634,7 @@
 <span class="sd">                        ]</span>
 <span class="sd">                        signature = infer_signature(input_columns, predictions)</span>
 
-<span class="sd">    :param input_example: Input example provides one or several instances of valid</span>
-<span class="sd">                          model input. The example can be used as a hint of what data to</span>
-<span class="sd">                          feed the model. The given example will be converted to a</span>
-<span class="sd">                          Pandas DataFrame and then serialized to json using the</span>
-<span class="sd">                          Pandas split-oriented format. Bytes are base64-encoded.</span>
+<span class="sd">    :param input_example: {{ input_example }}</span>
 
 <span class="sd">    :param await_registration_for: Number of seconds to wait for the model version</span>
 <span class="sd">                        to finish being created and is in ``READY`` status.</span>
@@ -696,6 +691,8 @@
 <span class="sd">    :return: A :py:class:`ModelInfo &lt;mlflow.models.model.ModelInfo&gt;` instance that contains the</span>
 <span class="sd">             metadata of the logged model.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">langchain.schema</span> <span class="kn">import</span> <span class="n">BaseRetriever</span>
+
     <span class="n">lc_model</span> <span class="o">=</span> <span class="n">_validate_and_wrap_lc_model</span><span class="p">(</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">loader_fn</span><span class="p">)</span>
 
     <span class="c1"># infer signature if signature is not provided</span>
@@ -704,10 +701,17 @@
             <span class="n">ColSpec</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">DataType</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">input_key</span><span class="p">)</span> <span class="k">for</span> <span class="n">input_key</span> <span class="ow">in</span> <span class="n">lc_model</span><span class="o">.</span><span class="n">input_keys</span>
         <span class="p">]</span>
         <span class="n">input_schema</span> <span class="o">=</span> <span class="n">Schema</span><span class="p">(</span><span class="n">input_columns</span><span class="p">)</span>
+
         <span class="n">output_columns</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">ColSpec</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">DataType</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">output_key</span><span class="p">)</span> <span class="k">for</span> <span class="n">output_key</span> <span class="ow">in</span> <span class="n">lc_model</span><span class="o">.</span><span class="n">output_keys</span>
         <span class="p">]</span>
         <span class="n">output_schema</span> <span class="o">=</span> <span class="n">Schema</span><span class="p">(</span><span class="n">output_columns</span><span class="p">)</span>
+
+        <span class="c1"># TODO: empty output schema if multiple output_keys or is a retriever. fix later!</span>
+        <span class="c1"># https://databricks.atlassian.net/browse/ML-34706</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lc_model</span><span class="o">.</span><span class="n">output_keys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lc_model</span><span class="p">,</span> <span class="n">BaseRetriever</span><span class="p">):</span>
+            <span class="n">output_schema</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="n">signature</span> <span class="o">=</span> <span class="n">ModelSignature</span><span class="p">(</span><span class="n">input_schema</span><span class="p">,</span> <span class="n">output_schema</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">Model</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
@@ -816,6 +820,7 @@
     <span class="n">persist_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="kn">from</span> <span class="nn">langchain.chains.loading</span> <span class="kn">import</span> <span class="n">load_chain</span>
+
     <span class="kn">from</span> <span class="nn">mlflow.langchain.retriever_chain</span> <span class="kn">import</span> <span class="n">_RetrieverChain</span>
 
     <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
@@ -905,7 +910,9 @@
 <span class="sd">        :return: Model predictions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">langchain</span>
-        <span class="kn">from</span> <span class="nn">mlflow.openai.utils</span> <span class="kn">import</span> <span class="n">TEST_CONTENT</span>
+
+        <span class="kn">from</span> <span class="nn">mlflow.openai.utils</span> <span class="kn">import</span> <span class="n">TEST_CONTENT</span><span class="p">,</span> <span class="n">TEST_INTERMEDIATE_STEPS</span><span class="p">,</span> <span class="n">TEST_SOURCE_DOCUMENTS</span>
+
         <span class="kn">from</span> <span class="nn">tests.langchain.test_langchain_model_export</span> <span class="kn">import</span> <span class="n">_mock_async_request</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span>
@@ -921,7 +928,21 @@
             <span class="n">mockContent</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Final Answer: </span><span class="si">{</span><span class="n">TEST_CONTENT</span><span class="si">}</span><span class="s2">&quot;</span>
 
         <span class="k">with</span> <span class="n">_mock_async_request</span><span class="p">(</span><span class="n">mockContent</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lc_model</span><span class="p">,</span> <span class="s2">&quot;return_source_documents&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">lc_model</span><span class="o">.</span><span class="n">return_source_documents</span>
+        <span class="p">):</span>
+            <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s2">&quot;source_documents&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TEST_SOURCE_DOCUMENTS</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lc_model</span><span class="p">,</span> <span class="s2">&quot;return_intermediate_steps&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">lc_model</span><span class="o">.</span><span class="n">return_intermediate_steps</span>
+        <span class="p">):</span>
+            <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s2">&quot;intermediate_steps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TEST_INTERMEDIATE_STEPS</span>
+
+        <span class="k">return</span> <span class="n">result</span>
 
 
 <span class="k">def</span> <span class="nf">_load_pyfunc</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
@@ -1024,7 +1045,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

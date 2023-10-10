@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.gateway.fluent &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow.gateway.fluent &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,6 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command-Line Interface</a></li>
@@ -178,10 +179,10 @@
                 
   <h1>Source code for mlflow.gateway.fluent</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">mlflow.gateway.client</span> <span class="kn">import</span> <span class="n">MlflowGatewayClient</span>
-<span class="kn">from</span> <span class="nn">mlflow.gateway.config</span> <span class="kn">import</span> <span class="n">Route</span>
+<span class="kn">from</span> <span class="nn">mlflow.gateway.config</span> <span class="kn">import</span> <span class="n">LimitsConfig</span><span class="p">,</span> <span class="n">Route</span>
 <span class="kn">from</span> <span class="nn">mlflow.gateway.constants</span> <span class="kn">import</span> <span class="n">MLFLOW_GATEWAY_SEARCH_ROUTES_PAGE_SIZE</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">get_results_from_paginated_fn</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">experimental</span>
@@ -225,7 +226,9 @@
 
 
 <div class="viewcode-block" id="create_route"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.create_route">[docs]</a><span class="nd">@experimental</span>
-<span class="k">def</span> <span class="nf">create_route</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">route_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Route</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">create_route</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">route_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Route</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a new route in the Gateway.</span>
 
@@ -235,11 +238,12 @@
 <span class="sd">        route configuration is handled via updates to the route configuration YAML file that</span>
 <span class="sd">        is specified during Gateway server start.</span>
 
-<span class="sd">    :param name: The name of the route.</span>
+<span class="sd">    :param name: The name of the route. This parameter is required for all routes.</span>
 <span class="sd">    :param route_type: The type of the route (e.g., &#39;llm/v1/chat&#39;, &#39;llm/v1/completions&#39;,</span>
-<span class="sd">                       &#39;llm/v1/embeddings&#39;).</span>
+<span class="sd">                       &#39;llm/v1/embeddings&#39;). This parameter is required for routes that are</span>
+<span class="sd">                       not managed by Databricks (the provider isn&#39;t &#39;databricks&#39;).</span>
 <span class="sd">    :param model: A dictionary representing the model details to be associated with the route.</span>
-<span class="sd">                  This dictionary should define:</span>
+<span class="sd">                  This parameter is required for all routes. This dictionary should define:</span>
 
 <span class="sd">                  - The model name (e.g., &quot;gpt-3.5-turbo&quot;)</span>
 <span class="sd">                  - The provider (e.g., &quot;openai&quot;, &quot;anthropic&quot;)</span>
@@ -306,6 +310,57 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">MlflowGatewayClient</span><span class="p">()</span><span class="o">.</span><span class="n">delete_route</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="set_limits"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.set_limits">[docs]</a><span class="nd">@experimental</span>
+<span class="k">def</span> <span class="nf">set_limits</span><span class="p">(</span><span class="n">route</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">LimitsConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set limits on an existing route in the Gateway.</span>
+
+<span class="sd">    .. warning::</span>
+
+<span class="sd">        This API is **only available** when running within Databricks.</span>
+
+<span class="sd">    :param route: The name of the route to set limits on.</span>
+<span class="sd">    :param limits: Limits to set on the route.</span>
+
+<span class="sd">    Example usage from within Databricks:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        from mlflow.gateway import set_gateway_uri, set_limits</span>
+
+<span class="sd">        set_gateway_uri(gateway_uri=&quot;databricks&quot;)</span>
+
+<span class="sd">        set_limits(&quot;my-new-route&quot;, [{&quot;key&quot;: &quot;user&quot;, &quot;renewal_period&quot;: &quot;minute&quot;, &quot;calls&quot;: 50}])</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">MlflowGatewayClient</span><span class="p">()</span><span class="o">.</span><span class="n">set_limits</span><span class="p">(</span><span class="n">route</span><span class="o">=</span><span class="n">route</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_limits"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.get_limits">[docs]</a><span class="nd">@experimental</span>
+<span class="k">def</span> <span class="nf">get_limits</span><span class="p">(</span><span class="n">route</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LimitsConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get limits of an existing route in the Gateway.</span>
+
+<span class="sd">    .. warning::</span>
+
+<span class="sd">        This API is **only available** when connected to a Databricks-hosted AI Gateway.</span>
+
+<span class="sd">    :param route: The name of the route to get limits of.</span>
+
+<span class="sd">    Example usage from within Databricks:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        from mlflow.gateway import set_gateway_uri, get_limits</span>
+
+<span class="sd">        set_gateway_uri(gateway_uri=&quot;databricks&quot;)</span>
+
+<span class="sd">        get_limits(&quot;my-new-route&quot;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">MlflowGatewayClient</span><span class="p">()</span><span class="o">.</span><span class="n">get_limits</span><span class="p">(</span><span class="n">route</span><span class="o">=</span><span class="n">route</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="query"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.query">[docs]</a><span class="nd">@experimental</span>
@@ -403,7 +458,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

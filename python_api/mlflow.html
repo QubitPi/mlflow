@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.artifacts" href="/mlflow.artifacts.html"/>
         <link rel="prev" title="Python API" href="/index.html"/> 
@@ -67,7 +67,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -116,6 +116,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command-Line Interface</a></li>
@@ -136,6 +137,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.gluon.html">mlflow.gluon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.h2o.html">mlflow.h2o</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.johnsnowlabs.html">mlflow.johnsnowlabs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.keras_core.html">mlflow.keras_core</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.langchain.html">mlflow.langchain</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.lightgbm.html">mlflow.lightgbm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.llm.html">mlflow.llm</a></li>
@@ -298,7 +300,7 @@ to access such attributes, use the <a class="reference internal" href="mlflow.cl
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span>
 <span class="n">run</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">active_run</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Active run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Active run_id: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">mlflow</span><span class="o">.</span><span class="n">end_run</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -388,11 +390,11 @@ autologging setup and training execution.</p></li>
 <span class="k">def</span> <span class="nf">print_auto_logged_info</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
     <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;mlflow.&quot;</span><span class="p">)}</span>
     <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">path</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">list_artifacts</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">)]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;artifacts: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">artifacts</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;params: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">params</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;metrics: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">metrics</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tags</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;artifacts: </span><span class="si">{</span><span class="n">artifacts</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;params: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">params</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;metrics: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">metrics</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tags: </span><span class="si">{</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># prepare training data</span>
@@ -460,12 +462,12 @@ tags on the experiment.</p></li>
     <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span><span class="p">,</span> <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="s2">&quot;P1&quot;</span><span class="p">},</span>
 <span class="p">)</span>
 <span class="n">experiment</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_experiment</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Experiment_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Artifact Location: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creation timestamp: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">creation_time</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Experiment_id: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Artifact Location: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tags: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creation timestamp: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">creation_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -500,10 +502,10 @@ Creation timestamp: 1662004217511
 
 <span class="c1"># Examine the deleted experiment details.</span>
 <span class="n">experiment</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_experiment</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Artifact Location: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Last Updated timestamp: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">last_update_time</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Artifact Location: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Last Updated timestamp: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">last_update_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -538,9 +540,7 @@ Last Updated timestamp: 1662004217511
 <span class="n">mlflow</span><span class="o">.</span><span class="n">delete_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span>
-    <span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">; lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">run_id</span><span class="p">,</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span>
-    <span class="p">)</span>
+    <span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; lifecycle_stage: </span><span class="si">{</span><span class="n">mlflow</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -577,6 +577,20 @@ will create a new active run.</p>
 </pre></div>
 </div>
 </div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="mlflow.disable_system_metrics_logging">
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">disable_system_metrics_logging</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/system_metrics.html#disable_system_metrics_logging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.disable_system_metrics_logging" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This function may change or be removed in a future release without warning.</p>
+</div>
+<p>Disable system metrics logging globally.</p>
+<blockquote>
+<div><p>Calling this function will disable system metrics logging globally, but users can still opt in
+system metrics logging for individual runs by <cite>mlflow.start_run(log_system_metrics=True)</cite>.</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py function">
@@ -650,6 +664,20 @@ MLflow dependencies:
 </dd></dl>
 
 <dl class="py function">
+<dt id="mlflow.enable_system_metrics_logging">
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">enable_system_metrics_logging</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/system_metrics.html#enable_system_metrics_logging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.enable_system_metrics_logging" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This function may change or be removed in a future release without warning.</p>
+</div>
+<p>Enable system metrics logging globally.</p>
+<blockquote>
+<div><p>Calling this function will enable system metrics logging globally, but users can still opt out
+system metrics logging for individual runs by <cite>mlflow.start_run(log_system_metrics=False)</cite>.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
 <dt id="mlflow.end_run">
 <code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">end_run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'FINISHED'</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#end_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.end_run" title="Permalink to this definition"> </a></dt>
 <dd><p>End an active MLflow run (if there is one).</p>
@@ -660,16 +688,16 @@ MLflow dependencies:
 <span class="c1"># Start run and get status</span>
 <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span>
 <span class="n">run</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">active_run</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">; status: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; status: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># End run and get status</span>
 <span class="n">mlflow</span><span class="o">.</span><span class="n">end_run</span><span class="p">()</span>
 <span class="n">run</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">; status: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; status: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
 
 <span class="c1"># Check for any active runs</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Active run: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">active_run</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Active run: </span><span class="si">{</span><span class="n">mlflow</span><span class="o">.</span><span class="n">active_run</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -686,7 +714,7 @@ Active run: None
 
 <dl class="py function">
 <dt id="mlflow.evaluate">
-<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">evaluate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluator_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_artifacts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_thresholds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_manager</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'local'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/models/evaluation/base.html#evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.evaluate" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">evaluate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluator_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_artifacts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_thresholds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_manager</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'local'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/models/evaluation/base.html#evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.evaluate" title="Permalink to this definition"> </a></dt>
 <dd><p>Evaluate a PyFunc model on the specified dataset using one or more specified <code class="docutils literal notranslate"><span class="pre">evaluators</span></code>, and
 log resulting metrics &amp; artifacts to MLflow Tracking. Set thresholds on the generated metrics to
 validate model quality. For additional overview information, see
@@ -865,7 +893,24 @@ explicitly set to <code class="docutils literal notranslate"><span class="pre">T
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – A pyfunc model instance, or a URI referring to such a model.</p></li>
+<li><p><strong>model</strong> – <p>One of the following:</p>
+<ul>
+<li><p>A pyfunc model instance</p></li>
+<li><p>A URI referring to a pyfunc model</p></li>
+<li><p>A callable function: This function should be able to take in model input and
+return predictions. It should follow the signature of the
+<a class="reference internal" href="mlflow.pyfunc.html#mlflow.pyfunc.PyFuncModel.predict" title="mlflow.pyfunc.PyFuncModel.predict"><code class="xref py py-func docutils literal notranslate"><span class="pre">predict</span></code></a> method. Here’s an example
+of a valid function:</p>
+<blockquote>
+<div><p>model = mlflow.pyfunc.load_model(model_uri)</p>
+<dl class="simple">
+<dt>def fn(model_input):</dt><dd><p>return model.predict(model_input)</p>
+</dd>
+</dl>
+</div></blockquote>
+</li>
+</ul>
+</p></li>
 <li><p><strong>data</strong> – <p>One of the following:</p>
 <ul>
 <li><p>A numpy array or list of evaluation features, excluding labels.</p></li>
@@ -1062,6 +1107,13 @@ errors or invalid predictions.</p></li>
 </ul>
 </div></blockquote>
 </p></li>
+<li><p><strong>model_config</strong> – the model configuration to use for loading the model with pyfunc. Inspect
+the model’s pyfunc flavor to know which keys are supported for your
+specific model. If not indicated, the default model configuration
+from the model is used (if any).</p></li>
+<li><p><strong>baseline_config</strong> – the model configuration to use for loading the baseline
+model. If not indicated, the default model configuration
+from the baseline model is used (if any).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1108,11 +1160,11 @@ URI of the form <code class="docutils literal notranslate"><span class="pre">s3:
 
     <span class="c1"># Fetch the artifact uri root directory</span>
     <span class="n">artifact_uri</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_artifact_uri</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Artifact uri: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">artifact_uri</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Artifact uri: </span><span class="si">{</span><span class="n">artifact_uri</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="c1"># Fetch a specific artifact uri</span>
     <span class="n">artifact_uri</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_artifact_uri</span><span class="p">(</span><span class="n">artifact_path</span><span class="o">=</span><span class="s2">&quot;features/features.txt&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Artifact uri: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">artifact_uri</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Artifact uri: </span><span class="si">{</span><span class="n">artifact_uri</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1142,11 +1194,11 @@ Artifact uri: file:///.../0/a46a80f1c9644bd8f4e5dd5553fffce/artifacts/features/f
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 
 <span class="n">experiment</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_experiment</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Artifact Location: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creation timestamp: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">creation_time</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Artifact Location: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tags: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creation timestamp: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">creation_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1181,11 +1233,11 @@ if an experiment with the specified name exists, otherwise None.</p>
 
 <span class="c1"># Case sensitive name</span>
 <span class="n">experiment</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_experiment_by_name</span><span class="p">(</span><span class="s2">&quot;Default&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Experiment_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Artifact Location: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creation timestamp: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">creation_time</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Experiment_id: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Artifact Location: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tags: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creation timestamp: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">creation_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1225,8 +1277,8 @@ returns None.</p>
 
 <span class="n">parent_run</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_parent_run</span><span class="p">(</span><span class="n">child_run_id</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;child_run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">child_run_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;parent_run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parent_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;child_run_id: </span><span class="si">{</span><span class="n">child_run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;parent_run_id: </span><span class="si">{</span><span class="n">parent_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1252,11 +1304,11 @@ parent_run_id: 8979459433a24a52ab3be87a229a9cdf
 <div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id44" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the current model registry uri</span>
 <span class="n">mr_uri</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_registry_uri</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current model registry uri: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mr_uri</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current model registry uri: </span><span class="si">{</span><span class="n">mr_uri</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Get the current tracking uri</span>
 <span class="n">tracking_uri</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_tracking_uri</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current tracking uri: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current tracking uri: </span><span class="si">{</span><span class="n">tracking_uri</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># They should be the same</span>
 <span class="k">assert</span> <span class="n">mr_uri</span> <span class="o">==</span> <span class="n">tracking_uri</span>
@@ -1301,9 +1353,7 @@ raises an exception.</p>
 
 <span class="n">run_id</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
 <span class="nb">print</span><span class="p">(</span>
-    <span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">; lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">run_id</span><span class="p">,</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span>
-    <span class="p">)</span>
+    <span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; lifecycle_stage: </span><span class="si">{</span><span class="n">mlflow</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -1332,7 +1382,7 @@ the currently active run, since the tracking URI can be updated via <code class=
 
 <span class="c1"># Get the current tracking uri</span>
 <span class="n">tracking_uri</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_tracking_uri</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current tracking uri: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current tracking uri: </span><span class="si">{</span><span class="n">tracking_uri</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1827,7 +1877,7 @@ underscores (_), dashes (-), periods (.), spaces ( ), and slashes (/).
 All backend stores support keys up to length 250, but some may
 support larger keys.</p></li>
 <li><p><strong>value</strong> – Parameter value (string, but will be string-ified if not).
-All backend stores support values up to length 500, but some
+All built-in backend stores support values up to length 6000, but some
 may support larger values.</p></li>
 </ul>
 </dd>
@@ -1964,6 +2014,31 @@ the text is saved (e.g. “dir/file.txt”).</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt id="mlflow.login">
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">login</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'databricks'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/utils/credentials.html#login"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.login" title="Permalink to this definition"> </a></dt>
+<dd><p>Configure MLflow server authentication and connect MLflow to tracking server.</p>
+<p>This method provides a simple way to connect MLflow to its tracking server. Currently only
+Databricks tracking server is supported. Users will be prompted to enter the credentials if no
+existing Databricks profile is found, and the credentials will be saved to <cite>~/.databrickscfg</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>backend</strong> – string, the backend of the tracking server. Currently only “databricks” is
+supported.</p>
+</dd>
+</dl>
+<div class="literal-block-wrapper docutils container" id="id70">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id70" title="Permalink to this code"> </a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+
+<span class="n">mlflow</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">log_param</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt id="mlflow.register_model">
 <code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">register_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">await_registration_for</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="mlflow.entities.html#mlflow.entities.model_registry.ModelVersion" title="mlflow.entities.model_registry.ModelVersion"><span class="pre">ModelVersion</span></a><a class="reference internal" href="../_modules/mlflow/tracking/_model_registry/fluent.html#register_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.register_model" title="Permalink to this definition"> </a></dt>
 <dd><p>Create a new model version in model registry for the model files specified by <code class="docutils literal notranslate"><span class="pre">model_uri</span></code>.
@@ -1973,8 +2048,10 @@ tracking backend.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model_uri</strong> – URI referring to the MLmodel directory. Use a <code class="docutils literal notranslate"><span class="pre">runs:/</span></code> URI if you want to
-record the run ID with the model in model registry. <code class="docutils literal notranslate"><span class="pre">models:/</span></code> URIs are
-currently not supported.</p></li>
+record the run ID with the model in model registry (recommended), or pass the
+local filesystem path of the model if registering a locally-persisted MLflow
+model that was previously saved using <code class="docutils literal notranslate"><span class="pre">save_model</span></code>.
+<code class="docutils literal notranslate"><span class="pre">models:/</span></code> URIs are currently not supported.</p></li>
 <li><p><strong>name</strong> – Name of the registered model under which to create a new model version. If a
 registered model with the given name does not exist, it will be created
 automatically.</p></li>
@@ -1990,8 +2067,8 @@ waits for five minutes. Specify 0 or None to skip waiting.</p></li>
 backend.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id70">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id70" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id71">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id71" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.sklearn</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 <span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_regression</span>
@@ -2008,15 +2085,15 @@ backend.</p>
     <span class="n">mlflow</span><span class="o">.</span><span class="n">log_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
     <span class="n">mlflow</span><span class="o">.</span><span class="n">sklearn</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span><span class="n">rfr</span><span class="p">,</span> <span class="n">artifact_path</span><span class="o">=</span><span class="s2">&quot;sklearn-model&quot;</span><span class="p">,</span> <span class="n">signature</span><span class="o">=</span><span class="n">signature</span><span class="p">)</span>
 
-<span class="n">model_uri</span> <span class="o">=</span> <span class="s2">&quot;runs:/</span><span class="si">{}</span><span class="s2">/sklearn-model&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+<span class="n">model_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/sklearn-model&quot;</span>
 <span class="n">mv</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="n">model_uri</span><span class="p">,</span> <span class="s2">&quot;RandomForestRegressionModel&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Version: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Version: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id71">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id71" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id72">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id72" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Name: RandomForestRegressionModel
 Version: 1
 </pre></div>
@@ -2102,8 +2179,8 @@ for available options.</p></li>
 about the launched run.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id72">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id72" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id73">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id73" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 
 <span class="n">project_uri</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/mlflow/mlflow-example&quot;</span>
@@ -2115,8 +2192,8 @@ about the launched run.</p>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id73">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id73" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id74">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id74" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>...
 ...
 Elasticnet model (alpha=0.500000, l1_ratio=0.010000):
@@ -2192,8 +2269,8 @@ which lists experiments updated most recently first. The following fields are su
 <dd class="field-even"><p>A list of <a class="reference internal" href="mlflow.entities.html#mlflow.entities.Experiment" title="mlflow.entities.Experiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">Experiment</span></code></a> objects.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id74">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id74" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id75">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id75" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 
 
@@ -2286,8 +2363,8 @@ matching search results.</p></li>
 that satisfy the search expressions.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id75">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id75" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id76">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id76" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
 
@@ -2304,19 +2381,19 @@ that satisfy the search expressions.</p>
 <span class="n">results</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_model_versions</span><span class="p">(</span><span class="n">filter_string</span><span class="o">=</span><span class="n">filter_string</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name=</span><span class="si">{}</span><span class="s2">; run_id=</span><span class="si">{}</span><span class="s2">; version=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; run_id=</span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; version=</span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Get the version of the model filtered by run_id</span>
 <span class="n">filter_string</span> <span class="o">=</span> <span class="s2">&quot;run_id = &#39;ae9a606a12834c04a8ef1006d0cff779&#39;&quot;</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_model_versions</span><span class="p">(</span><span class="n">filter_string</span><span class="o">=</span><span class="n">filter_string</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name=</span><span class="si">{}</span><span class="s2">; run_id=</span><span class="si">{}</span><span class="s2">; version=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; run_id=</span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; version=</span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id76">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id76" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id77">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id77" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>--------------------------------------------------------------------------------
 name=CordobaWeatherForecastModel; run_id=ae9a606a12834c04a8ef1006d0cff779; version=2
 name=CordobaWeatherForecastModel; run_id=d8f028b5fedf4faf8e458f7693dfa7ce; version=1
@@ -2369,8 +2446,8 @@ matching search results.</p></li>
 that satisfy the search expressions.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id77">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id77" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id78">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id78" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
 
@@ -2392,7 +2469,7 @@ that satisfy the search expressions.</p>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">mv</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">latest_versions</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name=</span><span class="si">{}</span><span class="s2">; run_id=</span><span class="si">{}</span><span class="s2">; version=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; run_id=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; version=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Get search results filtered by the registered model name that matches</span>
 <span class="c1"># prefix pattern</span>
@@ -2401,19 +2478,19 @@ that satisfy the search expressions.</p>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">mv</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">latest_versions</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name=</span><span class="si">{}</span><span class="s2">; run_id=</span><span class="si">{}</span><span class="s2">; version=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; run_id=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; version=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Get all registered models and order them by ascending order of the names</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_registered_models</span><span class="p">(</span><span class="n">order_by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name ASC&quot;</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">mv</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">latest_versions</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name=</span><span class="si">{}</span><span class="s2">; run_id=</span><span class="si">{}</span><span class="s2">; version=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; run_id=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; version=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id78">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id78" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id79">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id79" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>--------------------------------------------------------------------------------
 name=CordobaWeatherForecastModel; run_id=248c66a666744b4887bdeb2f9cf7f1c6; version=1
 --------------------------------------------------------------------------------
@@ -2467,8 +2544,8 @@ the value for the corresponding column is (NumPy) <code class="docutils literal 
 respectively.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id79">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id79" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id80">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id80" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 
 <span class="c1"># Create an experiment and log two runs under it</span>
@@ -2499,8 +2576,8 @@ respectively.</p>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id80">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id80" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id81">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id81" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>   metrics.m tags.s.release                            run_id
 0       2.50       1.2.0-GA  147eed886ab44633902cc8e19b2267e2
 1       1.55       1.1.0-RC  5cc7feaf532f496f885ad7750809c4d4
@@ -2538,23 +2615,23 @@ does not exist, an exception is thrown.</p></li>
 experiment.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id81">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id81" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id82">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id82" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 
 <span class="c1"># Set an experiment name, which must be unique and case-sensitive.</span>
 <span class="n">experiment</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">set_experiment</span><span class="p">(</span><span class="s2">&quot;Social NLP Experiments&quot;</span><span class="p">)</span>
 
 <span class="c1"># Get Experiment Details</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Experiment_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Artifact Location: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Experiment_id: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Artifact Location: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tags: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id82">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id82" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id83">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id83" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Experiment_id: 1
 Artifact Location: file:///.../mlruns/1
 Tags: {}
@@ -2581,8 +2658,8 @@ may support larger values.</p></li>
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id83">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id83" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id84">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id84" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 
 <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
@@ -2601,8 +2678,8 @@ may support larger values.</p></li>
 <dd class="field-odd"><p><strong>tags</strong> – Dictionary containing tag names and corresponding values.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id84">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id84" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id85">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id85" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 
 <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span>
@@ -2638,30 +2715,57 @@ Databricks CLI
 </p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id85">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id85" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id86">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id86" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mflow</span>
 
 <span class="c1"># Set model registry uri, fetch the set uri, and compare</span>
 <span class="c1"># it with the tracking uri. They should be different</span>
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_registry_uri</span><span class="p">(</span><span class="s2">&quot;sqlite:////tmp/registry.db&quot;</span><span class="p">)</span>
 <span class="n">mr_uri</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_registry_uri</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current registry uri: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mr_uri</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current registry uri: </span><span class="si">{</span><span class="n">mr_uri</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">tracking_uri</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_tracking_uri</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current tracking uri: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current tracking uri: </span><span class="si">{</span><span class="n">tracking_uri</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># They should be different</span>
 <span class="k">assert</span> <span class="n">tracking_uri</span> <span class="o">!=</span> <span class="n">mr_uri</span>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id86">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id86" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id87">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id87" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Current registry uri: sqlite:////tmp/registry.db
 Current tracking uri: file:///.../mlruns
 </pre></div>
 </div>
 </div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="mlflow.set_system_metrics_samples_before_logging">
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">set_system_metrics_samples_before_logging</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/system_metrics.html#set_system_metrics_samples_before_logging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.set_system_metrics_samples_before_logging" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This function may change or be removed in a future release without warning.</p>
+</div>
+<p>Set the number of samples before logging system metrics.</p>
+<blockquote>
+<div><p>Every time <cite>samples</cite> samples have been collected, the system metrics will be logged to mlflow.
+By default <cite>samples=1</cite>.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="mlflow.set_system_metrics_sampling_interval">
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">set_system_metrics_sampling_interval</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interval</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/system_metrics.html#set_system_metrics_sampling_interval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.set_system_metrics_sampling_interval" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This function may change or be removed in a future release without warning.</p>
+</div>
+<p>Set the system metrics sampling interval.</p>
+<blockquote>
+<div><p>Every <cite>interval</cite> seconds, the system metrics will be collected. By default <cite>interval=10</cite>.</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py function">
@@ -2682,8 +2786,8 @@ may support larger values.</p></li>
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id87">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id87" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id88">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id88" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 
 <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
@@ -2707,8 +2811,8 @@ not)</p>
 <dd class="field-even"><p>None</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id88">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id88" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id89">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id89" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 
 <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span>
@@ -2745,18 +2849,18 @@ Databricks CLI
 </p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id89">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id89" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id90">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id90" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="s2">&quot;file:///tmp/my_tracking&quot;</span><span class="p">)</span>
 <span class="n">tracking_uri</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_tracking_uri</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current tracking uri: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current tracking uri: </span><span class="si">{</span><span class="n">tracking_uri</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id90">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id90" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id91">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id91" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Current tracking uri: file:///tmp/my_tracking
 </pre></div>
 </div>
@@ -2765,7 +2869,7 @@ Databricks CLI
 
 <dl class="py function">
 <dt id="mlflow.start_run">
-<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">start_run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nested</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#mlflow.ActiveRun" title="mlflow.ActiveRun"><span class="pre">ActiveRun</span></a><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#start_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.start_run" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">start_run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nested</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_system_metrics</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#mlflow.ActiveRun" title="mlflow.ActiveRun"><span class="pre">ActiveRun</span></a><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#start_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.start_run" title="Permalink to this definition"> </a></dt>
 <dd><p>Start a new MLflow run, setting it as the active run under which metrics and parameters
 will be logged. The return value can be used as a context manager within a <code class="docutils literal notranslate"><span class="pre">with</span></code> block;
 otherwise, you must call <code class="docutils literal notranslate"><span class="pre">end_run()</span></code> to terminate the current run.</p>
@@ -2788,9 +2892,8 @@ is unspecified, will look for valid experiment in the following order:
 activated using <code class="docutils literal notranslate"><span class="pre">set_experiment</span></code>, <code class="docutils literal notranslate"><span class="pre">MLFLOW_EXPERIMENT_NAME</span></code>
 environment variable, <code class="docutils literal notranslate"><span class="pre">MLFLOW_EXPERIMENT_ID</span></code> environment variable,
 or the default experiment as defined by the tracking server.</p></li>
-<li><p><strong>run_name</strong> – Name of new run.
-Used only when <code class="docutils literal notranslate"><span class="pre">run_id</span></code> is unspecified. If a new run is created and
-<code class="docutils literal notranslate"><span class="pre">run_name</span></code> is not specified, a unique name will be generated for the run.</p></li>
+<li><p><strong>run_name</strong> – Name of new run. Used only when <code class="docutils literal notranslate"><span class="pre">run_id</span></code> is unspecified. If a new run is
+created and <code class="docutils literal notranslate"><span class="pre">run_name</span></code> is not specified, a unique name will be generated for the run.</p></li>
 <li><p><strong>nested</strong> – Controls whether run is nested in parent run. <code class="docutils literal notranslate"><span class="pre">True</span></code> creates a nested run.</p></li>
 <li><p><strong>tags</strong> – An optional dictionary of string keys and values to set as tags on the run.
 If a run is being resumed, these tags are set on the resumed run. If a new run is
@@ -2798,15 +2901,19 @@ being created, these tags are set on the new run.</p></li>
 <li><p><strong>description</strong> – An optional string that populates the description box of the run.
 If a run is being resumed, the description is set on the resumed run.
 If a new run is being created, the description is set on the new run.</p></li>
+<li><p><strong>log_system_metrics</strong> – bool, defaults to None. If True, system metrics will be logged
+to MLflow, e.g., cpu/gpu utilization. If None, we will check environment variable
+<cite>MLFLOW_SYSTEM_METRICS_SAMPLING_INTERVAL</cite> to determine whether to log system metrics.
+System metrics logging is an experimental feature in MLflow 2.8 and subject to change.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><a class="reference internal" href="#mlflow.ActiveRun" title="mlflow.ActiveRun"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlflow.ActiveRun</span></code></a> object that acts as a context manager wrapping
-the run’s state.</p>
+<dd class="field-even"><p><a class="reference internal" href="#mlflow.ActiveRun" title="mlflow.ActiveRun"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlflow.ActiveRun</span></code></a> object that acts as a context manager wrapping the
+run’s state.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id91">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id91" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id92">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id92" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 
 <span class="c1"># Create nested runs</span>
@@ -2828,22 +2935,22 @@ the run’s state.</p>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;parent run:&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parent_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">parent_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;description: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parent_run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mlflow.note.content&quot;</span><span class="p">)))</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;version tag value: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parent_run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">)))</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;priority tag value: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parent_run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;priority&quot;</span><span class="p">)))</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
 
 <span class="c1"># Search all child runs with a parent id</span>
-<span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;tags.mlflow.parentRunId = &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parent_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+<span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;tags.mlflow.parentRunId = &#39;</span><span class="si">{</span><span class="n">parent_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_runs</span><span class="p">(</span><span class="n">experiment_ids</span><span class="o">=</span><span class="p">[</span><span class="n">experiment_id</span><span class="p">],</span> <span class="n">filter_string</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;child runs:&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">[[</span><span class="s2">&quot;run_id&quot;</span><span class="p">,</span> <span class="s2">&quot;params.child&quot;</span><span class="p">,</span> <span class="s2">&quot;tags.mlflow.runName&quot;</span><span class="p">]])</span>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id92">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id92" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id93">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id93" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>parent run:
 run_id: 8979459433a24a52ab3be87a229a9cdf
 description: starting a parent for experiment 7
@@ -2898,7 +3005,7 @@ child runs:
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

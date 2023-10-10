@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.sagemaker &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow.sagemaker &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,6 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -180,33 +181,40 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">The ``mlflow.sagemaker`` module provides an API for deploying MLflow models to Amazon SageMaker.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">Popen</span>
-<span class="kn">import</span> <span class="nn">urllib.parse</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">signal</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">tarfile</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">platform</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">import</span> <span class="nn">urllib.parse</span>
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">Popen</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">import</span> <span class="nn">mlflow.version</span>
-<span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">pyfunc</span><span class="p">,</span> <span class="n">mleap</span>
+<span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">mleap</span><span class="p">,</span> <span class="n">pyfunc</span>
+<span class="kn">from</span> <span class="nn">mlflow.deployments</span> <span class="kn">import</span> <span class="n">BaseDeploymentClient</span><span class="p">,</span> <span class="n">PredictionsResponse</span>
+<span class="kn">from</span> <span class="nn">mlflow.environment_variables</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MLFLOW_DEPLOYMENT_FLAVOR_NAME</span><span class="p">,</span>
+    <span class="n">MLFLOW_SAGEMAKER_DEPLOY_IMG_URL</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">mlflow.models.container</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SERVING_ENVIRONMENT</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mlflow.models.container</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SUPPORTED_FLAVORS</span> <span class="k">as</span> <span class="n">SUPPORTED_DEPLOYMENT_FLAVORS</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.model</span> <span class="kn">import</span> <span class="n">MLMODEL_FILE_NAME</span>
-<span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">RESOURCE_DOES_NOT_EXIST</span><span class="p">,</span> <span class="n">INVALID_PARAMETER_VALUE</span>
+<span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span> <span class="n">RESOURCE_DOES_NOT_EXIST</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="n">_download_artifact_from_uri</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">get_unique_resource_id</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.file_utils</span> <span class="kn">import</span> <span class="n">TempDir</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.container</span> <span class="kn">import</span> <span class="n">SUPPORTED_FLAVORS</span> <span class="k">as</span> <span class="n">SUPPORTED_DEPLOYMENT_FLAVORS</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.container</span> <span class="kn">import</span> <span class="n">DEPLOYMENT_CONFIG_KEY_FLAVOR_NAME</span><span class="p">,</span> <span class="n">SERVING_ENVIRONMENT</span>
-<span class="kn">from</span> <span class="nn">mlflow.deployments</span> <span class="kn">import</span> <span class="n">BaseDeploymentClient</span><span class="p">,</span> <span class="n">PredictionsResponse</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.proto_json_utils</span> <span class="kn">import</span> <span class="n">dump_input_data</span>
-
 
 <span class="n">DEFAULT_IMAGE_NAME</span> <span class="o">=</span> <span class="s2">&quot;mlflow-pyfunc&quot;</span>
 <span class="n">DEPLOYMENT_MODE_ADD</span> <span class="o">=</span> <span class="s2">&quot;add&quot;</span>
@@ -214,8 +222,6 @@
 <span class="n">DEPLOYMENT_MODE_CREATE</span> <span class="o">=</span> <span class="s2">&quot;create&quot;</span>
 
 <span class="n">DEPLOYMENT_MODES</span> <span class="o">=</span> <span class="p">[</span><span class="n">DEPLOYMENT_MODE_CREATE</span><span class="p">,</span> <span class="n">DEPLOYMENT_MODE_ADD</span><span class="p">,</span> <span class="n">DEPLOYMENT_MODE_REPLACE</span><span class="p">]</span>
-
-<span class="n">IMAGE_NAME_ENV_VAR</span> <span class="o">=</span> <span class="s2">&quot;MLFLOW_SAGEMAKER_DEPLOY_IMG_URL&quot;</span>
 
 <span class="n">DEFAULT_BUCKET_NAME_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;mlflow-sagemaker&quot;</span>
 
@@ -355,6 +361,7 @@
     <span class="n">data_capture_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">variant_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">async_inference_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">serverless_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
@@ -505,7 +512,13 @@
 <span class="sd">                                                    &quot;NotificationConfig&quot;: {},  # pylint: disable=line-too-long</span>
 <span class="sd">                                                },</span>
 <span class="sd">                                            }</span>
-
+<span class="sd">    :param serverless_config: An optional dictionary specifying the serverless configuration</span>
+<span class="sd">                                    .. code-block:: python</span>
+<span class="sd">                                        :caption: Example</span>
+<span class="sd">                                            &quot;ServerlessConfig&quot;: {</span>
+<span class="sd">                                                &quot;MemorySizeInMB&quot;: 2048,</span>
+<span class="sd">                                                &quot;MaxConcurrency&quot;: 20,</span>
+<span class="sd">                                            }</span>
 <span class="sd">    :param env: An optional dictionary of environment variables to set for the model.</span>
 <span class="sd">    :param tags: An optional dictionary of tags to apply to the endpoint.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -599,6 +612,7 @@
             <span class="n">s3_client</span><span class="o">=</span><span class="n">s3_client</span><span class="p">,</span>
             <span class="n">variant_name</span><span class="o">=</span><span class="n">variant_name</span><span class="p">,</span>
             <span class="n">async_inference_config</span><span class="o">=</span><span class="n">async_inference_config</span><span class="p">,</span>
+            <span class="n">serverless_config</span><span class="o">=</span><span class="n">serverless_config</span><span class="p">,</span>
             <span class="n">data_capture_config</span><span class="o">=</span><span class="n">data_capture_config</span><span class="p">,</span>
             <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
             <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
@@ -619,6 +633,7 @@
             <span class="n">sage_client</span><span class="o">=</span><span class="n">sage_client</span><span class="p">,</span>
             <span class="n">variant_name</span><span class="o">=</span><span class="n">variant_name</span><span class="p">,</span>
             <span class="n">async_inference_config</span><span class="o">=</span><span class="n">async_inference_config</span><span class="p">,</span>
+            <span class="n">serverless_config</span><span class="o">=</span><span class="n">serverless_config</span><span class="p">,</span>
             <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
             <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
         <span class="p">)</span>
@@ -1345,8 +1360,7 @@
 <span class="k">def</span> <span class="nf">_get_default_image_url</span><span class="p">(</span><span class="n">region_name</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">boto3</span>
 
-    <span class="n">env_img</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">IMAGE_NAME_ENV_VAR</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">env_img</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">env_img</span> <span class="o">:=</span> <span class="n">MLFLOW_SAGEMAKER_DEPLOY_IMG_URL</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">env_img</span>
 
     <span class="n">ecr_client</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;ecr&quot;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="n">region_name</span><span class="p">)</span>
@@ -1362,8 +1376,7 @@
     <span class="n">sess</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
     <span class="n">sts_client</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;sts&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">assume_role_credentials</span><span class="p">)</span>
     <span class="n">identity_info</span> <span class="o">=</span> <span class="n">sts_client</span><span class="o">.</span><span class="n">get_caller_identity</span><span class="p">()</span>
-    <span class="n">account_id</span> <span class="o">=</span> <span class="n">identity_info</span><span class="p">[</span><span class="s2">&quot;Account&quot;</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">account_id</span>
+    <span class="k">return</span> <span class="n">identity_info</span><span class="p">[</span><span class="s2">&quot;Account&quot;</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">_get_assumed_role_arn</span><span class="p">(</span><span class="o">**</span><span class="n">assume_role_credentials</span><span class="p">):</span>
@@ -1483,7 +1496,7 @@
 <span class="sd">    :return: The deployment configuration as a dictionary</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">deployment_config</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">DEPLOYMENT_CONFIG_KEY_FLAVOR_NAME</span><span class="p">:</span> <span class="n">flavor_name</span><span class="p">,</span>
+        <span class="n">MLFLOW_DEPLOYMENT_FLAVOR_NAME</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">flavor_name</span><span class="p">,</span>
         <span class="n">SERVING_ENVIRONMENT</span><span class="p">:</span> <span class="n">SAGEMAKER_SERVING_ENVIRONMENT</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">env_override</span><span class="p">:</span>
@@ -1670,6 +1683,7 @@
     <span class="n">sage_client</span><span class="p">,</span>
     <span class="n">variant_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">async_inference_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">serverless_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
@@ -1715,10 +1729,15 @@
     <span class="n">production_variant</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;VariantName&quot;</span><span class="p">:</span> <span class="n">variant_name</span><span class="p">,</span>
         <span class="s2">&quot;ModelName&quot;</span><span class="p">:</span> <span class="n">model_name</span><span class="p">,</span>
-        <span class="s2">&quot;InitialInstanceCount&quot;</span><span class="p">:</span> <span class="n">instance_count</span><span class="p">,</span>
-        <span class="s2">&quot;InstanceType&quot;</span><span class="p">:</span> <span class="n">instance_type</span><span class="p">,</span>
         <span class="s2">&quot;InitialVariantWeight&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">serverless_config</span><span class="p">:</span>
+        <span class="n">production_variant</span><span class="p">[</span><span class="s2">&quot;ServerlessConfig&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">serverless_config</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">production_variant</span><span class="p">[</span><span class="s2">&quot;InstanceType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instance_type</span>
+        <span class="n">production_variant</span><span class="p">[</span><span class="s2">&quot;InitialInstanceCount&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instance_count</span>
+
     <span class="n">config_name</span> <span class="o">=</span> <span class="n">_get_sagemaker_config_name</span><span class="p">(</span><span class="n">endpoint_name</span><span class="p">)</span>
     <span class="n">endpoint_config_kwargs</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;EndpointConfigName&quot;</span><span class="p">:</span> <span class="n">config_name</span><span class="p">,</span>
@@ -1787,6 +1806,7 @@
     <span class="n">s3_client</span><span class="p">,</span>
     <span class="n">variant_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">async_inference_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">serverless_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">data_capture_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1860,10 +1880,15 @@
     <span class="n">new_production_variant</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;VariantName&quot;</span><span class="p">:</span> <span class="n">variant_name</span><span class="p">,</span>
         <span class="s2">&quot;ModelName&quot;</span><span class="p">:</span> <span class="n">model_name</span><span class="p">,</span>
-        <span class="s2">&quot;InitialInstanceCount&quot;</span><span class="p">:</span> <span class="n">instance_count</span><span class="p">,</span>
-        <span class="s2">&quot;InstanceType&quot;</span><span class="p">:</span> <span class="n">instance_type</span><span class="p">,</span>
         <span class="s2">&quot;InitialVariantWeight&quot;</span><span class="p">:</span> <span class="n">new_model_weight</span><span class="p">,</span>
     <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">serverless_config</span><span class="p">:</span>
+        <span class="n">new_production_variant</span><span class="p">[</span><span class="s2">&quot;ServerlessConfig&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">serverless_config</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">new_production_variant</span><span class="p">[</span><span class="s2">&quot;InstanceType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instance_type</span>
+        <span class="n">new_production_variant</span><span class="p">[</span><span class="s2">&quot;InitialInstanceCount&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instance_count</span>
+
     <span class="n">production_variants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_production_variant</span><span class="p">)</span>
 
     <span class="c1"># Create the new endpoint configuration and update the endpoint</span>
@@ -1976,8 +2001,7 @@
     <span class="k">if</span> <span class="n">vpc_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">create_model_args</span><span class="p">[</span><span class="s2">&quot;VpcConfig&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vpc_config</span>
 
-    <span class="n">model_response</span> <span class="o">=</span> <span class="n">sage_client</span><span class="o">.</span><span class="n">create_model</span><span class="p">(</span><span class="o">**</span><span class="n">create_model_args</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">model_response</span>
+    <span class="k">return</span> <span class="n">sage_client</span><span class="o">.</span><span class="n">create_model</span><span class="p">(</span><span class="o">**</span><span class="n">create_model_args</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_delete_sagemaker_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">sage_client</span><span class="p">,</span> <span class="n">s3_client</span><span class="p">):</span>
@@ -2170,6 +2194,7 @@
             <span class="s2">&quot;env&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s2">&quot;async_inference_config&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">&quot;serverless_config&quot;</span><span class="p">:</span> <span class="p">{},</span>
         <span class="p">}</span>
 
         <span class="k">if</span> <span class="n">create_mode</span><span class="p">:</span>
@@ -2182,7 +2207,14 @@
     <span class="k">def</span> <span class="nf">_apply_custom_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">custom_config</span><span class="p">):</span>
         <span class="n">int_fields</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;instance_count&quot;</span><span class="p">,</span> <span class="s2">&quot;timeout_seconds&quot;</span><span class="p">}</span>
         <span class="n">bool_fields</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;synchronous&quot;</span><span class="p">,</span> <span class="s2">&quot;archive&quot;</span><span class="p">}</span>
-        <span class="n">dict_fields</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;vpc_config&quot;</span><span class="p">,</span> <span class="s2">&quot;data_capture_config&quot;</span><span class="p">,</span> <span class="s2">&quot;tags&quot;</span><span class="p">,</span> <span class="s2">&quot;env&quot;</span><span class="p">,</span> <span class="s2">&quot;async_inference_config&quot;</span><span class="p">}</span>
+        <span class="n">dict_fields</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;vpc_config&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_capture_config&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tags&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;env&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;async_inference_config&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;serverless_config&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">custom_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
                 <span class="k">continue</span>
@@ -2309,6 +2341,8 @@
 <span class="sd">                                           production variant.  Defaults to ``None``.</span>
 <span class="sd">                       - ``async_inference_config``: A dictionary specifying the async_inference_configuration # pylint: disable=line-too-long</span>
 
+<span class="sd">                       - ``serverless_config``: A dictionary specifying the serverless_configuration</span>
+
 <span class="sd">                       - ``env``: A dictionary specifying environment variables as key-value</span>
 <span class="sd">                         pairs to be set for the deployed model. Defaults to ``None``.</span>
 
@@ -2401,6 +2435,7 @@
             <span class="n">timeout_seconds</span><span class="o">=</span><span class="n">final_config</span><span class="p">[</span><span class="s2">&quot;timeout_seconds&quot;</span><span class="p">],</span>
             <span class="n">variant_name</span><span class="o">=</span><span class="n">final_config</span><span class="p">[</span><span class="s2">&quot;variant_name&quot;</span><span class="p">],</span>
             <span class="n">async_inference_config</span><span class="o">=</span><span class="n">final_config</span><span class="p">[</span><span class="s2">&quot;async_inference_config&quot;</span><span class="p">],</span>
+            <span class="n">serverless_config</span><span class="o">=</span><span class="n">final_config</span><span class="p">[</span><span class="s2">&quot;serverless_config&quot;</span><span class="p">],</span>
             <span class="n">env</span><span class="o">=</span><span class="n">final_config</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">],</span>
             <span class="n">tags</span><span class="o">=</span><span class="n">final_config</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">],</span>
         <span class="p">)</span>
@@ -2661,6 +2696,7 @@
             <span class="n">timeout_seconds</span><span class="o">=</span><span class="n">final_config</span><span class="p">[</span><span class="s2">&quot;timeout_seconds&quot;</span><span class="p">],</span>
             <span class="n">variant_name</span><span class="o">=</span><span class="n">final_config</span><span class="p">[</span><span class="s2">&quot;variant_name&quot;</span><span class="p">],</span>
             <span class="n">async_inference_config</span><span class="o">=</span><span class="n">final_config</span><span class="p">[</span><span class="s2">&quot;async_inference_config&quot;</span><span class="p">],</span>
+            <span class="n">serverless_config</span><span class="o">=</span><span class="n">final_config</span><span class="p">[</span><span class="s2">&quot;serverless_config&quot;</span><span class="p">],</span>
             <span class="n">env</span><span class="o">=</span><span class="n">final_config</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">],</span>
             <span class="n">tags</span><span class="o">=</span><span class="n">final_config</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">],</span>
         <span class="p">)</span>
@@ -3090,7 +3126,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

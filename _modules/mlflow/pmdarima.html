@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.pmdarima &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow.pmdarima &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,6 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -187,17 +188,63 @@
 <span class="sd">    Produced for use by generic pyfunc-based deployment tools and for batch auditing</span>
 <span class="sd">    of historical forecasts.</span>
 
+<span class="sd"> .. code-block:: python</span>
+<span class="sd">    :caption: Example</span>
+
+<span class="sd">    import pandas as pd</span>
+<span class="sd">    import mlflow</span>
+<span class="sd">    import mlflow.pyfunc</span>
+<span class="sd">    import pmdarima</span>
+<span class="sd">    from pmdarima import auto_arima</span>
+
+
+<span class="sd">    # Define a custom model class</span>
+<span class="sd">    class PmdarimaWrapper(mlflow.pyfunc.PythonModel):</span>
+<span class="sd">        def load_context(self, context):</span>
+<span class="sd">            self.model = context.artifacts[&quot;model&quot;]</span>
+
+<span class="sd">        def predict(self, context, model_input):</span>
+<span class="sd">            return self.model.predict(n_periods=model_input.shape[0])</span>
+
+
+<span class="sd">    # Specify locations of source data and the model artifact</span>
+<span class="sd">    SOURCE_DATA = &quot;https://raw.githubusercontent.com/facebook/prophet/master/examples/example_retail_sales.csv&quot;</span>
+<span class="sd">    ARTIFACT_PATH = &quot;model&quot;</span>
+
+<span class="sd">    # Read data and recode columns</span>
+<span class="sd">    sales_data = pd.read_csv(SOURCE_DATA)</span>
+<span class="sd">    sales_data.rename(columns={&quot;y&quot;: &quot;sales&quot;, &quot;ds&quot;: &quot;date&quot;}, inplace=True)</span>
+
+<span class="sd">    # Split the data into train/test</span>
+<span class="sd">    train_size = int(0.8 * len(sales_data))</span>
+<span class="sd">    train, _ = sales_data[:train_size], sales_data[train_size:]</span>
+
+<span class="sd">    # Create the model</span>
+<span class="sd">    model = pmdarima.auto_arima(train[&quot;sales&quot;], seasonal=True, m=12)</span>
+
+<span class="sd">    # Log the model</span>
+<span class="sd">    with mlflow.start_run():</span>
+<span class="sd">        wrapper = PmdarimaWrapper()</span>
+<span class="sd">        mlflow.pyfunc.log_model(</span>
+<span class="sd">            artifact_path=&quot;model&quot;,</span>
+<span class="sd">            python_model=wrapper,</span>
+<span class="sd">            artifacts={&quot;model&quot;: mlflow.pyfunc.model_to_dict(model)},</span>
+<span class="sd">        )</span>
+
+
 <span class="sd">.. _Pmdarima:</span>
 <span class="sd">    http://alkaline-ml.com/pmdarima/</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">os</span>
+
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">packaging.version</span> <span class="kn">import</span> <span class="n">Version</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">pyfunc</span>
@@ -209,27 +256,26 @@
 <span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">INVALID_PARAMETER_VALUE</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry</span> <span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="n">_download_artifact_from_uri</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.model_utils</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_get_flavor_configuration</span><span class="p">,</span>
-    <span class="n">_validate_and_copy_code_paths</span><span class="p">,</span>
-    <span class="n">_add_code_from_conf_to_system_path</span><span class="p">,</span>
-    <span class="n">_validate_and_prepare_target_save_path</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.docstring_utils</span> <span class="kn">import</span> <span class="n">LOG_MODEL_PARAM_DOCS</span><span class="p">,</span> <span class="n">format_docstring</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.environment</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_CONDA_ENV_FILE_NAME</span><span class="p">,</span>
+    <span class="n">_CONSTRAINTS_FILE_NAME</span><span class="p">,</span>
+    <span class="n">_PYTHON_ENV_FILE_NAME</span><span class="p">,</span>
+    <span class="n">_REQUIREMENTS_FILE_NAME</span><span class="p">,</span>
+    <span class="n">_mlflow_conda_env</span><span class="p">,</span>
+    <span class="n">_process_conda_env</span><span class="p">,</span>
+    <span class="n">_process_pip_requirements</span><span class="p">,</span>
+    <span class="n">_PythonEnv</span><span class="p">,</span>
+    <span class="n">_validate_env_arguments</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.file_utils</span> <span class="kn">import</span> <span class="n">write_to</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.requirements_utils</span> <span class="kn">import</span> <span class="n">_get_pinned_requirement</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.environment</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_mlflow_conda_env</span><span class="p">,</span>
-    <span class="n">_validate_env_arguments</span><span class="p">,</span>
-    <span class="n">_CONDA_ENV_FILE_NAME</span><span class="p">,</span>
-    <span class="n">_process_pip_requirements</span><span class="p">,</span>
-    <span class="n">_process_conda_env</span><span class="p">,</span>
-    <span class="n">_CONSTRAINTS_FILE_NAME</span><span class="p">,</span>
-    <span class="n">_REQUIREMENTS_FILE_NAME</span><span class="p">,</span>
-    <span class="n">_PYTHON_ENV_FILE_NAME</span><span class="p">,</span>
-    <span class="n">_PythonEnv</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.model_utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_add_code_from_conf_to_system_path</span><span class="p">,</span>
+    <span class="n">_get_flavor_configuration</span><span class="p">,</span>
+    <span class="n">_validate_and_copy_code_paths</span><span class="p">,</span>
+    <span class="n">_validate_and_prepare_target_save_path</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.docstring_utils</span> <span class="kn">import</span> <span class="n">format_docstring</span><span class="p">,</span> <span class="n">LOG_MODEL_PARAM_DOCS</span>
-
+<span class="kn">from</span> <span class="nn">mlflow.utils.requirements_utils</span> <span class="kn">import</span> <span class="n">_get_pinned_requirement</span>
 
 <span class="n">FLAVOR_NAME</span> <span class="o">=</span> <span class="s2">&quot;pmdarima&quot;</span>
 <span class="n">_MODEL_BINARY_KEY</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span>
@@ -245,6 +291,7 @@
 <span class="sd">             Calls to :func:`save_model()` and :func:`log_model()` produce a pip environment that,</span>
 <span class="sd">             at a minimum, contains these requirements.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">return</span> <span class="p">[</span><span class="n">_get_pinned_requirement</span><span class="p">(</span><span class="s2">&quot;pmdarima&quot;</span><span class="p">)]</span></div>
 
 
@@ -253,6 +300,7 @@
 <span class="sd">    :return: The default Conda environment for MLflow Models produced by calls to</span>
 <span class="sd">             :func:`save_model()` and :func:`log_model()`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">return</span> <span class="n">_mlflow_conda_env</span><span class="p">(</span><span class="n">additional_pip_deps</span><span class="o">=</span><span class="n">get_default_pip_requirements</span><span class="p">())</span></div>
 
 
@@ -311,7 +359,35 @@
 
 <span class="sd">                     .. Note:: Experimental: This parameter may change or be removed in a future</span>
 <span class="sd">                                             release without warning.</span>
+
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">        :caption: Example</span>
+
+<span class="sd">        import pandas as pd</span>
+<span class="sd">        import mlflow</span>
+<span class="sd">        import pmdarima</span>
+
+<span class="sd">        # Specify locations of source data and the model artifact</span>
+<span class="sd">        SOURCE_DATA = &quot;https://raw.githubusercontent.com/facebook/prophet/master/examples/example_retail_sales.csv&quot;</span>
+<span class="sd">        ARTIFACT_PATH = &quot;model&quot;</span>
+
+<span class="sd">        # Read data and recode columns</span>
+<span class="sd">        sales_data = pd.read_csv(SOURCE_DATA)</span>
+<span class="sd">        sales_data.rename(columns={&quot;y&quot;: &quot;sales&quot;, &quot;ds&quot;: &quot;date&quot;}, inplace=True)</span>
+
+<span class="sd">        # Split the data into train/test</span>
+<span class="sd">        train_size = int(0.8 * len(sales_data))</span>
+<span class="sd">        train, test = sales_data[:train_size], sales_data[train_size:]</span>
+
+<span class="sd">        with mlflow.start_run():</span>
+<span class="sd">            # Create the model</span>
+<span class="sd">            model = pmdarima.auto_arima(train[&quot;sales&quot;], seasonal=True, m=12)</span>
+
+<span class="sd">            # Save the model to the specified path</span>
+<span class="sd">            mlflow.pmdarima.save_model(model, &quot;model&quot;)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="kn">import</span> <span class="nn">pmdarima</span>
 
     <span class="n">_validate_env_arguments</span><span class="p">(</span><span class="n">conda_env</span><span class="p">,</span> <span class="n">pip_requirements</span><span class="p">,</span> <span class="n">extra_pip_requirements</span><span class="p">)</span>
@@ -450,6 +526,44 @@
 <span class="sd">    :param kwargs: Additional arguments for :py:class:`mlflow.models.model.Model`</span>
 <span class="sd">    :return: A :py:class:`ModelInfo &lt;mlflow.models.model.ModelInfo&gt;` instance that contains the</span>
 <span class="sd">             metadata of the logged model.</span>
+
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">        :caption: Example</span>
+
+<span class="sd">        import pandas as pd</span>
+<span class="sd">        import mlflow</span>
+<span class="sd">        from mlflow.models import infer_signature</span>
+<span class="sd">        import pmdarima</span>
+<span class="sd">        from pmdarima.metrics import smape</span>
+
+<span class="sd">        # Specify locations of source data and the model artifact</span>
+<span class="sd">        SOURCE_DATA = &quot;https://raw.githubusercontent.com/facebook/prophet/master/examples/example_retail_sales.csv&quot;</span>
+<span class="sd">        ARTIFACT_PATH = &quot;model&quot;</span>
+
+<span class="sd">        # Read data and recode columns</span>
+<span class="sd">        sales_data = pd.read_csv(SOURCE_DATA)</span>
+<span class="sd">        sales_data.rename(columns={&quot;y&quot;: &quot;sales&quot;, &quot;ds&quot;: &quot;date&quot;}, inplace=True)</span>
+
+<span class="sd">        # Split the data into train/test</span>
+<span class="sd">        train_size = int(0.8 * len(sales_data))</span>
+<span class="sd">        train, test = sales_data[:train_size], sales_data[train_size:]</span>
+
+<span class="sd">        with mlflow.start_run():</span>
+<span class="sd">            # Create the model</span>
+<span class="sd">            model = pmdarima.auto_arima(train[&quot;sales&quot;], seasonal=True, m=12)</span>
+
+<span class="sd">            # Calculate metrics</span>
+<span class="sd">            prediction = model.predict(n_periods=len(test))</span>
+<span class="sd">            metrics = {&quot;smape&quot;: smape(test[&quot;sales&quot;], prediction)}</span>
+
+<span class="sd">            # Infer signature</span>
+<span class="sd">            input_sample = pd.DataFrame(train[&quot;sales&quot;])</span>
+<span class="sd">            output_sample = pd.DataFrame(model.predict(n_periods=5))</span>
+<span class="sd">            signature = infer_signature(input_sample, output_sample)</span>
+
+<span class="sd">            # Log model</span>
+<span class="sd">            mlflow.pmdarima.log_model(model, ARTIFACT_PATH, signature=signature)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">return</span> <span class="n">Model</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
@@ -489,7 +603,69 @@
 <span class="sd">                     path will be created.</span>
 
 <span class="sd">    :return: A ``pmdarima`` model instance</span>
+
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">        :caption: Example</span>
+
+<span class="sd">        import pandas as pd</span>
+<span class="sd">        import mlflow</span>
+<span class="sd">        from mlflow.models import infer_signature</span>
+<span class="sd">        import pmdarima</span>
+<span class="sd">        from pmdarima.metrics import smape</span>
+
+<span class="sd">        # Specify locations of source data and the model artifact</span>
+<span class="sd">        SOURCE_DATA = &quot;https://raw.githubusercontent.com/facebook/prophet/master/examples/example_retail_sales.csv&quot;</span>
+<span class="sd">        ARTIFACT_PATH = &quot;model&quot;</span>
+
+<span class="sd">        # Read data and recode columns</span>
+<span class="sd">        sales_data = pd.read_csv(SOURCE_DATA)</span>
+<span class="sd">        sales_data.rename(columns={&quot;y&quot;: &quot;sales&quot;, &quot;ds&quot;: &quot;date&quot;}, inplace=True)</span>
+
+<span class="sd">        # Split the data into train/test</span>
+<span class="sd">        train_size = int(0.8 * len(sales_data))</span>
+<span class="sd">        train, test = sales_data[:train_size], sales_data[train_size:]</span>
+
+<span class="sd">        with mlflow.start_run():</span>
+<span class="sd">            # Create the model</span>
+<span class="sd">            model = pmdarima.auto_arima(train[&quot;sales&quot;], seasonal=True, m=12)</span>
+
+<span class="sd">            # Calculate metrics</span>
+<span class="sd">            prediction = model.predict(n_periods=len(test))</span>
+<span class="sd">            metrics = {&quot;smape&quot;: smape(test[&quot;sales&quot;], prediction)}</span>
+
+<span class="sd">            # Infer signature</span>
+<span class="sd">            input_sample = pd.DataFrame(train[&quot;sales&quot;])</span>
+<span class="sd">            output_sample = pd.DataFrame(model.predict(n_periods=5))</span>
+<span class="sd">            signature = infer_signature(input_sample, output_sample)</span>
+
+<span class="sd">            # Log model</span>
+<span class="sd">            input_example = input_sample.head()</span>
+<span class="sd">            mlflow.pmdarima.log_model(</span>
+<span class="sd">                model, ARTIFACT_PATH, signature=signature, input_example=input_example</span>
+<span class="sd">            )</span>
+
+<span class="sd">            # Get the model URI for loading</span>
+<span class="sd">            model_uri = mlflow.get_artifact_uri(ARTIFACT_PATH)</span>
+
+<span class="sd">        # Load the model</span>
+<span class="sd">        loaded_model = mlflow.pmdarima.load_model(model_uri)</span>
+
+<span class="sd">        # Forecast for the next 60 days</span>
+<span class="sd">        forecast = loaded_model.predict(n_periods=60)</span>
+
+<span class="sd">        print(f&quot;forecast: {forecast}&quot;)</span>
+
+<span class="sd">    .. code-block:: text</span>
+<span class="sd">        :caption: Output</span>
+
+<span class="sd">        forecast:</span>
+<span class="sd">        234    382452.397246</span>
+<span class="sd">        235    380639.458720</span>
+<span class="sd">        236    359805.611219</span>
+<span class="sd">        ...</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">local_model_path</span> <span class="o">=</span> <span class="n">_download_artifact_from_uri</span><span class="p">(</span><span class="n">artifact_uri</span><span class="o">=</span><span class="n">model_uri</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">dst_path</span><span class="p">)</span>
     <span class="n">flavor_conf</span> <span class="o">=</span> <span class="n">_get_flavor_configuration</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">flavor_name</span><span class="o">=</span><span class="n">FLAVOR_NAME</span><span class="p">)</span>
     <span class="n">_add_code_from_conf_to_system_path</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">flavor_conf</span><span class="p">)</span>
@@ -635,7 +811,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

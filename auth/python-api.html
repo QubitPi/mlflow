@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>MLflow Authentication Python API &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>MLflow Authentication Python API &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../index.html"/>
         <link rel="up" title="MLflow Authentication" href="index.html"/>
         <link rel="next" title="MLflow Authentication REST API" href="/rest-api.html"/>
         <link rel="prev" title="MLflow Authentication" href="/index.html"/> 
@@ -67,7 +67,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -116,6 +116,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">MLflow Authentication</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">MLflow Authentication Python API</a><ul>
@@ -236,9 +237,9 @@ Does not require <code class="docutils literal notranslate"><span class="pre">ex
 <span class="n">client</span> <span class="o">=</span> <span class="n">AuthServiceClient</span><span class="p">(</span><span class="s2">&quot;tracking_uri&quot;</span><span class="p">)</span>
 <span class="n">client</span><span class="o">.</span><span class="n">create_user</span><span class="p">(</span><span class="s2">&quot;newuser&quot;</span><span class="p">,</span> <span class="s2">&quot;newpassword&quot;</span><span class="p">)</span>
 <span class="n">ep</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_experiment_permission</span><span class="p">(</span><span class="s2">&quot;myexperiment&quot;</span><span class="p">,</span> <span class="s2">&quot;newuser&quot;</span><span class="p">,</span> <span class="s2">&quot;READ&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;experiment_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ep</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;user_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ep</span><span class="o">.</span><span class="n">user_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;permission: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ep</span><span class="o">.</span><span class="n">permission</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;experiment_id: </span><span class="si">{</span><span class="n">ep</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;user_id: </span><span class="si">{</span><span class="n">ep</span><span class="o">.</span><span class="n">user_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;permission: </span><span class="si">{</span><span class="n">ep</span><span class="o">.</span><span class="n">permission</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="literal-block-wrapper docutils container" id="id2">
@@ -284,9 +285,9 @@ Does not require <code class="docutils literal notranslate"><span class="pre">na
 <span class="n">client</span> <span class="o">=</span> <span class="n">AuthServiceClient</span><span class="p">(</span><span class="s2">&quot;tracking_uri&quot;</span><span class="p">)</span>
 <span class="n">client</span><span class="o">.</span><span class="n">create_user</span><span class="p">(</span><span class="s2">&quot;newuser&quot;</span><span class="p">,</span> <span class="s2">&quot;newpassword&quot;</span><span class="p">)</span>
 <span class="n">rmp</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_registered_model_permission</span><span class="p">(</span><span class="s2">&quot;myregisteredmodel&quot;</span><span class="p">,</span> <span class="s2">&quot;newuser&quot;</span><span class="p">,</span> <span class="s2">&quot;READ&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rmp</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;user_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rmp</span><span class="o">.</span><span class="n">user_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;permission: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rmp</span><span class="o">.</span><span class="n">permission</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">rmp</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;user_id: </span><span class="si">{</span><span class="n">rmp</span><span class="o">.</span><span class="n">user_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;permission: </span><span class="si">{</span><span class="n">rmp</span><span class="o">.</span><span class="n">permission</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="literal-block-wrapper docutils container" id="id4">
@@ -321,10 +322,10 @@ Raises <code class="docutils literal notranslate"><span class="pre">RestExceptio
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">AuthServiceClient</span><span class="p">(</span><span class="s2">&quot;tracking_uri&quot;</span><span class="p">)</span>
 <span class="n">user</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_user</span><span class="p">(</span><span class="s2">&quot;newuser&quot;</span><span class="p">,</span> <span class="s2">&quot;newpassword&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;user_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;username: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;password_hash: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">password_hash</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;is_admin: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">is_admin</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;user_id: </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;username: </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;password_hash: </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">password_hash</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;is_admin: </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">is_admin</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -472,9 +473,9 @@ no permission exists.</p>
 <span class="n">client</span><span class="o">.</span><span class="n">create_user</span><span class="p">(</span><span class="s2">&quot;newuser&quot;</span><span class="p">,</span> <span class="s2">&quot;newpassword&quot;</span><span class="p">)</span>
 <span class="n">client</span><span class="o">.</span><span class="n">create_experiment_permission</span><span class="p">(</span><span class="s2">&quot;myexperiment&quot;</span><span class="p">,</span> <span class="s2">&quot;newuser&quot;</span><span class="p">,</span> <span class="s2">&quot;READ&quot;</span><span class="p">)</span>
 <span class="n">ep</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_experiment_permission</span><span class="p">(</span><span class="s2">&quot;myexperiment&quot;</span><span class="p">,</span> <span class="s2">&quot;newuser&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;experiment_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ep</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;user_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ep</span><span class="o">.</span><span class="n">user_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;permission: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ep</span><span class="o">.</span><span class="n">permission</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;experiment_id: </span><span class="si">{</span><span class="n">ep</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;user_id: </span><span class="si">{</span><span class="n">ep</span><span class="o">.</span><span class="n">user_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;permission: </span><span class="si">{</span><span class="n">ep</span><span class="o">.</span><span class="n">permission</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="literal-block-wrapper docutils container" id="id11">
@@ -519,9 +520,9 @@ no permission exists.</p>
 <span class="n">client</span><span class="o">.</span><span class="n">create_user</span><span class="p">(</span><span class="s2">&quot;newuser&quot;</span><span class="p">,</span> <span class="s2">&quot;newpassword&quot;</span><span class="p">)</span>
 <span class="n">client</span><span class="o">.</span><span class="n">create_registered_model_permission</span><span class="p">(</span><span class="s2">&quot;myregisteredmodel&quot;</span><span class="p">,</span> <span class="s2">&quot;newuser&quot;</span><span class="p">,</span> <span class="s2">&quot;READ&quot;</span><span class="p">)</span>
 <span class="n">rmp</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_registered_model_permission</span><span class="p">(</span><span class="s2">&quot;myregisteredmodel&quot;</span><span class="p">,</span> <span class="s2">&quot;newuser&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rmp</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;user_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rmp</span><span class="o">.</span><span class="n">user_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;permission: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rmp</span><span class="o">.</span><span class="n">permission</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">rmp</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;user_id: </span><span class="si">{</span><span class="n">rmp</span><span class="o">.</span><span class="n">user_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;permission: </span><span class="si">{</span><span class="n">rmp</span><span class="o">.</span><span class="n">permission</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="literal-block-wrapper docutils container" id="id13">
@@ -560,10 +561,10 @@ Raises <code class="docutils literal notranslate"><span class="pre">RestExceptio
 <span class="n">client</span><span class="o">.</span><span class="n">create_user</span><span class="p">(</span><span class="s2">&quot;newuser&quot;</span><span class="p">,</span> <span class="s2">&quot;newpassword&quot;</span><span class="p">)</span>
 
 <span class="n">user</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_user</span><span class="p">(</span><span class="s2">&quot;newuser&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;user_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;username: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;password_hash: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">password_hash</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;is_admin: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">is_admin</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;user_id: </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;username: </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;password_hash: </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">password_hash</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;is_admin: </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">is_admin</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="literal-block-wrapper docutils container" id="id15">
@@ -867,7 +868,7 @@ or if the permission is invalid.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

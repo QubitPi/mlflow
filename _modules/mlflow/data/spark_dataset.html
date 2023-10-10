@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.data.spark_dataset &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow.data.spark_dataset &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="mlflow.data" href="../data.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,6 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command-Line Interface</a></li>
@@ -182,7 +183,7 @@
 <span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">mlflow.data.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 <span class="kn">from</span> <span class="nn">mlflow.data.dataset_source</span> <span class="kn">import</span> <span class="n">DatasetSource</span>
@@ -192,10 +193,13 @@
 <span class="kn">from</span> <span class="nn">mlflow.data.spark_dataset_source</span> <span class="kn">import</span> <span class="n">SparkDatasetSource</span>
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.evaluation.base</span> <span class="kn">import</span> <span class="n">EvaluationDataset</span>
-<span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span> <span class="n">INTERNAL_ERROR</span>
+<span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">INTERNAL_ERROR</span><span class="p">,</span> <span class="n">INVALID_PARAMETER_VALUE</span>
 <span class="kn">from</span> <span class="nn">mlflow.types</span> <span class="kn">import</span> <span class="n">Schema</span>
 <span class="kn">from</span> <span class="nn">mlflow.types.utils</span> <span class="kn">import</span> <span class="n">_infer_schema</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">experimental</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pyspark</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -209,7 +213,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">df</span><span class="p">,</span>
+        <span class="n">df</span><span class="p">:</span> <span class="s2">&quot;pyspark.sql.DataFrame&quot;</span><span class="p">,</span>
         <span class="n">source</span><span class="p">:</span> <span class="n">DatasetSource</span><span class="p">,</span>
         <span class="n">targets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -436,7 +440,7 @@
 
 <div class="viewcode-block" id="from_spark"><a class="viewcode-back" href="../../../python_api/mlflow.data.html#mlflow.data.from_spark">[docs]</a><span class="nd">@experimental</span>
 <span class="k">def</span> <span class="nf">from_spark</span><span class="p">(</span>
-    <span class="n">df</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">:</span> <span class="s2">&quot;pyspark.sql.DataFrame&quot;</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">table_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -486,13 +490,13 @@
 <span class="sd">    :return: An instance of :py:class:`SparkDataset &lt;mlflow.data.spark_dataset.SparkDataset&gt;`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">mlflow.data.code_dataset_source</span> <span class="kn">import</span> <span class="n">CodeDatasetSource</span>
-    <span class="kn">from</span> <span class="nn">mlflow.tracking.context</span> <span class="kn">import</span> <span class="n">registry</span>
     <span class="kn">from</span> <span class="nn">mlflow.data.spark_delta_utils</span> <span class="kn">import</span> <span class="p">(</span>
         <span class="n">_is_delta_table</span><span class="p">,</span>
         <span class="n">_is_delta_table_path</span><span class="p">,</span>
         <span class="n">_try_get_delta_table_latest_version_from_path</span><span class="p">,</span>
         <span class="n">_try_get_delta_table_latest_version_from_table_name</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">mlflow.tracking.context</span> <span class="kn">import</span> <span class="n">registry</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">sql</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
@@ -577,7 +581,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

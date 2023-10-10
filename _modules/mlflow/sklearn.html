@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.sklearn &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow.sklearn &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,6 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -189,18 +190,19 @@
 <span class="sd">    NOTE: The `mlflow.pyfunc` flavor is only added for scikit-learn models that define `predict()`,</span>
 <span class="sd">    since `predict()` is required for pyfunc model inference.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">functools</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">import</span> <span class="nn">weakref</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span> <span class="nn">packaging.version</span> <span class="kn">import</span> <span class="n">Version</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">packaging.version</span> <span class="kn">import</span> <span class="n">Version</span>
 
 <span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">pyfunc</span>
@@ -209,53 +211,52 @@
 <span class="kn">from</span> <span class="nn">mlflow.data.pandas_dataset</span> <span class="kn">import</span> <span class="n">from_pandas</span>
 <span class="kn">from</span> <span class="nn">mlflow.entities.dataset_input</span> <span class="kn">import</span> <span class="n">DatasetInput</span>
 <span class="kn">from</span> <span class="nn">mlflow.entities.input_tag</span> <span class="kn">import</span> <span class="n">InputTag</span>
-<span class="kn">from</span> <span class="nn">mlflow.tracking.client</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">ModelSignature</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.model</span> <span class="kn">import</span> <span class="n">MLMODEL_FILE_NAME</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">_infer_signature_from_input_example</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">_save_example</span>
-<span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span> <span class="n">INTERNAL_ERROR</span>
+<span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">INTERNAL_ERROR</span><span class="p">,</span> <span class="n">INVALID_PARAMETER_VALUE</span>
+<span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry</span> <span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="n">_download_artifact_from_uri</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">_inspect_original_var_name</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.autologging_utils</span> <span class="kn">import</span> <span class="n">get_instance_method_first_arg_value</span>
+<span class="kn">from</span> <span class="nn">mlflow.tracking.client</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">_inspect_original_var_name</span><span class="p">,</span> <span class="n">gorilla</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.autologging_utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">INPUT_EXAMPLE_SAMPLE_ROWS</span><span class="p">,</span>
+    <span class="n">MlflowAutologgingQueueingClient</span><span class="p">,</span>
+    <span class="n">_get_new_training_session_class</span><span class="p">,</span>
+    <span class="n">autologging_integration</span><span class="p">,</span>
+    <span class="n">disable_autologging</span><span class="p">,</span>
+    <span class="n">get_autologging_config</span><span class="p">,</span>
+    <span class="n">get_instance_method_first_arg_value</span><span class="p">,</span>
+    <span class="n">resolve_input_example_and_signature</span><span class="p">,</span>
+    <span class="n">safe_patch</span><span class="p">,</span>
+    <span class="n">update_wrapper_extended</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.docstring_utils</span> <span class="kn">import</span> <span class="n">LOG_MODEL_PARAM_DOCS</span><span class="p">,</span> <span class="n">format_docstring</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.environment</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_mlflow_conda_env</span><span class="p">,</span>
-    <span class="n">_validate_env_arguments</span><span class="p">,</span>
-    <span class="n">_process_pip_requirements</span><span class="p">,</span>
-    <span class="n">_process_conda_env</span><span class="p">,</span>
     <span class="n">_CONDA_ENV_FILE_NAME</span><span class="p">,</span>
-    <span class="n">_REQUIREMENTS_FILE_NAME</span><span class="p">,</span>
     <span class="n">_CONSTRAINTS_FILE_NAME</span><span class="p">,</span>
     <span class="n">_PYTHON_ENV_FILE_NAME</span><span class="p">,</span>
+    <span class="n">_REQUIREMENTS_FILE_NAME</span><span class="p">,</span>
+    <span class="n">_mlflow_conda_env</span><span class="p">,</span>
+    <span class="n">_process_conda_env</span><span class="p">,</span>
+    <span class="n">_process_pip_requirements</span><span class="p">,</span>
     <span class="n">_PythonEnv</span><span class="p">,</span>
+    <span class="n">_validate_env_arguments</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">gorilla</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.requirements_utils</span> <span class="kn">import</span> <span class="n">_get_pinned_requirement</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.file_utils</span> <span class="kn">import</span> <span class="n">write_to</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.docstring_utils</span> <span class="kn">import</span> <span class="n">format_docstring</span><span class="p">,</span> <span class="n">LOG_MODEL_PARAM_DOCS</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.mlflow_tags</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">MLFLOW_AUTOLOGGING</span><span class="p">,</span>
     <span class="n">MLFLOW_DATASET_CONTEXT</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.model_utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_add_code_from_conf_to_system_path</span><span class="p">,</span>
     <span class="n">_get_flavor_configuration</span><span class="p">,</span>
     <span class="n">_validate_and_copy_code_paths</span><span class="p">,</span>
-    <span class="n">_add_code_from_conf_to_system_path</span><span class="p">,</span>
     <span class="n">_validate_and_prepare_target_save_path</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.autologging_utils</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">autologging_integration</span><span class="p">,</span>
-    <span class="n">safe_patch</span><span class="p">,</span>
-    <span class="n">INPUT_EXAMPLE_SAMPLE_ROWS</span><span class="p">,</span>
-    <span class="n">resolve_input_example_and_signature</span><span class="p">,</span>
-    <span class="n">_get_new_training_session_class</span><span class="p">,</span>
-    <span class="n">MlflowAutologgingQueueingClient</span><span class="p">,</span>
-    <span class="n">disable_autologging</span><span class="p">,</span>
-    <span class="n">update_wrapper_extended</span><span class="p">,</span>
-    <span class="n">get_autologging_config</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry</span> <span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.requirements_utils</span> <span class="kn">import</span> <span class="n">_get_pinned_requirement</span>
 
 <span class="n">FLAVOR_NAME</span> <span class="o">=</span> <span class="s2">&quot;sklearn&quot;</span>
 
@@ -422,7 +423,8 @@
     <span class="n">code_path_subdir</span> <span class="o">=</span> <span class="n">_validate_and_copy_code_paths</span><span class="p">(</span><span class="n">code_paths</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">input_example</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">signature</span> <span class="o">=</span> <span class="n">_infer_signature_from_input_example</span><span class="p">(</span><span class="n">input_example</span><span class="p">,</span> <span class="n">sk_model</span><span class="p">)</span>
+        <span class="n">wrapped_model</span> <span class="o">=</span> <span class="n">_SklearnModelWrapper</span><span class="p">(</span><span class="n">sk_model</span><span class="p">)</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="n">_infer_signature_from_input_example</span><span class="p">(</span><span class="n">input_example</span><span class="p">,</span> <span class="n">wrapped_model</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
         <span class="n">signature</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -1484,14 +1486,14 @@
     <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
     <span class="kn">from</span> <span class="nn">mlflow.sklearn.utils</span> <span class="kn">import</span> <span class="p">(</span>
         <span class="n">_TRAINING_PREFIX</span><span class="p">,</span>
-        <span class="n">_get_X_y_and_sample_weight</span><span class="p">,</span>
-        <span class="n">_gen_xgboost_sklearn_estimators_to_patch</span><span class="p">,</span>
-        <span class="n">_gen_lightgbm_sklearn_estimators_to_patch</span><span class="p">,</span>
-        <span class="n">_log_estimator_content</span><span class="p">,</span>
-        <span class="n">_get_estimator_info_tags</span><span class="p">,</span>
-        <span class="n">_is_parameter_search_estimator</span><span class="p">,</span>
-        <span class="n">_log_parameter_search_results_as_artifact</span><span class="p">,</span>
         <span class="n">_create_child_runs_for_parameter_search</span><span class="p">,</span>
+        <span class="n">_gen_lightgbm_sklearn_estimators_to_patch</span><span class="p">,</span>
+        <span class="n">_gen_xgboost_sklearn_estimators_to_patch</span><span class="p">,</span>
+        <span class="n">_get_estimator_info_tags</span><span class="p">,</span>
+        <span class="n">_get_X_y_and_sample_weight</span><span class="p">,</span>
+        <span class="n">_is_parameter_search_estimator</span><span class="p">,</span>
+        <span class="n">_log_estimator_content</span><span class="p">,</span>
+        <span class="n">_log_parameter_search_results_as_artifact</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="kn">from</span> <span class="nn">mlflow.tracking.context</span> <span class="kn">import</span> <span class="n">registry</span> <span class="k">as</span> <span class="n">context_registry</span>
 
@@ -2113,7 +2115,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

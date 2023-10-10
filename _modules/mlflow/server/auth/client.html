@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.server.auth.client &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow.server.auth.client &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../../../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../../../index.html"/>
         <link rel="up" title="mlflow.server" href="../../server.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,6 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">Command-Line Interface</a></li>
@@ -179,21 +180,21 @@
               <div itemprop="articleBody">
                 
   <h1>Source code for mlflow.server.auth.client</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">mlflow.server.auth.entities</span> <span class="kn">import</span> <span class="n">User</span><span class="p">,</span> <span class="n">ExperimentPermission</span><span class="p">,</span> <span class="n">RegisteredModelPermission</span>
+<span></span><span class="kn">from</span> <span class="nn">mlflow.server.auth.entities</span> <span class="kn">import</span> <span class="n">ExperimentPermission</span><span class="p">,</span> <span class="n">RegisteredModelPermission</span><span class="p">,</span> <span class="n">User</span>
 <span class="kn">from</span> <span class="nn">mlflow.server.auth.routes</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">CREATE_USER</span><span class="p">,</span>
-    <span class="n">GET_USER</span><span class="p">,</span>
-    <span class="n">UPDATE_USER_PASSWORD</span><span class="p">,</span>
-    <span class="n">UPDATE_USER_ADMIN</span><span class="p">,</span>
-    <span class="n">DELETE_USER</span><span class="p">,</span>
     <span class="n">CREATE_EXPERIMENT_PERMISSION</span><span class="p">,</span>
-    <span class="n">GET_EXPERIMENT_PERMISSION</span><span class="p">,</span>
-    <span class="n">UPDATE_EXPERIMENT_PERMISSION</span><span class="p">,</span>
-    <span class="n">DELETE_EXPERIMENT_PERMISSION</span><span class="p">,</span>
     <span class="n">CREATE_REGISTERED_MODEL_PERMISSION</span><span class="p">,</span>
-    <span class="n">GET_REGISTERED_MODEL_PERMISSION</span><span class="p">,</span>
-    <span class="n">UPDATE_REGISTERED_MODEL_PERMISSION</span><span class="p">,</span>
+    <span class="n">CREATE_USER</span><span class="p">,</span>
+    <span class="n">DELETE_EXPERIMENT_PERMISSION</span><span class="p">,</span>
     <span class="n">DELETE_REGISTERED_MODEL_PERMISSION</span><span class="p">,</span>
+    <span class="n">DELETE_USER</span><span class="p">,</span>
+    <span class="n">GET_EXPERIMENT_PERMISSION</span><span class="p">,</span>
+    <span class="n">GET_REGISTERED_MODEL_PERMISSION</span><span class="p">,</span>
+    <span class="n">GET_USER</span><span class="p">,</span>
+    <span class="n">UPDATE_EXPERIMENT_PERMISSION</span><span class="p">,</span>
+    <span class="n">UPDATE_REGISTERED_MODEL_PERMISSION</span><span class="p">,</span>
+    <span class="n">UPDATE_USER_ADMIN</span><span class="p">,</span>
+    <span class="n">UPDATE_USER_PASSWORD</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking._tracking_service.utils</span> <span class="kn">import</span> <span class="n">_get_default_host_creds</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.rest_utils</span> <span class="kn">import</span> <span class="n">http_request_safe</span>
@@ -234,10 +235,10 @@
 
 <span class="sd">            client = AuthServiceClient(&quot;tracking_uri&quot;)</span>
 <span class="sd">            user = client.create_user(&quot;newuser&quot;, &quot;newpassword&quot;)</span>
-<span class="sd">            print(&quot;user_id: {}&quot;.format(user.id))</span>
-<span class="sd">            print(&quot;username: {}&quot;.format(user.username))</span>
-<span class="sd">            print(&quot;password_hash: {}&quot;.format(user.password_hash))</span>
-<span class="sd">            print(&quot;is_admin: {}&quot;.format(user.is_admin))</span>
+<span class="sd">            print(f&quot;user_id: {user.id}&quot;)</span>
+<span class="sd">            print(f&quot;username: {user.username}&quot;)</span>
+<span class="sd">            print(f&quot;password_hash: {user.password_hash}&quot;)</span>
+<span class="sd">            print(f&quot;is_admin: {user.is_admin}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -277,10 +278,10 @@
 <span class="sd">            client.create_user(&quot;newuser&quot;, &quot;newpassword&quot;)</span>
 
 <span class="sd">            user = client.get_user(&quot;newuser&quot;)</span>
-<span class="sd">            print(&quot;user_id: {}&quot;.format(user.id))</span>
-<span class="sd">            print(&quot;username: {}&quot;.format(user.username))</span>
-<span class="sd">            print(&quot;password_hash: {}&quot;.format(user.password_hash))</span>
-<span class="sd">            print(&quot;is_admin: {}&quot;.format(user.is_admin))</span>
+<span class="sd">            print(f&quot;user_id: {user.id}&quot;)</span>
+<span class="sd">            print(f&quot;username: {user.username}&quot;)</span>
+<span class="sd">            print(f&quot;password_hash: {user.password_hash}&quot;)</span>
+<span class="sd">            print(f&quot;is_admin: {user.is_admin}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -414,9 +415,9 @@
 <span class="sd">            client = AuthServiceClient(&quot;tracking_uri&quot;)</span>
 <span class="sd">            client.create_user(&quot;newuser&quot;, &quot;newpassword&quot;)</span>
 <span class="sd">            ep = client.create_experiment_permission(&quot;myexperiment&quot;, &quot;newuser&quot;, &quot;READ&quot;)</span>
-<span class="sd">            print(&quot;experiment_id: {}&quot;.format(ep.experiment_id))</span>
-<span class="sd">            print(&quot;user_id: {}&quot;.format(ep.user_id))</span>
-<span class="sd">            print(&quot;permission: {}&quot;.format(ep.permission))</span>
+<span class="sd">            print(f&quot;experiment_id: {ep.experiment_id}&quot;)</span>
+<span class="sd">            print(f&quot;user_id: {ep.user_id}&quot;)</span>
+<span class="sd">            print(f&quot;permission: {ep.permission}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -459,9 +460,9 @@
 <span class="sd">            client.create_user(&quot;newuser&quot;, &quot;newpassword&quot;)</span>
 <span class="sd">            client.create_experiment_permission(&quot;myexperiment&quot;, &quot;newuser&quot;, &quot;READ&quot;)</span>
 <span class="sd">            ep = client.get_experiment_permission(&quot;myexperiment&quot;, &quot;newuser&quot;)</span>
-<span class="sd">            print(&quot;experiment_id: {}&quot;.format(ep.experiment_id))</span>
-<span class="sd">            print(&quot;user_id: {}&quot;.format(ep.user_id))</span>
-<span class="sd">            print(&quot;permission: {}&quot;.format(ep.permission))</span>
+<span class="sd">            print(f&quot;experiment_id: {ep.experiment_id}&quot;)</span>
+<span class="sd">            print(f&quot;user_id: {ep.user_id}&quot;)</span>
+<span class="sd">            print(f&quot;permission: {ep.permission}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -573,9 +574,9 @@
 <span class="sd">            client = AuthServiceClient(&quot;tracking_uri&quot;)</span>
 <span class="sd">            client.create_user(&quot;newuser&quot;, &quot;newpassword&quot;)</span>
 <span class="sd">            rmp = client.create_registered_model_permission(&quot;myregisteredmodel&quot;, &quot;newuser&quot;, &quot;READ&quot;)</span>
-<span class="sd">            print(&quot;name: {}&quot;.format(rmp.name))</span>
-<span class="sd">            print(&quot;user_id: {}&quot;.format(rmp.user_id))</span>
-<span class="sd">            print(&quot;permission: {}&quot;.format(rmp.permission))</span>
+<span class="sd">            print(f&quot;name: {rmp.name}&quot;)</span>
+<span class="sd">            print(f&quot;user_id: {rmp.user_id}&quot;)</span>
+<span class="sd">            print(f&quot;permission: {rmp.permission}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -618,9 +619,9 @@
 <span class="sd">            client.create_user(&quot;newuser&quot;, &quot;newpassword&quot;)</span>
 <span class="sd">            client.create_registered_model_permission(&quot;myregisteredmodel&quot;, &quot;newuser&quot;, &quot;READ&quot;)</span>
 <span class="sd">            rmp = client.get_registered_model_permission(&quot;myregisteredmodel&quot;, &quot;newuser&quot;)</span>
-<span class="sd">            print(&quot;name: {}&quot;.format(rmp.name))</span>
-<span class="sd">            print(&quot;user_id: {}&quot;.format(rmp.user_id))</span>
-<span class="sd">            print(&quot;permission: {}&quot;.format(rmp.permission))</span>
+<span class="sd">            print(f&quot;name: {rmp.name}&quot;)</span>
+<span class="sd">            print(f&quot;user_id: {rmp.user_id}&quot;)</span>
+<span class="sd">            print(f&quot;permission: {rmp.permission}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -733,7 +734,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

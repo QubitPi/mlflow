@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.pytorch &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow.pytorch &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,6 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -190,18 +191,18 @@
 <span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">posixpath</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">packaging.version</span> <span class="kn">import</span> <span class="n">Version</span>
-<span class="kn">import</span> <span class="nn">posixpath</span>
 
 <span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">pyfunc</span>
 <span class="kn">from</span> <span class="nn">mlflow.environment_variables</span> <span class="kn">import</span> <span class="n">MLFLOW_DEFAULT_PREDICTION_DEVICE</span>
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
@@ -212,32 +213,32 @@
 <span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">_save_example</span>
 <span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">RESOURCE_DOES_NOT_EXIST</span>
 <span class="kn">from</span> <span class="nn">mlflow.pytorch</span> <span class="kn">import</span> <span class="n">pickle_module</span> <span class="k">as</span> <span class="n">mlflow_pytorch_pickle_module</span>
+<span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry</span> <span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="n">_download_artifact_from_uri</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.autologging_utils</span> <span class="kn">import</span> <span class="n">autologging_integration</span><span class="p">,</span> <span class="n">safe_patch</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.docstring_utils</span> <span class="kn">import</span> <span class="n">LOG_MODEL_PARAM_DOCS</span><span class="p">,</span> <span class="n">format_docstring</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.environment</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_mlflow_conda_env</span><span class="p">,</span>
-    <span class="n">_validate_env_arguments</span><span class="p">,</span>
-    <span class="n">_process_pip_requirements</span><span class="p">,</span>
-    <span class="n">_process_conda_env</span><span class="p">,</span>
     <span class="n">_CONDA_ENV_FILE_NAME</span><span class="p">,</span>
-    <span class="n">_REQUIREMENTS_FILE_NAME</span><span class="p">,</span>
     <span class="n">_CONSTRAINTS_FILE_NAME</span><span class="p">,</span>
     <span class="n">_PYTHON_ENV_FILE_NAME</span><span class="p">,</span>
+    <span class="n">_REQUIREMENTS_FILE_NAME</span><span class="p">,</span>
+    <span class="n">_mlflow_conda_env</span><span class="p">,</span>
+    <span class="n">_process_conda_env</span><span class="p">,</span>
+    <span class="n">_process_pip_requirements</span><span class="p">,</span>
     <span class="n">_PythonEnv</span><span class="p">,</span>
+    <span class="n">_validate_env_arguments</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.requirements_utils</span> <span class="kn">import</span> <span class="n">_get_pinned_requirement</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.docstring_utils</span> <span class="kn">import</span> <span class="n">format_docstring</span><span class="p">,</span> <span class="n">LOG_MODEL_PARAM_DOCS</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.file_utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TempDir</span><span class="p">,</span>
     <span class="n">write_to</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.model_utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_add_code_from_conf_to_system_path</span><span class="p">,</span>
     <span class="n">_get_flavor_configuration</span><span class="p">,</span>
     <span class="n">_validate_and_copy_code_paths</span><span class="p">,</span>
-    <span class="n">_add_code_from_conf_to_system_path</span><span class="p">,</span>
     <span class="n">_validate_and_prepare_target_save_path</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry</span> <span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.autologging_utils</span> <span class="kn">import</span> <span class="n">autologging_integration</span><span class="p">,</span> <span class="n">safe_patch</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.requirements_utils</span> <span class="kn">import</span> <span class="n">_get_pinned_requirement</span>
 
 <span class="n">FLAVOR_NAME</span> <span class="o">=</span> <span class="s2">&quot;pytorch&quot;</span>
 
@@ -291,7 +292,7 @@
 
 <span class="sd">        # Fetch the associated conda environment</span>
 <span class="sd">        env = mlflow.pytorch.get_default_conda_env()</span>
-<span class="sd">        print(&quot;conda env: {}&quot;.format(env))</span>
+<span class="sd">        print(f&quot;conda env: {env}&quot;)</span>
 
 <span class="sd">    .. code-block:: text</span>
 <span class="sd">        :caption: Output</span>
@@ -449,12 +450,12 @@
 <span class="sd">            mlflow.pytorch.log_model(scripted_pytorch_model, &quot;scripted_model&quot;)</span>
 
 <span class="sd">        # Fetch the logged model artifacts</span>
-<span class="sd">        print(&quot;run_id: {}&quot;.format(run.info.run_id))</span>
+<span class="sd">        print(f&quot;run_id: {run.info.run_id}&quot;)</span>
 <span class="sd">        for artifact_path in [&quot;model/data&quot;, &quot;scripted_model/data&quot;]:</span>
 <span class="sd">            artifacts = [</span>
 <span class="sd">                f.path for f in MlflowClient().list_artifacts(run.info.run_id, artifact_path)</span>
 <span class="sd">            ]</span>
-<span class="sd">            print(&quot;artifacts: {}&quot;.format(artifacts))</span>
+<span class="sd">            print(f&quot;artifacts: {artifacts}&quot;)</span>
 
 <span class="sd">    .. code-block:: text</span>
 <span class="sd">        :caption: Output</span>
@@ -601,13 +602,13 @@
 
 <span class="sd">        # Load each saved model for inference</span>
 <span class="sd">        for model_path in [&quot;model&quot;, &quot;scripted_model&quot;]:</span>
-<span class="sd">            model_uri = &quot;{}/{}&quot;.format(os.getcwd(), model_path)</span>
+<span class="sd">            model_uri = f&quot;{os.getcwd()}/{model_path}&quot;</span>
 <span class="sd">            loaded_model = mlflow.pytorch.load_model(model_uri)</span>
-<span class="sd">            print(&quot;Loaded {}:&quot;.format(model_path))</span>
+<span class="sd">            print(f&quot;Loaded {model_path}:&quot;)</span>
 <span class="sd">            for x in [6.0, 8.0, 12.0, 30.0]:</span>
 <span class="sd">                X = torch.Tensor([[x]])</span>
 <span class="sd">                y_pred = loaded_model(X)</span>
-<span class="sd">                print(&quot;predict X: {}, y_pred: {:.2f}&quot;.format(x, y_pred.data.item()))</span>
+<span class="sd">                print(f&quot;predict X: {x}, y_pred: {y_pred.data.item():.2f}&quot;)</span>
 <span class="sd">            print(&quot;--&quot;)</span>
 
 <span class="sd">    .. code-block:: text</span>
@@ -859,12 +860,12 @@
 <span class="sd">            mlflow.pytorch.log_model(model, &quot;model&quot;, signature=signature)</span>
 
 <span class="sd">        # Inference after loading the logged model</span>
-<span class="sd">        model_uri = &quot;runs:/{}/model&quot;.format(run.info.run_id)</span>
+<span class="sd">        model_uri = f&quot;runs:/{run.info.run_id}/model&quot;</span>
 <span class="sd">        loaded_model = mlflow.pytorch.load_model(model_uri)</span>
 <span class="sd">        for x in [4.0, 6.0, 30.0]:</span>
 <span class="sd">            X = torch.Tensor([[x]])</span>
 <span class="sd">            y_pred = loaded_model(X)</span>
-<span class="sd">            print(&quot;predict X: {}, y_pred: {:.2f}&quot;.format(x, y_pred.data.item()))</span>
+<span class="sd">            print(f&quot;predict X: {x}, y_pred: {y_pred.data.item():.2f}&quot;)</span>
 
 <span class="sd">    .. code-block:: text</span>
 <span class="sd">        :caption: Output</span>
@@ -1178,11 +1179,11 @@
 <span class="sd">        def print_auto_logged_info(r):</span>
 <span class="sd">            tags = {k: v for k, v in r.data.tags.items() if not k.startswith(&quot;mlflow.&quot;)}</span>
 <span class="sd">            artifacts = [f.path for f in MlflowClient().list_artifacts(r.info.run_id, &quot;model&quot;)]</span>
-<span class="sd">            print(&quot;run_id: {}&quot;.format(r.info.run_id))</span>
-<span class="sd">            print(&quot;artifacts: {}&quot;.format(artifacts))</span>
-<span class="sd">            print(&quot;params: {}&quot;.format(r.data.params))</span>
-<span class="sd">            print(&quot;metrics: {}&quot;.format(r.data.metrics))</span>
-<span class="sd">            print(&quot;tags: {}&quot;.format(tags))</span>
+<span class="sd">            print(f&quot;run_id: {r.info.run_id}&quot;)</span>
+<span class="sd">            print(f&quot;artifacts: {artifacts}&quot;)</span>
+<span class="sd">            print(f&quot;params: {r.data.params}&quot;)</span>
+<span class="sd">            print(f&quot;metrics: {r.data.metrics}&quot;)</span>
+<span class="sd">            print(f&quot;tags: {tags}&quot;)</span>
 
 
 <span class="sd">        # Initialize our model</span>
@@ -1259,10 +1260,10 @@
         <span class="k">pass</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">mlflow.pytorch._pytorch_autolog</span> <span class="kn">import</span> <span class="p">(</span>
+            <span class="n">flush_metrics_queue</span><span class="p">,</span>
             <span class="n">patched_add_event</span><span class="p">,</span>
             <span class="n">patched_add_hparams</span><span class="p">,</span>
             <span class="n">patched_add_summary</span><span class="p">,</span>
-            <span class="n">_flush_queue</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">safe_patch</span><span class="p">(</span>
@@ -1290,7 +1291,7 @@
             <span class="n">extra_tags</span><span class="o">=</span><span class="n">extra_tags</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">_flush_queue</span><span class="p">)</span></div>
+        <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">flush_metrics_queue</span><span class="p">)</span></div>
 
 
 <span class="k">if</span> <span class="n">autolog</span><span class="o">.</span><span class="vm">__doc__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1327,7 +1328,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

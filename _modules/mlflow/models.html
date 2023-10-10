@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.models &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow.models &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,6 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -210,21 +211,20 @@
 <span class="sd">For details, see `MLflow Models &lt;../models.html&gt;`_.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">mlflow.models.model</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">get_model_info</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.flavor_backend</span> <span class="kn">import</span> <span class="n">FlavorBackend</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.environment</span> <span class="kn">import</span> <span class="n">infer_pip_requirements</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.evaluation</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">evaluate</span><span class="p">,</span>
-    <span class="n">make_metric</span><span class="p">,</span>
-    <span class="n">EvaluationMetric</span><span class="p">,</span>
     <span class="n">EvaluationArtifact</span><span class="p">,</span>
+    <span class="n">EvaluationMetric</span><span class="p">,</span>
     <span class="n">EvaluationResult</span><span class="p">,</span>
-    <span class="n">list_evaluators</span><span class="p">,</span>
     <span class="n">MetricThreshold</span><span class="p">,</span>
+    <span class="n">evaluate</span><span class="p">,</span>
+    <span class="n">list_evaluators</span><span class="p">,</span>
+    <span class="n">make_metric</span><span class="p">,</span>
 <span class="p">)</span>
-
+<span class="kn">from</span> <span class="nn">mlflow.models.flavor_backend</span> <span class="kn">import</span> <span class="n">FlavorBackend</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.flavor_backend_registry</span> <span class="kn">import</span> <span class="n">get_flavor_backend</span>
+<span class="kn">from</span> <span class="nn">mlflow.models.model</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">get_model_info</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">env_manager</span> <span class="k">as</span> <span class="n">_EnvManager</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.environment</span> <span class="kn">import</span> <span class="n">infer_pip_requirements</span>
 
 
 <div class="viewcode-block" id="build_docker"><a class="viewcode-back" href="../../python_api/mlflow.models.html#mlflow.models.build_docker">[docs]</a><span class="k">def</span> <span class="nf">build_docker</span><span class="p">(</span>
@@ -286,8 +286,7 @@
 <span class="c1"># because of lack of numpy/pandas library, so wrap them with try...except block</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">ModelSignature</span><span class="p">,</span> <span class="n">infer_signature</span><span class="p">,</span> <span class="n">set_signature</span>
-    <span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">validate_schema</span>
-    <span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">add_libraries_to_model</span>
+    <span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">add_libraries_to_model</span><span class="p">,</span> <span class="n">validate_schema</span>
 
     <span class="n">__all__</span> <span class="o">+=</span> <span class="p">[</span>
         <span class="s2">&quot;ModelSignature&quot;</span><span class="p">,</span>
@@ -329,7 +328,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

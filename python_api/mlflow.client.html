@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.client &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow.client &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.data" href="/mlflow.data.html"/>
         <link rel="prev" title="mlflow.catboost" href="/mlflow.catboost.html"/> 
@@ -67,7 +67,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -116,6 +116,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command-Line Interface</a></li>
@@ -136,6 +137,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.gluon.html">mlflow.gluon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.h2o.html">mlflow.h2o</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.johnsnowlabs.html">mlflow.johnsnowlabs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.keras_core.html">mlflow.keras_core</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.langchain.html">mlflow.langchain</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.lightgbm.html">mlflow.lightgbm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.llm.html">mlflow.llm</a></li>
@@ -271,11 +273,11 @@ experiment tags upon experiment creation.</p></li>
 
 <span class="c1"># Fetch experiment metadata information</span>
 <span class="n">experiment</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_experiment</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Experiment_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Artifact Location: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Experiment_id: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Artifact Location: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tags: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -342,14 +344,14 @@ backend.</p>
 
 <span class="c1"># Create a new version of the rfr model under the registered model name</span>
 <span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;A new version of the model&quot;</span>
-<span class="n">runs_uri</span> <span class="o">=</span> <span class="s2">&quot;runs:/</span><span class="si">{}</span><span class="s2">/sklearn-model&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+<span class="n">runs_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/sklearn-model&quot;</span>
 <span class="n">model_src</span> <span class="o">=</span> <span class="n">RunsArtifactRepository</span><span class="o">.</span><span class="n">get_underlying_uri</span><span class="p">(</span><span class="n">runs_uri</span><span class="p">)</span>
 <span class="n">mv</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_model_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">model_src</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">desc</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Version: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Description: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">description</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Status: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">status</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">current_stage</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Version: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Description: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Status: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stage: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">current_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -390,9 +392,9 @@ created by backend.</p>
 
 
 <span class="k">def</span> <span class="nf">print_registered_model_info</span><span class="p">(</span><span class="n">rm</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;description: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">description</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tags: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;description: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;SocialMediaTextAnalyzer&quot;</span>
@@ -450,12 +452,12 @@ Unlike <a class="reference internal" href="mlflow.html#mlflow.start_run" title="
 <span class="n">run</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_run</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span> <span class="n">run_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
 <span class="c1"># Show newly created run metadata info</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Run tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Experiment id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Run id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Run name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_name</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;status: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Run tags: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Experiment id: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Run id: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Run name: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;lifecycle_stage: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;status: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -495,9 +497,9 @@ is permanently deleted by a database admin.</p>
 
 <span class="c1"># Examine the deleted experiment details.</span>
 <span class="n">experiment</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_experiment</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Artifact Location: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Artifact Location: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -534,10 +536,10 @@ Lifecycle_stage: deleted
 
 <span class="k">def</span> <span class="nf">print_models_info</span><span class="p">(</span><span class="n">mv</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mv</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;latest version: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;current_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">current_stage</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;latest version: </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;current_stage: </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">current_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="s2">&quot;sqlite:///mlruns.db&quot;</span><span class="p">)</span>
@@ -565,9 +567,9 @@ Lifecycle_stage: deleted
 
 <span class="c1"># Create a two versions of the rfr model under the registered model name</span>
 <span class="k">for</span> <span class="n">run_id</span> <span class="ow">in</span> <span class="p">[</span><span class="n">run1</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">run2</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">]:</span>
-    <span class="n">model_uri</span> <span class="o">=</span> <span class="s2">&quot;runs:/</span><span class="si">{}</span><span class="s2">/sklearn-model&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
+    <span class="n">model_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/sklearn-model&quot;</span>
     <span class="n">mv</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_model_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">model_uri</span><span class="p">,</span> <span class="n">run_id</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;model version </span><span class="si">{}</span><span class="s2"> created&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;model version </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2"> created&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
 
@@ -577,7 +579,7 @@ Lifecycle_stage: deleted
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
 
 <span class="c1"># Delete the latest model version 2</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Deleting model version </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleting model version </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">client</span><span class="o">.</span><span class="n">delete_model_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
 <span class="n">models</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_latest_versions</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">stages</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;None&quot;</span><span class="p">])</span>
 <span class="n">print_models_info</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
@@ -633,9 +635,9 @@ Setting both version and stage parameter will result in error.</p>
 
 
 <span class="k">def</span> <span class="nf">print_model_version_info</span><span class="p">(</span><span class="n">mv</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Version: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Version: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tags: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="s2">&quot;sqlite:///mlruns.db&quot;</span><span class="p">)</span>
@@ -656,7 +658,7 @@ Setting both version and stage parameter will result in error.</p>
 
 <span class="c1"># Create a new version of the rfr model under the registered model name</span>
 <span class="c1"># and delete a tag</span>
-<span class="n">model_uri</span> <span class="o">=</span> <span class="s2">&quot;runs:/</span><span class="si">{}</span><span class="s2">/sklearn-model&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+<span class="n">model_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/sklearn-model&quot;</span>
 <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;t1&quot;</span><span class="p">:</span> <span class="s2">&quot;2&quot;</span><span class="p">}</span>
 <span class="n">mv</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_model_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">model_uri</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">)</span>
 <span class="n">print_model_version_info</span><span class="p">(</span><span class="n">mv</span><span class="p">)</span>
@@ -704,9 +706,9 @@ Backend raises exception if a registered model with given name does not exist.</
 <span class="k">def</span> <span class="nf">print_registered_models_info</span><span class="p">(</span><span class="n">r_models</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">rm</span> <span class="ow">in</span> <span class="n">r_models</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;description: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">description</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tags: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;description: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="s2">&quot;sqlite:///mlruns.db&quot;</span><span class="p">)</span>
@@ -871,8 +873,8 @@ Aliases: []
 <span class="k">def</span> <span class="nf">print_registered_models_info</span><span class="p">(</span><span class="n">r_models</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">rm</span> <span class="ow">in</span> <span class="n">r_models</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tags: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="s2">&quot;sqlite:///mlruns.db&quot;</span><span class="p">)</span>
@@ -926,11 +928,11 @@ tags: {}
 <span class="n">experiment_id</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
 <span class="n">run</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_run</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">)</span>
 <span class="n">run_id</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">; lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; lifecycle_stage: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
 <span class="n">client</span><span class="o">.</span><span class="n">delete_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
 <span class="n">del_run</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">; lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">del_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; lifecycle_stage: </span><span class="si">{</span><span class="n">del_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -961,8 +963,8 @@ run_id: a61c7a1851324f7094e8d5014c58c8c8; lifecycle_stage: deleted
 
 
 <span class="k">def</span> <span class="nf">print_run_info</span><span class="p">(</span><span class="n">run</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tags: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># Create a run under the default experiment (whose id is &#39;0&#39;).</span>
@@ -1033,8 +1035,8 @@ directly in the case of the LocalArtifactRepository.</p></li>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">local_dir</span><span class="p">):</span>
     <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">local_dir</span><span class="p">)</span>
 <span class="n">local_path</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">download_artifacts</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="n">local_dir</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Artifacts downloaded in: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">local_path</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Artifacts: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">local_path</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Artifacts downloaded in: </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Artifacts: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1068,10 +1070,10 @@ Artifacts: [&#39;features.txt&#39;]
 <span class="n">experiment</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_experiment</span><span class="p">(</span><span class="n">exp_id</span><span class="p">)</span>
 
 <span class="c1"># Show experiment info</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Experiment ID: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Artifact Location: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Experiment ID: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Artifact Location: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1108,10 +1110,10 @@ if an experiment with the specified name exists, otherwise None.</p>
 <span class="n">experiment</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_experiment_by_name</span><span class="p">(</span><span class="s2">&quot;Default&quot;</span><span class="p">)</span>
 
 <span class="c1"># Show experiment info</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Experiment ID: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Artifact Location: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Experiment ID: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Artifact Location: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">artifact_location</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1154,10 +1156,10 @@ for ALL_STAGES.</p></li>
 
 <span class="k">def</span> <span class="nf">print_models_info</span><span class="p">(</span><span class="n">mv</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mv</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;latest version: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;current_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">current_stage</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;latest version: </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;current_stage: </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">current_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="s2">&quot;sqlite:///mlruns.db&quot;</span><span class="p">)</span>
@@ -1185,9 +1187,9 @@ for ALL_STAGES.</p></li>
 
 <span class="c1"># Create a two versions of the rfr model under the registered model name</span>
 <span class="k">for</span> <span class="n">run_id</span> <span class="ow">in</span> <span class="p">[</span><span class="n">run1</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">run2</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">]:</span>
-    <span class="n">model_uri</span> <span class="o">=</span> <span class="s2">&quot;runs:/</span><span class="si">{}</span><span class="s2">/sklearn-model&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
+    <span class="n">model_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/sklearn-model&quot;</span>
     <span class="n">mv</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_model_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">model_uri</span><span class="p">,</span> <span class="n">run_id</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;model version </span><span class="si">{}</span><span class="s2"> created&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;model version </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2"> created&quot;</span><span class="p">)</span>
 
 <span class="c1"># Fetch latest version; this will be version 2</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
@@ -1231,10 +1233,10 @@ current_stage: None
 
 <span class="k">def</span> <span class="nf">print_metric_info</span><span class="p">(</span><span class="n">history</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">history</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">key</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;value: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;step: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">step</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;timestamp: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">timestamp</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;value: </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;step: </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">step</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;timestamp: </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
 
 
@@ -1244,7 +1246,7 @@ current_stage: None
 <span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
 <span class="n">experiment_id</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
 <span class="n">run</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_run</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
 
 <span class="c1"># Log couple of metrics, update their initial value, and fetch each</span>
@@ -1332,15 +1334,15 @@ timestamp: 1603423788610
 
 <span class="c1"># Create a two versions of the rfr model under the registered model name</span>
 <span class="k">for</span> <span class="n">run_id</span> <span class="ow">in</span> <span class="p">[</span><span class="n">run1</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">run2</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">]:</span>
-    <span class="n">model_uri</span> <span class="o">=</span> <span class="s2">&quot;runs:/</span><span class="si">{}</span><span class="s2">/sklearn-model&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
+    <span class="n">model_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/sklearn-model&quot;</span>
     <span class="n">mv</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_model_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">model_uri</span><span class="p">,</span> <span class="n">run_id</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;model version </span><span class="si">{}</span><span class="s2"> created&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;model version </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2"> created&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
 
 <span class="c1"># Fetch the last version; this will be version 2</span>
 <span class="n">mv</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_model_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Version: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Version: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1493,10 +1495,10 @@ Aliases: [&quot;test-alias&quot;]
 <span class="n">client</span><span class="o">.</span><span class="n">create_registered_model</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
 <span class="c1"># Create a new version of the rfr model under the registered model name</span>
-<span class="n">model_uri</span> <span class="o">=</span> <span class="s2">&quot;runs:/</span><span class="si">{}</span><span class="s2">/sklearn-model&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+<span class="n">model_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/sklearn-model&quot;</span>
 <span class="n">mv</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_model_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">model_uri</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
 <span class="n">artifact_uri</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_model_version_download_uri</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Download URI: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">artifact_uri</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Download URI: </span><span class="si">{</span><span class="n">artifact_uri</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1542,10 +1544,10 @@ Aliases: [&quot;test-alias&quot;]
 
 <span class="c1"># Create a new version of the rfr model under the registered model name</span>
 <span class="c1"># fetch valid stages</span>
-<span class="n">model_uri</span> <span class="o">=</span> <span class="s2">&quot;runs:/</span><span class="si">{}</span><span class="s2">/models/sklearn-model&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+<span class="n">model_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/models/sklearn-model&quot;</span>
 <span class="n">mv</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_model_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">model_uri</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
 <span class="n">stages</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_model_version_stages</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model list of valid stages: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">stages</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model list of valid stages: </span><span class="si">{</span><span class="n">stages</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1583,8 +1585,8 @@ Otherwise, returns None.</p>
 <span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
 <span class="n">parent_run</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_parent_run</span><span class="p">(</span><span class="n">child_run_id</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;child_run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">child_run_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;parent_run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parent_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;child_run_id: </span><span class="si">{</span><span class="n">child_run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;parent_run_id: </span><span class="si">{</span><span class="n">parent_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1616,9 +1618,9 @@ parent_run_id: 8979459433a24a52ab3be87a229a9cdf
 
 <span class="k">def</span> <span class="nf">print_model_info</span><span class="p">(</span><span class="n">rm</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;description: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">description</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tags: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;description: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;SocialMediaTextAnalyzer&quot;</span>
@@ -1677,9 +1679,9 @@ raises an exception.</p>
 <span class="c1"># Fetch the run</span>
 <span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
 <span class="n">run</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;params: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">params</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;status: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;params: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">params</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;status: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1715,9 +1717,9 @@ or the root artifact path.</p></li>
 
 
 <span class="k">def</span> <span class="nf">print_artifact_info</span><span class="p">(</span><span class="n">artifact</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;artifact: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;is_dir: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">artifact</span><span class="o">.</span><span class="n">is_dir</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;size: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">artifact</span><span class="o">.</span><span class="n">file_size</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;artifact: </span><span class="si">{</span><span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;is_dir: </span><span class="si">{</span><span class="n">artifact</span><span class="o">.</span><span class="n">is_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;size: </span><span class="si">{</span><span class="n">artifact</span><span class="o">.</span><span class="n">file_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="n">features</span> <span class="o">=</span> <span class="s2">&quot;rooms zipcode, median_price, school_rating, transport&quot;</span>
@@ -1730,9 +1732,9 @@ or the root artifact path.</p></li>
 
 <span class="c1"># Create some artifacts and log under the above run</span>
 <span class="k">for</span> <span class="n">file</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="p">[(</span><span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="n">features</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span> <span class="n">labels</span><span class="p">)]:</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
-    <span class="n">client</span><span class="o">.</span><span class="n">log_artifact</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">log_artifact</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">)</span>
 
 <span class="c1"># Fetch the logged artifacts</span>
 <span class="n">artifacts</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_artifacts</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
@@ -1869,8 +1871,8 @@ or else throw a MlflowException.</p>
 <span class="n">client</span><span class="o">.</span><span class="n">log_artifact</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="s2">&quot;features.txt&quot;</span><span class="p">)</span>
 <span class="n">artifacts</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_artifacts</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="n">artifacts</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;artifact: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;is_dir: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">artifact</span><span class="o">.</span><span class="n">is_dir</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;artifact: </span><span class="si">{</span><span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;is_dir: </span><span class="si">{</span><span class="n">artifact</span><span class="o">.</span><span class="n">is_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">client</span><span class="o">.</span><span class="n">set_terminated</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1920,8 +1922,8 @@ is_dir: False
 <span class="n">client</span><span class="o">.</span><span class="n">log_artifacts</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">artifact_path</span><span class="o">=</span><span class="s2">&quot;states&quot;</span><span class="p">)</span>
 <span class="n">artifacts</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_artifacts</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="n">artifacts</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;artifact: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;is_dir: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">artifact</span><span class="o">.</span><span class="n">is_dir</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;artifact: </span><span class="si">{</span><span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;is_dir: </span><span class="si">{</span><span class="n">artifact</span><span class="o">.</span><span class="n">is_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">client</span><span class="o">.</span><span class="n">set_terminated</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1960,11 +1962,11 @@ is_dir: True
 
 
 <span class="k">def</span> <span class="nf">print_run_info</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;params: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">params</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;metrics: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">metrics</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;status: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;params: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">params</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;metrics: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">metrics</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tags: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;status: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># Create MLflow entities and a run under the default experiment (whose id is &#39;0&#39;).</span>
@@ -2209,9 +2211,9 @@ Defaults to 0.</p></li>
 
 
 <span class="k">def</span> <span class="nf">print_run_info</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;metrics: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">metrics</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;status: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;metrics: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">metrics</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;status: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># Create a run under the default experiment (whose id is &#39;0&#39;).</span>
@@ -2260,7 +2262,7 @@ status: FINISHED
 All backend stores support keys up to length 250, but some may
 support larger keys.</p></li>
 <li><p><strong>value</strong> – Parameter value (string, but will be string-ified if not).
-All backend stores support values up to length 500, but some
+All built-in backend stores support values up to length 6000, but some
 may support larger values.</p></li>
 </ul>
 </dd>
@@ -2274,9 +2276,9 @@ may support larger values.</p></li>
 
 
 <span class="k">def</span> <span class="nf">print_run_info</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;params: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">params</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;status: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;params: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">params</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;status: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># Create a run under the default experiment (whose id is &#39;0&#39;).</span>
@@ -2424,9 +2426,9 @@ the text is saved (e.g. “dir/file.txt”).</p></li>
 
 
 <span class="k">def</span> <span class="nf">print_experiment_info</span><span class="p">(</span><span class="n">experiment</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Experiment_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Experiment_id: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># Create an experiment with a name that is unique and case sensitive</span>
@@ -2481,9 +2483,9 @@ Lifecycle_stage: active
 
 
 <span class="k">def</span> <span class="nf">print_registered_model_info</span><span class="p">(</span><span class="n">rm</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;description: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">description</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tags: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;description: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;SocialTextAnalyzer&quot;</span>
@@ -2533,9 +2535,9 @@ description: This sentiment analysis model classifies the tone-happy, sad, angry
 
 
 <span class="k">def</span> <span class="nf">print_experiment_info</span><span class="p">(</span><span class="n">experiment</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Experiment Id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Experiment Id: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lifecycle_stage: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># Create and delete an experiment</span>
@@ -2587,13 +2589,13 @@ Lifecycle_stage: active
 <span class="n">experiment_id</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
 <span class="n">run</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_run</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">)</span>
 <span class="n">run_id</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">; lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; lifecycle_stage: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">client</span><span class="o">.</span><span class="n">delete_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
 <span class="n">del_run</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">; lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">del_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; lifecycle_stage: </span><span class="si">{</span><span class="n">del_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">client</span><span class="o">.</span><span class="n">restore_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
 <span class="n">rest_run</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">; lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">rest_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; lifecycle_stage: </span><span class="si">{</span><span class="n">rest_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2779,19 +2781,19 @@ page can be obtained via the <code class="docutils literal notranslate"><span cl
 
 <span class="c1"># Get all versions of the model filtered by name</span>
 <span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;CordobaWeatherForecastModel&quot;</span>
-<span class="n">filter_string</span> <span class="o">=</span> <span class="s2">&quot;name=&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+<span class="n">filter_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;name=&#39;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">search_model_versions</span><span class="p">(</span><span class="n">filter_string</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name=</span><span class="si">{}</span><span class="s2">; run_id=</span><span class="si">{}</span><span class="s2">; version=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; run_id=</span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; version=</span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Get the version of the model filtered by run_id</span>
 <span class="n">run_id</span> <span class="o">=</span> <span class="s2">&quot;e14afa2f47a040728060c1699968fd43&quot;</span>
-<span class="n">filter_string</span> <span class="o">=</span> <span class="s2">&quot;run_id=&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
+<span class="n">filter_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;run_id=&#39;</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">search_model_versions</span><span class="p">(</span><span class="n">filter_string</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name=</span><span class="si">{}</span><span class="s2">; run_id=</span><span class="si">{}</span><span class="s2">; version=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; run_id=</span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; version=</span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2860,12 +2862,12 @@ obtained via the <code class="docutils literal notranslate"><span class="pre">to
 
 <span class="c1"># Get search results filtered by the registered model name</span>
 <span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;CordobaWeatherForecastModel&quot;</span>
-<span class="n">filter_string</span> <span class="o">=</span> <span class="s2">&quot;name=&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+<span class="n">filter_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;name=&#39;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">search_registered_models</span><span class="p">(</span><span class="n">filter_string</span><span class="o">=</span><span class="n">filter_string</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">mv</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">latest_versions</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name=</span><span class="si">{}</span><span class="s2">; run_id=</span><span class="si">{}</span><span class="s2">; version=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; run_id=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; version=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Get search results filtered by the registered model name that matches</span>
 <span class="c1"># prefix pattern</span>
@@ -2874,14 +2876,14 @@ obtained via the <code class="docutils literal notranslate"><span class="pre">to
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">mv</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">latest_versions</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name=</span><span class="si">{}</span><span class="s2">; run_id=</span><span class="si">{}</span><span class="s2">; version=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; run_id=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; version=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Get all registered models and order them by ascending order of the names</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">search_registered_models</span><span class="p">(</span><span class="n">order_by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name ASC&quot;</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">mv</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">latest_versions</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name=</span><span class="si">{}</span><span class="s2">; run_id=</span><span class="si">{}</span><span class="s2">; version=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; run_id=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">; version=</span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2940,13 +2942,13 @@ be obtained via the <code class="docutils literal notranslate"><span class="pre"
 
 <span class="k">def</span> <span class="nf">print_run_info</span><span class="p">(</span><span class="n">runs</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;lifecycle_stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;metrics: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">metrics</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;lifecycle_stage: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;metrics: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">metrics</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Exclude mlflow system tags</span>
         <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;mlflow.&quot;</span><span class="p">)}</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tags</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tags: </span><span class="si">{</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># Create an experiment and log two runs with metrics and tags under the experiment</span>
@@ -3022,8 +3024,8 @@ tags: {&#39;s.release&#39;: &#39;1.1.0-RC&#39;}
 
 <span class="c1"># Fetch experiment metadata information</span>
 <span class="n">experiment</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_experiment</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tags: </span><span class="si">{</span><span class="n">experiment</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -3066,9 +3068,9 @@ Setting both version and stage parameter will result in error.</p>
 
 
 <span class="k">def</span> <span class="nf">print_model_version_info</span><span class="p">(</span><span class="n">mv</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Version: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Version: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tags: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="s2">&quot;sqlite:///mlruns.db&quot;</span><span class="p">)</span>
@@ -3089,7 +3091,7 @@ Setting both version and stage parameter will result in error.</p>
 
 <span class="c1"># Create a new version of the rfr model under the registered model name</span>
 <span class="c1"># and set a tag</span>
-<span class="n">model_uri</span> <span class="o">=</span> <span class="s2">&quot;runs:/</span><span class="si">{}</span><span class="s2">/sklearn-model&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+<span class="n">model_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/sklearn-model&quot;</span>
 <span class="n">mv</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_model_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">model_uri</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
 <span class="n">print_model_version_info</span><span class="p">(</span><span class="n">mv</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
@@ -3287,8 +3289,8 @@ may support larger values.</p></li>
 
 
 <span class="k">def</span> <span class="nf">print_run_info</span><span class="p">(</span><span class="n">run</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tags: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># Create a run under the default experiment (whose id is &#39;0&#39;).</span>
@@ -3336,8 +3338,8 @@ Defaults to “FINISHED”.</p></li>
 
 
 <span class="k">def</span> <span class="nf">print_run_info</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;status: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;status: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># Create a run under the default experiment (whose id is &#39;0&#39;).</span>
@@ -3404,10 +3406,10 @@ when <code class="docutils literal notranslate"><span class="pre">stage</span></
 
 
 <span class="k">def</span> <span class="nf">print_model_version_info</span><span class="p">(</span><span class="n">mv</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Version: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Description: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">description</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Stage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">current_stage</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Version: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Description: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stage: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">current_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="s2">&quot;sqlite:///mlruns.db&quot;</span><span class="p">)</span>
@@ -3428,7 +3430,7 @@ when <code class="docutils literal notranslate"><span class="pre">stage</span></
 <span class="n">client</span><span class="o">.</span><span class="n">create_registered_model</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
 <span class="c1"># Create a new version of the rfr model under the registered model name</span>
-<span class="n">model_uri</span> <span class="o">=</span> <span class="s2">&quot;runs:/</span><span class="si">{}</span><span class="s2">/sklearn-model&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+<span class="n">model_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/sklearn-model&quot;</span>
 <span class="n">mv</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_model_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">model_uri</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">desc</span><span class="p">)</span>
 <span class="n">print_model_version_info</span><span class="p">(</span><span class="n">mv</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
@@ -3481,9 +3483,9 @@ Stage: Staging
 
 
 <span class="k">def</span> <span class="nf">print_model_version_info</span><span class="p">(</span><span class="n">mv</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Version: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Description: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mv</span><span class="o">.</span><span class="n">description</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Version: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Description: </span><span class="si">{</span><span class="n">mv</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="s2">&quot;sqlite:///mlruns.db&quot;</span><span class="p">)</span>
@@ -3503,7 +3505,7 @@ Stage: Staging
 <span class="n">client</span><span class="o">.</span><span class="n">create_registered_model</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
 <span class="c1"># Create a new version of the rfr model under the registered model name</span>
-<span class="n">model_uri</span> <span class="o">=</span> <span class="s2">&quot;runs:/</span><span class="si">{}</span><span class="s2">/sklearn-model&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+<span class="n">model_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/sklearn-model&quot;</span>
 <span class="n">mv</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_model_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">model_uri</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
 <span class="n">print_model_version_info</span><span class="p">(</span><span class="n">mv</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
@@ -3548,9 +3550,9 @@ Backend raises exception if a registered model with given name does not exist.</
 <div class="literal-block-wrapper docutils container" id="id102">
 <div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id102" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">print_registered_model_info</span><span class="p">(</span><span class="n">rm</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tags: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;description: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">description</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tags: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;description: </span><span class="si">{</span><span class="n">rm</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;SocialMediaTextAnalyzer&quot;</span>
@@ -3605,9 +3607,9 @@ At least one of <code class="docutils literal notranslate"><span class="pre">nam
 
 
 <span class="k">def</span> <span class="nf">print_run_info</span><span class="p">(</span><span class="n">run</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run_name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_name</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;status: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_id: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run_name: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;status: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># Create a run under the default experiment (whose id is &#39;0&#39;).</span>
@@ -3680,7 +3682,7 @@ status: FINISHED
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

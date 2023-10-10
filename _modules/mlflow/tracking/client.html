@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.tracking.client &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow.tracking.client &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,6 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command-Line Interface</a></li>
@@ -182,31 +183,32 @@
 <span class="sd">and model versions. This is a lower level API than the :py:mod:`mlflow.tracking.fluent` module,</span>
 <span class="sd">and is exposed in the :py:mod:`mlflow.tracking` module.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">import</span> <span class="nn">contextlib</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">posixpath</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">from</span> <span class="nn">mlflow.entities</span> <span class="kn">import</span> <span class="n">Experiment</span><span class="p">,</span> <span class="n">Run</span><span class="p">,</span> <span class="n">Param</span><span class="p">,</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">RunTag</span><span class="p">,</span> <span class="n">FileInfo</span><span class="p">,</span> <span class="n">ViewType</span><span class="p">,</span> <span class="n">DatasetInput</span>
-<span class="kn">from</span> <span class="nn">mlflow.store.entities.paged_list</span> <span class="kn">import</span> <span class="n">PagedList</span>
-<span class="kn">from</span> <span class="nn">mlflow.entities.model_registry</span> <span class="kn">import</span> <span class="n">RegisteredModel</span><span class="p">,</span> <span class="n">ModelVersion</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">from</span> <span class="nn">mlflow.entities</span> <span class="kn">import</span> <span class="n">DatasetInput</span><span class="p">,</span> <span class="n">Experiment</span><span class="p">,</span> <span class="n">FileInfo</span><span class="p">,</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">Param</span><span class="p">,</span> <span class="n">Run</span><span class="p">,</span> <span class="n">RunTag</span><span class="p">,</span> <span class="n">ViewType</span>
+<span class="kn">from</span> <span class="nn">mlflow.entities.model_registry</span> <span class="kn">import</span> <span class="n">ModelVersion</span><span class="p">,</span> <span class="n">RegisteredModel</span>
 <span class="kn">from</span> <span class="nn">mlflow.entities.model_registry.model_version_stages</span> <span class="kn">import</span> <span class="n">ALL_STAGES</span>
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">FEATURE_DISABLED</span><span class="p">,</span> <span class="n">RESOURCE_DOES_NOT_EXIST</span>
+<span class="kn">from</span> <span class="nn">mlflow.store.entities.paged_list</span> <span class="kn">import</span> <span class="n">PagedList</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.model_registry</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">SEARCH_REGISTERED_MODEL_MAX_RESULTS_DEFAULT</span><span class="p">,</span>
     <span class="n">SEARCH_MODEL_VERSION_MAX_RESULTS_DEFAULT</span><span class="p">,</span>
+    <span class="n">SEARCH_REGISTERED_MODEL_MAX_RESULTS_DEFAULT</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.tracking</span> <span class="kn">import</span> <span class="n">SEARCH_MAX_RESULTS_DEFAULT</span>
-<span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry.client</span> <span class="kn">import</span> <span class="n">ModelRegistryClient</span>
-<span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry</span> <span class="kn">import</span> <span class="n">utils</span> <span class="k">as</span> <span class="n">registry_utils</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry</span> <span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
+<span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry</span> <span class="kn">import</span> <span class="n">utils</span> <span class="k">as</span> <span class="n">registry_utils</span>
+<span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry.client</span> <span class="kn">import</span> <span class="n">ModelRegistryClient</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking._tracking_service</span> <span class="kn">import</span> <span class="n">utils</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking._tracking_service.client</span> <span class="kn">import</span> <span class="n">TrackingServiceClient</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="n">_upload_artifacts_to_databricks</span>
@@ -214,24 +216,24 @@
 <span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">experimental</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.databricks_utils</span> <span class="kn">import</span> <span class="n">get_databricks_run_url</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.logging_utils</span> <span class="kn">import</span> <span class="n">eprint</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.uri</span> <span class="kn">import</span> <span class="n">is_databricks_uri</span><span class="p">,</span> <span class="n">is_databricks_unity_catalog_uri</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.validation</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_validate_model_version_or_stage_exists</span><span class="p">,</span>
-    <span class="n">_validate_model_name</span><span class="p">,</span>
-    <span class="n">_validate_model_alias_name</span><span class="p">,</span>
-    <span class="n">_validate_model_version</span><span class="p">,</span>
-<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.mlflow_tags</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">MLFLOW_LOGGED_ARTIFACTS</span><span class="p">,</span>
     <span class="n">MLFLOW_PARENT_RUN_ID</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.uri</span> <span class="kn">import</span> <span class="n">is_databricks_unity_catalog_uri</span><span class="p">,</span> <span class="n">is_databricks_uri</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.validation</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_validate_model_alias_name</span><span class="p">,</span>
+    <span class="n">_validate_model_name</span><span class="p">,</span>
+    <span class="n">_validate_model_version</span><span class="p">,</span>
+    <span class="n">_validate_model_version_or_stage_exists</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">pandas</span>
     <span class="kn">import</span> <span class="nn">matplotlib</span>
-    <span class="kn">import</span> <span class="nn">plotly</span>
     <span class="kn">import</span> <span class="nn">numpy</span>
+    <span class="kn">import</span> <span class="nn">pandas</span>
     <span class="kn">import</span> <span class="nn">PIL</span>
+    <span class="kn">import</span> <span class="nn">plotly</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -331,9 +333,9 @@
 <span class="sd">            # Fetch the run</span>
 <span class="sd">            client = MlflowClient()</span>
 <span class="sd">            run = client.get_run(run.info.run_id)</span>
-<span class="sd">            print(&quot;run_id: {}&quot;.format(run.info.run_id))</span>
-<span class="sd">            print(&quot;params: {}&quot;.format(run.data.params))</span>
-<span class="sd">            print(&quot;status: {}&quot;.format(run.info.status))</span>
+<span class="sd">            print(f&quot;run_id: {run.info.run_id}&quot;)</span>
+<span class="sd">            print(f&quot;params: {run.data.params}&quot;)</span>
+<span class="sd">            print(f&quot;status: {run.info.status}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -353,7 +355,7 @@
 <span class="sd">        :return: A single :py:class:`mlflow.entities.Run` object, if the parent run exists.</span>
 <span class="sd">                    Otherwise, returns None.</span>
 
-<span class="sd">        .. test-code-block:: python</span>
+<span class="sd">        .. testcode:: python</span>
 <span class="sd">            :caption: Example</span>
 
 <span class="sd">            import mlflow</span>
@@ -367,8 +369,8 @@
 <span class="sd">            client = MlflowClient()</span>
 <span class="sd">            parent_run = client.get_parent_run(child_run_id)</span>
 
-<span class="sd">            print(&quot;child_run_id: {}&quot;.format(child_run_id))</span>
-<span class="sd">            print(&quot;parent_run_id: {}&quot;.format(parent_run.info.run_id))</span>
+<span class="sd">            print(f&quot;child_run_id: {child_run_id}&quot;)</span>
+<span class="sd">            print(f&quot;parent_run_id: {parent_run.info.run_id}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -399,10 +401,10 @@
 
 <span class="sd">            def print_metric_info(history):</span>
 <span class="sd">                for m in history:</span>
-<span class="sd">                    print(&quot;name: {}&quot;.format(m.key))</span>
-<span class="sd">                    print(&quot;value: {}&quot;.format(m.value))</span>
-<span class="sd">                    print(&quot;step: {}&quot;.format(m.step))</span>
-<span class="sd">                    print(&quot;timestamp: {}&quot;.format(m.timestamp))</span>
+<span class="sd">                    print(f&quot;name: {m.key}&quot;)</span>
+<span class="sd">                    print(f&quot;value: {m.value}&quot;)</span>
+<span class="sd">                    print(f&quot;step: {m.step}&quot;)</span>
+<span class="sd">                    print(f&quot;timestamp: {m.timestamp}&quot;)</span>
 <span class="sd">                    print(&quot;--&quot;)</span>
 
 
@@ -412,7 +414,7 @@
 <span class="sd">            client = MlflowClient()</span>
 <span class="sd">            experiment_id = &quot;0&quot;</span>
 <span class="sd">            run = client.create_run(experiment_id)</span>
-<span class="sd">            print(&quot;run_id: {}&quot;.format(run.info.run_id))</span>
+<span class="sd">            print(f&quot;run_id: {run.info.run_id}&quot;)</span>
 <span class="sd">            print(&quot;--&quot;)</span>
 
 <span class="sd">            # Log couple of metrics, update their initial value, and fetch each</span>
@@ -485,12 +487,12 @@
 <span class="sd">            run = client.create_run(experiment_id, tags=tags, run_name=name)</span>
 
 <span class="sd">            # Show newly created run metadata info</span>
-<span class="sd">            print(&quot;Run tags: {}&quot;.format(run.data.tags))</span>
-<span class="sd">            print(&quot;Experiment id: {}&quot;.format(run.info.experiment_id))</span>
-<span class="sd">            print(&quot;Run id: {}&quot;.format(run.info.run_id))</span>
-<span class="sd">            print(&quot;Run name: {}&quot;.format(run.info.run_name))</span>
-<span class="sd">            print(&quot;lifecycle_stage: {}&quot;.format(run.info.lifecycle_stage))</span>
-<span class="sd">            print(&quot;status: {}&quot;.format(run.info.status))</span>
+<span class="sd">            print(f&quot;Run tags: {run.data.tags}&quot;)</span>
+<span class="sd">            print(f&quot;Experiment id: {run.info.experiment_id}&quot;)</span>
+<span class="sd">            print(f&quot;Run id: {run.info.run_id}&quot;)</span>
+<span class="sd">            print(f&quot;Run name: {run.info.run_name}&quot;)</span>
+<span class="sd">            print(f&quot;lifecycle_stage: {run.info.lifecycle_stage}&quot;)</span>
+<span class="sd">            print(f&quot;status: {run.info.status}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -637,10 +639,10 @@
 <span class="sd">            experiment = client.get_experiment(exp_id)</span>
 
 <span class="sd">            # Show experiment info</span>
-<span class="sd">            print(&quot;Name: {}&quot;.format(experiment.name))</span>
-<span class="sd">            print(&quot;Experiment ID: {}&quot;.format(experiment.experiment_id))</span>
-<span class="sd">            print(&quot;Artifact Location: {}&quot;.format(experiment.artifact_location))</span>
-<span class="sd">            print(&quot;Lifecycle_stage: {}&quot;.format(experiment.lifecycle_stage))</span>
+<span class="sd">            print(f&quot;Name: {experiment.name}&quot;)</span>
+<span class="sd">            print(f&quot;Experiment ID: {experiment.experiment_id}&quot;)</span>
+<span class="sd">            print(f&quot;Artifact Location: {experiment.artifact_location}&quot;)</span>
+<span class="sd">            print(f&quot;Lifecycle_stage: {experiment.lifecycle_stage}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -670,10 +672,10 @@
 <span class="sd">            experiment = client.get_experiment_by_name(&quot;Default&quot;)</span>
 
 <span class="sd">            # Show experiment info</span>
-<span class="sd">            print(&quot;Name: {}&quot;.format(experiment.name))</span>
-<span class="sd">            print(&quot;Experiment ID: {}&quot;.format(experiment.experiment_id))</span>
-<span class="sd">            print(&quot;Artifact Location: {}&quot;.format(experiment.artifact_location))</span>
-<span class="sd">            print(&quot;Lifecycle_stage: {}&quot;.format(experiment.lifecycle_stage))</span>
+<span class="sd">            print(f&quot;Name: {experiment.name}&quot;)</span>
+<span class="sd">            print(f&quot;Experiment ID: {experiment.experiment_id}&quot;)</span>
+<span class="sd">            print(f&quot;Artifact Location: {experiment.artifact_location}&quot;)</span>
+<span class="sd">            print(f&quot;Lifecycle_stage: {experiment.lifecycle_stage}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -718,11 +720,11 @@
 
 <span class="sd">            # Fetch experiment metadata information</span>
 <span class="sd">            experiment = client.get_experiment(experiment_id)</span>
-<span class="sd">            print(&quot;Name: {}&quot;.format(experiment.name))</span>
-<span class="sd">            print(&quot;Experiment_id: {}&quot;.format(experiment.experiment_id))</span>
-<span class="sd">            print(&quot;Artifact Location: {}&quot;.format(experiment.artifact_location))</span>
-<span class="sd">            print(&quot;Tags: {}&quot;.format(experiment.tags))</span>
-<span class="sd">            print(&quot;Lifecycle_stage: {}&quot;.format(experiment.lifecycle_stage))</span>
+<span class="sd">            print(f&quot;Name: {experiment.name}&quot;)</span>
+<span class="sd">            print(f&quot;Experiment_id: {experiment.experiment_id}&quot;)</span>
+<span class="sd">            print(f&quot;Artifact Location: {experiment.artifact_location}&quot;)</span>
+<span class="sd">            print(f&quot;Tags: {experiment.tags}&quot;)</span>
+<span class="sd">            print(f&quot;Lifecycle_stage: {experiment.lifecycle_stage}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -756,9 +758,9 @@
 
 <span class="sd">            # Examine the deleted experiment details.</span>
 <span class="sd">            experiment = client.get_experiment(experiment_id)</span>
-<span class="sd">            print(&quot;Name: {}&quot;.format(experiment.name))</span>
-<span class="sd">            print(&quot;Artifact Location: {}&quot;.format(experiment.artifact_location))</span>
-<span class="sd">            print(&quot;Lifecycle_stage: {}&quot;.format(experiment.lifecycle_stage))</span>
+<span class="sd">            print(f&quot;Name: {experiment.name}&quot;)</span>
+<span class="sd">            print(f&quot;Artifact Location: {experiment.artifact_location}&quot;)</span>
+<span class="sd">            print(f&quot;Lifecycle_stage: {experiment.lifecycle_stage}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -782,9 +784,9 @@
 
 
 <span class="sd">            def print_experiment_info(experiment):</span>
-<span class="sd">                print(&quot;Name: {}&quot;.format(experiment.name))</span>
-<span class="sd">                print(&quot;Experiment Id: {}&quot;.format(experiment.experiment_id))</span>
-<span class="sd">                print(&quot;Lifecycle_stage: {}&quot;.format(experiment.lifecycle_stage))</span>
+<span class="sd">                print(f&quot;Name: {experiment.name}&quot;)</span>
+<span class="sd">                print(f&quot;Experiment Id: {experiment.experiment_id}&quot;)</span>
+<span class="sd">                print(f&quot;Lifecycle_stage: {experiment.lifecycle_stage}&quot;)</span>
 
 
 <span class="sd">            # Create and delete an experiment</span>
@@ -828,9 +830,9 @@
 
 
 <span class="sd">            def print_experiment_info(experiment):</span>
-<span class="sd">                print(&quot;Name: {}&quot;.format(experiment.name))</span>
-<span class="sd">                print(&quot;Experiment_id: {}&quot;.format(experiment.experiment_id))</span>
-<span class="sd">                print(&quot;Lifecycle_stage: {}&quot;.format(experiment.lifecycle_stage))</span>
+<span class="sd">                print(f&quot;Name: {experiment.name}&quot;)</span>
+<span class="sd">                print(f&quot;Experiment_id: {experiment.experiment_id}&quot;)</span>
+<span class="sd">                print(f&quot;Lifecycle_stage: {experiment.lifecycle_stage}&quot;)</span>
 
 
 <span class="sd">            # Create an experiment with a name that is unique and case sensitive</span>
@@ -892,9 +894,9 @@
 
 
 <span class="sd">            def print_run_info(r):</span>
-<span class="sd">                print(&quot;run_id: {}&quot;.format(r.info.run_id))</span>
-<span class="sd">                print(&quot;metrics: {}&quot;.format(r.data.metrics))</span>
-<span class="sd">                print(&quot;status: {}&quot;.format(r.info.status))</span>
+<span class="sd">                print(f&quot;run_id: {r.info.run_id}&quot;)</span>
+<span class="sd">                print(f&quot;metrics: {r.data.metrics}&quot;)</span>
+<span class="sd">                print(f&quot;status: {r.info.status}&quot;)</span>
 
 
 <span class="sd">            # Create a run under the default experiment (whose id is &#39;0&#39;).</span>
@@ -937,7 +939,7 @@
 <span class="sd">                    All backend stores support keys up to length 250, but some may</span>
 <span class="sd">                    support larger keys.</span>
 <span class="sd">        :param value: Parameter value (string, but will be string-ified if not).</span>
-<span class="sd">                      All backend stores support values up to length 500, but some</span>
+<span class="sd">                      All built-in backend stores support values up to length 6000, but some</span>
 <span class="sd">                      may support larger values.</span>
 <span class="sd">        :return: the parameter value that is logged.</span>
 
@@ -948,9 +950,9 @@
 
 
 <span class="sd">            def print_run_info(r):</span>
-<span class="sd">                print(&quot;run_id: {}&quot;.format(r.info.run_id))</span>
-<span class="sd">                print(&quot;params: {}&quot;.format(r.data.params))</span>
-<span class="sd">                print(&quot;status: {}&quot;.format(r.info.status))</span>
+<span class="sd">                print(f&quot;run_id: {r.info.run_id}&quot;)</span>
+<span class="sd">                print(f&quot;params: {r.data.params}&quot;)</span>
+<span class="sd">                print(f&quot;status: {r.info.status}&quot;)</span>
 
 
 <span class="sd">            # Create a run under the default experiment (whose id is &#39;0&#39;).</span>
@@ -1005,8 +1007,8 @@
 
 <span class="sd">            # Fetch experiment metadata information</span>
 <span class="sd">            experiment = client.get_experiment(experiment_id)</span>
-<span class="sd">            print(&quot;Name: {}&quot;.format(experiment.name))</span>
-<span class="sd">            print(&quot;Tags: {}&quot;.format(experiment.tags))</span>
+<span class="sd">            print(f&quot;Name: {experiment.name}&quot;)</span>
+<span class="sd">            print(f&quot;Tags: {experiment.tags}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -1036,8 +1038,8 @@
 
 
 <span class="sd">            def print_run_info(run):</span>
-<span class="sd">                print(&quot;run_id: {}&quot;.format(run.info.run_id))</span>
-<span class="sd">                print(&quot;Tags: {}&quot;.format(run.data.tags))</span>
+<span class="sd">                print(f&quot;run_id: {run.info.run_id}&quot;)</span>
+<span class="sd">                print(f&quot;Tags: {run.data.tags}&quot;)</span>
 
 
 <span class="sd">            # Create a run under the default experiment (whose id is &#39;0&#39;).</span>
@@ -1077,8 +1079,8 @@
 
 
 <span class="sd">            def print_run_info(run):</span>
-<span class="sd">                print(&quot;run_id: {}&quot;.format(run.info.run_id))</span>
-<span class="sd">                print(&quot;Tags: {}&quot;.format(run.data.tags))</span>
+<span class="sd">                print(f&quot;run_id: {run.info.run_id}&quot;)</span>
+<span class="sd">                print(f&quot;Tags: {run.data.tags}&quot;)</span>
 
 
 <span class="sd">            # Create a run under the default experiment (whose id is &#39;0&#39;).</span>
@@ -1124,9 +1126,9 @@
 
 
 <span class="sd">            def print_run_info(run):</span>
-<span class="sd">                print(&quot;run_id: {}&quot;.format(run.info.run_id))</span>
-<span class="sd">                print(&quot;run_name: {}&quot;.format(run.info.run_name))</span>
-<span class="sd">                print(&quot;status: {}&quot;.format(run.info.status))</span>
+<span class="sd">                print(f&quot;run_id: {run.info.run_id}&quot;)</span>
+<span class="sd">                print(f&quot;run_name: {run.info.run_name}&quot;)</span>
+<span class="sd">                print(f&quot;status: {run.info.status}&quot;)</span>
 
 
 <span class="sd">            # Create a run under the default experiment (whose id is &#39;0&#39;).</span>
@@ -1182,11 +1184,11 @@
 
 
 <span class="sd">            def print_run_info(r):</span>
-<span class="sd">                print(&quot;run_id: {}&quot;.format(r.info.run_id))</span>
-<span class="sd">                print(&quot;params: {}&quot;.format(r.data.params))</span>
-<span class="sd">                print(&quot;metrics: {}&quot;.format(r.data.metrics))</span>
-<span class="sd">                print(&quot;tags: {}&quot;.format(r.data.tags))</span>
-<span class="sd">                print(&quot;status: {}&quot;.format(r.info.status))</span>
+<span class="sd">                print(f&quot;run_id: {r.info.run_id}&quot;)</span>
+<span class="sd">                print(f&quot;params: {r.data.params}&quot;)</span>
+<span class="sd">                print(f&quot;metrics: {r.data.metrics}&quot;)</span>
+<span class="sd">                print(f&quot;tags: {r.data.tags}&quot;)</span>
+<span class="sd">                print(f&quot;status: {r.info.status}&quot;)</span>
 
 
 <span class="sd">            # Create MLflow entities and a run under the default experiment (whose id is &#39;0&#39;).</span>
@@ -1257,8 +1259,8 @@
 <span class="sd">            client.log_artifact(run.info.run_id, &quot;features.txt&quot;)</span>
 <span class="sd">            artifacts = client.list_artifacts(run.info.run_id)</span>
 <span class="sd">            for artifact in artifacts:</span>
-<span class="sd">                print(&quot;artifact: {}&quot;.format(artifact.path))</span>
-<span class="sd">                print(&quot;is_dir: {}&quot;.format(artifact.is_dir))</span>
+<span class="sd">                print(f&quot;artifact: {artifact.path}&quot;)</span>
+<span class="sd">                print(f&quot;is_dir: {artifact.is_dir}&quot;)</span>
 <span class="sd">            client.set_terminated(run.info.run_id)</span>
 
 <span class="sd">        .. code-block:: text</span>
@@ -1303,8 +1305,8 @@
 <span class="sd">            client.log_artifacts(run.info.run_id, &quot;data&quot;, artifact_path=&quot;states&quot;)</span>
 <span class="sd">            artifacts = client.list_artifacts(run.info.run_id)</span>
 <span class="sd">            for artifact in artifacts:</span>
-<span class="sd">                print(&quot;artifact: {}&quot;.format(artifact.path))</span>
-<span class="sd">                print(&quot;is_dir: {}&quot;.format(artifact.is_dir))</span>
+<span class="sd">                print(f&quot;artifact: {artifact.path}&quot;)</span>
+<span class="sd">                print(f&quot;is_dir: {artifact.is_dir}&quot;)</span>
 <span class="sd">            client.set_terminated(run.info.run_id)</span>
 
 <span class="sd">        .. code-block:: text</span>
@@ -1661,7 +1663,7 @@
 <span class="sd">                                the table is saved (e.g. &quot;dir/file.json&quot;).</span>
 <span class="sd">        :return: None</span>
 
-<span class="sd">        .. test-code-block:: python</span>
+<span class="sd">        .. testcode:: python</span>
 <span class="sd">            :caption: Dictionary Example</span>
 
 <span class="sd">            import mlflow</span>
@@ -1679,7 +1681,7 @@
 <span class="sd">                run.info.run_id, data=table_dict, artifact_file=&quot;qabot_eval_results.json&quot;</span>
 <span class="sd">            )</span>
 
-<span class="sd">        .. test-code-block:: python</span>
+<span class="sd">        .. testcode:: python</span>
 <span class="sd">            :caption: Pandas DF Example</span>
 
 <span class="sd">            import mlflow</span>
@@ -1763,7 +1765,7 @@
 <span class="sd">        :return: pandas.DataFrame containing the loaded table if the artifact exists</span>
 <span class="sd">                 or else throw a MlflowException.</span>
 
-<span class="sd">        .. test-code-block:: python</span>
+<span class="sd">        .. testcode:: python</span>
 <span class="sd">            :caption: Example with passing run_ids</span>
 
 <span class="sd">            import mlflow</span>
@@ -1790,7 +1792,7 @@
 <span class="sd">                extra_columns=[&quot;run_id&quot;],</span>
 <span class="sd">            )</span>
 
-<span class="sd">        .. test-code-block:: python</span>
+<span class="sd">        .. testcode:: python</span>
 <span class="sd">            :caption: Example with passing no run_ids</span>
 
 <span class="sd">            # Loads the table with the specified name for all runs in the given</span>
@@ -1904,9 +1906,9 @@
 
 
 <span class="sd">            def print_artifact_info(artifact):</span>
-<span class="sd">                print(&quot;artifact: {}&quot;.format(artifact.path))</span>
-<span class="sd">                print(&quot;is_dir: {}&quot;.format(artifact.is_dir))</span>
-<span class="sd">                print(&quot;size: {}&quot;.format(artifact.file_size))</span>
+<span class="sd">                print(f&quot;artifact: {artifact.path}&quot;)</span>
+<span class="sd">                print(f&quot;is_dir: {artifact.is_dir}&quot;)</span>
+<span class="sd">                print(f&quot;size: {artifact.file_size}&quot;)</span>
 
 
 <span class="sd">            features = &quot;rooms zipcode, median_price, school_rating, transport&quot;</span>
@@ -1919,9 +1921,9 @@
 
 <span class="sd">            # Create some artifacts and log under the above run</span>
 <span class="sd">            for file, content in [(&quot;features&quot;, features), (&quot;labels&quot;, labels)]:</span>
-<span class="sd">                with open(&quot;{}.txt&quot;.format(file), &quot;w&quot;) as f:</span>
+<span class="sd">                with open(f&quot;{file}.txt&quot;, &quot;w&quot;) as f:</span>
 <span class="sd">                    f.write(content)</span>
-<span class="sd">                client.log_artifact(run.info.run_id, &quot;{}.txt&quot;.format(file))</span>
+<span class="sd">                client.log_artifact(run.info.run_id, f&quot;{file}.txt&quot;)</span>
 
 <span class="sd">            # Fetch the logged artifacts</span>
 <span class="sd">            artifacts = client.list_artifacts(run.info.run_id)</span>
@@ -1976,8 +1978,8 @@
 <span class="sd">            if not os.path.exists(local_dir):</span>
 <span class="sd">                os.mkdir(local_dir)</span>
 <span class="sd">            local_path = client.download_artifacts(run.info.run_id, &quot;features&quot;, local_dir)</span>
-<span class="sd">            print(&quot;Artifacts downloaded in: {}&quot;.format(local_path))</span>
-<span class="sd">            print(&quot;Artifacts: {}&quot;.format(os.listdir(local_path)))</span>
+<span class="sd">            print(f&quot;Artifacts downloaded in: {local_path}&quot;)</span>
+<span class="sd">            print(f&quot;Artifacts: {os.listdir(local_path)}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -2003,8 +2005,8 @@
 
 
 <span class="sd">            def print_run_info(r):</span>
-<span class="sd">                print(&quot;run_id: {}&quot;.format(r.info.run_id))</span>
-<span class="sd">                print(&quot;status: {}&quot;.format(r.info.status))</span>
+<span class="sd">                print(f&quot;run_id: {r.info.run_id}&quot;)</span>
+<span class="sd">                print(f&quot;status: {r.info.status}&quot;)</span>
 
 
 <span class="sd">            # Create a run under the default experiment (whose id is &#39;0&#39;).</span>
@@ -2049,11 +2051,11 @@
 <span class="sd">            experiment_id = &quot;0&quot;</span>
 <span class="sd">            run = client.create_run(experiment_id)</span>
 <span class="sd">            run_id = run.info.run_id</span>
-<span class="sd">            print(&quot;run_id: {}; lifecycle_stage: {}&quot;.format(run_id, run.info.lifecycle_stage))</span>
+<span class="sd">            print(f&quot;run_id: {run_id}; lifecycle_stage: {run.info.lifecycle_stage}&quot;)</span>
 <span class="sd">            print(&quot;--&quot;)</span>
 <span class="sd">            client.delete_run(run_id)</span>
 <span class="sd">            del_run = client.get_run(run_id)</span>
-<span class="sd">            print(&quot;run_id: {}; lifecycle_stage: {}&quot;.format(run_id, del_run.info.lifecycle_stage))</span>
+<span class="sd">            print(f&quot;run_id: {run_id}; lifecycle_stage: {del_run.info.lifecycle_stage}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -2079,13 +2081,13 @@
 <span class="sd">            experiment_id = &quot;0&quot;</span>
 <span class="sd">            run = client.create_run(experiment_id)</span>
 <span class="sd">            run_id = run.info.run_id</span>
-<span class="sd">            print(&quot;run_id: {}; lifecycle_stage: {}&quot;.format(run_id, run.info.lifecycle_stage))</span>
+<span class="sd">            print(f&quot;run_id: {run_id}; lifecycle_stage: {run.info.lifecycle_stage}&quot;)</span>
 <span class="sd">            client.delete_run(run_id)</span>
 <span class="sd">            del_run = client.get_run(run_id)</span>
-<span class="sd">            print(&quot;run_id: {}; lifecycle_stage: {}&quot;.format(run_id, del_run.info.lifecycle_stage))</span>
+<span class="sd">            print(f&quot;run_id: {run_id}; lifecycle_stage: {del_run.info.lifecycle_stage}&quot;)</span>
 <span class="sd">            client.restore_run(run_id)</span>
 <span class="sd">            rest_run = client.get_run(run_id)</span>
-<span class="sd">            print(&quot;run_id: {}; lifecycle_stage: {}&quot;.format(run_id, rest_run.info.lifecycle_stage))</span>
+<span class="sd">            print(f&quot;run_id: {run_id}; lifecycle_stage: {rest_run.info.lifecycle_stage}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -2134,13 +2136,13 @@
 
 <span class="sd">            def print_run_info(runs):</span>
 <span class="sd">                for r in runs:</span>
-<span class="sd">                    print(&quot;run_id: {}&quot;.format(r.info.run_id))</span>
-<span class="sd">                    print(&quot;lifecycle_stage: {}&quot;.format(r.info.lifecycle_stage))</span>
-<span class="sd">                    print(&quot;metrics: {}&quot;.format(r.data.metrics))</span>
+<span class="sd">                    print(f&quot;run_id: {r.info.run_id}&quot;)</span>
+<span class="sd">                    print(f&quot;lifecycle_stage: {r.info.lifecycle_stage}&quot;)</span>
+<span class="sd">                    print(f&quot;metrics: {r.data.metrics}&quot;)</span>
 
 <span class="sd">                    # Exclude mlflow system tags</span>
 <span class="sd">                    tags = {k: v for k, v in r.data.tags.items() if not k.startswith(&quot;mlflow.&quot;)}</span>
-<span class="sd">                    print(&quot;tags: {}&quot;.format(tags))</span>
+<span class="sd">                    print(f&quot;tags: {tags}&quot;)</span>
 
 
 <span class="sd">            # Create an experiment and log two runs with metrics and tags under the experiment</span>
@@ -2216,9 +2218,9 @@
 
 
 <span class="sd">            def print_registered_model_info(rm):</span>
-<span class="sd">                print(&quot;name: {}&quot;.format(rm.name))</span>
-<span class="sd">                print(&quot;tags: {}&quot;.format(rm.tags))</span>
-<span class="sd">                print(&quot;description: {}&quot;.format(rm.description))</span>
+<span class="sd">                print(f&quot;name: {rm.name}&quot;)</span>
+<span class="sd">                print(f&quot;tags: {rm.tags}&quot;)</span>
+<span class="sd">                print(f&quot;description: {rm.description}&quot;)</span>
 
 
 <span class="sd">            name = &quot;SocialMediaTextAnalyzer&quot;</span>
@@ -2256,9 +2258,9 @@
 
 
 <span class="sd">            def print_registered_model_info(rm):</span>
-<span class="sd">                print(&quot;name: {}&quot;.format(rm.name))</span>
-<span class="sd">                print(&quot;tags: {}&quot;.format(rm.tags))</span>
-<span class="sd">                print(&quot;description: {}&quot;.format(rm.description))</span>
+<span class="sd">                print(f&quot;name: {rm.name}&quot;)</span>
+<span class="sd">                print(f&quot;tags: {rm.tags}&quot;)</span>
+<span class="sd">                print(f&quot;description: {rm.description}&quot;)</span>
 
 
 <span class="sd">            name = &quot;SocialTextAnalyzer&quot;</span>
@@ -2305,9 +2307,9 @@
 <span class="sd">            :caption: Example</span>
 
 <span class="sd">            def print_registered_model_info(rm):</span>
-<span class="sd">                print(&quot;name: {}&quot;.format(rm.name))</span>
-<span class="sd">                print(&quot;tags: {}&quot;.format(rm.tags))</span>
-<span class="sd">                print(&quot;description: {}&quot;.format(rm.description))</span>
+<span class="sd">                print(f&quot;name: {rm.name}&quot;)</span>
+<span class="sd">                print(f&quot;tags: {rm.tags}&quot;)</span>
+<span class="sd">                print(f&quot;description: {rm.description}&quot;)</span>
 
 
 <span class="sd">            name = &quot;SocialMediaTextAnalyzer&quot;</span>
@@ -2360,9 +2362,9 @@
 <span class="sd">            def print_registered_models_info(r_models):</span>
 <span class="sd">                print(&quot;--&quot;)</span>
 <span class="sd">                for rm in r_models:</span>
-<span class="sd">                    print(&quot;name: {}&quot;.format(rm.name))</span>
-<span class="sd">                    print(&quot;tags: {}&quot;.format(rm.tags))</span>
-<span class="sd">                    print(&quot;description: {}&quot;.format(rm.description))</span>
+<span class="sd">                    print(f&quot;name: {rm.name}&quot;)</span>
+<span class="sd">                    print(f&quot;tags: {rm.tags}&quot;)</span>
+<span class="sd">                    print(f&quot;description: {rm.description}&quot;)</span>
 
 
 <span class="sd">            mlflow.set_tracking_uri(&quot;sqlite:///mlruns.db&quot;)</span>
@@ -2447,12 +2449,12 @@
 
 <span class="sd">            # Get search results filtered by the registered model name</span>
 <span class="sd">            model_name = &quot;CordobaWeatherForecastModel&quot;</span>
-<span class="sd">            filter_string = &quot;name=&#39;{}&#39;&quot;.format(model_name)</span>
+<span class="sd">            filter_string = f&quot;name=&#39;{model_name}&#39;&quot;</span>
 <span class="sd">            results = client.search_registered_models(filter_string=filter_string)</span>
 <span class="sd">            print(&quot;-&quot; * 80)</span>
 <span class="sd">            for res in results:</span>
 <span class="sd">                for mv in res.latest_versions:</span>
-<span class="sd">                    print(&quot;name={}; run_id={}; version={}&quot;.format(mv.name, mv.run_id, mv.version))</span>
+<span class="sd">                    print(f&quot;name={mv.name}; run_id={mv.run_id}; version={mv.version}&quot;)</span>
 
 <span class="sd">            # Get search results filtered by the registered model name that matches</span>
 <span class="sd">            # prefix pattern</span>
@@ -2461,14 +2463,14 @@
 <span class="sd">            print(&quot;-&quot; * 80)</span>
 <span class="sd">            for res in results:</span>
 <span class="sd">                for mv in res.latest_versions:</span>
-<span class="sd">                    print(&quot;name={}; run_id={}; version={}&quot;.format(mv.name, mv.run_id, mv.version))</span>
+<span class="sd">                    print(f&quot;name={mv.name}; run_id={mv.run_id}; version={mv.version}&quot;)</span>
 
 <span class="sd">            # Get all registered models and order them by ascending order of the names</span>
 <span class="sd">            results = client.search_registered_models(order_by=[&quot;name ASC&quot;])</span>
 <span class="sd">            print(&quot;-&quot; * 80)</span>
 <span class="sd">            for res in results:</span>
 <span class="sd">                for mv in res.latest_versions:</span>
-<span class="sd">                    print(&quot;name={}; run_id={}; version={}&quot;.format(mv.name, mv.run_id, mv.version))</span>
+<span class="sd">                    print(f&quot;name={mv.name}; run_id={mv.run_id}; version={mv.version}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -2506,9 +2508,9 @@
 
 <span class="sd">            def print_model_info(rm):</span>
 <span class="sd">                print(&quot;--&quot;)</span>
-<span class="sd">                print(&quot;name: {}&quot;.format(rm.name))</span>
-<span class="sd">                print(&quot;tags: {}&quot;.format(rm.tags))</span>
-<span class="sd">                print(&quot;description: {}&quot;.format(rm.description))</span>
+<span class="sd">                print(f&quot;name: {rm.name}&quot;)</span>
+<span class="sd">                print(f&quot;tags: {rm.tags}&quot;)</span>
+<span class="sd">                print(f&quot;description: {rm.description}&quot;)</span>
 
 
 <span class="sd">            name = &quot;SocialMediaTextAnalyzer&quot;</span>
@@ -2554,10 +2556,10 @@
 
 <span class="sd">            def print_models_info(mv):</span>
 <span class="sd">                for m in mv:</span>
-<span class="sd">                    print(&quot;name: {}&quot;.format(m.name))</span>
-<span class="sd">                    print(&quot;latest version: {}&quot;.format(m.version))</span>
-<span class="sd">                    print(&quot;run_id: {}&quot;.format(m.run_id))</span>
-<span class="sd">                    print(&quot;current_stage: {}&quot;.format(m.current_stage))</span>
+<span class="sd">                    print(f&quot;name: {m.name}&quot;)</span>
+<span class="sd">                    print(f&quot;latest version: {m.version}&quot;)</span>
+<span class="sd">                    print(f&quot;run_id: {m.run_id}&quot;)</span>
+<span class="sd">                    print(f&quot;current_stage: {m.current_stage}&quot;)</span>
 
 
 <span class="sd">            mlflow.set_tracking_uri(&quot;sqlite:///mlruns.db&quot;)</span>
@@ -2585,9 +2587,9 @@
 
 <span class="sd">            # Create a two versions of the rfr model under the registered model name</span>
 <span class="sd">            for run_id in [run1.info.run_id, run2.info.run_id]:</span>
-<span class="sd">                model_uri = &quot;runs:/{}/sklearn-model&quot;.format(run_id)</span>
+<span class="sd">                model_uri = f&quot;runs:/{run_id}/sklearn-model&quot;</span>
 <span class="sd">                mv = client.create_model_version(name, model_uri, run_id)</span>
-<span class="sd">                print(&quot;model version {} created&quot;.format(mv.version))</span>
+<span class="sd">                print(f&quot;model version {mv.version} created&quot;)</span>
 
 <span class="sd">            # Fetch latest version; this will be version 2</span>
 <span class="sd">            print(&quot;--&quot;)</span>
@@ -2671,8 +2673,8 @@
 <span class="sd">            def print_registered_models_info(r_models):</span>
 <span class="sd">                print(&quot;--&quot;)</span>
 <span class="sd">                for rm in r_models:</span>
-<span class="sd">                    print(&quot;name: {}&quot;.format(rm.name))</span>
-<span class="sd">                    print(&quot;tags: {}&quot;.format(rm.tags))</span>
+<span class="sd">                    print(f&quot;name: {rm.name}&quot;)</span>
+<span class="sd">                    print(f&quot;tags: {rm.tags}&quot;)</span>
 
 
 <span class="sd">            mlflow.set_tracking_uri(&quot;sqlite:///mlruns.db&quot;)</span>
@@ -2815,14 +2817,14 @@
 
 <span class="sd">            # Create a new version of the rfr model under the registered model name</span>
 <span class="sd">            desc = &quot;A new version of the model&quot;</span>
-<span class="sd">            runs_uri = &quot;runs:/{}/sklearn-model&quot;.format(run.info.run_id)</span>
+<span class="sd">            runs_uri = f&quot;runs:/{run.info.run_id}/sklearn-model&quot;</span>
 <span class="sd">            model_src = RunsArtifactRepository.get_underlying_uri(runs_uri)</span>
 <span class="sd">            mv = client.create_model_version(name, model_src, run.info.run_id, description=desc)</span>
-<span class="sd">            print(&quot;Name: {}&quot;.format(mv.name))</span>
-<span class="sd">            print(&quot;Version: {}&quot;.format(mv.version))</span>
-<span class="sd">            print(&quot;Description: {}&quot;.format(mv.description))</span>
-<span class="sd">            print(&quot;Status: {}&quot;.format(mv.status))</span>
-<span class="sd">            print(&quot;Stage: {}&quot;.format(mv.current_stage))</span>
+<span class="sd">            print(f&quot;Name: {mv.name}&quot;)</span>
+<span class="sd">            print(f&quot;Version: {mv.version}&quot;)</span>
+<span class="sd">            print(f&quot;Description: {mv.description}&quot;)</span>
+<span class="sd">            print(f&quot;Status: {mv.status}&quot;)</span>
+<span class="sd">            print(f&quot;Stage: {mv.current_stage}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -2866,9 +2868,9 @@
 
 
 <span class="sd">            def print_model_version_info(mv):</span>
-<span class="sd">                print(&quot;Name: {}&quot;.format(mv.name))</span>
-<span class="sd">                print(&quot;Version: {}&quot;.format(mv.version))</span>
-<span class="sd">                print(&quot;Description: {}&quot;.format(mv.description))</span>
+<span class="sd">                print(f&quot;Name: {mv.name}&quot;)</span>
+<span class="sd">                print(f&quot;Version: {mv.version}&quot;)</span>
+<span class="sd">                print(f&quot;Description: {mv.description}&quot;)</span>
 
 
 <span class="sd">            mlflow.set_tracking_uri(&quot;sqlite:///mlruns.db&quot;)</span>
@@ -2888,7 +2890,7 @@
 <span class="sd">            client.create_registered_model(name)</span>
 
 <span class="sd">            # Create a new version of the rfr model under the registered model name</span>
-<span class="sd">            model_uri = &quot;runs:/{}/sklearn-model&quot;.format(run.info.run_id)</span>
+<span class="sd">            model_uri = f&quot;runs:/{run.info.run_id}/sklearn-model&quot;</span>
 <span class="sd">            mv = client.create_model_version(name, model_uri, run.info.run_id)</span>
 <span class="sd">            print_model_version_info(mv)</span>
 <span class="sd">            print(&quot;--&quot;)</span>
@@ -2942,10 +2944,10 @@
 
 
 <span class="sd">            def print_model_version_info(mv):</span>
-<span class="sd">                print(&quot;Name: {}&quot;.format(mv.name))</span>
-<span class="sd">                print(&quot;Version: {}&quot;.format(mv.version))</span>
-<span class="sd">                print(&quot;Description: {}&quot;.format(mv.description))</span>
-<span class="sd">                print(&quot;Stage: {}&quot;.format(mv.current_stage))</span>
+<span class="sd">                print(f&quot;Name: {mv.name}&quot;)</span>
+<span class="sd">                print(f&quot;Version: {mv.version}&quot;)</span>
+<span class="sd">                print(f&quot;Description: {mv.description}&quot;)</span>
+<span class="sd">                print(f&quot;Stage: {mv.current_stage}&quot;)</span>
 
 
 <span class="sd">            mlflow.set_tracking_uri(&quot;sqlite:///mlruns.db&quot;)</span>
@@ -2966,7 +2968,7 @@
 <span class="sd">            client.create_registered_model(name)</span>
 
 <span class="sd">            # Create a new version of the rfr model under the registered model name</span>
-<span class="sd">            model_uri = &quot;runs:/{}/sklearn-model&quot;.format(run.info.run_id)</span>
+<span class="sd">            model_uri = f&quot;runs:/{run.info.run_id}/sklearn-model&quot;</span>
 <span class="sd">            mv = client.create_model_version(name, model_uri, run.info.run_id, description=desc)</span>
 <span class="sd">            print_model_version_info(mv)</span>
 <span class="sd">            print(&quot;--&quot;)</span>
@@ -3011,10 +3013,10 @@
 
 <span class="sd">            def print_models_info(mv):</span>
 <span class="sd">                for m in mv:</span>
-<span class="sd">                    print(&quot;name: {}&quot;.format(m.name))</span>
-<span class="sd">                    print(&quot;latest version: {}&quot;.format(m.version))</span>
-<span class="sd">                    print(&quot;run_id: {}&quot;.format(m.run_id))</span>
-<span class="sd">                    print(&quot;current_stage: {}&quot;.format(m.current_stage))</span>
+<span class="sd">                    print(f&quot;name: {m.name}&quot;)</span>
+<span class="sd">                    print(f&quot;latest version: {m.version}&quot;)</span>
+<span class="sd">                    print(f&quot;run_id: {m.run_id}&quot;)</span>
+<span class="sd">                    print(f&quot;current_stage: {m.current_stage}&quot;)</span>
 
 
 <span class="sd">            mlflow.set_tracking_uri(&quot;sqlite:///mlruns.db&quot;)</span>
@@ -3042,9 +3044,9 @@
 
 <span class="sd">            # Create a two versions of the rfr model under the registered model name</span>
 <span class="sd">            for run_id in [run1.info.run_id, run2.info.run_id]:</span>
-<span class="sd">                model_uri = &quot;runs:/{}/sklearn-model&quot;.format(run_id)</span>
+<span class="sd">                model_uri = f&quot;runs:/{run_id}/sklearn-model&quot;</span>
 <span class="sd">                mv = client.create_model_version(name, model_uri, run_id)</span>
-<span class="sd">                print(&quot;model version {} created&quot;.format(mv.version))</span>
+<span class="sd">                print(f&quot;model version {mv.version} created&quot;)</span>
 
 <span class="sd">            print(&quot;--&quot;)</span>
 
@@ -3054,7 +3056,7 @@
 <span class="sd">            print(&quot;--&quot;)</span>
 
 <span class="sd">            # Delete the latest model version 2</span>
-<span class="sd">            print(&quot;Deleting model version {}&quot;.format(mv.version))</span>
+<span class="sd">            print(f&quot;Deleting model version {mv.version}&quot;)</span>
 <span class="sd">            client.delete_model_version(name, mv.version)</span>
 <span class="sd">            models = client.get_latest_versions(name, stages=[&quot;None&quot;])</span>
 <span class="sd">            print_models_info(models)</span>
@@ -3117,15 +3119,15 @@
 
 <span class="sd">            # Create a two versions of the rfr model under the registered model name</span>
 <span class="sd">            for run_id in [run1.info.run_id, run2.info.run_id]:</span>
-<span class="sd">                model_uri = &quot;runs:/{}/sklearn-model&quot;.format(run_id)</span>
+<span class="sd">                model_uri = f&quot;runs:/{run_id}/sklearn-model&quot;</span>
 <span class="sd">                mv = client.create_model_version(name, model_uri, run_id)</span>
-<span class="sd">                print(&quot;model version {} created&quot;.format(mv.version))</span>
+<span class="sd">                print(f&quot;model version {mv.version} created&quot;)</span>
 <span class="sd">            print(&quot;--&quot;)</span>
 
 <span class="sd">            # Fetch the last version; this will be version 2</span>
 <span class="sd">            mv = client.get_model_version(name, mv.version)</span>
-<span class="sd">            print(&quot;Name: {}&quot;.format(mv.name))</span>
-<span class="sd">            print(&quot;Version: {}&quot;.format(mv.version))</span>
+<span class="sd">            print(f&quot;Name: {mv.name}&quot;)</span>
+<span class="sd">            print(f&quot;Version: {mv.version}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -3172,10 +3174,10 @@
 <span class="sd">            client.create_registered_model(name)</span>
 
 <span class="sd">            # Create a new version of the rfr model under the registered model name</span>
-<span class="sd">            model_uri = &quot;runs:/{}/sklearn-model&quot;.format(run.info.run_id)</span>
+<span class="sd">            model_uri = f&quot;runs:/{run.info.run_id}/sklearn-model&quot;</span>
 <span class="sd">            mv = client.create_model_version(name, model_uri, run.info.run_id)</span>
 <span class="sd">            artifact_uri = client.get_model_version_download_uri(name, mv.version)</span>
-<span class="sd">            print(&quot;Download URI: {}&quot;.format(artifact_uri))</span>
+<span class="sd">            print(f&quot;Download URI: {artifact_uri}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -3235,19 +3237,19 @@
 
 <span class="sd">            # Get all versions of the model filtered by name</span>
 <span class="sd">            model_name = &quot;CordobaWeatherForecastModel&quot;</span>
-<span class="sd">            filter_string = &quot;name=&#39;{}&#39;&quot;.format(model_name)</span>
+<span class="sd">            filter_string = f&quot;name=&#39;{model_name}&#39;&quot;</span>
 <span class="sd">            results = client.search_model_versions(filter_string)</span>
 <span class="sd">            print(&quot;-&quot; * 80)</span>
 <span class="sd">            for res in results:</span>
-<span class="sd">                print(&quot;name={}; run_id={}; version={}&quot;.format(res.name, res.run_id, res.version))</span>
+<span class="sd">                print(f&quot;name={res.name}; run_id={res.run_id}; version={res.version}&quot;)</span>
 
 <span class="sd">            # Get the version of the model filtered by run_id</span>
 <span class="sd">            run_id = &quot;e14afa2f47a040728060c1699968fd43&quot;</span>
-<span class="sd">            filter_string = &quot;run_id=&#39;{}&#39;&quot;.format(run_id)</span>
+<span class="sd">            filter_string = f&quot;run_id=&#39;{run_id}&#39;&quot;</span>
 <span class="sd">            results = client.search_model_versions(filter_string)</span>
 <span class="sd">            print(&quot;-&quot; * 80)</span>
 <span class="sd">            for res in results:</span>
-<span class="sd">                print(&quot;name={}; run_id={}; version={}&quot;.format(res.name, res.run_id, res.version))</span>
+<span class="sd">                print(f&quot;name={res.name}; run_id={res.run_id}; version={res.version}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -3295,10 +3297,10 @@
 
 <span class="sd">            # Create a new version of the rfr model under the registered model name</span>
 <span class="sd">            # fetch valid stages</span>
-<span class="sd">            model_uri = &quot;runs:/{}/models/sklearn-model&quot;.format(run.info.run_id)</span>
+<span class="sd">            model_uri = f&quot;runs:/{run.info.run_id}/models/sklearn-model&quot;</span>
 <span class="sd">            mv = client.create_model_version(name, model_uri, run.info.run_id)</span>
 <span class="sd">            stages = client.get_model_version_stages(name, mv.version)</span>
-<span class="sd">            print(&quot;Model list of valid stages: {}&quot;.format(stages))</span>
+<span class="sd">            print(f&quot;Model list of valid stages: {stages}&quot;)</span>
 
 <span class="sd">        .. code-block:: text</span>
 <span class="sd">            :caption: Output</span>
@@ -3333,9 +3335,9 @@
 
 
 <span class="sd">            def print_model_version_info(mv):</span>
-<span class="sd">                print(&quot;Name: {}&quot;.format(mv.name))</span>
-<span class="sd">                print(&quot;Version: {}&quot;.format(mv.version))</span>
-<span class="sd">                print(&quot;Tags: {}&quot;.format(mv.tags))</span>
+<span class="sd">                print(f&quot;Name: {mv.name}&quot;)</span>
+<span class="sd">                print(f&quot;Version: {mv.version}&quot;)</span>
+<span class="sd">                print(f&quot;Tags: {mv.tags}&quot;)</span>
 
 
 <span class="sd">            mlflow.set_tracking_uri(&quot;sqlite:///mlruns.db&quot;)</span>
@@ -3356,7 +3358,7 @@
 
 <span class="sd">            # Create a new version of the rfr model under the registered model name</span>
 <span class="sd">            # and set a tag</span>
-<span class="sd">            model_uri = &quot;runs:/{}/sklearn-model&quot;.format(run.info.run_id)</span>
+<span class="sd">            model_uri = f&quot;runs:/{run.info.run_id}/sklearn-model&quot;</span>
 <span class="sd">            mv = client.create_model_version(name, model_uri, run.info.run_id)</span>
 <span class="sd">            print_model_version_info(mv)</span>
 <span class="sd">            print(&quot;--&quot;)</span>
@@ -3415,9 +3417,9 @@
 
 
 <span class="sd">            def print_model_version_info(mv):</span>
-<span class="sd">                print(&quot;Name: {}&quot;.format(mv.name))</span>
-<span class="sd">                print(&quot;Version: {}&quot;.format(mv.version))</span>
-<span class="sd">                print(&quot;Tags: {}&quot;.format(mv.tags))</span>
+<span class="sd">                print(f&quot;Name: {mv.name}&quot;)</span>
+<span class="sd">                print(f&quot;Version: {mv.version}&quot;)</span>
+<span class="sd">                print(f&quot;Tags: {mv.tags}&quot;)</span>
 
 
 <span class="sd">            mlflow.set_tracking_uri(&quot;sqlite:///mlruns.db&quot;)</span>
@@ -3438,7 +3440,7 @@
 
 <span class="sd">            # Create a new version of the rfr model under the registered model name</span>
 <span class="sd">            # and delete a tag</span>
-<span class="sd">            model_uri = &quot;runs:/{}/sklearn-model&quot;.format(run.info.run_id)</span>
+<span class="sd">            model_uri = f&quot;runs:/{run.info.run_id}/sklearn-model&quot;</span>
 <span class="sd">            tags = {&quot;t&quot;: &quot;1&quot;, &quot;t1&quot;: &quot;2&quot;}</span>
 <span class="sd">            mv = client.create_model_version(name, model_uri, run.info.run_id, tags=tags)</span>
 <span class="sd">            print_model_version_info(mv)</span>
@@ -3765,7 +3767,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

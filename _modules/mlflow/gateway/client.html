@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.gateway.client &mdash; MLflow 2.6.1.dev0 documentation</title>
+  <title>mlflow.gateway.client &mdash; MLflow 2.7.2.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.6.1.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -65,7 +65,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.6.1.dev0</span>
+    <span class="version">2.7.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,6 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../recipes.html">MLflow Recipes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command-Line Interface</a></li>
@@ -179,28 +180,28 @@
   <h1>Source code for mlflow.gateway.client</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">requests.exceptions</span>
 
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowException</span>
-<span class="kn">from</span> <span class="nn">mlflow.gateway.config</span> <span class="kn">import</span> <span class="n">Route</span>
+<span class="kn">from</span> <span class="nn">mlflow.gateway.config</span> <span class="kn">import</span> <span class="n">LimitsConfig</span><span class="p">,</span> <span class="n">Route</span>
 <span class="kn">from</span> <span class="nn">mlflow.gateway.constants</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MLFLOW_GATEWAY_CLIENT_QUERY_RETRY_CODES</span><span class="p">,</span>
+    <span class="n">MLFLOW_GATEWAY_CLIENT_QUERY_TIMEOUT_SECONDS</span><span class="p">,</span>
     <span class="n">MLFLOW_GATEWAY_CRUD_ROUTE_BASE</span><span class="p">,</span>
+    <span class="n">MLFLOW_GATEWAY_LIMITS_BASE</span><span class="p">,</span>
     <span class="n">MLFLOW_GATEWAY_ROUTE_BASE</span><span class="p">,</span>
     <span class="n">MLFLOW_QUERY_SUFFIX</span><span class="p">,</span>
-    <span class="n">MLFLOW_GATEWAY_CLIENT_QUERY_TIMEOUT_SECONDS</span><span class="p">,</span>
-    <span class="n">MLFLOW_GATEWAY_CLIENT_QUERY_RETRY_CODES</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.gateway.utils</span> <span class="kn">import</span> <span class="n">get_gateway_uri</span><span class="p">,</span> <span class="n">assemble_uri_path</span><span class="p">,</span> <span class="n">resolve_route_url</span>
+<span class="kn">from</span> <span class="nn">mlflow.gateway.utils</span> <span class="kn">import</span> <span class="n">assemble_uri_path</span><span class="p">,</span> <span class="n">get_gateway_uri</span><span class="p">,</span> <span class="n">resolve_route_url</span>
 <span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">BAD_REQUEST</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.entities.paged_list</span> <span class="kn">import</span> <span class="n">PagedList</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking._tracking_service.utils</span> <span class="kn">import</span> <span class="n">_get_default_host_creds</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">experimental</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.databricks_utils</span> <span class="kn">import</span> <span class="n">get_databricks_host_creds</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.rest_utils</span> <span class="kn">import</span> <span class="n">MlflowHostCreds</span><span class="p">,</span> <span class="n">http_request</span><span class="p">,</span> <span class="n">augmented_raise_for_status</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.rest_utils</span> <span class="kn">import</span> <span class="n">augmented_raise_for_status</span><span class="p">,</span> <span class="n">http_request</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.uri</span> <span class="kn">import</span> <span class="n">get_uri_scheme</span>
-
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -217,14 +218,21 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gateway_uri</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_gateway_uri</span> <span class="o">=</span> <span class="n">gateway_uri</span> <span class="ow">or</span> <span class="n">get_gateway_uri</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_host_creds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_host_creds</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_is_databricks_host</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_gateway_uri</span> <span class="o">==</span> <span class="s2">&quot;databricks&quot;</span> <span class="ow">or</span> <span class="n">get_uri_scheme</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gateway_uri</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;databricks&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_resolve_host_creds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MlflowHostCreds</span><span class="p">:</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_host_creds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        NB: When `MlflowGatewayClient` is used as an instance variable in a custom pyfunc model, it</span>
+<span class="sd">        is pickled in the environment where the custom pyfunc model is defined (e.g. a notebook).</span>
+<span class="sd">        When the model is moved to a different environment, e.g. model serving, new credentials</span>
+<span class="sd">        need to be resolved from within the new environment. Accordingly, we re-resolve host</span>
+<span class="sd">        credentials every time a request is made.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_databricks_host</span><span class="p">():</span>
             <span class="k">return</span> <span class="n">get_databricks_host_creds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gateway_uri</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -301,15 +309,25 @@
         <span class="n">response_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_endpoint</span><span class="p">(</span>
             <span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">MLFLOW_GATEWAY_CRUD_ROUTE_BASE</span><span class="p">,</span> <span class="n">json_body</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">request_parameters</span><span class="p">)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">route</span> <span class="ow">in</span> <span class="n">response_json</span><span class="p">[</span><span class="s2">&quot;routes&quot;</span><span class="p">]:</span>
-            <span class="n">route</span><span class="p">[</span><span class="s2">&quot;route_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resolve_route_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gateway_uri</span><span class="p">,</span> <span class="n">route</span><span class="p">[</span><span class="s2">&quot;route_url&quot;</span><span class="p">])</span>
-
-        <span class="n">routes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="o">**</span><span class="n">resp</span><span class="p">)</span> <span class="k">for</span> <span class="n">resp</span> <span class="ow">in</span> <span class="n">response_json</span><span class="p">[</span><span class="s2">&quot;routes&quot;</span><span class="p">]]</span>
+        <span class="n">routes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Route</span><span class="p">(</span>
+                <span class="o">**</span><span class="p">{</span>
+                    <span class="o">**</span><span class="n">resp</span><span class="p">,</span>
+                    <span class="s2">&quot;route_url&quot;</span><span class="p">:</span> <span class="n">resolve_route_url</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_gateway_uri</span><span class="p">,</span>
+                        <span class="n">resp</span><span class="p">[</span><span class="s2">&quot;route_url&quot;</span><span class="p">],</span>
+                    <span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">resp</span> <span class="ow">in</span> <span class="n">response_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;routes&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="p">]</span>
         <span class="n">next_page_token</span> <span class="o">=</span> <span class="n">response_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;next_page_token&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">PagedList</span><span class="p">(</span><span class="n">routes</span><span class="p">,</span> <span class="n">next_page_token</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MlflowGatewayClient.create_route"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.MlflowGatewayClient.create_route">[docs]</a>    <span class="nd">@experimental</span>
-    <span class="k">def</span> <span class="nf">create_route</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">route_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Route</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">create_route</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">route_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Route</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new route in the Gateway.</span>
 
@@ -319,11 +337,12 @@
 <span class="sd">            route configuration is handled via updates to the route configuration YAML file that</span>
 <span class="sd">            is specified during Gateway server start.</span>
 
-<span class="sd">        :param name: The name of the route.</span>
+<span class="sd">        :param name: The name of the route. This parameter is required for all routes.</span>
 <span class="sd">        :param route_type: The type of the route (e.g., &#39;llm/v1/chat&#39;, &#39;llm/v1/completions&#39;,</span>
-<span class="sd">                           &#39;llm/v1/embeddings&#39;).</span>
+<span class="sd">                           &#39;llm/v1/embeddings&#39;). This parameter is required for routes that are</span>
+<span class="sd">                           not managed by Databricks (the provider isn&#39;t &#39;databricks&#39;).</span>
 <span class="sd">        :param model: A dictionary representing the model details to be associated with the route.</span>
-<span class="sd">                      This dictionary should define:</span>
+<span class="sd">                      This parameter is required for all routes. This dictionary should define:</span>
 
 <span class="sd">                      - The model name (e.g., &quot;gpt-3.5-turbo&quot;)</span>
 <span class="sd">                      - The provider (e.g., &quot;openai&quot;, &quot;anthropic&quot;)</span>
@@ -505,7 +524,85 @@
                 <span class="p">)</span>
                 <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">timeout_message</span><span class="p">,</span> <span class="n">error_code</span><span class="o">=</span><span class="n">BAD_REQUEST</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">e</span></div></div>
+                <span class="k">raise</span> <span class="n">e</span></div>
+
+<div class="viewcode-block" id="MlflowGatewayClient.set_limits"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.MlflowGatewayClient.set_limits">[docs]</a>    <span class="nd">@experimental</span>
+    <span class="k">def</span> <span class="nf">set_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">route</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">LimitsConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set limits on an existing route in the Gateway.</span>
+
+<span class="sd">        .. warning::</span>
+
+<span class="sd">            This API is **only available** when running within Databricks.</span>
+
+<span class="sd">        :param route: The name of the route to set limits on.</span>
+<span class="sd">        :param limits: Limits (Array of dictionary) to set on the route. Each limit is defined by a</span>
+<span class="sd">                       dictionary representing the limit details to be associated with the route.</span>
+<span class="sd">                       This dictionary should define:</span>
+
+<span class="sd">                       - renewal_period: a string representing the length of the window</span>
+<span class="sd">                         to enforce limit on (only supports &quot;minute&quot; for now).</span>
+<span class="sd">                       - calls: a non-negative integer representing the number of calls</span>
+<span class="sd">                         allowed per renewal_period (e.g., 10, 0, 55).</span>
+<span class="sd">                       - key: an optional string represents per route limit or per user</span>
+<span class="sd">                         limit (&quot;user&quot; for per user limit, &quot;route&quot; for per route limit, if not</span>
+<span class="sd">                         supplied, default to per route limit).</span>
+
+<span class="sd">        :return: The returned data structure is a serialized representation of the `Limit`</span>
+<span class="sd">            data structure, giving information about the renewal_period, key, and calls.</span>
+
+<span class="sd">        Example usage:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from mlflow.gateway import MlflowGatewayClient</span>
+
+<span class="sd">            gateway_client = MlflowGatewayClient(&quot;databricks&quot;)</span>
+
+<span class="sd">            gateway_client.set_limits(</span>
+<span class="sd">                &quot;my-new-route&quot;, [{&quot;key&quot;: &quot;user&quot;, &quot;renewal_period&quot;: &quot;minute&quot;, &quot;calls&quot;: 50}]</span>
+<span class="sd">            )</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;route&quot;</span><span class="p">:</span> <span class="n">route</span><span class="p">,</span>
+            <span class="s2">&quot;limits&quot;</span><span class="p">:</span> <span class="n">limits</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_endpoint</span><span class="p">(</span>
+            <span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">MLFLOW_GATEWAY_LIMITS_BASE</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">LimitsConfig</span><span class="p">(</span><span class="o">**</span><span class="n">response</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MlflowGatewayClient.get_limits"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.MlflowGatewayClient.get_limits">[docs]</a>    <span class="nd">@experimental</span>
+    <span class="k">def</span> <span class="nf">get_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">route</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LimitsConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get limits of an existing route in the Gateway.</span>
+
+<span class="sd">        .. warning::</span>
+
+<span class="sd">            This API is **only available** when connected to a Databricks-hosted AI Gateway.</span>
+
+<span class="sd">        :param route: The name of the route to get limits of.</span>
+
+<span class="sd">        :return: The returned data structure is a serialized representation of the `Limit` data</span>
+<span class="sd">            structure, giving information about the renewal_period, key, and calls.</span>
+
+<span class="sd">        Example usage:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from mlflow.gateway import MlflowGatewayClient</span>
+
+<span class="sd">            gateway_client = MlflowGatewayClient(&quot;databricks&quot;)</span>
+
+<span class="sd">            gateway_client.get_limits(&quot;my-new-route&quot;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">route</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span><span class="s2">&quot;A non-empty string is required for the route.&quot;</span><span class="p">,</span> <span class="n">BAD_REQUEST</span><span class="p">)</span>
+        <span class="n">route_uri</span> <span class="o">=</span> <span class="n">assemble_uri_path</span><span class="p">([</span><span class="n">MLFLOW_GATEWAY_LIMITS_BASE</span><span class="p">,</span> <span class="n">route</span><span class="p">])</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_endpoint</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">route_uri</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">LimitsConfig</span><span class="p">(</span><span class="o">**</span><span class="n">response</span><span class="p">)</span></div></div>
 </pre></div>
 
               </div>
@@ -536,7 +633,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.6.1.dev0',
+      VERSION:'2.7.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

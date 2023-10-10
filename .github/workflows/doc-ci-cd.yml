@@ -32,14 +32,10 @@ jobs:
           python-version: "3.8"
       - name: Install dependencies
         run: |
-          pip install -r core-requirements.txt
+          : # https://github.com/orgs/community/discussions/25678
+          ../.github/workflows/free_disk_space.sh
           pip install -r dev-requirements.txt
           pip install -r doc-requirements.txt
-          pip install -r extra-ml-requirements.txt
-          pip install -r lint-requirements.txt
-          pip install -r skinny-requirements.txt
-          pip install -r skinny-test-requirements.txt
-          pip install -r test-requirements.txt
         working-directory: requirements
       - name: Build docs
         run: make html

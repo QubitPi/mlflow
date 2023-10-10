@@ -15,10 +15,7 @@
 name: MLflow IaC Definition (HashiCorp)
 
 on:
-  pull_request:
-    branches: [master]
-  push:
-    branches: [master]
+  workflow_call:
 
 jobs:
   hashicorp:
@@ -30,8 +27,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Load Packer variable file
+        run: |
+          echo '${{ secrets.HASHICORP_PACKER_AUTO_VAR_FILE }}' > hashicorp/images/aws.auto.pkrvars.hcl
+      - name: Load Terraform variable file
+        run: |
+          echo '${{ secrets.HASHICORP_TERRAFORM_AUTO_VAR_FILE }}' > hashicorp/instances/aws.auto.pkrvars.hcl
       - name: Publish MLflow AMI image and deploy it to EC2 through HashiCorp
-        uses: QubitPi/hashicorp-aws@master
+        uses: QubitPi/aergia@master
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

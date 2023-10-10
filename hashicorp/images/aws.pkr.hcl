@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+variable "aws_image_region" {
+  type =  string
+  sensitive = true
+}
+
 packer {
   required_plugins {
     amazon = {

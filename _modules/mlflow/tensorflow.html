@@ -954,10 +954,7 @@
                 <span class="c1"># with the shared name. TensorFlow cannot make eager tensors out of pandas</span>
                 <span class="c1"># DataFrames, so we convert the DataFrame to a numpy array here.</span>
                 <span class="n">val</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">df_col_name</span><span class="p">]</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-                    <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">values</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">values</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
                 <span class="n">feed_dict</span><span class="p">[</span><span class="n">df_col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tensorflow</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Only dict and DataFrame input types are supported&quot;</span><span class="p">)</span>
@@ -1362,10 +1359,7 @@
                         <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">first_batch_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                 <span class="k">elif</span> <span class="n">is_iterator</span><span class="p">(</span><span class="n">training_data</span><span class="p">):</span>
                     <span class="n">peek</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">training_data</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">is_single_input_model</span><span class="p">:</span>
-                        <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">peek</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">peek</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">peek</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">is_single_input_model</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">peek</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
                     <span class="k">def</span> <span class="nf">__restore_generator</span><span class="p">(</span><span class="n">prev_generator</span><span class="p">):</span>
                         <span class="k">yield</span> <span class="n">peek</span>

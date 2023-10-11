@@ -1102,10 +1102,7 @@
 
 
 <span class="k">def</span> <span class="nf">_create_model_downloading_tmp_dir</span><span class="p">(</span><span class="n">should_use_nfs</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">should_use_nfs</span><span class="p">:</span>
-        <span class="n">root_tmp_dir</span> <span class="o">=</span> <span class="n">get_or_create_nfs_tmp_dir</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">root_tmp_dir</span> <span class="o">=</span> <span class="n">get_or_create_tmp_dir</span><span class="p">()</span>
+    <span class="n">root_tmp_dir</span> <span class="o">=</span> <span class="n">get_or_create_nfs_tmp_dir</span><span class="p">()</span> <span class="k">if</span> <span class="n">should_use_nfs</span> <span class="k">else</span> <span class="n">get_or_create_tmp_dir</span><span class="p">()</span>
 
     <span class="n">root_model_cache_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_tmp_dir</span><span class="p">,</span> <span class="s2">&quot;models&quot;</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">root_model_cache_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

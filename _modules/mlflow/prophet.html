@@ -352,6 +352,7 @@
     <span class="n">mlflow_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">MLMODEL_FILE_NAME</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="n">conda_env</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">default_reqs</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">pip_requirements</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># cannot use inferred requirements due to prophet&#39;s build process</span>
             <span class="c1"># as the package installation of pystan requires Cython to be present</span>
@@ -361,8 +362,6 @@
             <span class="c1"># NOTE: if Prophet .whl build architecture is changed, this should be</span>
             <span class="c1"># modified to a standard inferred approach.</span>
             <span class="n">default_reqs</span> <span class="o">=</span> <span class="n">get_default_pip_requirements</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">default_reqs</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">conda_env</span><span class="p">,</span> <span class="n">pip_requirements</span><span class="p">,</span> <span class="n">pip_constraints</span> <span class="o">=</span> <span class="n">_process_pip_requirements</span><span class="p">(</span>
             <span class="n">default_reqs</span><span class="p">,</span>
             <span class="n">pip_requirements</span><span class="p">,</span>

@@ -107,6 +107,8 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart: Install MLflow, instrument code &amp; view results in minutes</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart: Running Machine Learning Model as REST API in Docker Container</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#defining-and-storing-the-model-as-a-python-function-in-mlflow">Defining and Storing the Model as a Python Function in MLflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-the-model">Testing the Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#serving-the-model-in-docker-container-via-rest-api">Serving the Model in Docker Container via REST API</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart_mlops.html">Quickstart: Compare runs, choose a model, and deploy it to a REST API</a></li>
@@ -190,6 +192,141 @@ deployment via Docker quite easy.</p>
 <h2>Defining and Storing the Model as a Python Function in MLflow<a class="headerlink" href="#defining-and-storing-the-model-as-a-python-function-in-mlflow" title="Permalink to this headline"> </a></h2>
 <p>The model inference logic is wrapped in a class that inherits from <a class="reference internal" href="python_api/mlflow.pyfunc.html#mlflow.pyfunc.PythonModel" title="mlflow.pyfunc.PythonModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">PythonModel</span></code></a>. There are two
 functions to implement:</p>
+<ol class="arabic simple">
+<li><p><em>load_context()</em> loads the model artifacts</p></li>
+<li><p><em>predict()</em> runs model inference on the given input and returns the model’s output; the input format will be pandas
+DataFrame and the output will be a pandas Series of predicted result.</p></li>
+</ol>
+<p>For example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.pyfunc</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">load_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="n">pretrained_model</span> <span class="o">=</span> <span class="s2">&quot;my-model&quot;</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">pretrained_model</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">):</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">model_input</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;input_column&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Next, we save the model locally to a preferred directory. For instance, “my-model-dir/”. We would also need to include a
+conda environment specifying its dependencies:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conda_env</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;channels&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;defaults&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;dependencies&#39;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s1">&#39;python=3.10.7&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;pip&#39;</span><span class="p">,</span>
+      <span class="p">{</span>
+        <span class="s1">&#39;pip&#39;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="s1">&#39;mlflow&#39;</span><span class="p">,</span>
+          <span class="s1">&#39;&lt;other python packages if needed&gt;&#39;</span>
+        <span class="p">],</span>
+      <span class="p">},</span>
+    <span class="p">],</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;my_model_env&#39;</span>
+<span class="p">}</span>
+
+<span class="c1"># Save the MLflow Model</span>
+<span class="n">mlflow_pyfunc_model_path</span> <span class="o">=</span> <span class="s2">&quot;my-model-dir&quot;</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">mlflow_pyfunc_model_path</span><span class="p">,</span> <span class="n">python_model</span><span class="o">=</span><span class="n">MyModel</span><span class="p">(),</span> <span class="n">conda_env</span><span class="o">=</span><span class="n">conda_env</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the end, we should have a file called <cite>MyModel.py</cite> with</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.pyfunc</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">load_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="n">pretrained_model</span> <span class="o">=</span> <span class="s2">&quot;my-model&quot;</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">pretrained_model</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">):</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">model_input</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;input_column&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">conda_env</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;channels&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;defaults&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;dependencies&#39;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="s1">&#39;python=3.10.7&#39;</span><span class="p">,</span>
+          <span class="s1">&#39;pip&#39;</span><span class="p">,</span>
+          <span class="p">{</span>
+            <span class="s1">&#39;pip&#39;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="s1">&#39;mlflow&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;&lt;other python packages if needed&gt;&#39;</span>
+            <span class="p">],</span>
+          <span class="p">},</span>
+        <span class="p">],</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;my_model_env&#39;</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Save the MLflow Model</span>
+    <span class="n">mlflow_pyfunc_model_path</span> <span class="o">=</span> <span class="s2">&quot;my-model-dir&quot;</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">mlflow_pyfunc_model_path</span><span class="p">,</span> <span class="n">python_model</span><span class="o">=</span><span class="n">MyModel</span><span class="p">(),</span> <span class="n">conda_env</span><span class="o">=</span><span class="n">conda_env</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="testing-the-model">
+<h2>Testing the Model<a class="headerlink" href="#testing-the-model" title="Permalink to this headline"> </a></h2>
+<p>In case we would like to unit test our model in CI/CD:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loaded_model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">mlflow_pyfunc_model_path</span><span class="p">)</span>
+
+<span class="c1"># Evaluate the model</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="n">test_data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;input_column&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;input1...&quot;</span><span class="p">,</span> <span class="s2">&quot;input2...&quot;</span><span class="p">,</span> <span class="s2">&quot;input3...&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;another_input_column&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="n">test_predictions</span> <span class="o">=</span> <span class="n">loaded_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">test_predictions</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="serving-the-model-in-docker-container-via-rest-api">
+<h2>Serving the Model in Docker Container via REST API<a class="headerlink" href="#serving-the-model-in-docker-container-via-rest-api" title="Permalink to this headline"> </a></h2>
+<p><a class="reference internal" href="cli.html#cli"><span class="std std-ref">CLI</span></a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mlflow<span class="w"> </span>models<span class="w"> </span>build-docker<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;docker-image-name&quot;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If we see the error of
+<cite>requests.exceptions.ConnectionError: (‘Connection aborted.’, FileNotFoundError(2, ‘No such file or directory’))</cite>
+from the command above, we can try
+<a class="reference external" href="https://github.com/docker/docker-py/issues/3059#issuecomment-1294369344">this workaround</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">ln</span> <span class="o">-</span><span class="n">s</span> <span class="s2">&quot;$HOME/.docker/run/docker.sock&quot;</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">run</span><span class="o">/</span><span class="n">docker</span><span class="o">.</span><span class="n">sock</span>
+</pre></div>
+</div>
+<p>and then re-run the command</p>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">MY_MODEL_PATH</span><span class="o">=</span>/abs/path/to/my-model-dir
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span><span class="m">5001</span>:8080<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span><span class="nv">$MY_MODEL_PATH</span>:/opt/ml/model<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;docker-image-name&quot;</span>
+</pre></div>
+</div>
+<p>-e GUNICORN_CMD_ARGS=”–timeout 60 -k gevent –workers=1” </p>
 </div>
 </div>
 

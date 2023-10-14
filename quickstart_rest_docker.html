@@ -201,8 +201,8 @@ DataFrame and the output will be a pandas Series of predicted result.</p></li>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.pyfunc</span>
 <span class="kn">import</span> <span class="nn">pandas</span>
 
-<span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
 
+<span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -221,31 +221,30 @@ DataFrame and the output will be a pandas Series of predicted result.</p></li>
 <p>Next, we save the model locally to a preferred directory. For instance, “my-model-dir/”. We would also need to include a
 conda environment specifying its dependencies:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conda_env</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;channels&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;defaults&#39;</span><span class="p">],</span>
-    <span class="s1">&#39;dependencies&#39;</span><span class="p">:</span> <span class="p">[</span>
-      <span class="s1">&#39;python=3.10.7&#39;</span><span class="p">,</span>
-      <span class="s1">&#39;pip&#39;</span><span class="p">,</span>
-      <span class="p">{</span>
-        <span class="s1">&#39;pip&#39;</span><span class="p">:</span> <span class="p">[</span>
-          <span class="s1">&#39;mlflow&#39;</span><span class="p">,</span>
-          <span class="s1">&#39;&lt;other python packages if needed&gt;&#39;</span>
-        <span class="p">],</span>
-      <span class="p">},</span>
+    <span class="s2">&quot;channels&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;defaults&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;python=3.10.7&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pip&quot;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;pip&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;mlflow&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;other python packages if needed&gt;&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
     <span class="p">],</span>
-    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;my_model_env&#39;</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;my_model_env&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="c1"># Save the MLflow Model</span>
 <span class="n">mlflow_pyfunc_model_path</span> <span class="o">=</span> <span class="s2">&quot;my-model-dir&quot;</span>
-<span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">mlflow_pyfunc_model_path</span><span class="p">,</span> <span class="n">python_model</span><span class="o">=</span><span class="n">MyModel</span><span class="p">(),</span> <span class="n">conda_env</span><span class="o">=</span><span class="n">conda_env</span><span class="p">)</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span>
+    <span class="n">path</span><span class="o">=</span><span class="n">mlflow_pyfunc_model_path</span><span class="p">,</span> <span class="n">python_model</span><span class="o">=</span><span class="n">MyModel</span><span class="p">(),</span> <span class="n">conda_env</span><span class="o">=</span><span class="n">conda_env</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>In the end, we should have a file called <cite>MyModel.py</cite> with</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.pyfunc</span>
 <span class="kn">import</span> <span class="nn">pandas</span>
 
-<span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
 
+<span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -261,25 +260,24 @@ conda environment specifying its dependencies:</p>
         <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">conda_env</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;channels&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;defaults&#39;</span><span class="p">],</span>
-        <span class="s1">&#39;dependencies&#39;</span><span class="p">:</span> <span class="p">[</span>
-          <span class="s1">&#39;python=3.10.7&#39;</span><span class="p">,</span>
-          <span class="s1">&#39;pip&#39;</span><span class="p">,</span>
-          <span class="p">{</span>
-            <span class="s1">&#39;pip&#39;</span><span class="p">:</span> <span class="p">[</span>
-              <span class="s1">&#39;mlflow&#39;</span><span class="p">,</span>
-              <span class="s1">&#39;&lt;other python packages if needed&gt;&#39;</span>
-            <span class="p">],</span>
-          <span class="p">},</span>
+        <span class="s2">&quot;channels&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;defaults&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;python=3.10.7&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pip&quot;</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;pip&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;mlflow&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;other python packages if needed&gt;&quot;</span><span class="p">],</span>
+            <span class="p">},</span>
         <span class="p">],</span>
-        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;my_model_env&#39;</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;my_model_env&quot;</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="c1"># Save the MLflow Model</span>
     <span class="n">mlflow_pyfunc_model_path</span> <span class="o">=</span> <span class="s2">&quot;my-model-dir&quot;</span>
-    <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">mlflow_pyfunc_model_path</span><span class="p">,</span> <span class="n">python_model</span><span class="o">=</span><span class="n">MyModel</span><span class="p">(),</span> <span class="n">conda_env</span><span class="o">=</span><span class="n">conda_env</span><span class="p">)</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span>
+        <span class="n">path</span><span class="o">=</span><span class="n">mlflow_pyfunc_model_path</span><span class="p">,</span> <span class="n">python_model</span><span class="o">=</span><span class="n">MyModel</span><span class="p">(),</span> <span class="n">conda_env</span><span class="o">=</span><span class="n">conda_env</span>
+    <span class="p">)</span>
 </pre></div>
 </div>
 </div>

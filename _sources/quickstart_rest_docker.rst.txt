@@ -29,8 +29,8 @@ For example
     import mlflow.pyfunc
     import pandas
 
-    class MyModel(mlflow.pyfunc.PythonModel):
 
+    class MyModel(mlflow.pyfunc.PythonModel):
         def __init__(self):
             self.model = None
 
@@ -51,23 +51,22 @@ conda environment specifying its dependencies:
 .. code-block:: python
 
     conda_env = {
-        'channels': ['defaults'],
-        'dependencies': [
-          'python=3.10.7',
-          'pip',
-          {
-            'pip': [
-              'mlflow',
-              '<other python packages if needed>'
-            ],
-          },
+        "channels": ["defaults"],
+        "dependencies": [
+            "python=3.10.7",
+            "pip",
+            {
+                "pip": ["mlflow", "<other python packages if needed>"],
+            },
         ],
-        'name': 'my_model_env'
+        "name": "my_model_env",
     }
 
     # Save the MLflow Model
     mlflow_pyfunc_model_path = "my-model-dir"
-    mlflow.pyfunc.save_model(path=mlflow_pyfunc_model_path, python_model=MyModel(), conda_env=conda_env)
+    mlflow.pyfunc.save_model(
+        path=mlflow_pyfunc_model_path, python_model=MyModel(), conda_env=conda_env
+    )
 
 In the end, we should have a file called `MyModel.py` with
 
@@ -76,8 +75,8 @@ In the end, we should have a file called `MyModel.py` with
     import mlflow.pyfunc
     import pandas
 
-    class MyModel(mlflow.pyfunc.PythonModel):
 
+    class MyModel(mlflow.pyfunc.PythonModel):
         def __init__(self):
             self.model = None
 
@@ -93,25 +92,24 @@ In the end, we should have a file called `MyModel.py` with
             return pandas.Series(self.model(inputs))
 
 
-    if __name__ == '__main__':
+    if __name__ == "__main__":
         conda_env = {
-            'channels': ['defaults'],
-            'dependencies': [
-              'python=3.10.7',
-              'pip',
-              {
-                'pip': [
-                  'mlflow',
-                  '<other python packages if needed>'
-                ],
-              },
+            "channels": ["defaults"],
+            "dependencies": [
+                "python=3.10.7",
+                "pip",
+                {
+                    "pip": ["mlflow", "<other python packages if needed>"],
+                },
             ],
-            'name': 'my_model_env'
+            "name": "my_model_env",
         }
 
         # Save the MLflow Model
         mlflow_pyfunc_model_path = "my-model-dir"
-        mlflow.pyfunc.save_model(path=mlflow_pyfunc_model_path, python_model=MyModel(), conda_env=conda_env)
+        mlflow.pyfunc.save_model(
+            path=mlflow_pyfunc_model_path, python_model=MyModel(), conda_env=conda_env
+        )
 
 Testing the Model
 -----------------

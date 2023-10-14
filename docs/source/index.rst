@@ -257,6 +257,7 @@ Deployment Guides and Tutorials
 
     introduction/index
     getting-started/index
+    quickstart_rest_docker
     new-features/index
     llms/index
     model-evaluation/index

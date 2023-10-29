@@ -37,6 +37,9 @@
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600" rel="stylesheet">
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/cards.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/simple-cards.css" type="text/css" />
     
   
         <link rel="index" title="Index"
@@ -54,6 +57,7 @@
 <script type="text/javascript" src="_static/underscore.js"></script>
 <script type="text/javascript" src="_static/doctools.js"></script>
 <script type="text/javascript" src="_static/languagesections.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -103,20 +107,19 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="what-is-mlflow.html">What is MLflow?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart: Install MLflow, instrument code &amp; view results in minutes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart_rest_docker.html">Quickstart: Running Machine Learning Model as REST API in Docker Container</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart_mlops.html">Quickstart: Compare runs, choose a model, and deploy it to a REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials-and-examples/index.html">Tutorials and Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction/index.html">What is Mlflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting-started/index.html">Getting Started with MLflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="new-features/index.html">New Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model-evaluation/index.html">Model Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deep-learning/index.html">Deep Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="traditional-ml/index.html">Traditional ML</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tracking.html">MLflow Tracking</a></li>
-<li class="toctree-l1"><a class="reference internal" href="llm-tracking.html">MLflow LLM Tracking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="recipes.html">MLflow Recipes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Command-Line Interface</a><ul>
@@ -157,6 +160,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#mlflow-experiments-rename">rename</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mlflow-experiments-restore">restore</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mlflow-experiments-search">search</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#mlflow-gateway">gateway</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mlflow-gateway-start">start</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#mlflow-gc">gc</a></li>
@@ -202,8 +209,8 @@
 <li class="toctree-l1"><a class="reference internal" href="java_api/index.html">Java API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest-api.html">REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docker.html">Official MLflow Docker Image</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hashicorp.html">MLflow AMI Image</a></li>
 <li class="toctree-l1"><a class="reference internal" href="community-model-flavors.html">Community Model Flavors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials-and-examples/index.html">Tutorials and Examples</a></li>
 </ul>
 
       
@@ -269,13 +276,14 @@ and <a class="reference external" href="https://aws.amazon.com/sagemaker/">Amazo
 <li><p><a class="reference internal" href="#mlflow-deployments" id="id4">deployments</a></p></li>
 <li><p><a class="reference internal" href="#mlflow-doctor" id="id5">doctor</a></p></li>
 <li><p><a class="reference internal" href="#mlflow-experiments" id="id6">experiments</a></p></li>
-<li><p><a class="reference internal" href="#mlflow-gc" id="id7">gc</a></p></li>
-<li><p><a class="reference internal" href="#mlflow-models" id="id8">models</a></p></li>
-<li><p><a class="reference internal" href="#mlflow-recipes" id="id9">recipes</a></p></li>
-<li><p><a class="reference internal" href="#mlflow-run" id="id10">run</a></p></li>
-<li><p><a class="reference internal" href="#mlflow-runs" id="id11">runs</a></p></li>
-<li><p><a class="reference internal" href="#mlflow-sagemaker" id="id12">sagemaker</a></p></li>
-<li><p><a class="reference internal" href="#mlflow-server" id="id13">server</a></p></li>
+<li><p><a class="reference internal" href="#mlflow-gateway" id="id7">gateway</a></p></li>
+<li><p><a class="reference internal" href="#mlflow-gc" id="id8">gc</a></p></li>
+<li><p><a class="reference internal" href="#mlflow-models" id="id9">models</a></p></li>
+<li><p><a class="reference internal" href="#mlflow-recipes" id="id10">recipes</a></p></li>
+<li><p><a class="reference internal" href="#mlflow-run" id="id11">run</a></p></li>
+<li><p><a class="reference internal" href="#mlflow-runs" id="id12">runs</a></p></li>
+<li><p><a class="reference internal" href="#mlflow-sagemaker" id="id13">sagemaker</a></p></li>
+<li><p><a class="reference internal" href="#mlflow-server" id="id14">server</a></p></li>
 </ul>
 </li>
 </ul>
@@ -311,25 +319,25 @@ The output is the name of the file or directory on the local filesystem.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-artifacts-download-r">
-<span id="cmdoption-mlflow-artifacts-download-run-id"></span><code class="sig-name descname"><span class="pre">-r</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--run-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;run_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-download-r" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-r</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--run-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;run_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-download-r" title="Permalink to this definition"> </a></dt>
 <dd><p>Run ID from which to download</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-artifacts-download-a">
-<span id="cmdoption-mlflow-artifacts-download-artifact-path"></span><code class="sig-name descname"><span class="pre">-a</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--artifact-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;artifact_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-download-a" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-a</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--artifact-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;artifact_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-download-a" title="Permalink to this definition"> </a></dt>
 <dd><p>For use with Run ID: if specified, a path relative to the run’s root directory to download</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-artifacts-download-u">
-<span id="cmdoption-mlflow-artifacts-download-artifact-uri"></span><code class="sig-name descname"><span class="pre">-u</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--artifact-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;artifact_uri&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-download-u" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-u</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--artifact-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;artifact_uri&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-download-u" title="Permalink to this definition"> </a></dt>
 <dd><p>URI pointing to the artifact file or artifacts directory; use as an alternative to specifying –run_id and –artifact-path</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-artifacts-download-d">
-<span id="cmdoption-mlflow-artifacts-download-dst-path"></span><code class="sig-name descname"><span class="pre">-d</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--dst-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;dst_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-download-d" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-d</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--dst-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;dst_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-download-d" title="Permalink to this definition"> </a></dt>
 <dd><p>Path of the local filesystem destination directory to which to download the specified artifacts. If the directory does not exist, it is created. If unspecified the artifacts are downloaded to a new uniquely-named directory on the local filesystem, unless the artifacts already exist on the local filesystem, in which case their local path is returned directly</p>
 </dd></dl>
 
@@ -344,13 +352,13 @@ or a sub-directory. The output is a JSON-formatted list.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-artifacts-list-r">
-<span id="cmdoption-mlflow-artifacts-list-run-id"></span><code class="sig-name descname"><span class="pre">-r</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--run-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;run_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-list-r" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-r</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--run-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;run_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-list-r" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Run ID to be listed</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-artifacts-list-a">
-<span id="cmdoption-mlflow-artifacts-list-artifact-path"></span><code class="sig-name descname"><span class="pre">-a</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--artifact-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;artifact_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-list-a" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-a</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--artifact-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;artifact_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-list-a" title="Permalink to this definition"> </a></dt>
 <dd><p>If specified, a path relative to the run’s root directory to list.</p>
 </dd></dl>
 
@@ -366,19 +374,19 @@ place the artifact in a directory this way.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-artifacts-log-artifact-l">
-<span id="cmdoption-mlflow-artifacts-log-artifact-local-file"></span><code class="sig-name descname"><span class="pre">-l</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--local-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;local_file&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-log-artifact-l" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-l</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--local-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;local_file&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-log-artifact-l" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Local path to artifact to log</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-artifacts-log-artifact-r">
-<span id="cmdoption-mlflow-artifacts-log-artifact-run-id"></span><code class="sig-name descname"><span class="pre">-r</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--run-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;run_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-log-artifact-r" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-r</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--run-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;run_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-log-artifact-r" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Run ID into which we should log the artifact.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-artifacts-log-artifact-a">
-<span id="cmdoption-mlflow-artifacts-log-artifact-artifact-path"></span><code class="sig-name descname"><span class="pre">-a</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--artifact-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;artifact_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-log-artifact-a" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-a</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--artifact-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;artifact_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-log-artifact-a" title="Permalink to this definition"> </a></dt>
 <dd><p>If specified, we will log the artifact into this subdirectory of the run’s artifact directory.</p>
 </dd></dl>
 
@@ -394,19 +402,19 @@ directories, so you can place the artifact in a directory this way.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-artifacts-log-artifacts-l">
-<span id="cmdoption-mlflow-artifacts-log-artifacts-local-dir"></span><code class="sig-name descname"><span class="pre">-l</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--local-dir</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;local_dir&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-log-artifacts-l" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-l</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--local-dir</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;local_dir&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-log-artifacts-l" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Directory of local artifacts to log</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-artifacts-log-artifacts-r">
-<span id="cmdoption-mlflow-artifacts-log-artifacts-run-id"></span><code class="sig-name descname"><span class="pre">-r</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--run-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;run_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-log-artifacts-r" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-r</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--run-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;run_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-log-artifacts-r" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Run ID into which we should log the artifact.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-artifacts-log-artifacts-a">
-<span id="cmdoption-mlflow-artifacts-log-artifacts-artifact-path"></span><code class="sig-name descname"><span class="pre">-a</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--artifact-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;artifact_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-log-artifacts-a" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-a</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--artifact-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;artifact_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-artifacts-log-artifacts-a" title="Permalink to this definition"> </a></dt>
 <dd><p>If specified, we will log the artifact into this subdirectory of the run’s artifact directory.</p>
 </dd></dl>
 
@@ -433,7 +441,7 @@ recover from failures.</p>
 <p class="rubric">Arguments</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-db-upgrade-arg-URL">
-<span id="cmdoption-mlflow-db-upgrade-arg-url"></span><code class="sig-name descname"><span class="pre">URL</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-mlflow-db-upgrade-arg-URL" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">URL</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-mlflow-db-upgrade-arg-URL" title="Permalink to this definition"> </a></dt>
 <dd><p>Required argument</p>
 </dd></dl>
 
@@ -469,7 +477,7 @@ writing and distributing a plugin, see
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-create-C">
-<span id="cmdoption-mlflow-deployments-create-c"></span><span id="cmdoption-mlflow-deployments-create-config"></span><code class="sig-name descname"><span class="pre">-C</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-create-C" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-C</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-create-C" title="Permalink to this definition"> </a></dt>
 <dd><p>Extra target-specific config for the model deployment, of the form -C name=value. See documentation/help for your deployment target for a list of supported config options.</p>
 </dd></dl>
 
@@ -481,7 +489,7 @@ writing and distributing a plugin, see
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-create-t">
-<span id="cmdoption-mlflow-deployments-create-target"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-create-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-create-t" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Deployment target URI. Run
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
@@ -494,13 +502,13 @@ instructions at
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-create-m">
-<span id="cmdoption-mlflow-deployments-create-model-uri"></span><code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-create-m" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-create-m" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> URI to the model. A local path, a ‘runs:/’ URI, or a remote storage URI (e.g., an ‘s3://’ URI). For more information about supported remote URIs for model artifacts, see https://mlflow.org/docs/latest/tracking.html#artifact-stores</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-create-f">
-<span id="cmdoption-mlflow-deployments-create-flavor"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--flavor</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;flavor&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-create-f" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--flavor</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;flavor&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-create-f" title="Permalink to this definition"> </a></dt>
 <dd><p>Which flavor to be deployed. This will be auto inferred if it’s not given</p>
 </dd></dl>
 
@@ -515,7 +523,7 @@ instructions at
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-create-endpoint-C">
-<span id="cmdoption-mlflow-deployments-create-endpoint-c"></span><span id="cmdoption-mlflow-deployments-create-endpoint-config"></span><code class="sig-name descname"><span class="pre">-C</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-create-endpoint-C" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-C</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-create-endpoint-C" title="Permalink to this definition"> </a></dt>
 <dd><p>Extra target-specific config for the endpoint, of the form -C name=value. See documentation/help for your deployment target for a list of supported config options.</p>
 </dd></dl>
 
@@ -527,7 +535,7 @@ instructions at
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-create-endpoint-t">
-<span id="cmdoption-mlflow-deployments-create-endpoint-target"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-create-endpoint-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-create-endpoint-t" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Deployment target URI. Run
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
@@ -554,7 +562,7 @@ instructions at
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-delete-C">
-<span id="cmdoption-mlflow-deployments-delete-c"></span><span id="cmdoption-mlflow-deployments-delete-config"></span><code class="sig-name descname"><span class="pre">-C</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-delete-C" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-C</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-delete-C" title="Permalink to this definition"> </a></dt>
 <dd><p>Extra target-specific config for the model deployment, of the form -C name=value. See documentation/help for your deployment target for a list of supported config options.</p>
 </dd></dl>
 
@@ -566,7 +574,7 @@ instructions at
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-delete-t">
-<span id="cmdoption-mlflow-deployments-delete-target"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-delete-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-delete-t" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Deployment target URI. Run
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
@@ -593,7 +601,7 @@ instructions at
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-delete-endpoint-t">
-<span id="cmdoption-mlflow-deployments-delete-endpoint-target"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-delete-endpoint-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-delete-endpoint-t" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Deployment target URI. Run
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
@@ -633,7 +641,7 @@ see the following documentation:
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-explain-t">
-<span id="cmdoption-mlflow-deployments-explain-target"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-explain-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-explain-t" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Deployment target URI. Run
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
@@ -646,13 +654,13 @@ instructions at
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-explain-I">
-<span id="cmdoption-mlflow-deployments-explain-i"></span><span id="cmdoption-mlflow-deployments-explain-input-path"></span><code class="sig-name descname"><span class="pre">-I</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--input-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;input_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-explain-I" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-I</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--input-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;input_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-explain-I" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Path to input json file for prediction</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-explain-O">
-<span id="cmdoption-mlflow-deployments-explain-o"></span><span id="cmdoption-mlflow-deployments-explain-output-path"></span><code class="sig-name descname"><span class="pre">-O</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-explain-O" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-O</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-explain-O" title="Permalink to this definition"> </a></dt>
 <dd><p>File to output results to as a JSON file. If not provided, prints output to stdout.</p>
 </dd></dl>
 
@@ -679,7 +687,7 @@ target.</p>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-get-t">
-<span id="cmdoption-mlflow-deployments-get-target"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-get-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-get-t" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Deployment target URI. Run
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
@@ -706,7 +714,7 @@ instructions at
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-get-endpoint-t">
-<span id="cmdoption-mlflow-deployments-get-endpoint-target"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-get-endpoint-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-get-endpoint-t" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Deployment target URI. Run
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
@@ -728,7 +736,7 @@ options and the target’s URI format.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-help-t">
-<span id="cmdoption-mlflow-deployments-help-target"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-help-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-help-t" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Deployment target URI. Run
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
@@ -756,7 +764,7 @@ the <cite>delete</cite>, <cite>update</cite>, and <cite>get</cite> commands.</p>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-list-t">
-<span id="cmdoption-mlflow-deployments-list-target"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-list-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-list-t" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Deployment target URI. Run
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
@@ -777,7 +785,7 @@ instructions at
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-list-endpoints-t">
-<span id="cmdoption-mlflow-deployments-list-endpoints-target"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-list-endpoints-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-list-endpoints-t" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Deployment target URI. Run
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
@@ -810,7 +818,7 @@ instructions at
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-predict-t">
-<span id="cmdoption-mlflow-deployments-predict-target"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-predict-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-predict-t" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Deployment target URI. Run
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
@@ -823,13 +831,13 @@ instructions at
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-predict-I">
-<span id="cmdoption-mlflow-deployments-predict-i"></span><span id="cmdoption-mlflow-deployments-predict-input-path"></span><code class="sig-name descname"><span class="pre">-I</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--input-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;input_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-predict-I" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-I</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--input-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;input_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-predict-I" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Path to input json file for prediction</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-predict-O">
-<span id="cmdoption-mlflow-deployments-predict-o"></span><span id="cmdoption-mlflow-deployments-predict-output-path"></span><code class="sig-name descname"><span class="pre">-O</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-predict-O" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-O</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-predict-O" title="Permalink to this definition"> </a></dt>
 <dd><p>File to output results to as a JSON file. If not provided, prints output to stdout.</p>
 </dd></dl>
 
@@ -843,7 +851,7 @@ instructions at
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-run-local-C">
-<span id="cmdoption-mlflow-deployments-run-local-c"></span><span id="cmdoption-mlflow-deployments-run-local-config"></span><code class="sig-name descname"><span class="pre">-C</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-run-local-C" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-C</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-run-local-C" title="Permalink to this definition"> </a></dt>
 <dd><p>Extra target-specific config for the model deployment, of the form -C name=value. See documentation/help for your deployment target for a list of supported config options.</p>
 </dd></dl>
 
@@ -855,7 +863,7 @@ instructions at
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-run-local-t">
-<span id="cmdoption-mlflow-deployments-run-local-target"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-run-local-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-run-local-t" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Deployment target URI. Run
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
@@ -868,13 +876,13 @@ instructions at
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-run-local-m">
-<span id="cmdoption-mlflow-deployments-run-local-model-uri"></span><code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-run-local-m" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-run-local-m" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> URI to the model. A local path, a ‘runs:/’ URI, or a remote storage URI (e.g., an ‘s3://’ URI). For more information about supported remote URIs for model artifacts, see https://mlflow.org/docs/latest/tracking.html#artifact-stores</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-run-local-f">
-<span id="cmdoption-mlflow-deployments-run-local-flavor"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--flavor</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;flavor&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-run-local-f" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--flavor</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;flavor&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-run-local-f" title="Permalink to this definition"> </a></dt>
 <dd><p>Which flavor to be deployed. This will be auto inferred if it’s not given</p>
 </dd></dl>
 
@@ -897,7 +905,7 @@ model URI must also be specified).</p>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-update-C">
-<span id="cmdoption-mlflow-deployments-update-c"></span><span id="cmdoption-mlflow-deployments-update-config"></span><code class="sig-name descname"><span class="pre">-C</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-update-C" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-C</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-update-C" title="Permalink to this definition"> </a></dt>
 <dd><p>Extra target-specific config for the model deployment, of the form -C name=value. See documentation/help for your deployment target for a list of supported config options.</p>
 </dd></dl>
 
@@ -909,7 +917,7 @@ model URI must also be specified).</p>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-update-t">
-<span id="cmdoption-mlflow-deployments-update-target"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-update-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-update-t" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Deployment target URI. Run
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
@@ -922,13 +930,13 @@ instructions at
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-update-m">
-<span id="cmdoption-mlflow-deployments-update-model-uri"></span><code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-update-m" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-update-m" title="Permalink to this definition"> </a></dt>
 <dd><p>URI to the model. A local path, a ‘runs:/’ URI, or a remote storage URI (e.g., an ‘s3://’ URI). For more information about supported remote URIs for model artifacts, see https://mlflow.org/docs/latest/tracking.html#artifact-stores</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-update-f">
-<span id="cmdoption-mlflow-deployments-update-flavor"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--flavor</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;flavor&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-update-f" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--flavor</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;flavor&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-update-f" title="Permalink to this definition"> </a></dt>
 <dd><p>Which flavor to be deployed. This will be auto inferred if it’s not given</p>
 </dd></dl>
 
@@ -943,7 +951,7 @@ instructions at
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-update-endpoint-C">
-<span id="cmdoption-mlflow-deployments-update-endpoint-c"></span><span id="cmdoption-mlflow-deployments-update-endpoint-config"></span><code class="sig-name descname"><span class="pre">-C</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-update-endpoint-C" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-C</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-update-endpoint-C" title="Permalink to this definition"> </a></dt>
 <dd><p>Extra target-specific config for the endpoint, of the form -C name=value. See documentation/help for your deployment target for a list of supported config options.</p>
 </dd></dl>
 
@@ -955,7 +963,7 @@ instructions at
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-update-endpoint-t">
-<span id="cmdoption-mlflow-deployments-update-endpoint-target"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-update-endpoint-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--target</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;target&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-update-endpoint-t" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Deployment target URI. Run
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
@@ -1003,13 +1011,13 @@ as subfolders.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-experiments-create-n">
-<span id="cmdoption-mlflow-experiments-create-experiment-name"></span><code class="sig-name descname"><span class="pre">-n</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--experiment-name</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;experiment_name&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-create-n" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-n</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--experiment-name</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;experiment_name&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-create-n" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong></p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-experiments-create-l">
-<span id="cmdoption-mlflow-experiments-create-artifact-location"></span><code class="sig-name descname"><span class="pre">-l</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--artifact-location</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;artifact_location&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-create-l" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-l</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--artifact-location</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;artifact_location&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-create-l" title="Permalink to this definition"> </a></dt>
 <dd><p>Base location for runs to store artifact results. Artifacts will be stored at $artifact_location/$run_id/artifacts. See <a class="reference external" href="https://mlflow.org/docs/latest/tracking.html#where-runs-are-recorded">https://mlflow.org/docs/latest/tracking.html#where-runs-are-recorded</a> for more info on the properties of artifact location. If no location is provided, the tracking server will pick a default.</p>
 </dd></dl>
 
@@ -1023,13 +1031,13 @@ as subfolders.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-experiments-csv-x">
-<span id="cmdoption-mlflow-experiments-csv-experiment-id"></span><code class="sig-name descname"><span class="pre">-x</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--experiment-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;experiment_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-csv-x" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-x</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--experiment-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;experiment_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-csv-x" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong></p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-experiments-csv-o">
-<span id="cmdoption-mlflow-experiments-csv-filename"></span><code class="sig-name descname"><span class="pre">-o</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--filename</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;filename&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-csv-o" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-o</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--filename</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;filename&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-csv-o" title="Permalink to this definition"> </a></dt>
 <dd></dd></dl>
 
 </div>
@@ -1052,7 +1060,7 @@ workflow mechanism to clear <code class="docutils literal notranslate"><span cla
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-experiments-delete-x">
-<span id="cmdoption-mlflow-experiments-delete-experiment-id"></span><code class="sig-name descname"><span class="pre">-x</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--experiment-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;experiment_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-delete-x" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-x</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--experiment-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;experiment_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-delete-x" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong></p>
 </dd></dl>
 
@@ -1067,7 +1075,7 @@ Returns an error if the experiment is inactive.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-experiments-rename-x">
-<span id="cmdoption-mlflow-experiments-rename-experiment-id"></span><code class="sig-name descname"><span class="pre">-x</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--experiment-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;experiment_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-rename-x" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-x</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--experiment-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;experiment_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-rename-x" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong></p>
 </dd></dl>
 
@@ -1089,7 +1097,7 @@ permanently deleted.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-experiments-restore-x">
-<span id="cmdoption-mlflow-experiments-restore-experiment-id"></span><code class="sig-name descname"><span class="pre">-x</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--experiment-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;experiment_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-restore-x" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-x</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--experiment-id</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;experiment_id&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-restore-x" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong></p>
 </dd></dl>
 
@@ -1103,14 +1111,62 @@ permanently deleted.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-experiments-search-v">
-<span id="cmdoption-mlflow-experiments-search-view"></span><code class="sig-name descname"><span class="pre">-v</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--view</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;view&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-search-v" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-v</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--view</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;view&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-experiments-search-v" title="Permalink to this definition"> </a></dt>
 <dd><p>Select view type for experiments. Valid view types are ‘active_only’ (default), ‘deleted_only’, and ‘all’.</p>
 </dd></dl>
 
 </div>
 </div>
+<div class="section" id="mlflow-gateway">
+<h3><a class="toc-backref" href="#id7">gateway</a><a class="headerlink" href="#mlflow-gateway" title="Permalink to this headline"> </a></h3>
+<p>Manage the MLflow Gateway service</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mlflow<span class="w"> </span>gateway<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<div class="section" id="mlflow-gateway-start">
+<h4>start<a class="headerlink" href="#mlflow-gateway-start" title="Permalink to this headline"> </a></h4>
+<p>Start the MLflow Gateway service</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mlflow<span class="w"> </span>gateway<span class="w"> </span>start<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-mlflow-gateway-start-config-path">
+<code class="sig-name descname"><span class="pre">--config-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;config_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-gateway-start-config-path" title="Permalink to this definition"> </a></dt>
+<dd><p><strong>Required</strong> The path to the gateway configuration file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-mlflow-gateway-start-host">
+<code class="sig-name descname"><span class="pre">--host</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;host&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-gateway-start-host" title="Permalink to this definition"> </a></dt>
+<dd><p>The network address to listen on (default: 127.0.0.1).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-mlflow-gateway-start-port">
+<code class="sig-name descname"><span class="pre">--port</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;port&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-gateway-start-port" title="Permalink to this definition"> </a></dt>
+<dd><p>The port to listen on (default: 5000).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-mlflow-gateway-start-workers">
+<code class="sig-name descname"><span class="pre">--workers</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;workers&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-gateway-start-workers" title="Permalink to this definition"> </a></dt>
+<dd><p>The number of workers.</p>
+</dd></dl>
+
+<p class="rubric">Environment variables</p>
+<span class="target" id="mlflow-gateway-start-config-path-mlflow-gateway-config"></span><dl class="std envvar">
+<dt>
+<code class="sig-name descname"><span class="pre">MLFLOW_GATEWAY_CONFIG</span></code></dt>
+<dd><blockquote>
+<div><p>Provide a default for <a class="reference internal" href="#cmdoption-mlflow-gateway-start-config-path"><code class="xref std std-option docutils literal notranslate"><span class="pre">--config-path</span></code></a></p>
+</div></blockquote>
+</dd></dl>
+
+</div>
+</div>
 <div class="section" id="mlflow-gc">
-<h3><a class="toc-backref" href="#id7">gc</a><a class="headerlink" href="#mlflow-gc" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id8">gc</a><a class="headerlink" href="#mlflow-gc" title="Permalink to this headline"> </a></h3>
 <p>Permanently delete runs in the <cite>deleted</cite> lifecycle stage from the specified backend store.
 This command deletes all artifacts and metadata associated with the specified runs.
 If the provided artifact URL is invalid, the artifact deletion will be bypassed,
@@ -1145,7 +1201,7 @@ and the gc process will continue.</p>
 
 </div>
 <div class="section" id="mlflow-models">
-<h3><a class="toc-backref" href="#id8">models</a><a class="headerlink" href="#mlflow-models" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id9">models</a><a class="headerlink" href="#mlflow-models" title="Permalink to this headline"> </a></h3>
 <p>Deploy MLflow models locally.</p>
 <p>To deploy a model associated with a run on a tracking server, set the MLFLOW_TRACKING_URI
 environment variable to the URL of the desired server.</p>
@@ -1193,13 +1249,13 @@ you can disable it via the DISABLE_NGINX environment variable:</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-models-build-docker-m">
-<span id="cmdoption-mlflow-models-build-docker-model-uri"></span><code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-build-docker-m" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-build-docker-m" title="Permalink to this definition"> </a></dt>
 <dd><p>[Optional] URI to the model. A local path, a ‘runs:/’ URI, or a remote storage URI (e.g., an ‘s3://’ URI). For more information about supported remote URIs for model artifacts, see https://mlflow.org/docs/latest/tracking.html#artifact-stores</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-models-build-docker-n">
-<span id="cmdoption-mlflow-models-build-docker-name"></span><code class="sig-name descname"><span class="pre">-n</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--name</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;name&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-build-docker-n" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-n</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--name</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;name&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-build-docker-n" title="Permalink to this definition"> </a></dt>
 <dd><p>Name to use for built image</p>
 </dd></dl>
 
@@ -1247,13 +1303,13 @@ is equivalent to the one produced by <code class="docutils literal notranslate">
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-models-generate-dockerfile-m">
-<span id="cmdoption-mlflow-models-generate-dockerfile-model-uri"></span><code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-generate-dockerfile-m" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-generate-dockerfile-m" title="Permalink to this definition"> </a></dt>
 <dd><p>[Optional] URI to the model. A local path, a ‘runs:/’ URI, or a remote storage URI (e.g., an ‘s3://’ URI). For more information about supported remote URIs for model artifacts, see https://mlflow.org/docs/latest/tracking.html#artifact-stores</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-models-generate-dockerfile-d">
-<span id="cmdoption-mlflow-models-generate-dockerfile-output-directory"></span><code class="sig-name descname"><span class="pre">-d</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-directory</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_directory&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-generate-dockerfile-d" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-d</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-directory</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_directory&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-generate-dockerfile-d" title="Permalink to this definition"> </a></dt>
 <dd><p>Output directory where the generated Dockerfile is stored.</p>
 </dd></dl>
 
@@ -1300,25 +1356,25 @@ data formats accepted by this function, see the following documentation:
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-models-predict-m">
-<span id="cmdoption-mlflow-models-predict-model-uri"></span><code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-predict-m" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-predict-m" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> URI to the model. A local path, a ‘runs:/’ URI, or a remote storage URI (e.g., an ‘s3://’ URI). For more information about supported remote URIs for model artifacts, see https://mlflow.org/docs/latest/tracking.html#artifact-stores</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-models-predict-i">
-<span id="cmdoption-mlflow-models-predict-input-path"></span><code class="sig-name descname"><span class="pre">-i</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--input-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;input_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-predict-i" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-i</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--input-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;input_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-predict-i" title="Permalink to this definition"> </a></dt>
 <dd><p>CSV containing pandas DataFrame to predict against.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-models-predict-o">
-<span id="cmdoption-mlflow-models-predict-output-path"></span><code class="sig-name descname"><span class="pre">-o</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-predict-o" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-o</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-predict-o" title="Permalink to this definition"> </a></dt>
 <dd><p>File to output results to as json file. If not provided, output to stdout.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-models-predict-t">
-<span id="cmdoption-mlflow-models-predict-content-type"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--content-type</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;content_type&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-predict-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--content-type</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;content_type&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-predict-t" title="Permalink to this definition"> </a></dt>
 <dd><p>Content type of the input file. Can be one of {‘json’, ‘csv’}.</p>
 </dd></dl>
 
@@ -1353,7 +1409,7 @@ calling predict or serve should be fast.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-models-prepare-env-m">
-<span id="cmdoption-mlflow-models-prepare-env-model-uri"></span><code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-prepare-env-m" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-prepare-env-m" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> URI to the model. A local path, a ‘runs:/’ URI, or a remote storage URI (e.g., an ‘s3://’ URI). For more information about supported remote URIs for model artifacts, see https://mlflow.org/docs/latest/tracking.html#artifact-stores</p>
 </dd></dl>
 
@@ -1435,31 +1491,31 @@ curl<span class="w"> </span>http://127.0.0.1:5000/invocations<span class="w"> </
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-models-serve-m">
-<span id="cmdoption-mlflow-models-serve-model-uri"></span><code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-serve-m" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-serve-m" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> URI to the model. A local path, a ‘runs:/’ URI, or a remote storage URI (e.g., an ‘s3://’ URI). For more information about supported remote URIs for model artifacts, see https://mlflow.org/docs/latest/tracking.html#artifact-stores</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-models-serve-p">
-<span id="cmdoption-mlflow-models-serve-port"></span><code class="sig-name descname"><span class="pre">-p</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--port</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;port&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-serve-p" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-p</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--port</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;port&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-serve-p" title="Permalink to this definition"> </a></dt>
 <dd><p>The port to listen on (default: 5000).</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-models-serve-h">
-<span id="cmdoption-mlflow-models-serve-host"></span><code class="sig-name descname"><span class="pre">-h</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--host</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;HOST&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-serve-h" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-h</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--host</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;HOST&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-serve-h" title="Permalink to this definition"> </a></dt>
 <dd><p>The network address to listen on (default: 127.0.0.1). Use 0.0.0.0 to bind to all addresses if you want to access the tracking server from other machines.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-models-serve-t">
-<span id="cmdoption-mlflow-models-serve-timeout"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--timeout</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;timeout&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-serve-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--timeout</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;timeout&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-serve-t" title="Permalink to this definition"> </a></dt>
 <dd><p>Timeout in seconds to serve a request (default: 60).</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-models-serve-w">
-<span id="cmdoption-mlflow-models-serve-workers"></span><code class="sig-name descname"><span class="pre">-w</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--workers</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;workers&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-serve-w" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-w</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--workers</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;workers&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-serve-w" title="Permalink to this definition"> </a></dt>
 <dd><p>Number of gunicorn worker processes to handle requests (default: 1).</p>
 </dd></dl>
 
@@ -1530,7 +1586,7 @@ environment manager. The following values are supported:</p>
 </div>
 </div>
 <div class="section" id="mlflow-recipes">
-<h3><a class="toc-backref" href="#id9">recipes</a><a class="headerlink" href="#mlflow-recipes" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id10">recipes</a><a class="headerlink" href="#mlflow-recipes" title="Permalink to this headline"> </a></h3>
 <p>Run MLflow Recipes and inspect recipe results.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mlflow<span class="w"> </span>recipes<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
 </pre></div>
@@ -1546,13 +1602,13 @@ will be re-executed in its entirety the next time it is run.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-recipes-clean-s">
-<span id="cmdoption-mlflow-recipes-clean-step"></span><code class="sig-name descname"><span class="pre">-s</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--step</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;step&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-clean-s" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-s</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--step</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;step&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-clean-s" title="Permalink to this definition"> </a></dt>
 <dd><p>The name of the recipe step for which to remove cached outputs.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-recipes-clean-p">
-<span id="cmdoption-mlflow-recipes-clean-profile"></span><code class="sig-name descname"><span class="pre">-p</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--profile</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;profile&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-clean-p" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-p</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--profile</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;profile&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-clean-p" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> The name of the recipe profile to use. Profiles customize the configuration of one or more recipe steps, and recipe executions with different profiles often produce different results.</p>
 </dd></dl>
 
@@ -1575,13 +1631,13 @@ will be re-executed in its entirety the next time it is run.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-recipes-get-artifact-a">
-<span id="cmdoption-mlflow-recipes-get-artifact-artifact"></span><code class="sig-name descname"><span class="pre">-a</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--artifact</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;artifact&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-get-artifact-a" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-a</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--artifact</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;artifact&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-get-artifact-a" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> The name of the artifact to retrieve.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-recipes-get-artifact-p">
-<span id="cmdoption-mlflow-recipes-get-artifact-profile"></span><code class="sig-name descname"><span class="pre">-p</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--profile</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;profile&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-get-artifact-p" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-p</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--profile</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;profile&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-get-artifact-p" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> The name of the recipe profile to use. Profiles customize the configuration of one or more recipe steps, and recipe executions with different profiles often produce different results.</p>
 </dd></dl>
 
@@ -1606,13 +1662,13 @@ nothing is displayed.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-recipes-inspect-s">
-<span id="cmdoption-mlflow-recipes-inspect-step"></span><code class="sig-name descname"><span class="pre">-s</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--step</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;step&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-inspect-s" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-s</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--step</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;step&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-inspect-s" title="Permalink to this definition"> </a></dt>
 <dd><p>The name of the recipe step to inspect.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-recipes-inspect-p">
-<span id="cmdoption-mlflow-recipes-inspect-profile"></span><code class="sig-name descname"><span class="pre">-p</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--profile</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;profile&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-inspect-p" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-p</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--profile</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;profile&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-inspect-p" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> The name of the recipe profile to use. Profiles customize the configuration of one or more recipe steps, and recipe executions with different profiles often produce different results.</p>
 </dd></dl>
 
@@ -1636,13 +1692,13 @@ outputs and displaying a summary of results upon completion.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-recipes-run-s">
-<span id="cmdoption-mlflow-recipes-run-step"></span><code class="sig-name descname"><span class="pre">-s</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--step</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;step&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-run-s" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-s</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--step</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;step&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-run-s" title="Permalink to this definition"> </a></dt>
 <dd><p>The name of the recipe step to run.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-recipes-run-p">
-<span id="cmdoption-mlflow-recipes-run-profile"></span><code class="sig-name descname"><span class="pre">-p</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--profile</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;profile&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-run-p" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-p</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--profile</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;profile&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-recipes-run-p" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> The name of the recipe profile to use. Profiles customize the configuration of one or more recipe steps, and recipe executions with different profiles often produce different results.</p>
 </dd></dl>
 
@@ -1658,7 +1714,7 @@ outputs and displaying a summary of results upon completion.</p>
 </div>
 </div>
 <div class="section" id="mlflow-run">
-<h3><a class="toc-backref" href="#id10">run</a><a class="headerlink" href="#mlflow-run" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id11">run</a><a class="headerlink" href="#mlflow-run" title="Permalink to this headline"> </a></h3>
 <p>Run an MLflow project from the given URI.</p>
 <p>For local runs, the run will block until it completes.
 Otherwise, the project will run asynchronously.</p>
@@ -1672,25 +1728,25 @@ local projects run from the project’s root directory.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-run-e">
-<span id="cmdoption-mlflow-run-entry-point"></span><code class="sig-name descname"><span class="pre">-e</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--entry-point</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-run-e" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-e</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--entry-point</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-run-e" title="Permalink to this definition"> </a></dt>
 <dd><p>Entry point within project. [default: main]. If the entry point is not found, attempts to run the project file with the specified name as a script, using ‘python’ to run .py files and the default shell (specified by environment variable $SHELL) to run .sh files</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-run-v">
-<span id="cmdoption-mlflow-run-version"></span><code class="sig-name descname"><span class="pre">-v</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--version</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;VERSION&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-run-v" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-v</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--version</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;VERSION&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-run-v" title="Permalink to this definition"> </a></dt>
 <dd><p>Version of the project to run, as a Git commit reference for Git projects.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-run-P">
-<span id="cmdoption-mlflow-run-p"></span><span id="cmdoption-mlflow-run-param-list"></span><code class="sig-name descname"><span class="pre">-P</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--param-list</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-run-P" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-P</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--param-list</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-run-P" title="Permalink to this definition"> </a></dt>
 <dd><p>A parameter for the run, of the form -P name=value. Provided parameters that are not in the list of parameters for an entry point will be passed to the corresponding entry point as command-line arguments in the form <cite>–name value</cite></p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-run-A">
-<span id="cmdoption-mlflow-run-a"></span><span id="cmdoption-mlflow-run-docker-args"></span><code class="sig-name descname"><span class="pre">-A</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--docker-args</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-run-A" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-A</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--docker-args</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;NAME=VALUE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-run-A" title="Permalink to this definition"> </a></dt>
 <dd><p>A <cite>docker run</cite> argument or flag, of the form -A name=value (e.g. -A gpus=all) or -A name (e.g. -A t). The argument will then be passed as <cite>docker run –name value</cite> or <cite>docker run –name</cite> respectively.</p>
 </dd></dl>
 
@@ -1708,13 +1764,13 @@ local projects run from the project’s root directory.</p>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-run-b">
-<span id="cmdoption-mlflow-run-backend"></span><code class="sig-name descname"><span class="pre">-b</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--backend</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;BACKEND&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-run-b" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-b</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--backend</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;BACKEND&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-run-b" title="Permalink to this definition"> </a></dt>
 <dd><p>Execution backend to use for run. Supported values: ‘local’, ‘databricks’, kubernetes (experimental). Defaults to ‘local’. If running against Databricks, will run against a Databricks workspace determined as follows: if a Databricks tracking URI of the form ‘databricks://profile’ has been set (e.g. by setting the MLFLOW_TRACKING_URI environment variable), will run against the workspace specified by &lt;profile&gt;. Otherwise, runs against the workspace specified by the default Databricks CLI profile. See https://github.com/databricks/databricks-cli for more info on configuring a Databricks CLI profile.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-run-c">
-<span id="cmdoption-mlflow-run-backend-config"></span><code class="sig-name descname"><span class="pre">-c</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--backend-config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;FILE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-run-c" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-c</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--backend-config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;FILE&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-run-c" title="Permalink to this definition"> </a></dt>
 <dd><p>Path to JSON file (must end in ‘.json’) or JSON string which will be passed as config to the backend. The exact content which should be provided is different for each execution backend and is documented at <a class="reference external" href="https://www.mlflow.org/docs/latest/projects.html">https://www.mlflow.org/docs/latest/projects.html</a>.</p>
 </dd></dl>
 
@@ -1765,7 +1821,7 @@ virtualenv is used.</p>
 <p class="rubric">Arguments</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-run-arg-URI">
-<span id="cmdoption-mlflow-run-arg-uri"></span><code class="sig-name descname"><span class="pre">URI</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-mlflow-run-arg-URI" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">URI</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-mlflow-run-arg-URI" title="Permalink to this definition"> </a></dt>
 <dd><p>Required argument</p>
 </dd></dl>
 
@@ -1796,7 +1852,7 @@ virtualenv is used.</p>
 
 </div>
 <div class="section" id="mlflow-runs">
-<h3><a class="toc-backref" href="#id11">runs</a><a class="headerlink" href="#mlflow-runs" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id12">runs</a><a class="headerlink" href="#mlflow-runs" title="Permalink to this headline"> </a></h3>
 <p>Manage runs. To manage runs of experiments associated with a tracking server, set the
 MLFLOW_TRACKING_URI environment variable to the URL of the desired server.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mlflow<span class="w"> </span>runs<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
@@ -1847,7 +1903,7 @@ or permanently delete a run in the backend store.</p>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-runs-list-v">
-<span id="cmdoption-mlflow-runs-list-view"></span><code class="sig-name descname"><span class="pre">-v</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--view</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;view&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-runs-list-v" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-v</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--view</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;view&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-runs-list-v" title="Permalink to this definition"> </a></dt>
 <dd><p>Select view type for list experiments. Valid view types are ‘active_only’ (default), ‘deleted_only’, and ‘all’.</p>
 </dd></dl>
 
@@ -1878,7 +1934,7 @@ Returns an error if the run is active or has been permanently deleted.</p>
 </div>
 </div>
 <div class="section" id="mlflow-sagemaker">
-<h3><a class="toc-backref" href="#id12">sagemaker</a><a class="headerlink" href="#mlflow-sagemaker" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id13">sagemaker</a><a class="headerlink" href="#mlflow-sagemaker" title="Permalink to this headline"> </a></h3>
 <p>Serve models on SageMaker.</p>
 <p>To serve a model associated with a run on a tracking server, set the MLFLOW_TRACKING_URI
 environment variable to the URL of the desired server.</p>
@@ -1897,19 +1953,19 @@ The image is pushed to ECR under current active AWS account and to current activ
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-build-and-push-container-build">
-<span id="cmdoption-mlflow-sagemaker-build-and-push-container-no-build"></span><code class="sig-name descname"><span class="pre">--build</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--no-build</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-build-and-push-container-build" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">--build</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--no-build</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-build-and-push-container-build" title="Permalink to this definition"> </a></dt>
 <dd><p>Build the container if set.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-build-and-push-container-push">
-<span id="cmdoption-mlflow-sagemaker-build-and-push-container-no-push"></span><code class="sig-name descname"><span class="pre">--push</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--no-push</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-build-and-push-container-push" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">--push</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--no-push</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-build-and-push-container-push" title="Permalink to this definition"> </a></dt>
 <dd><p>Push the container to AWS ECR if set.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-build-and-push-container-c">
-<span id="cmdoption-mlflow-sagemaker-build-and-push-container-container"></span><code class="sig-name descname"><span class="pre">-c</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--container</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;container&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-build-and-push-container-c" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-c</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--container</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;container&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-build-and-push-container-c" title="Permalink to this definition"> </a></dt>
 <dd><p>image name</p>
 </dd></dl>
 
@@ -1946,13 +2002,13 @@ timeout elapses.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-deploy-transform-job-n">
-<span id="cmdoption-mlflow-sagemaker-deploy-transform-job-job-name"></span><code class="sig-name descname"><span class="pre">-n</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--job-name</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;job_name&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-n" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-n</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--job-name</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;job_name&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-n" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Transform job name</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-deploy-transform-job-m">
-<span id="cmdoption-mlflow-sagemaker-deploy-transform-job-model-uri"></span><code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-m" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-m" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> URI to the model. A local path, a ‘runs:/’ URI, or a remote storage URI (e.g., an ‘s3://’ URI). For more information about supported remote URIs for model artifacts, see https://mlflow.org/docs/latest/tracking.html#artifact-stores</p>
 </dd></dl>
 
@@ -1964,7 +2020,7 @@ timeout elapses.</p>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-deploy-transform-job-u">
-<span id="cmdoption-mlflow-sagemaker-deploy-transform-job-input-uri"></span><code class="sig-name descname"><span class="pre">-u</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--input-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;input_uri&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-u" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-u</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--input-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;input_uri&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-u" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> S3 key name prefix or manifest of the input data</p>
 </dd></dl>
 
@@ -1976,7 +2032,7 @@ timeout elapses.</p>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-deploy-transform-job-o">
-<span id="cmdoption-mlflow-sagemaker-deploy-transform-job-output-path"></span><code class="sig-name descname"><span class="pre">-o</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-o" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-o</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-o" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> The S3 path to store the output results of the Sagemaker transform job</p>
 </dd></dl>
 
@@ -1988,13 +2044,13 @@ timeout elapses.</p>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-deploy-transform-job-s">
-<span id="cmdoption-mlflow-sagemaker-deploy-transform-job-split-type"></span><code class="sig-name descname"><span class="pre">-s</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--split-type</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;split_type&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-s" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-s</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--split-type</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;split_type&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-s" title="Permalink to this definition"> </a></dt>
 <dd><p>The method to split the transform job’s data files into smaller batches</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-deploy-transform-job-a">
-<span id="cmdoption-mlflow-sagemaker-deploy-transform-job-accept"></span><code class="sig-name descname"><span class="pre">-a</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--accept</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;accept&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-a" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-a</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--accept</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;accept&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-a" title="Permalink to this definition"> </a></dt>
 <dd><p>The multipurpose internet mail extension (MIME) type of the output data</p>
 </dd></dl>
 
@@ -2018,25 +2074,25 @@ timeout elapses.</p>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-deploy-transform-job-j">
-<span id="cmdoption-mlflow-sagemaker-deploy-transform-job-join-resource"></span><code class="sig-name descname"><span class="pre">-j</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--join-resource</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;join_resource&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-j" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-j</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--join-resource</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;join_resource&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-j" title="Permalink to this definition"> </a></dt>
 <dd><p>The source of the data to join with the transformed data</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-deploy-transform-job-e">
-<span id="cmdoption-mlflow-sagemaker-deploy-transform-job-execution-role-arn"></span><code class="sig-name descname"><span class="pre">-e</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--execution-role-arn</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;execution_role_arn&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-e" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-e</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--execution-role-arn</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;execution_role_arn&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-e" title="Permalink to this definition"> </a></dt>
 <dd><p>SageMaker execution role</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-deploy-transform-job-b">
-<span id="cmdoption-mlflow-sagemaker-deploy-transform-job-bucket"></span><code class="sig-name descname"><span class="pre">-b</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--bucket</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;bucket&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-b" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-b</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--bucket</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;bucket&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-b" title="Permalink to this definition"> </a></dt>
 <dd><p>S3 bucket to store model artifacts</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-deploy-transform-job-i">
-<span id="cmdoption-mlflow-sagemaker-deploy-transform-job-image-url"></span><code class="sig-name descname"><span class="pre">-i</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--image-url</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;image_url&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-i" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-i</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--image-url</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;image_url&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-i" title="Permalink to this definition"> </a></dt>
 <dd><p>ECR URL for the Docker image</p>
 </dd></dl>
 
@@ -2048,25 +2104,25 @@ timeout elapses.</p>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-deploy-transform-job-t">
-<span id="cmdoption-mlflow-sagemaker-deploy-transform-job-instance-type"></span><code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--instance-type</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;instance_type&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-t" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-t</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--instance-type</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;instance_type&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-t" title="Permalink to this definition"> </a></dt>
 <dd><p>The type of SageMaker ML instance on which to perform the batch transform job. For a list of supported instance types, see <a class="reference external" href="https://aws.amazon.com/sagemaker/pricing/instance-types/">https://aws.amazon.com/sagemaker/pricing/instance-types/</a>.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-deploy-transform-job-c">
-<span id="cmdoption-mlflow-sagemaker-deploy-transform-job-instance-count"></span><code class="sig-name descname"><span class="pre">-c</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--instance-count</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;instance_count&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-c" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-c</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--instance-count</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;instance_count&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-c" title="Permalink to this definition"> </a></dt>
 <dd><p>The number of SageMaker ML instances on which to perform the batch transform job</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-deploy-transform-job-v">
-<span id="cmdoption-mlflow-sagemaker-deploy-transform-job-vpc-config"></span><code class="sig-name descname"><span class="pre">-v</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--vpc-config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;vpc_config&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-v" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-v</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--vpc-config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;vpc_config&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-v" title="Permalink to this definition"> </a></dt>
 <dd><p>Path to a file containing a JSON-formatted VPC configuration. This configuration will be used when creating the new SageMaker model associated with this application. For more information, see <a class="reference external" href="https://docs.aws.amazon.com/sagemaker/latest/dg/API_VpcConfig.html">https://docs.aws.amazon.com/sagemaker/latest/dg/API_VpcConfig.html</a></p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-deploy-transform-job-f">
-<span id="cmdoption-mlflow-sagemaker-deploy-transform-job-flavor"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--flavor</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;flavor&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-f" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--flavor</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;flavor&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-deploy-transform-job-f" title="Permalink to this definition"> </a></dt>
 <dd><p>The name of the flavor to use for deployment. Must be one of the following: [‘python_function’, ‘mleap’]. If unspecified, a flavor will be automatically selected from the model’s available flavors.</p>
 </dd></dl>
 
@@ -2099,31 +2155,31 @@ correct permissions setup.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-push-model-n">
-<span id="cmdoption-mlflow-sagemaker-push-model-model-name"></span><code class="sig-name descname"><span class="pre">-n</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-name</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;model_name&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-push-model-n" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-n</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-name</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;model_name&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-push-model-n" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Sagemaker model name</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-push-model-m">
-<span id="cmdoption-mlflow-sagemaker-push-model-model-uri"></span><code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-push-model-m" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-push-model-m" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> URI to the model. A local path, a ‘runs:/’ URI, or a remote storage URI (e.g., an ‘s3://’ URI). For more information about supported remote URIs for model artifacts, see https://mlflow.org/docs/latest/tracking.html#artifact-stores</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-push-model-e">
-<span id="cmdoption-mlflow-sagemaker-push-model-execution-role-arn"></span><code class="sig-name descname"><span class="pre">-e</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--execution-role-arn</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;execution_role_arn&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-push-model-e" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-e</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--execution-role-arn</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;execution_role_arn&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-push-model-e" title="Permalink to this definition"> </a></dt>
 <dd><p>SageMaker execution role</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-push-model-b">
-<span id="cmdoption-mlflow-sagemaker-push-model-bucket"></span><code class="sig-name descname"><span class="pre">-b</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--bucket</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;bucket&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-push-model-b" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-b</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--bucket</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;bucket&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-push-model-b" title="Permalink to this definition"> </a></dt>
 <dd><p>S3 bucket to store model artifacts</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-push-model-i">
-<span id="cmdoption-mlflow-sagemaker-push-model-image-url"></span><code class="sig-name descname"><span class="pre">-i</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--image-url</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;image_url&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-push-model-i" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-i</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--image-url</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;image_url&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-push-model-i" title="Permalink to this definition"> </a></dt>
 <dd><p>ECR URL for the Docker image</p>
 </dd></dl>
 
@@ -2135,13 +2191,13 @@ correct permissions setup.</p>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-push-model-v">
-<span id="cmdoption-mlflow-sagemaker-push-model-vpc-config"></span><code class="sig-name descname"><span class="pre">-v</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--vpc-config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;vpc_config&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-push-model-v" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-v</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--vpc-config</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;vpc_config&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-push-model-v" title="Permalink to this definition"> </a></dt>
 <dd><p>Path to a file containing a JSON-formatted VPC configuration. This configuration will be used when creating the new SageMaker model. For more information, see <a class="reference external" href="https://docs.aws.amazon.com/sagemaker/latest/dg/API_VpcConfig.html">https://docs.aws.amazon.com/sagemaker/latest/dg/API_VpcConfig.html</a></p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-push-model-f">
-<span id="cmdoption-mlflow-sagemaker-push-model-flavor"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--flavor</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;flavor&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-push-model-f" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--flavor</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;flavor&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-push-model-f" title="Permalink to this definition"> </a></dt>
 <dd><p>The name of the flavor to use for deployment. Must be one of the following: [‘python_function’, ‘mleap’]. If unspecified, a flavor will be automatically selected from the model’s available flavors.</p>
 </dd></dl>
 
@@ -2159,13 +2215,13 @@ timeout elapses.</p>
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-terminate-transform-job-n">
-<span id="cmdoption-mlflow-sagemaker-terminate-transform-job-job-name"></span><code class="sig-name descname"><span class="pre">-n</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--job-name</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;job_name&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-terminate-transform-job-n" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-n</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--job-name</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;job_name&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-terminate-transform-job-n" title="Permalink to this definition"> </a></dt>
 <dd><p><strong>Required</strong> Transform job name</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-sagemaker-terminate-transform-job-r">
-<span id="cmdoption-mlflow-sagemaker-terminate-transform-job-region-name"></span><code class="sig-name descname"><span class="pre">-r</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--region-name</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;region_name&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-terminate-transform-job-r" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-r</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--region-name</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;region_name&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-sagemaker-terminate-transform-job-r" title="Permalink to this definition"> </a></dt>
 <dd><p>Name of the AWS region in which the transform job is deployed</p>
 </dd></dl>
 
@@ -2190,7 +2246,7 @@ timeout elapses.</p>
 </div>
 </div>
 <div class="section" id="mlflow-server">
-<h3><a class="toc-backref" href="#id13">server</a><a class="headerlink" href="#mlflow-server" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id14">server</a><a class="headerlink" href="#mlflow-server" title="Permalink to this headline"> </a></h3>
 <p>Run the MLflow tracking server.</p>
 <p>The server listens on <a class="reference external" href="http://localhost:5000">http://localhost:5000</a> by default and only accepts connections
 from the local machine. To let the server accept connections from other machines, you will need
@@ -2220,7 +2276,7 @@ to pass <code class="docutils literal notranslate"><span class="pre">--host</spa
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-server-serve-artifacts">
-<span id="cmdoption-mlflow-server-no-serve-artifacts"></span><code class="sig-name descname"><span class="pre">--serve-artifacts</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--no-serve-artifacts</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-mlflow-server-serve-artifacts" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">--serve-artifacts</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--no-serve-artifacts</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-mlflow-server-serve-artifacts" title="Permalink to this definition"> </a></dt>
 <dd><p>Enables serving of artifact uploads, downloads, and list requests by routing these requests to the storage location that is specified by ‘–artifacts-destination’ directly through a proxy. The default location that these requests are served from is a local ‘./mlartifacts’ directory which can be overridden via the ‘–artifacts-destination’ argument. To disable artifact serving, specify <cite>–no-serve-artifacts</cite>. Default: True</p>
 </dd></dl>
 
@@ -2238,19 +2294,19 @@ to pass <code class="docutils literal notranslate"><span class="pre">--host</spa
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-server-h">
-<span id="cmdoption-mlflow-server-host"></span><code class="sig-name descname"><span class="pre">-h</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--host</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;HOST&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-server-h" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-h</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--host</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;HOST&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-server-h" title="Permalink to this definition"> </a></dt>
 <dd><p>The network address to listen on (default: 127.0.0.1). Use 0.0.0.0 to bind to all addresses if you want to access the tracking server from other machines.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-server-p">
-<span id="cmdoption-mlflow-server-port"></span><code class="sig-name descname"><span class="pre">-p</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--port</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;port&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-server-p" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-p</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--port</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;port&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-server-p" title="Permalink to this definition"> </a></dt>
 <dd><p>The port to listen on (default: 5000).</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-mlflow-server-w">
-<span id="cmdoption-mlflow-server-workers"></span><code class="sig-name descname"><span class="pre">-w</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--workers</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;workers&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-server-w" title="Permalink to this definition"> </a></dt>
+<code class="sig-name descname"><span class="pre">-w</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--workers</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;workers&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-server-w" title="Permalink to this definition"> </a></dt>
 <dd><p>Number of gunicorn worker processes to handle requests (default: 1).</p>
 </dd></dl>
 
@@ -2284,7 +2340,7 @@ to pass <code class="docutils literal notranslate"><span class="pre">--host</spa
 <dd><p>Application name to be used for the tracking server. If not specified, ‘mlflow.server:app’ will be used.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Options</dt>
-<dd class="field-odd"><p>basic-auth</p>
+<dd class="field-odd"><p>basic-auth | basic-auth</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2467,6 +2523,54 @@ to pass <code class="docutils literal notranslate"><span class="pre">--host</spa
     });
 
   </script>
-   
+  
+
+  
+  <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+        // Get the code block designator class entries
+        const allHighlights = document.querySelectorAll('.highlight');
+        // Disable copyable links for notebook cell numbering and for cell outputs
+        const highlights = Array.from(allHighlights).filter(highlight => !highlight.closest('.highlight-none') && 
+            !highlight.closest('.nboutput'));
+    
+        highlights.forEach(function(highlight) {
+            const copyIcon = document.createElement('span');
+            copyIcon.classList.add('copy-icon');
+            copyIcon.innerHTML = '&#xf0ea;';
+
+            copyIcon.addEventListener('click', function() {
+                const code = highlight.querySelector('pre').textContent;
+                copyToClipboard(code);
+
+                // Flash effect on click
+                this.style.color = '#0194E2';
+                setTimeout(() => {
+                    this.style.color = ''; 
+                }, 100);
+
+                // Display "Code copied to clipboard" near the clicked icon
+                const message = document.createElement('span');
+                message.textContent = "Code copied to clipboard!";
+                message.classList.add('copy-message'); 
+                this.appendChild(message);
+
+                setTimeout(() => {
+                    this.removeChild(message);
+                }, 500);
+            });
+
+            highlight.appendChild(copyIcon);
+        });
+    });
+  </script> 
 </body>
 </html>

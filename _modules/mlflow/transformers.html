@@ -37,6 +37,9 @@
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600" rel="stylesheet">
     <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/simple-cards.css" type="text/css" />
     
   
         <link rel="index" title="Index"
@@ -53,6 +56,7 @@
 <script type="text/javascript" src="../../_static/underscore.js"></script>
 <script type="text/javascript" src="../../_static/doctools.js"></script>
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -102,20 +106,19 @@
 
       
         <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../what-is-mlflow.html">What is MLflow?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart: Install MLflow, instrument code &amp; view results in minutes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../quickstart_rest_docker.html">Quickstart: Running Machine Learning Model as REST API in Docker Container</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../quickstart_mlops.html">Quickstart: Compare runs, choose a model, and deploy it to a REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials-and-examples/index.html">Tutorials and Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">What is Mlflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting-started/index.html">Getting Started with MLflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../new-features/index.html">New Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../model-evaluation/index.html">Model Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deep-learning/index.html">Deep Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../traditional-ml/index.html">Traditional ML</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tracking.html">MLflow Tracking</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../llm-tracking.html">MLflow LLM Tracking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -126,8 +129,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../java_api/index.html">Java API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../rest-api.html">REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docker.html">Official MLflow Docker Image</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../hashicorp.html">MLflow AMI Image</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../community-model-flavors.html">Community Model Flavors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials-and-examples/index.html">Tutorials and Examples</a></li>
 </ul>
 
       
@@ -246,7 +249,7 @@
     <span class="n">_PythonEnv</span><span class="p">,</span>
     <span class="n">_validate_env_arguments</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.file_utils</span> <span class="kn">import</span> <span class="n">write_to</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.file_utils</span> <span class="kn">import</span> <span class="n">get_total_file_size</span><span class="p">,</span> <span class="n">write_to</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.model_utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">_add_code_from_conf_to_system_path</span><span class="p">,</span>
     <span class="n">_download_artifact_from_uri</span><span class="p">,</span>
@@ -406,7 +409,7 @@
     <span class="n">pip_requirements</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">extra_pip_requirements</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">conda_env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">model_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># pylint: disable=unused-argument</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -607,6 +610,20 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">built_pipeline</span> <span class="o">=</span> <span class="n">transformers_model</span>
 
+    <span class="c1"># Verify that the model has not been loaded to distributed memory</span>
+    <span class="c1"># NB: transformers does not correctly save a model whose weights have been loaded</span>
+    <span class="c1"># using accelerate iff the model weights have been loaded using a device_map that is</span>
+    <span class="c1"># heterogeneous. There is a distinct possibility for a partial write to occur, causing an</span>
+    <span class="c1"># invalid state of the model&#39;s weights in this scenario. Hence, we raise.</span>
+    <span class="k">if</span> <span class="n">_is_model_distributed_in_memory</span><span class="p">(</span><span class="n">built_pipeline</span><span class="o">.</span><span class="n">model</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+            <span class="s2">&quot;The model that is attempting to be saved has been loaded into memory &quot;</span>
+            <span class="s2">&quot;with an incompatible configuration. If you are using the accelerate &quot;</span>
+            <span class="s2">&quot;library to load your model, please ensure that it is saved only after &quot;</span>
+            <span class="s2">&quot;loading with the default device mapping. Do not specify `device_map` &quot;</span>
+            <span class="s2">&quot;and please try again.&quot;</span>
+        <span class="p">)</span>
+
     <span class="k">if</span> <span class="n">mlflow_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mlflow_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -696,6 +713,8 @@
         <span class="n">code</span><span class="o">=</span><span class="n">code_dir_subpath</span><span class="p">,</span>
         <span class="o">**</span><span class="n">flavor_conf</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="k">if</span> <span class="n">size</span> <span class="o">:=</span> <span class="n">get_total_file_size</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">mlflow_model</span><span class="o">.</span><span class="n">model_size_bytes</span> <span class="o">=</span> <span class="n">size</span>
     <span class="n">mlflow_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">MLMODEL_FILE_NAME</span><span class="p">)))</span>
 
     <span class="k">if</span> <span class="n">conda_env</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -741,14 +760,14 @@
     <span class="n">model_card</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">inference_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">code_paths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">registered_model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">registered_model_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">signature</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelSignature</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">input_example</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelInputExample</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">await_registration_for</span><span class="o">=</span><span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span><span class="p">,</span>
     <span class="n">pip_requirements</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">extra_pip_requirements</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">conda_env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">model_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">):</span>
@@ -958,7 +977,9 @@
 
 <div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../python_api/mlflow.transformers.html#mlflow.transformers.load_model">[docs]</a><span class="nd">@experimental</span>
 <span class="nd">@docstring_version_compatibility_warning</span><span class="p">(</span><span class="n">integration_name</span><span class="o">=</span><span class="n">FLAVOR_NAME</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="n">model_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dst_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s2">&quot;pipeline&quot;</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span>
+    <span class="n">model_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dst_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s2">&quot;pipeline&quot;</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load a ``transformers`` object from a local file or a run.</span>
 
@@ -1029,6 +1050,18 @@
     <span class="n">_add_code_from_conf_to_system_path</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">flavor_config</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">_load_model</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">flavor_config</span><span class="p">,</span> <span class="n">return_type</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_is_model_distributed_in_memory</span><span class="p">(</span><span class="n">transformers_model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the model is distributed across multiple devices in memory.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Check if the model attribute exists. If not, accelerate was not used and the model can</span>
+    <span class="c1"># be safely saved</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">transformers_model</span><span class="p">,</span> <span class="s2">&quot;hf_device_map&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="c1"># If the device map has more than one unique value entry, then the weights are not within</span>
+    <span class="c1"># a contiguous memory system (VRAM, SYS, or DISK) and thus cannot be safely saved.</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">transformers_model</span><span class="o">.</span><span class="n">hf_device_map</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="o">&gt;</span> <span class="mi">1</span>
 
 
 <span class="c1"># This function attempts to determine if a GPU is available for the PyTorch and TensorFlow libraries</span>
@@ -1749,7 +1782,7 @@
         <span class="k">return</span> <span class="n">pyfunc_config</span> <span class="ow">or</span> <span class="p">{}</span>
 
 
-<span class="k">def</span> <span class="nf">_load_pyfunc</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">model_config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_load_pyfunc</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">model_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads the model as pyfunc model</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1902,11 +1935,7 @@
                     <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="n">input_data</span> <span class="o">=</span> <span class="n">data</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">input_data</span> <span class="o">=</span> <span class="n">data</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-            <span class="n">input_data</span> <span class="o">=</span> <span class="n">data</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
             <span class="n">input_data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
@@ -2163,9 +2192,9 @@
     <span class="k">def</span> <span class="nf">_parse_conversation_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">transformers</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ConversationalPipeline</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">data</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ConversationalPipeline</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">):</span>
             <span class="k">return</span> <span class="n">data</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">data</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
@@ -2499,8 +2528,16 @@
 <span class="sd">        Returns the first value of the `target_dict_key` that matches in the first dictionary in a</span>
 <span class="sd">        list of dictionaries.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">fetch_target_key_value</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">[</span><span class="n">collection</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">target_dict_key</span><span class="p">]</span> <span class="k">for</span> <span class="n">collection</span> <span class="ow">in</span> <span class="n">output_data</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="n">fetch_target_key_value</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">target_dict_key</span><span class="p">)</span> <span class="k">for</span> <span class="n">collection</span> <span class="ow">in</span> <span class="n">output_data</span>
+            <span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">output_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">target_dict_key</span><span class="p">]]</span>
 
@@ -2576,9 +2613,9 @@
                 <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_parse_text2text_input</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">data</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
+        <span class="p">):</span>
             <span class="k">return</span> <span class="n">data</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
@@ -2922,6 +2959,54 @@
     });
 
   </script>
-   
+  
+
+  
+  <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+        // Get the code block designator class entries
+        const allHighlights = document.querySelectorAll('.highlight');
+        // Disable copyable links for notebook cell numbering and for cell outputs
+        const highlights = Array.from(allHighlights).filter(highlight => !highlight.closest('.highlight-none') && 
+            !highlight.closest('.nboutput'));
+    
+        highlights.forEach(function(highlight) {
+            const copyIcon = document.createElement('span');
+            copyIcon.classList.add('copy-icon');
+            copyIcon.innerHTML = '&#xf0ea;';
+
+            copyIcon.addEventListener('click', function() {
+                const code = highlight.querySelector('pre').textContent;
+                copyToClipboard(code);
+
+                // Flash effect on click
+                this.style.color = '#0194E2';
+                setTimeout(() => {
+                    this.style.color = ''; 
+                }, 100);
+
+                // Display "Code copied to clipboard" near the clicked icon
+                const message = document.createElement('span');
+                message.textContent = "Code copied to clipboard!";
+                message.classList.add('copy-message'); 
+                this.appendChild(message);
+
+                setTimeout(() => {
+                    this.removeChild(message);
+                }, 500);
+            });
+
+            highlight.appendChild(copyIcon);
+        });
+    });
+  </script> 
 </body>
 </html>

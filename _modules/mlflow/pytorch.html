@@ -37,6 +37,9 @@
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600" rel="stylesheet">
     <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/simple-cards.css" type="text/css" />
     
   
         <link rel="index" title="Index"
@@ -53,6 +56,7 @@
 <script type="text/javascript" src="../../_static/underscore.js"></script>
 <script type="text/javascript" src="../../_static/doctools.js"></script>
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -102,20 +106,19 @@
 
       
         <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../what-is-mlflow.html">What is MLflow?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart: Install MLflow, instrument code &amp; view results in minutes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../quickstart_rest_docker.html">Quickstart: Running Machine Learning Model as REST API in Docker Container</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../quickstart_mlops.html">Quickstart: Compare runs, choose a model, and deploy it to a REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials-and-examples/index.html">Tutorials and Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">What is Mlflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting-started/index.html">Getting Started with MLflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../new-features/index.html">New Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../model-evaluation/index.html">Model Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deep-learning/index.html">Deep Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../traditional-ml/index.html">Traditional ML</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tracking.html">MLflow Tracking</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../llm-tracking.html">MLflow LLM Tracking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../recipes.html">MLflow Recipes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command-Line Interface</a></li>
@@ -126,8 +129,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../java_api/index.html">Java API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../rest-api.html">REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docker.html">Official MLflow Docker Image</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../hashicorp.html">MLflow AMI Image</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../community-model-flavors.html">Community Model Flavors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials-and-examples/index.html">Tutorials and Examples</a></li>
 </ul>
 
       
@@ -231,6 +234,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.file_utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TempDir</span><span class="p">,</span>
+    <span class="n">get_total_file_size</span><span class="p">,</span>
     <span class="n">write_to</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.model_utils</span> <span class="kn">import</span> <span class="p">(</span>
@@ -729,6 +733,8 @@
         <span class="n">conda_env</span><span class="o">=</span><span class="n">_CONDA_ENV_FILE_NAME</span><span class="p">,</span>
         <span class="n">python_env</span><span class="o">=</span><span class="n">_PYTHON_ENV_FILE_NAME</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="k">if</span> <span class="n">size</span> <span class="o">:=</span> <span class="n">get_total_file_size</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">mlflow_model</span><span class="o">.</span><span class="n">model_size_bytes</span> <span class="o">=</span> <span class="n">size</span>
     <span class="n">mlflow_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">MLMODEL_FILE_NAME</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="n">conda_env</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1128,35 +1134,28 @@
 <span class="sd">                                  The registered model is created if it does not already exist.</span>
 <span class="sd">    :param extra_tags: A dictionary of extra tags to set on each managed run created by autologging.</span>
 
-<span class="sd">    .. code-block:: python</span>
+<span class="sd">    .. testcode:: python</span>
 <span class="sd">        :caption: Example</span>
 
 <span class="sd">        import os</span>
 
-<span class="sd">        import pytorch_lightning as pl</span>
+<span class="sd">        import lightning as L</span>
 <span class="sd">        import torch</span>
 <span class="sd">        from torch.nn import functional as F</span>
-<span class="sd">        from torch.utils.data import DataLoader</span>
+<span class="sd">        from torch.utils.data import DataLoader, Subset</span>
+<span class="sd">        from torchmetrics import Accuracy</span>
 <span class="sd">        from torchvision import transforms</span>
 <span class="sd">        from torchvision.datasets import MNIST</span>
-
-<span class="sd">        try:</span>
-<span class="sd">            from torchmetrics.functional import accuracy</span>
-<span class="sd">        except ImportError:</span>
-<span class="sd">            from pytorch_lightning.metrics.functional import accuracy</span>
 
 <span class="sd">        import mlflow.pytorch</span>
 <span class="sd">        from mlflow import MlflowClient</span>
 
-<span class="sd">        # For brevity, here is the simplest most minimal example with just a training</span>
-<span class="sd">        # loop step, (no validation, no testing). It illustrates how you can use MLflow</span>
-<span class="sd">        # to auto log parameters, metrics, and models.</span>
 
-
-<span class="sd">        class MNISTModel(pl.LightningModule):</span>
+<span class="sd">        class MNISTModel(L.LightningModule):</span>
 <span class="sd">            def __init__(self):</span>
 <span class="sd">                super().__init__()</span>
 <span class="sd">                self.l1 = torch.nn.Linear(28 * 28, 10)</span>
+<span class="sd">                self.accuracy = Accuracy(&quot;multiclass&quot;, num_classes=10)</span>
 
 <span class="sd">            def forward(self, x):</span>
 <span class="sd">                return torch.relu(self.l1(x.view(x.size(0), -1)))</span>
@@ -1166,9 +1165,9 @@
 <span class="sd">                logits = self(x)</span>
 <span class="sd">                loss = F.cross_entropy(logits, y)</span>
 <span class="sd">                pred = logits.argmax(dim=1)</span>
-<span class="sd">                acc = accuracy(pred, y)</span>
+<span class="sd">                acc = self.accuracy(pred, y)</span>
 
-<span class="sd">                # Use the current of PyTorch logger</span>
+<span class="sd">                # PyTorch `self.log` will be automatically captured by MLflow.</span>
 <span class="sd">                self.log(&quot;train_loss&quot;, loss, on_epoch=True)</span>
 <span class="sd">                self.log(&quot;acc&quot;, acc, on_epoch=True)</span>
 <span class="sd">                return loss</span>
@@ -1187,51 +1186,30 @@
 <span class="sd">            print(f&quot;tags: {tags}&quot;)</span>
 
 
-<span class="sd">        # Initialize our model</span>
+<span class="sd">        # Initialize our model.</span>
 <span class="sd">        mnist_model = MNISTModel()</span>
 
-<span class="sd">        # Initialize DataLoader from MNIST Dataset</span>
+<span class="sd">        # Load MNIST dataset.</span>
 <span class="sd">        train_ds = MNIST(</span>
 <span class="sd">            os.getcwd(), train=True, download=True, transform=transforms.ToTensor()</span>
 <span class="sd">        )</span>
-<span class="sd">        train_loader = DataLoader(train_ds, batch_size=32)</span>
+<span class="sd">        # Only take a subset of the data for faster training.</span>
+<span class="sd">        indices = torch.arange(32)</span>
+<span class="sd">        train_ds = Subset(train_ds, indices)</span>
+<span class="sd">        train_loader = DataLoader(train_ds, batch_size=8)</span>
 
-<span class="sd">        # Initialize a trainer</span>
-<span class="sd">        trainer = pl.Trainer(max_epochs=20, progress_bar_refresh_rate=20)</span>
+<span class="sd">        # Initialize a trainer.</span>
+<span class="sd">        trainer = L.Trainer(max_epochs=3)</span>
 
 <span class="sd">        # Auto log all MLflow entities</span>
 <span class="sd">        mlflow.pytorch.autolog()</span>
 
-<span class="sd">        # Train the model</span>
+<span class="sd">        # Train the model.</span>
 <span class="sd">        with mlflow.start_run() as run:</span>
 <span class="sd">            trainer.fit(mnist_model, train_loader)</span>
 
-<span class="sd">        # fetch the auto logged parameters and metrics</span>
+<span class="sd">        # Fetch the auto logged parameters and metrics.</span>
 <span class="sd">        print_auto_logged_info(mlflow.get_run(run_id=run.info.run_id))</span>
-
-<span class="sd">    .. code-block:: text</span>
-<span class="sd">        :caption: Output</span>
-
-<span class="sd">        run_id: 42caa17b60cb489c8083900fb52506a7</span>
-<span class="sd">        artifacts: [&#39;model/MLmodel&#39;, &#39;model/conda.yaml&#39;, &#39;model/data&#39;]</span>
-<span class="sd">        params: {&#39;betas&#39;: &#39;(0.9, 0.999)&#39;,</span>
-<span class="sd">                 &#39;weight_decay&#39;: &#39;0&#39;,</span>
-<span class="sd">                 &#39;epochs&#39;: &#39;20&#39;,</span>
-<span class="sd">                 &#39;eps&#39;: &#39;1e-08&#39;,</span>
-<span class="sd">                 &#39;lr&#39;: &#39;0.02&#39;,</span>
-<span class="sd">                 &#39;optimizer_name&#39;: &#39;Adam&#39;, &#39;</span>
-<span class="sd">                 amsgrad&#39;: &#39;False&#39;}</span>
-<span class="sd">        metrics: {&#39;acc_step&#39;: 0.0,</span>
-<span class="sd">                  &#39;train_loss_epoch&#39;: 1.0917967557907104,</span>
-<span class="sd">                  &#39;train_loss_step&#39;: 1.0794280767440796,</span>
-<span class="sd">                  &#39;train_loss&#39;: 1.0794280767440796,</span>
-<span class="sd">                  &#39;acc_epoch&#39;: 0.0033333334140479565,</span>
-<span class="sd">                  &#39;acc&#39;: 0.0}</span>
-<span class="sd">        tags: {&#39;Mode&#39;: &#39;training&#39;}</span>
-
-<span class="sd">    .. figure:: ../_static/images/pytorch_lightening_autolog.png</span>
-
-<span class="sd">        PyTorch autologged MLflow entities</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">import</span> <span class="nn">pytorch_lightning</span> <span class="k">as</span> <span class="nn">pl</span>
@@ -1357,6 +1335,54 @@
     });
 
   </script>
-   
+  
+
+  
+  <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+        // Get the code block designator class entries
+        const allHighlights = document.querySelectorAll('.highlight');
+        // Disable copyable links for notebook cell numbering and for cell outputs
+        const highlights = Array.from(allHighlights).filter(highlight => !highlight.closest('.highlight-none') && 
+            !highlight.closest('.nboutput'));
+    
+        highlights.forEach(function(highlight) {
+            const copyIcon = document.createElement('span');
+            copyIcon.classList.add('copy-icon');
+            copyIcon.innerHTML = '&#xf0ea;';
+
+            copyIcon.addEventListener('click', function() {
+                const code = highlight.querySelector('pre').textContent;
+                copyToClipboard(code);
+
+                // Flash effect on click
+                this.style.color = '#0194E2';
+                setTimeout(() => {
+                    this.style.color = ''; 
+                }, 100);
+
+                // Display "Code copied to clipboard" near the clicked icon
+                const message = document.createElement('span');
+                message.textContent = "Code copied to clipboard!";
+                message.classList.add('copy-message'); 
+                this.appendChild(message);
+
+                setTimeout(() => {
+                    this.removeChild(message);
+                }, 500);
+            });
+
+            highlight.appendChild(copyIcon);
+        });
+    });
+  </script> 
 </body>
 </html>

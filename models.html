@@ -37,6 +37,9 @@
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600" rel="stylesheet">
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/cards.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/simple-cards.css" type="text/css" />
     
   
         <link rel="index" title="Index"
@@ -54,6 +57,7 @@
 <script type="text/javascript" src="_static/underscore.js"></script>
 <script type="text/javascript" src="_static/doctools.js"></script>
 <script type="text/javascript" src="_static/languagesections.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -103,14 +107,15 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="what-is-mlflow.html">What is MLflow?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart: Install MLflow, instrument code &amp; view results in minutes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart_rest_docker.html">Quickstart: Running Machine Learning Model as REST API in Docker Container</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart_mlops.html">Quickstart: Compare runs, choose a model, and deploy it to a REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials-and-examples/index.html">Tutorials and Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction/index.html">What is Mlflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting-started/index.html">Getting Started with MLflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="new-features/index.html">New Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model-evaluation/index.html">Model Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deep-learning/index.html">Deep Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="traditional-ml/index.html">Traditional ML</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tracking.html">MLflow Tracking</a></li>
-<li class="toctree-l1"><a class="reference internal" href="llm-tracking.html">MLflow LLM Tracking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="projects.html">MLflow Projects</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">MLflow Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#storage-format">Storage Format</a><ul>
@@ -229,7 +234,9 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#model-evaluation">Model Evaluation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#evaluating-with-llms">Evaluating with LLMs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#evaluating-with-custom-metrics">Evaluating with Custom Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evaluating-with-extra-metrics">Evaluating with Extra Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evaluating-with-a-function">Evaluating with a Function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evaluating-with-a-static-dataset">Evaluating with a Static Dataset</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#performing-model-validation">Performing Model Validation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#model-validation-with-giskard-s-plugin">Model Validation with Giskard’s plugin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#model-validation-with-trubrics-plugin">Model Validation with Trubrics’ plugin</a></li>
@@ -274,8 +281,6 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="model-registry.html">MLflow Model Registry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="recipes.html">MLflow Recipes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="llms/prompt-engineering.html">Prompt Engineering UI (Experimental)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">MLflow Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="auth/index.html">MLflow Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Command-Line Interface</a></li>
@@ -286,8 +291,8 @@
 <li class="toctree-l1"><a class="reference internal" href="java_api/index.html">Java API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest-api.html">REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docker.html">Official MLflow Docker Image</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hashicorp.html">MLflow AMI Image</a></li>
 <li class="toctree-l1"><a class="reference internal" href="community-model-flavors.html">Community Model Flavors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials-and-examples/index.html">Tutorials and Examples</a></li>
 </ul>
 
       
@@ -1362,10 +1367,10 @@ environment. You can customize the arguments given to
 <span id="tf-keras-example"></span><h3><a class="toc-backref" href="#id44">Keras (<code class="docutils literal notranslate"><span class="pre">keras</span></code>)</a><a class="headerlink" href="#keras-keras" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">keras</span></code> model flavor enables logging and loading Keras models. It is available in both Python
 and R clients. In R, you can save or log the model using
-<a class="reference external" href="R-api.rst#mlflow-save-model">mlflow_save_model</a> and <a class="reference external" href="R-api.rst#mlflow-log-model">mlflow_log_model</a>.
+<code class="docutils literal notranslate"><span class="pre">mlflow_save_model</span></code> and <code class="docutils literal notranslate"><span class="pre">mlflow_log_model</span></code>.
 These functions serialize Keras models as HDF5 files using the Keras library’s built-in
 model persistence functions. You can use
-<a class="reference external" href="R-api.rst#mlflow-load-model">mlflow_load_model</a> function in R to load MLflow Models
+<code class="docutils literal notranslate"><span class="pre">mlflow_load_model</span></code> function in R to load MLflow Models
 with the <code class="docutils literal notranslate"><span class="pre">keras</span></code> flavor as <a class="reference external" href="https://keras.io/models/about-keras-models/">Keras Model objects</a>.</p>
 <div class="section" id="keras-pyfunc-usage">
 <h4>Keras pyfunc usage<a class="headerlink" href="#keras-pyfunc-usage" title="Permalink to this headline"> </a></h4>
@@ -1426,9 +1431,8 @@ to evaluate inputs.</p>
 defines <a class="reference internal" href="python_api/mlflow.mleap.html#mlflow.mleap.save_model" title="mlflow.mleap.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_model()</span></code></a> and
 <a class="reference internal" href="python_api/mlflow.mleap.html#mlflow.mleap.log_model" title="mlflow.mleap.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">log_model()</span></code></a> methods for saving MLeap models in MLflow format,
 but these methods do not include the <code class="docutils literal notranslate"><span class="pre">python_function</span></code> flavor in the models they produce.
-Similarly, <code class="docutils literal notranslate"><span class="pre">mleap</span></code> models can be saved in R with <a class="reference external" href="R-api.rst#mlflow-save-model">mlflow_save_model</a>
-and loaded with <a class="reference external" href="R-api.rst#mlflow-load-model">mlflow_load_model</a>, with
-<a class="reference external" href="R-api.rst#mlflow-save-model">mlflow_save_model</a> requiring <cite>sample_input</cite> to be specified as a
+Similarly, <code class="docutils literal notranslate"><span class="pre">mleap</span></code> models can be saved in R with <code class="docutils literal notranslate"><span class="pre">mlflow_save_model</span></code> and loaded with <code class="docutils literal notranslate"><span class="pre">mlflow_load_model</span></code>, with
+<code class="docutils literal notranslate"><span class="pre">mlflow_save_model</span></code> requiring <cite>sample_input</cite> to be specified as a
 sample Spark dataframe containing input data to the model is required by MLeap for data schema
 inference.</p>
 <p>A companion module for loading MLflow Models with the MLeap flavor is available in the
@@ -1697,6 +1701,15 @@ ONNX model uses the <a class="reference external" href="https://github.com/micro
 evaluation. Finally, you can use the <a class="reference internal" href="python_api/mlflow.onnx.html#mlflow.onnx.load_model" title="mlflow.onnx.load_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.onnx.load_model()</span></code></a> method to load MLflow
 Models with the <code class="docutils literal notranslate"><span class="pre">onnx</span></code> flavor in native ONNX format.</p>
 <p>For more information, see <a class="reference internal" href="python_api/mlflow.onnx.html#module-mlflow.onnx" title="mlflow.onnx"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.onnx</span></code></a> and <a class="reference external" href="http://onnx.ai/">http://onnx.ai/</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The default behavior for saving ONNX files is to use the ONNX save option <code class="docutils literal notranslate"><span class="pre">save_as_external_data=True</span></code>
+in order to support model files that are <strong>in excess of 2GB</strong>. For edge deployments of small model files, this
+may create issues. If you need to save a small model as a single file for such deployment considerations,
+you can set the parameter <code class="docutils literal notranslate"><span class="pre">save_as_external_data=False</span></code> in either <a class="reference internal" href="python_api/mlflow.onnx.html#mlflow.onnx.save_model" title="mlflow.onnx.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.onnx.save_model()</span></code></a> or
+<a class="reference internal" href="python_api/mlflow.onnx.html#mlflow.onnx.log_model" title="mlflow.onnx.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.onnx.log_model()</span></code></a> to force the serialization of the model as a small file. Note that if the
+model is in excess of 2GB, <strong>saving as a single file will not work</strong>.</p>
+</div>
 <div class="section" id="onnx-pyfunc-usage-example">
 <h4>ONNX pyfunc usage example<a class="headerlink" href="#onnx-pyfunc-usage-example" title="Permalink to this headline"> </a></h4>
 <p>For an ONNX model, an example configuration that uses pytorch to train a dummy model,
@@ -2857,6 +2870,8 @@ Model with the <code class="docutils literal notranslate"><span class="pre">open
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">ModelSignature</span>
+<span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">ColSpec</span><span class="p">,</span> <span class="n">ParamSchema</span><span class="p">,</span> <span class="n">ParamSpec</span><span class="p">,</span> <span class="n">Schema</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;mlflow&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
 
@@ -2866,11 +2881,6 @@ Model with the <code class="docutils literal notranslate"><span class="pre">open
 
 <span class="k">assert</span> <span class="s2">&quot;OPENAI_API_KEY&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">,</span> <span class="s2">&quot;Please set the OPENAI_API_KEY environment variable.&quot;</span>
 
-
-<span class="c1"># On Databricks, set the stored OpenAI API key scope here for automatically loading the API key</span>
-<span class="c1"># for real time inference. See https://docs.databricks.com/security/secrets/index.html on</span>
-<span class="c1"># how to add a scope and API key.</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MLFLOW_OPENAI_SECRET_SCOPE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&lt;scope-name&gt;&quot;</span>
 
 <span class="nb">print</span><span class="p">(</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3016,6 +3026,43 @@ Model with the <code class="docutils literal notranslate"><span class="pre">open
 <span class="p">]</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_uri</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">list_of_strings</span><span class="p">))</span>
+
+
+<span class="nb">print</span><span class="p">(</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd"># ******************************************************************************</span>
+<span class="sd"># Inference parameters with chat completions</span>
+<span class="sd"># ******************************************************************************</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="p">)</span>
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
+    <span class="n">model_info</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">openai</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">,</span>
+        <span class="n">task</span><span class="o">=</span><span class="n">openai</span><span class="o">.</span><span class="n">ChatCompletion</span><span class="p">,</span>
+        <span class="n">artifact_path</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span>
+        <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Tell me a joke about </span><span class="si">{animal}</span><span class="s2">.&quot;</span><span class="p">}],</span>
+        <span class="n">signature</span><span class="o">=</span><span class="n">ModelSignature</span><span class="p">(</span>
+            <span class="n">inputs</span><span class="o">=</span><span class="n">Schema</span><span class="p">([</span><span class="n">ColSpec</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">)]),</span>
+            <span class="n">outputs</span><span class="o">=</span><span class="n">Schema</span><span class="p">([</span><span class="n">ColSpec</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">)]),</span>
+            <span class="n">params</span><span class="o">=</span><span class="n">ParamSchema</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">ParamSpec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;temperature&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_uri</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;animal&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;cats&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dogs&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}))</span>
 </pre></div>
 </div>
 </div>
@@ -4303,7 +4350,7 @@ Model with the <code class="docutils literal notranslate"><span class="pre">sent
 <span class="sd">  2.37922110e-02 -2.28897743e-02  3.89375277e-02  3.02067865e-02]</span>
 <span class="sd"> [ 4.81191138e-03 -9.33756605e-02  6.95968643e-02  8.09735525e-03</span>
 <span class="sd">  ...</span>
-<span class="sd">   6.57437667e-02 -2.72239652e-02  4.02687863e-02 -1.05599344e-01]] </span>
+<span class="sd">   6.57437667e-02 -2.72239652e-02  4.02687863e-02 -1.05599344e-01]]</span>
 <span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div>
@@ -4431,9 +4478,9 @@ each model:</p>
 <p>For additional examples demonstrating the use of <code class="docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code> with LLMs, check out the
 <a class="reference external" href="https://github.com/mlflow/mlflow/tree/master/examples/llms">MLflow LLMs example repository</a>.</p>
 </div>
-<div class="section" id="evaluating-with-custom-metrics">
-<h3>Evaluating with Custom Metrics<a class="headerlink" href="#evaluating-with-custom-metrics" title="Permalink to this headline"> </a></h3>
-<p>If the default set of metrics is insufficient, you can supply <code class="docutils literal notranslate"><span class="pre">custom_metrics</span></code> and <code class="docutils literal notranslate"><span class="pre">custom_artifacts</span></code>
+<div class="section" id="evaluating-with-extra-metrics">
+<h3>Evaluating with Extra Metrics<a class="headerlink" href="#evaluating-with-extra-metrics" title="Permalink to this headline"> </a></h3>
+<p>If the default set of metrics is insufficient, you can supply <code class="docutils literal notranslate"><span class="pre">extra_metrics</span></code> and <code class="docutils literal notranslate"><span class="pre">custom_artifacts</span></code>
 to <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a> to produce custom metrics and artifacts for the model(s) that you’re evaluating.
 The following <a class="reference external" href="https://github.com/mlflow/mlflow/blob/master/examples/evaluation/evaluate_with_custom_metrics.py">short example from the MLflow GitHub Repository</a>
 uses <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a> with a custom metric function to evaluate the performance of a regressor on the
@@ -4509,7 +4556,7 @@ uses <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate"
         <span class="n">targets</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span>
         <span class="n">model_type</span><span class="o">=</span><span class="s2">&quot;regressor&quot;</span><span class="p">,</span>
         <span class="n">evaluators</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">],</span>
-        <span class="n">custom_metrics</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">extra_metrics</span><span class="o">=</span><span class="p">[</span>
             <span class="n">make_metric</span><span class="p">(</span>
                 <span class="n">eval_fn</span><span class="o">=</span><span class="n">squared_diff_plus_one</span><span class="p">,</span>
                 <span class="n">greater_is_better</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -4527,6 +4574,105 @@ uses <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate"
 </pre></div>
 </div>
 <p>For a more comprehensive custom metrics usage example, refer to <a class="reference external" href="https://github.com/mlflow/mlflow/blob/master/examples/evaluation/evaluate_with_custom_metrics_comprehensive.py">this example from the MLflow GitHub Repository</a>.</p>
+</div>
+<div class="section" id="evaluating-with-a-function">
+<h3>Evaluating with a Function<a class="headerlink" href="#evaluating-with-a-function" title="Permalink to this headline"> </a></h3>
+<p>As of MLflow 2.8.0, <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a> supports evaluating a python function without requiring
+logging the model to MLflow. This is useful when you don’t want to log the model and just want to evaluate
+it. The following example uses <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a> to evaluate a function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">shap</span>
+<span class="kn">import</span> <span class="nn">xgboost</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="kn">import</span> <span class="nn">mlflow</span>
+
+<span class="c1"># Load the UCI Adult Dataset</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">shap</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">adult</span><span class="p">()</span>
+
+<span class="c1"># Split the data into training and test sets</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.33</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Fit an XGBoost binary classifier on the training data split</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">xgboost</span><span class="o">.</span><span class="n">XGBClassifier</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># Build the Evaluation Dataset from the test set</span>
+<span class="n">eval_data</span> <span class="o">=</span> <span class="n">X_test</span>
+<span class="n">eval_data</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_test</span>
+
+
+<span class="c1"># Define a function that calls the model&#39;s predict method</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
+    <span class="c1"># Evaluate the function without logging the model</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
+        <span class="n">fn</span><span class="p">,</span>
+        <span class="n">eval_data</span><span class="p">,</span>
+        <span class="n">targets</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">,</span>
+        <span class="n">model_type</span><span class="o">=</span><span class="s2">&quot;classifier&quot;</span><span class="p">,</span>
+        <span class="n">evaluators</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;metrics:</span><span class="se">\n</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">metrics</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;artifacts:</span><span class="se">\n</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">artifacts</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="evaluating-with-a-static-dataset">
+<h3>Evaluating with a Static Dataset<a class="headerlink" href="#evaluating-with-a-static-dataset" title="Permalink to this headline"> </a></h3>
+<p>As of MLflow 2.8.0, <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a> supports evaluating a static dataset without specifying a model.
+This is useful when you save the model output to a column in a Pandas DataFrame or an MLflow PandasDataset, and
+want to evaluate the static dataset without re-running the model.</p>
+<p>If you are using a Pandas DataFrame, you must specify the column name that contains the model output using the
+top-level <code class="docutils literal notranslate"><span class="pre">predictions</span></code> parameter in <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mlflow</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">pandas_df</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="s2">&quot;model_output&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you are using an MLflow PandasDataset, you must specify the column name that contains the model output using
+the <code class="docutils literal notranslate"><span class="pre">predictions</span></code> parameter in <a class="reference internal" href="python_api/mlflow.data.html#mlflow.data.from_pandas" title="mlflow.data.from_pandas"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.data.from_pandas()</span></code></a>, and specify <code class="docutils literal notranslate"><span class="pre">None</span></code> for the
+<code class="docutils literal notranslate"><span class="pre">predictions</span></code> parameter in <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">pandas_df</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="s2">&quot;model_output&quot;</span><span class="p">)</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">pandas_df</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The following example uses <a class="reference internal" href="python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a> to evaluate a static dataset:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">shap</span>
+<span class="kn">import</span> <span class="nn">xgboost</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="kn">import</span> <span class="nn">mlflow</span>
+
+<span class="c1"># Load the UCI Adult Dataset</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">shap</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">adult</span><span class="p">()</span>
+
+<span class="c1"># Split the data into training and test sets</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.33</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Fit an XGBoost binary classifier on the training data split</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">xgboost</span><span class="o">.</span><span class="n">XGBClassifier</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># Build the Evaluation Dataset from the test set</span>
+<span class="n">y_test_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">eval_data</span> <span class="o">=</span> <span class="n">X_test</span>
+<span class="n">eval_data</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_test</span>
+<span class="n">eval_data</span><span class="p">[</span><span class="s2">&quot;predictions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_test_pred</span>
+
+
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
+    <span class="c1"># Evaluate the static dataset without providing a model</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">eval_data</span><span class="p">,</span>
+        <span class="n">targets</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">,</span>
+        <span class="n">predictions</span><span class="o">=</span><span class="s2">&quot;predictions&quot;</span><span class="p">,</span>
+        <span class="n">model_type</span><span class="o">=</span><span class="s2">&quot;classifier&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;metrics:</span><span class="se">\n</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">metrics</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;artifacts:</span><span class="se">\n</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">artifacts</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="performing-model-validation">
 <span id="model-validation"></span><h3>Performing Model Validation<a class="headerlink" href="#performing-model-validation" title="Permalink to this headline"> </a></h3>
@@ -6146,6 +6292,54 @@ maintained by the MLflow community.</p>
     });
 
   </script>
-   
+  
+
+  
+  <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+        // Get the code block designator class entries
+        const allHighlights = document.querySelectorAll('.highlight');
+        // Disable copyable links for notebook cell numbering and for cell outputs
+        const highlights = Array.from(allHighlights).filter(highlight => !highlight.closest('.highlight-none') && 
+            !highlight.closest('.nboutput'));
+    
+        highlights.forEach(function(highlight) {
+            const copyIcon = document.createElement('span');
+            copyIcon.classList.add('copy-icon');
+            copyIcon.innerHTML = '&#xf0ea;';
+
+            copyIcon.addEventListener('click', function() {
+                const code = highlight.querySelector('pre').textContent;
+                copyToClipboard(code);
+
+                // Flash effect on click
+                this.style.color = '#0194E2';
+                setTimeout(() => {
+                    this.style.color = ''; 
+                }, 100);
+
+                // Display "Code copied to clipboard" near the clicked icon
+                const message = document.createElement('span');
+                message.textContent = "Code copied to clipboard!";
+                message.classList.add('copy-message'); 
+                this.appendChild(message);
+
+                setTimeout(() => {
+                    this.removeChild(message);
+                }, 500);
+            });
+
+            highlight.appendChild(copyIcon);
+        });
+    });
+  </script> 
 </body>
 </html>

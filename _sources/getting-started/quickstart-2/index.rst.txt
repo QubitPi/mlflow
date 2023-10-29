@@ -278,7 +278,7 @@ Serving the Model in Docker Container via REST API
 
 .. code-block:: bash
 
-    mlflow models build-docker --name "docker-image-name"
+    mlflow models build-docker --name "my-model-image"
 
 .. note::
     If we see the error of
@@ -292,13 +292,22 @@ Serving the Model in Docker Container via REST API
 
 .. code-block:: bash
 
-    export MY_MODEL_PATH=/abs/path/to/my-model-dir
-    docker run --rm \
+    sudo docker run --detach --rm \
+      --memory=4000m \
       -p 5001:8080 \
-      -v $MY_MODEL_PATH:/opt/ml/model \
-      "docker-image-name"
+      -v /abs/path/to/my-model-dir:/opt/ml/model \
+      -e PYTHONPATH="/opt/ml/model:$PYTHONPATH" \
+      -e GUNICORN_CMD_ARGS="--timeout 600 -k gevent --workers=1" \
+      "mlflow-model-container"
 
+By the example command above, we
 
+* `set the container's max memory <https://docs.docker.com/config/containers/resource_constraints/#limit-a-containers-access-to-memory>`_ to 4000 megabytes
+* set the port forwarding so that the REST API will be accessible at port 5001 on hosting machine
+* mount the model directory, i.e. **/abs/path/to/my-model-dir**, to */opt/ml/model* in container
+* allow any custom ``import`` of modules loaded into **/abs/path/to/my-model-dir** if our user also put an **__init__.py** into that directory
+* allow long-lasting model inference by setting the internal Flask timeout to be 600 seconds
+* set the number of Flask workers to 1
 
 Deploying to a cloud platform
 -----------------------------

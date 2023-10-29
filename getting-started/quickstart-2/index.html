@@ -413,7 +413,7 @@ conda environment specifying its dependencies:</p>
 <div class="section" id="serving-the-model-in-docker-container-via-rest-api">
 <h2>Serving the Model in Docker Container via REST API<a class="headerlink" href="#serving-the-model-in-docker-container-via-rest-api" title="Permalink to this headline"> </a></h2>
 <p><a class="reference external" href="cli.html#mlflow-models-build-docker">build_docker</a> and run container:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mlflow<span class="w"> </span>models<span class="w"> </span>build-docker<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;docker-image-name&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mlflow<span class="w"> </span>models<span class="w"> </span>build-docker<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;my-model-image&quot;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -427,13 +427,24 @@ from the command above, we can try
 </div>
 <p>and then re-run the command</p>
 </div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">MY_MODEL_PATH</span><span class="o">=</span>/abs/path/to/my-model-dir
-docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span><span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"> </span>--rm<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--memory<span class="o">=</span>4000m<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-p<span class="w"> </span><span class="m">5001</span>:8080<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-v<span class="w"> </span><span class="nv">$MY_MODEL_PATH</span>:/opt/ml/model<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="s2">&quot;docker-image-name&quot;</span>
+<span class="w">  </span>-v<span class="w"> </span>/abs/path/to/my-model-dir:/opt/ml/model<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;/opt/ml/model:</span><span class="nv">$PYTHONPATH</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">GUNICORN_CMD_ARGS</span><span class="o">=</span><span class="s2">&quot;--timeout 600 -k gevent --workers=1&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;mlflow-model-container&quot;</span>
 </pre></div>
 </div>
+<p>By the example command above, we</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.docker.com/config/containers/resource_constraints/#limit-a-containers-access-to-memory">set the container’s max memory</a> to 4000 megabytes</p></li>
+<li><p>set the port forwarding so that the REST API will be accessible at port 5001 on hosting machine</p></li>
+<li><p>mount the model directory, i.e. <strong>/abs/path/to/my-model-dir</strong>, to <em>/opt/ml/model</em> in container</p></li>
+<li><p>allow any custom <code class="docutils literal notranslate"><span class="pre">import</span></code> of modules loaded into <strong>/abs/path/to/my-model-dir</strong> if our user also put an <strong>__init__.py</strong> into that directory</p></li>
+<li><p>allow long-lasting model inference by setting the internal Flask timeout to be 600 seconds</p></li>
+<li><p>set the number of Flask workers to 1</p></li>
+</ul>
 </div>
 <div class="section" id="deploying-to-a-cloud-platform">
 <h2>Deploying to a cloud platform<a class="headerlink" href="#deploying-to-a-cloud-platform" title="Permalink to this headline"> </a></h2>

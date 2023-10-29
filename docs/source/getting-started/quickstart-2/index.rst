@@ -92,7 +92,9 @@ MLflow allows you to easily serve models produced by any run or model version. Y
 
 (Note that specifying the port as above will be necessary if you are running the tracking server on the same machine at the default port of **5000**.)
 
-You could also have used a ``runs:/<run_id>`` URI to serve a model, or any supported URI described in :ref:`artifact-stores`. 
+**If the command above is invoked in a *new* shell session, make sure to re-point tracking server using the ``export MLFLOW_TRACKING_URI=http://localhost:5000`` mentioned above, otherwise MLflow will complain "Registered Model with name=wine-quality not found"**
+
+You could also have used a ``runs:/<run_id>`` URI to serve a model, or any supported URI described in :ref:`artifact-stores`.
 
 To test the model, you can send a request to the REST API using the ``curl`` command:
 
@@ -120,6 +122,18 @@ Most routes toward deployment will use a container to package your model, its de
 
   mlflow models build-docker --model-uri "models:/wine-quality/1" --name "qs_mlops"
 
+If the command above erros by
+
+.. code-block:: bash
+
+   mlflow.exceptions.MlflowException: The configured tracking uri scheme: 'file' is invalid for use with the proxy mlflow-artifact scheme. The allowed tracking schemes are: {'http', 'https'}
+
+This is, again, most likely the tracking server is not pointed at properly (because the command, for example, is run in a seprate shell). Simply run
+
+.. code-block:: bash
+
+   export MLFLOW_TRACKING_URI=http://localhost:5000
+
 This command builds a Docker image named ``qs_mlops`` that contains your model and its dependencies. The ``model-uri`` in this case specifies a version number (``/1``) rather than a lifecycle stage (``/staging``), but you can use whichever integrates best with your workflow. It will take several minutes to build the image. Once it completes, you can run the image to provide real-time inferencing locally, on-prem, on a bespoke Internet server, or cloud platform. You can run it locally with:
 
 .. code-block:: bash
@@ -131,6 +145,169 @@ This `Docker run command <https://docs.docker.com/engine/reference/commandline/r
 .. code-block:: bash
 
   curl -d '{"dataframe_split": {"columns": ["fixed acidity","volatile acidity","citric acid","residual sugar","chlorides","free sulfur dioxide","total sulfur dioxide","density","pH","sulphates","alcohol"], "data": [[7,0.27,0.36,20.7,0.045,45,170,1.001,3,0.45,8.8]]}}' -H 'Content-Type: application/json' -X POST localhost:5002/invocations
+
+Running Machine Learning Model NOT Managed by MLflow as REST API in Docker Container
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Deploying a trained machine learning model behind a REST API endpoint is an common problem that needs to be solved on the last mile to getting the model into production. The MLflow package provides a flexible abstraction layer that makes deployment via Docker quite easy for those models generated outside of MLflow.
+
+Defining and Storing the Model as a Python Function in MLflow
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+The model inference logic is wrapped in a class that inherits from :class:`.PythonModel`. There are two
+functions to implement:
+
+1. *load_context()* loads the model artifacts
+2. *predict()* runs model inference on the given input and returns the model's output; the input format will be pandas
+   DataFrame and the output will be a pandas Series of predicted result.
+
+For example
+
+.. code-block:: python
+
+    import mlflow.pyfunc
+    import pandas
+
+
+    class MyModel(mlflow.pyfunc.PythonModel):
+        def __init__(self):
+            self.model = None
+
+        def load_context(self, context):
+            pretrained_model = "my-model"
+            this.model = load_model(pretrained_model)
+
+        def predict(self, context, model_input):
+            inputs = []
+            for _, row in model_input.iterrows():
+                inputs.append(row["input_column"])
+
+            return pandas.Series(self.model(inputs))
+
+Next, we save the model locally to a preferred directory. For instance, "my-model-dir/". We would also need to include a
+conda environment specifying its dependencies:
+
+.. code-block:: python
+
+    conda_env = {
+        "channels": ["defaults"],
+        "dependencies": [
+            "python=3.10.7",
+            "pip",
+            {
+                "pip": ["mlflow", "<other python packages if needed>"],
+            },
+        ],
+        "name": "my_model_env",
+    }
+
+    # Save the MLflow Model
+    mlflow_pyfunc_model_path = "my-model-dir"
+    mlflow.pyfunc.save_model(
+        path=mlflow_pyfunc_model_path, python_model=MyModel(), conda_env=conda_env
+    )
+
+In the end, we should have a file called `MyModel.py` with
+
+.. code-block:: python
+
+    import mlflow.pyfunc
+    import pandas
+
+
+    class MyModel(mlflow.pyfunc.PythonModel):
+        def __init__(self):
+            self.model = None
+
+        def load_context(self, context):
+            pretrained_model = "my-model"
+            this.model = load_model(pretrained_model)
+
+        def predict(self, context, model_input):
+            inputs = []
+            for _, row in model_input.iterrows():
+                inputs.append(row["input_column"])
+
+            return pandas.Series(self.model(inputs))
+
+
+    if __name__ == "__main__":
+        conda_env = {
+            "channels": ["defaults"],
+            "dependencies": [
+                "python=3.10.7",
+                "pip",
+                {
+                    "pip": ["mlflow", "<other python packages if needed>"],
+                },
+            ],
+            "name": "my_model_env",
+        }
+
+        # Save the MLflow Model
+        mlflow_pyfunc_model_path = "my-model-dir"
+        mlflow.pyfunc.save_model(
+            path=mlflow_pyfunc_model_path, python_model=MyModel(), conda_env=conda_env
+        )
+
+Testing the Model
+'''''''''''''''''
+
+In case we would like to unit test our model in CI/CD:
+
+.. code-block:: python
+
+    loaded_model = mlflow.pyfunc.load_model(mlflow_pyfunc_model_path)
+
+    # Evaluate the model
+    import pandas
+
+    test_data = pandas.DataFrame(
+        {
+            "input_column": ["input1...", "input2...", "input3..."],
+            "another_input_column": [...],
+        }
+    )
+    test_predictions = loaded_model.predict(test_data)
+    print(test_predictions)
+
+Serving the Model in Docker Container via REST API
+--------------------------------------------------
+
+`build_docker <cli.html#mlflow-models-build-docker>`_ and run container:
+
+.. code-block:: bash
+
+    mlflow models build-docker --name "my-model-image"
+
+.. note::
+    If we see the error of
+    `requests.exceptions.ConnectionError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))`
+    from the command above, we can try
+    `this workaround <https://github.com/docker/docker-py/issues/3059#issuecomment-1294369344>`_::
+
+        sudo ln -s "$HOME/.docker/run/docker.sock" /var/run/docker.sock
+
+    and then re-run the command
+
+.. code-block:: bash
+
+    sudo docker run --detach --rm \
+      --memory=4000m \
+      -p 5001:8080 \
+      -v /abs/path/to/my-model-dir:/opt/ml/model \
+      -e PYTHONPATH="/opt/ml/model:$PYTHONPATH" \
+      -e GUNICORN_CMD_ARGS="--timeout 600 -k gevent --workers=1" \
+      "mlflow-model-container"
+
+By the example command above, we
+
+* `set the container's max memory <https://docs.docker.com/config/containers/resource_constraints/#limit-a-containers-access-to-memory>`_ to 4000 megabytes
+* set the port forwarding so that the REST API will be accessible at port 5001 on hosting machine
+* mount the model directory, i.e. **/abs/path/to/my-model-dir**, to */opt/ml/model* in container
+* allow any custom ``import`` of modules loaded into **/abs/path/to/my-model-dir** if our user also put an **__init__.py** into that directory
+* allow long-lasting model inference by setting the internal Flask timeout to be 600 seconds
+* set the number of Flask workers to 1
 
 Deploying to a cloud platform
 -----------------------------

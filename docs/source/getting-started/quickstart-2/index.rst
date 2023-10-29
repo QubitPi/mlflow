@@ -12,9 +12,9 @@ In this quickstart, you will:
 - Deploy the model to a REST API
 - Build a container image suitable for deployment to a cloud platform
 
-As an ML Engineer or MLOps professional, you can use MLflow to compare, share, and deploy the best models produced 
-by the team. In this quickstart, you will use the MLflow Tracking UI to compare the results of a hyperparameter 
-sweep, choose the best run, and register it as a model. Then, you will deploy the model to a REST API. Finally, 
+As an ML Engineer or MLOps professional, you can use MLflow to compare, share, and deploy the best models produced
+by the team. In this quickstart, you will use the MLflow Tracking UI to compare the results of a hyperparameter
+sweep, choose the best run, and register it as a model. Then, you will deploy the model to a REST API. Finally,
 you will create a Docker container image suitable for deployment to a cloud platform.
 
 .. image:: ../../_static/images/quickstart/quickstart_tracking_overview.png
@@ -26,27 +26,27 @@ you will create a Docker container image suitable for deployment to a cloud plat
 Set up
 ------
 
-For a comprehensive guide on getting an MLflow environment setup that will give you options on how to configure MLflow tracking 
+For a comprehensive guide on getting an MLflow environment setup that will give you options on how to configure MLflow tracking
 capabilities, you can `read the guide here <../running-notebooks/index.html>`_.
 
 Run a hyperparameter sweep
 --------------------------
 
-This example tries to optimize the RMSE metric of a Keras deep learning model on a wine quality dataset. It has 
-two hyperparameters that it tries to optimize: ``learning_rate`` and ``momentum``. We will use the 
-`Hyperopt <https://github.com/hyperopt/hyperopt>`_ library to run a hyperparameter sweep across 
-different values of ``learning_rate`` and ``momentum`` and record the results in MLflow. 
+This example tries to optimize the RMSE metric of a Keras deep learning model on a wine quality dataset. It has
+two hyperparameters that it tries to optimize: ``learning_rate`` and ``momentum``. We will use the
+`Hyperopt <https://github.com/hyperopt/hyperopt>`_ library to run a hyperparameter sweep across
+different values of ``learning_rate`` and ``momentum`` and record the results in MLflow.
 
-Before running the hyperparameter sweep, let's set the ``MLFLOW_TRACKING_URI`` environment variable to the URI of 
+Before running the hyperparameter sweep, let's set the ``MLFLOW_TRACKING_URI`` environment variable to the URI of
 our MLflow tracking server:
 
 .. code-block:: bash
 
   export MLFLOW_TRACKING_URI=http://localhost:5000
 
-.. note:: 
-    
-    If you would like to explore the possibilities of other tracking server deployments, including a fully-managed 
+.. note::
+
+    If you would like to explore the possibilities of other tracking server deployments, including a fully-managed
     free-of-charge solution with Databricks Community Edition, please see `this page <../running-notebooks/index.html>`_.
 
 Import the following packages
@@ -63,7 +63,7 @@ Import the following packages
     import mlflow
     from mlflow.models import infer_signature
 
-Now load the dataset and split it into training, validation, and test sets. 
+Now load the dataset and split it into training, validation, and test sets.
 
 .. code-block:: python
 
@@ -134,7 +134,7 @@ parameters, results, and model itself of each trial as a child run.
             return {"loss": eval_rmse, "status": STATUS_OK, "model": model}
 
 
-The ``objective`` function takes in the hyperparameters and returns the results of the ``train_model`` 
+The ``objective`` function takes in the hyperparameters and returns the results of the ``train_model``
 function for that set of hyperparameters.
 
 .. code-block:: python
@@ -167,8 +167,8 @@ of subsequent hyperparameter sets in a more informed manner, aiming to converge 
         "momentum": hp.uniform("momentum", 0.0, 1.0),
     }
 
-Finally, we will run the hyperparameter sweep using Hyperopt, passing in the ``objective`` function and search space. 
-Hyperopt will try different hyperparameter combinations and return the results of the best one. We will 
+Finally, we will run the hyperparameter sweep using Hyperopt, passing in the ``objective`` function and search space.
+Hyperopt will try different hyperparameter combinations and return the results of the best one. We will
 store the best parameters, model, and evaluation metrics in MLflow.
 
 .. code-block:: python
@@ -227,16 +227,16 @@ each hyperparameter evaluation run's parameters to the evaluated error metric fo
     alt="Screenshot of MLflow tracking UI parallel coordinates graph showing runs"
   />
 
-The red graphs on this graph are runs that fared poorly. The lowest one is a baseline run with both **lr** 
-and **momentum** set to 0.0. That baseline run has an RMSE of ~0.89. The other red lines show that 
-high **momentum** can also lead to poor results with this problem and architecture. 
+The red graphs on this graph are runs that fared poorly. The lowest one is a baseline run with both **lr**
+and **momentum** set to 0.0. That baseline run has an RMSE of ~0.89. The other red lines show that
+high **momentum** can also lead to poor results with this problem and architecture.
 
 The graphs shading towards blue are runs that fared better. Hover your mouse over individual runs to see their details.
 
 Register your best model
 ------------------------
 
-Choose the best run and register it as a model. In the **Table view**, choose the best run. In the 
+Choose the best run and register it as a model. In the **Table view**, choose the best run. In the
 **Run Detail** page, open the **Artifacts** section and select the **Register Model** button. In the
 **Register Model** dialog, enter a name for the model, such as ``wine-quality``, and click **Register**.
 
@@ -268,6 +268,8 @@ You can serve the model you just registered by running:
 (Note that specifying the port as above will be necessary if you are running the tracking server on the
 same machine at the default port of **5000**.)
 
+**If the command above is invoked in a new shell session**, make sure to re-point tracking server using the ``export MLFLOW_TRACKING_URI=http://localhost:5000`` mentioned above, otherwise MLflow will complain "Registered Model with name=wine-quality not found"
+
 You could also have used a ``runs:/<run_id>`` URI to serve a model, or any supported URI described in :ref:`artifact-stores`.
 
 Please note that for production, we do not recommend deploying your model in the same VM as the tracking server
@@ -278,7 +280,7 @@ To test the model, you can send a request to the REST API using the ``curl`` com
 .. code-block:: bash
 
   curl -d '{"dataframe_split": {
-  "columns": ["fixed acidity","volatile acidity","citric acid","residual sugar","chlorides","free sulfur dioxide","total sulfur dioxide","density","pH","sulphates","alcohol"], 
+  "columns": ["fixed acidity","volatile acidity","citric acid","residual sugar","chlorides","free sulfur dioxide","total sulfur dioxide","density","pH","sulphates","alcohol"],
   "data": [[7,0.27,0.36,20.7,0.045,45,170,1.001,3,0.45,8.8]]}}' \
   -H 'Content-Type: application/json' -X POST localhost:5002/invocations
 
@@ -307,6 +309,18 @@ the runtime environment. You can use MLflow to build a Docker image for your mod
 
   mlflow models build-docker --model-uri "models:/wine-quality/1" --name "qs_mlops"
 
+If the command above erros by
+
+.. code-block:: bash
+
+   mlflow.exceptions.MlflowException: The configured tracking uri scheme: 'file' is invalid for use with the proxy mlflow-artifact scheme. The allowed tracking schemes are: {'http', 'https'}
+
+This is, again, most likely the tracking server is not pointed at properly (because the command, for example, is run in a seprate shell). Simply run
+
+.. code-block:: bash
+
+   export MLFLOW_TRACKING_URI=http://localhost:5000
+
 This command builds a Docker image named ``qs_mlops`` that contains your model and its dependencies. The ``model-uri``
 in this case specifies a version number (``/1``) rather than a lifecycle stage (``/staging``), but you can use
 whichever integrates best with your workflow. It will take several minutes to build the image. Once it completes,
@@ -324,6 +338,169 @@ model using the same ``curl`` command as before:
 .. code-block:: bash
 
   curl -d '{"dataframe_split": {"columns": ["fixed acidity","volatile acidity","citric acid","residual sugar","chlorides","free sulfur dioxide","total sulfur dioxide","density","pH","sulphates","alcohol"], "data": [[7,0.27,0.36,20.7,0.045,45,170,1.001,3,0.45,8.8]]}}' -H 'Content-Type: application/json' -X POST localhost:5002/invocations
+
+Running Machine Learning Model NOT Managed by MLflow as REST API in Docker Container
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Deploying a trained machine learning model behind a REST API endpoint is an common problem that needs to be solved on the last mile to getting the model into production. The MLflow package provides a flexible abstraction layer that makes deployment via Docker quite easy for those models generated outside of MLflow.
+
+Defining and Storing the Model as a Python Function in MLflow
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+The model inference logic is wrapped in a class that inherits from :class:`.PythonModel`. There are two
+functions to implement:
+
+1. *load_context()* loads the model artifacts
+2. *predict()* runs model inference on the given input and returns the model's output; the input format will be pandas
+   DataFrame and the output will be a pandas Series of predicted result.
+
+For example
+
+.. code-block:: python
+
+    import mlflow.pyfunc
+    import pandas
+
+
+    class MyModel(mlflow.pyfunc.PythonModel):
+        def __init__(self):
+            self.model = None
+
+        def load_context(self, context):
+            pretrained_model = "my-model"
+            this.model = load_model(pretrained_model)
+
+        def predict(self, context, model_input):
+            inputs = []
+            for _, row in model_input.iterrows():
+                inputs.append(row["input_column"])
+
+            return pandas.Series(self.model(inputs))
+
+Next, we save the model locally to a preferred directory. For instance, "my-model-dir/". We would also need to include a
+conda environment specifying its dependencies:
+
+.. code-block:: python
+
+    conda_env = {
+        "channels": ["defaults"],
+        "dependencies": [
+            "python=3.10.7",
+            "pip",
+            {
+                "pip": ["mlflow", "<other python packages if needed>"],
+            },
+        ],
+        "name": "my_model_env",
+    }
+
+    # Save the MLflow Model
+    mlflow_pyfunc_model_path = "my-model-dir"
+    mlflow.pyfunc.save_model(
+        path=mlflow_pyfunc_model_path, python_model=MyModel(), conda_env=conda_env
+    )
+
+In the end, we should have a file called `MyModel.py` with
+
+.. code-block:: python
+
+    import mlflow.pyfunc
+    import pandas
+
+
+    class MyModel(mlflow.pyfunc.PythonModel):
+        def __init__(self):
+            self.model = None
+
+        def load_context(self, context):
+            pretrained_model = "my-model"
+            this.model = load_model(pretrained_model)
+
+        def predict(self, context, model_input):
+            inputs = []
+            for _, row in model_input.iterrows():
+                inputs.append(row["input_column"])
+
+            return pandas.Series(self.model(inputs))
+
+
+    if __name__ == "__main__":
+        conda_env = {
+            "channels": ["defaults"],
+            "dependencies": [
+                "python=3.10.7",
+                "pip",
+                {
+                    "pip": ["mlflow", "<other python packages if needed>"],
+                },
+            ],
+            "name": "my_model_env",
+        }
+
+        # Save the MLflow Model
+        mlflow_pyfunc_model_path = "my-model-dir"
+        mlflow.pyfunc.save_model(
+            path=mlflow_pyfunc_model_path, python_model=MyModel(), conda_env=conda_env
+        )
+
+Testing the Model
+'''''''''''''''''
+
+In case we would like to unit test our model in CI/CD:
+
+.. code-block:: python
+
+    loaded_model = mlflow.pyfunc.load_model(mlflow_pyfunc_model_path)
+
+    # Evaluate the model
+    import pandas
+
+    test_data = pandas.DataFrame(
+        {
+            "input_column": ["input1...", "input2...", "input3..."],
+            "another_input_column": [...],
+        }
+    )
+    test_predictions = loaded_model.predict(test_data)
+    print(test_predictions)
+
+Serving the Model in Docker Container via REST API
+--------------------------------------------------
+
+`build_docker <cli.html#mlflow-models-build-docker>`_ and run container:
+
+.. code-block:: bash
+
+    mlflow models build-docker --name "my-model-image"
+
+.. note::
+    If we see the error of
+    `requests.exceptions.ConnectionError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))`
+    from the command above, we can try
+    `this workaround <https://github.com/docker/docker-py/issues/3059#issuecomment-1294369344>`_::
+
+        sudo ln -s "$HOME/.docker/run/docker.sock" /var/run/docker.sock
+
+    and then re-run the command
+
+.. code-block:: bash
+
+    sudo docker run --detach --rm \
+      --memory=4000m \
+      -p 5001:8080 \
+      -v /abs/path/to/my-model-dir:/opt/ml/model \
+      -e PYTHONPATH="/opt/ml/model:$PYTHONPATH" \
+      -e GUNICORN_CMD_ARGS="--timeout 600 -k gevent --workers=1" \
+      "mlflow-model-container"
+
+By the example command above, we
+
+* `set the container's max memory <https://docs.docker.com/config/containers/resource_constraints/#limit-a-containers-access-to-memory>`_ to 4000 megabytes
+* set the port forwarding so that the REST API will be accessible at port 5001 on hosting machine
+* mount the model directory, i.e. **/abs/path/to/my-model-dir**, to */opt/ml/model* in container
+* allow any custom ``import`` of modules loaded into **/abs/path/to/my-model-dir** if our user also put an **__init__.py** into that directory
+* allow long-lasting model inference by setting the internal Flask timeout to be 600 seconds
+* set the number of Flask workers to 1
 
 Deploying to a cloud platform
 -----------------------------

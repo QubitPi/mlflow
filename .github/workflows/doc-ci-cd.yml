@@ -1,0 +1,64 @@
+# Copyright Jiaqi Liu
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+name: Documentation CI/CD
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+jobs:
+  # Following https://github.com/QubitPi/mlflow/blob/master/.circleci/config.yml
+  documentation-ci-cd:
+    name: Documentation CI/CD
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+      - name: Install Java
+        run: |
+          sudo apt-get update --yes
+          sudo apt-get install default-jdk --yes
+          sudo apt-get install maven --yes
+          java -version
+      - name: Install Pandoc
+        run: sudo apt-get install pandoc
+      - name: Install Python dependencies
+        run: |
+          : # https://github.com/orgs/community/discussions/25678
+          .github/workflows/free_disk_space.sh
+          pip install --progress-bar off -r requirements/doc-requirements.txt pytest pytest-cov plotly .[gateway]
+        env:
+          PIP_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
+      - name: Build docs
+        run: make html
+        working-directory: docs
+        env:
+          JAVA_HOME: /usr/lib/jvm/default-java
+      - name: Test examples
+        run: make test-examples
+        working-directory: docs
+      - name: Deploy docs to GitHub Pages
+        # if: github.ref == 'refs/heads/master'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build/html
+          user_name: QubitPi
+          user_email: jack20220723@gmail.com

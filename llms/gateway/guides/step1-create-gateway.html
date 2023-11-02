@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Configuring and Starting the AI Gateway &mdash; MLflow 2.7.2.dev0 documentation</title>
+  <title>Configuring and Starting the AI Gateway &mdash; MLflow 2.8.1.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -45,7 +45,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Getting Started with the MLflow AI Gateway" href="index.html"/>
         <link rel="next" title="Querying routes in the AI Gateway" href="/step2-query-gateway.html"/>
         <link rel="prev" title="Getting Started with the MLflow AI Gateway" href="/index.html"/> 
@@ -71,7 +71,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.7.2.dev0</span>
+    <span class="version">2.8.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -108,7 +108,7 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">What is Mlflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">What is MLflow?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">LLMs</a><ul class="current">
@@ -225,18 +225,16 @@ unnecessary, as all supported providers are abstracted from the developer.</p>
 </div>
 </div>
 </div>
-<div class="section" id="step-2-expose-openai-token">
-<h2>Step 2: Expose OpenAI Token<a class="headerlink" href="#step-2-expose-openai-token" title="Permalink to this headline"> </a></h2>
+<div class="section" id="step-2-set-the-openai-token-as-an-environment-variable">
+<h2>Step 2: Set the OpenAI Token as an Environment Variable<a class="headerlink" href="#step-2-set-the-openai-token-as-an-environment-variable" title="Permalink to this headline"> </a></h2>
 <p>Next, set the OpenAI API key as an environment variable in your CLI.</p>
-<p>This approach allows the MLflow AI Gateway to manage API keys centrally, reducing the risk
-of unintended exposure across the system.</p>
+<p>This approach allows the MLflow AI Gateway to read the sensitive API key safely, reducing the risk
+of leaking the token in code. The AI Gateway, when started, will read the value set by this environment
+variable without any additional action required.</p>
 <div class="code-section docutils container">
 <div class="highlight-bash notranslate" id="token"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span>your_api_key_here
 </pre></div>
 </div>
-</div>
-<div class="figure align-center">
-<a class="reference internal image-reference" href="../../../_images/openai_api_key.gif"><img alt="Exporting the OpenAI key in your CLI" src="../../../_images/openai_api_key.gif" style="width: 800px;" /></a>
 </div>
 </div>
 <div class="section" id="step-3-configure-the-gateway">
@@ -344,7 +342,7 @@ by viewing the docs. Go to <cite>http://{host}:{port}</cite> in your web browser
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.7.2.dev0',
+      VERSION:'2.8.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',
@@ -408,8 +406,10 @@ by viewing the docs. Go to <cite>http://{host}:{port}</cite> in your web browser
 
                 // Display "Code copied to clipboard" near the clicked icon
                 const message = document.createElement('span');
-                message.textContent = "Code copied to clipboard!";
+                message.textContent = "Copied!";
                 message.classList.add('copy-message'); 
+
+                // Append the message to the icon
                 this.appendChild(message);
 
                 setTimeout(() => {
@@ -420,6 +420,38 @@ by viewing the docs. Go to <cite>http://{host}:{port}</cite> in your web browser
             highlight.appendChild(copyIcon);
         });
     });
-  </script> 
+  </script>
+
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        // Force download for notebook-download-btn
+        const downloadButtons = document.querySelectorAll('.notebook-download-btn');
+        downloadButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default behavior
+
+                // Fetch the raw content of the notebook from GitHub
+                fetch(button.href)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.style.display = 'none';
+                        link.href = url;
+                        const filename = button.href.split('/').pop();
+                        link.download = filename; 
+
+                        document.body.appendChild(link);
+                        link.click();
+
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(link);
+                    })
+                    .catch(err => console.error('Error fetching the notebook:', err));
+            });
+        });
+    });
+</script> 
 </body>
 </html>

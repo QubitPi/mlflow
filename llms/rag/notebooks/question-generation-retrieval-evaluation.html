@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Question Generation For Retrieval Evaluation &mdash; MLflow 2.7.2.dev0 documentation</title>
+  <title>Question Generation For Retrieval Evaluation &mdash; MLflow 2.8.1.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -45,7 +45,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Question Generation for Retrieval Evaluation" href="index.html"/>
         <link rel="next" title="Deploying Advanced LLMs with Custom PyFuncs in MLflow" href="/../../custom-pyfunc-for-llms/index.html"/>
         <link rel="prev" title="Question Generation for Retrieval Evaluation" href="/index.html"/> 
@@ -73,7 +73,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.7.2.dev0</span>
+    <span class="version">2.8.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -110,7 +110,7 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">What is Mlflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">What is MLflow?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">LLMs</a><ul class="current">
@@ -468,7 +468,6 @@ RAG leverges the retriever to find context documents, and this novel approach ha
 </pre></div>
 </div>
 <div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">from</span> <span class="nn">langchain.docstore.document</span> <span class="kn">import</span> <span class="n">Document</span>
 <span class="kn">from</span> <span class="nn">langchain.embeddings</span> <span class="kn">import</span> <span class="n">OpenAIEmbeddings</span>
 <span class="kn">from</span> <span class="nn">langchain.text_splitter</span> <span class="kn">import</span> <span class="n">CharacterTextSplitter</span>
@@ -477,14 +476,14 @@ RAG leverges the retriever to find context documents, and this novel approach ha
 
 <span class="c1"># For scraping</span>
 <span class="kn">import</span> <span class="nn">requests</span>
-<span class="kn">import</span> <span class="nn">urllib</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
 
 <span class="c1"># For data analysis and visualization</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
-<span class="kn">import</span> <span class="nn">sklearn</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+<span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="kn">import</span> <span class="n">TSNE</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">random</span>
@@ -580,7 +579,7 @@ RAG leverges the retriever to find context documents, and this novel approach ha
 </div>
 <div class="section" id="Step-4:-Get-Document-Data">
 <h2>Step 4: Get Document Data<a class="headerlink" href="#Step-4:-Get-Document-Data" title="Permalink to this headline"> </a></h2>
-<p>We scrape the documents from the Mlflow website to use to generate questions.</p>
+<p>We scrape the documents from the MLflow website to use to generate questions.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -964,16 +963,16 @@ questions per chunk rather than just one. This may be because it can ensure loca
 </style>
 <div class="ansiout"></div></div>
 </div>
-<p>We append 5 benchmark queries to help visualize how diverse the questions are. The first four of these questions are semantically similar and all asking about Mlflow, while the last is different and refers to spark and model registry.</p>
+<p>We append 5 benchmark queries to help visualize how diverse the questions are. The first four of these questions are semantically similar and all asking about MLflow, while the last is different and refers to spark and model registry.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">benchmark_questions</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;What is MLflow?&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;What is Mlflow about?&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Tell me about Mlflow Tracking&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;How does Mlflow work?&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;What is MLflow about?&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Tell me about MLflow Tracking&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;How does MLflow work?&quot;</span><span class="p">,</span>
     <span class="s2">&quot;How is spark used in model registry?&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 <span class="n">questions_to_embed</span> <span class="o">=</span> <span class="n">questions_to_embed</span> <span class="o">+</span> <span class="n">benchmark_questions</span>
@@ -1009,10 +1008,10 @@ questions per chunk rather than just one. This may be because it can ensure loca
 <span class="n">embeddings</span> <span class="o">=</span> <span class="n">OpenAIEmbeddings</span><span class="p">()</span>
 <span class="n">question_embeddings</span> <span class="o">=</span> <span class="n">embeddings</span><span class="o">.</span><span class="n">embed_documents</span><span class="p">(</span><span class="n">questions_to_embed</span><span class="p">)</span>
 <span class="c1"># PCA on embeddings to reduce to 50-dim</span>
-<span class="n">pca</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">decomposition</span><span class="o">.</span><span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 <span class="n">question_embeddings_50</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">question_embeddings</span><span class="p">)</span>
 <span class="c1"># TSNE on embeddings to reduce to 2-dim</span>
-<span class="n">tsne</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">manifold</span><span class="o">.</span><span class="n">TSNE</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">tsne</span> <span class="o">=</span> <span class="n">TSNE</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">lower_dim_embeddings</span> <span class="o">=</span> <span class="n">tsne</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">question_embeddings_50</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1351,7 +1350,7 @@ Score: 0.9877475767144712
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.7.2.dev0',
+      VERSION:'2.8.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',
@@ -1415,8 +1414,10 @@ Score: 0.9877475767144712
 
                 // Display "Code copied to clipboard" near the clicked icon
                 const message = document.createElement('span');
-                message.textContent = "Code copied to clipboard!";
+                message.textContent = "Copied!";
                 message.classList.add('copy-message'); 
+
+                // Append the message to the icon
                 this.appendChild(message);
 
                 setTimeout(() => {
@@ -1427,6 +1428,38 @@ Score: 0.9877475767144712
             highlight.appendChild(copyIcon);
         });
     });
-  </script> 
+  </script>
+
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        // Force download for notebook-download-btn
+        const downloadButtons = document.querySelectorAll('.notebook-download-btn');
+        downloadButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default behavior
+
+                // Fetch the raw content of the notebook from GitHub
+                fetch(button.href)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.style.display = 'none';
+                        link.href = url;
+                        const filename = button.href.split('/').pop();
+                        link.download = filename; 
+
+                        document.body.appendChild(link);
+                        link.click();
+
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(link);
+                    })
+                    .catch(err => console.error('Error fetching the notebook:', err));
+            });
+        });
+    });
+</script> 
 </body>
 </html>

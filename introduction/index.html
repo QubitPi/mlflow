@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>What is Mlflow? &mdash; MLflow 2.7.2.dev0 documentation</title>
+  <title>What is MLflow? &mdash; MLflow 2.8.1.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -45,7 +45,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../index.html"/>
         <link rel="next" title="Getting Started with MLflow" href="/../getting-started/index.html"/>
         <link rel="prev" title="MLflow: A Tool for Managing the Machine Learning Lifecycle" href="/../index.html"/> 
 
@@ -70,7 +70,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.7.2.dev0</span>
+    <span class="version">2.8.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -107,7 +107,7 @@
 
       
         <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">What is Mlflow?</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">What is MLflow?</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#core-components-of-mlflow">Core Components of MLflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-mlflow">Why Use MLflow?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#who-uses-mlflow">Who Uses MLflow?</a></li>
@@ -175,7 +175,7 @@
     <li><a href="../index.html">Documentation</a> <span class="db-icon db-icon-chevron-right"></span></li>
     
     
-      <li>What is Mlflow?</li>
+      <li>What is MLflow?</li>
     
     
     <!-- <li class="wy-breadcrumbs-aside">
@@ -188,7 +188,7 @@
               <div itemprop="articleBody">
                 
   <div class="section" id="what-is-mlflow">
-<h1>What is Mlflow?<a class="headerlink" href="#what-is-mlflow" title="Permalink to this headline"> </a></h1>
+<h1>What is MLflow?<a class="headerlink" href="#what-is-mlflow" title="Permalink to this headline"> </a></h1>
 <p>Stepping into the world of Machine Learning (ML) is an exciting journey, but it often comes with
 complexities that can hinder innovation and experimentation.</p>
 <p>MLflow is a solution to many of these issues in this dynamic landscape, offering tools and simplifying processes to streamline
@@ -339,7 +339,7 @@ adeptly to accommodate varying data needs.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.7.2.dev0',
+      VERSION:'2.8.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',
@@ -403,8 +403,10 @@ adeptly to accommodate varying data needs.</p>
 
                 // Display "Code copied to clipboard" near the clicked icon
                 const message = document.createElement('span');
-                message.textContent = "Code copied to clipboard!";
+                message.textContent = "Copied!";
                 message.classList.add('copy-message'); 
+
+                // Append the message to the icon
                 this.appendChild(message);
 
                 setTimeout(() => {
@@ -415,6 +417,38 @@ adeptly to accommodate varying data needs.</p>
             highlight.appendChild(copyIcon);
         });
     });
-  </script> 
+  </script>
+
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        // Force download for notebook-download-btn
+        const downloadButtons = document.querySelectorAll('.notebook-download-btn');
+        downloadButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default behavior
+
+                // Fetch the raw content of the notebook from GitHub
+                fetch(button.href)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.style.display = 'none';
+                        link.href = url;
+                        const filename = button.href.split('/').pop();
+                        link.download = filename; 
+
+                        document.body.appendChild(link);
+                        link.click();
+
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(link);
+                    })
+                    .catch(err => console.error('Error fetching the notebook:', err));
+            });
+        });
+    });
+</script> 
 </body>
 </html>

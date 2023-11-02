@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quickstart: Compare runs, choose a model, and deploy it to a REST API &mdash; MLflow 2.7.2.dev0 documentation</title>
+  <title>Quickstart: Compare runs, choose a model, and deploy it to a REST API &mdash; MLflow 2.8.1.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -45,7 +45,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Getting Started with MLflow" href="../index.html"/>
         <link rel="next" title="New Features" href="/../../new-features/index.html"/>
         <link rel="prev" title="Quickstart: Install MLflow, instrument code &amp; view results in minutes" href="/../quickstart-1/index.html"/> 
@@ -71,7 +71,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.7.2.dev0</span>
+    <span class="version">2.8.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -108,7 +108,7 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">What is Mlflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">What is MLflow?</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Getting Started with MLflow</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../index.html#id1">Logging your first MLflow Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#id2">15 minute Quickstart - Learn the basics of MLflow</a></li>
@@ -237,8 +237,13 @@ mlflow<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </sp
 <p>Open the MLflow UI in your browser at the <cite>MLFLOW_TRACKING_URI</cite>. You should see a nested list of runs. In the default <strong>Table view</strong>, choose the <strong>Columns</strong> button and add the <strong>Metrics | test_rmse</strong> column and the <strong>Parameters | lr</strong> and <strong>Parameters | momentum</strong> column. To sort by RMSE ascending, click the <strong>test_rmse</strong> column header. The best run typically has an RMSE on the <strong>test</strong> dataset of ~0.70. You can see the parameters of the best run in the <strong>Parameters</strong> column.</p>
 <a class="reference internal image-reference" href="../../_images/mlflow_ui_table_view.png"><img alt="Screenshot of MLflow tracking UI table view showing runs" class="align-center" src="../../_images/mlflow_ui_table_view.png" style="width: 800px;" /></a>
 <p>Choose <strong>Chart view</strong>. Choose the <strong>Parallel coordinates</strong> graph and configure it to show the <strong>lr</strong> and <strong>momentum</strong> coordinates and the <strong>test_rmse</strong> metric. Each line in this graph represents a run and associates each hyperparameter evaluation run’s parameters to the evaluated error metric for the run.</p>
-<a class="reference internal image-reference" href="../../_images/mlflow_ui_chart_view.png"><img alt="Screenshot of MLflow tracking UI parallel coordinates graph showing runs" class="align-center" src="../../_images/mlflow_ui_chart_view.png" style="width: 800px;" /></a>
-<p>The red graphs on this graph are runs that fared poorly. The lowest one is a baseline run with both <strong>lr</strong> and <strong>momentum</strong> set to 0.0. That baseline run has an RMSE of ~0.89. The other red lines show that high <strong>momentum</strong> can also lead to poor results with this problem and architecture.</p>
+<img
+  src="../../_static/images/quickstart_mlops/mlflow_ui_chart_view.png"
+  width="800px"
+  class="align-center"
+  id="chart-view"
+  alt="Screenshot of MLflow tracking UI parallel coordinates graph showing runs"
+><p>The red graphs on this graph are runs that fared poorly. The lowest one is a baseline run with both <strong>lr</strong> and <strong>momentum</strong> set to 0.0. That baseline run has an RMSE of ~0.89. The other red lines show that high <strong>momentum</strong> can also lead to poor results with this problem and architecture.</p>
 <p>The graphs shading towards blue are runs that fared better. Hover your mouse over individual runs to see their details.</p>
 </div>
 <div class="section" id="register-your-best-model">
@@ -498,7 +503,7 @@ from the command above, we can try
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.7.2.dev0',
+      VERSION:'2.8.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',
@@ -562,8 +567,10 @@ from the command above, we can try
 
                 // Display "Code copied to clipboard" near the clicked icon
                 const message = document.createElement('span');
-                message.textContent = "Code copied to clipboard!";
+                message.textContent = "Copied!";
                 message.classList.add('copy-message'); 
+
+                // Append the message to the icon
                 this.appendChild(message);
 
                 setTimeout(() => {
@@ -574,6 +581,38 @@ from the command above, we can try
             highlight.appendChild(copyIcon);
         });
     });
-  </script> 
+  </script>
+
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        // Force download for notebook-download-btn
+        const downloadButtons = document.querySelectorAll('.notebook-download-btn');
+        downloadButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default behavior
+
+                // Fetch the raw content of the notebook from GitHub
+                fetch(button.href)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.style.display = 'none';
+                        link.href = url;
+                        const filename = button.href.split('/').pop();
+                        link.download = filename; 
+
+                        document.body.appendChild(link);
+                        link.click();
+
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(link);
+                    })
+                    .catch(err => console.error('Error fetching the notebook:', err));
+            });
+        });
+    });
+</script> 
 </body>
 </html>

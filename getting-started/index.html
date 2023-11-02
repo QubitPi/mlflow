@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Getting Started with MLflow &mdash; MLflow 2.7.2.dev0 documentation</title>
+  <title>Getting Started with MLflow &mdash; MLflow 2.8.1.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -45,9 +45,9 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../index.html"/>
         <link rel="next" title="Tutorial Overview" href="/logging-first-model/index.html"/>
-        <link rel="prev" title="What is Mlflow?" href="/../introduction/index.html"/> 
+        <link rel="prev" title="What is MLflow?" href="/../introduction/index.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -70,7 +70,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.7.2.dev0</span>
+    <span class="version">2.8.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -107,7 +107,7 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">What is Mlflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">What is MLflow?</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started with MLflow</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#id1">Logging your first MLflow Model</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#guide-sections">Guide sections</a><ul>
@@ -215,7 +215,7 @@ how to use MLflow to solve a particular task.</p>
 <p>In this quickstart tutorial, you will walk through the basics of MLflow in a sequential and guided manner. With each subsequent step,
 you will increase your familiarity with the primary functionality around MLflow Tracking and how to navigate the MLflow UI.</p>
 <p>If you would like to get started immediately by interactively running the notebook, you can:</p>
-<a href="logging-first-model/notebooks/logging-first-model.ipynb" class="download-btn">
+<a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/getting-started/logging-first-model/notebooks/logging-first-model.ipynb" class="notebook-download-btn">
     <i class="fas fa-download"></i>Download the Notebook</a><br><div class="section" id="guide-sections">
 <h3>Guide sections<a class="headerlink" href="#guide-sections" title="Permalink to this headline"> </a></h3>
 <p>Interested in navigating directly to the content that you’re curious about? Select the section from each tutorial below!</p>
@@ -407,7 +407,7 @@ via containerizing the model via Docker is covered.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../introduction/index.html" class="btn btn-neutral" title="What is Mlflow?" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
+        <a href="../introduction/index.html" class="btn btn-neutral" title="What is MLflow?" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
       
       
         <a href="logging-first-model/index.html" class="btn btn-neutral" title="Tutorial Overview" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
@@ -438,7 +438,7 @@ via containerizing the model via Docker is covered.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.7.2.dev0',
+      VERSION:'2.8.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',
@@ -502,8 +502,10 @@ via containerizing the model via Docker is covered.</p>
 
                 // Display "Code copied to clipboard" near the clicked icon
                 const message = document.createElement('span');
-                message.textContent = "Code copied to clipboard!";
+                message.textContent = "Copied!";
                 message.classList.add('copy-message'); 
+
+                // Append the message to the icon
                 this.appendChild(message);
 
                 setTimeout(() => {
@@ -514,6 +516,38 @@ via containerizing the model via Docker is covered.</p>
             highlight.appendChild(copyIcon);
         });
     });
-  </script> 
+  </script>
+
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        // Force download for notebook-download-btn
+        const downloadButtons = document.querySelectorAll('.notebook-download-btn');
+        downloadButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default behavior
+
+                // Fetch the raw content of the notebook from GitHub
+                fetch(button.href)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.style.display = 'none';
+                        link.href = url;
+                        const filename = button.href.split('/').pop();
+                        link.download = filename; 
+
+                        document.body.appendChild(link);
+                        link.click();
+
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(link);
+                    })
+                    .catch(err => console.error('Error fetching the notebook:', err));
+            });
+        });
+    });
+</script> 
 </body>
 </html>

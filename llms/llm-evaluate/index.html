@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>MLflow LLM Evaluate &mdash; MLflow 2.7.2.dev0 documentation</title>
+  <title>MLflow LLM Evaluate &mdash; MLflow 2.8.1.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -45,7 +45,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="LLMs" href="../index.html"/>
         <link rel="next" title="Prompt Engineering UI (Experimental)" href="/../prompt-engineering/index.html"/>
         <link rel="prev" title="Querying routes in the AI Gateway" href="/../gateway/guides/step2-query-gateway.html"/> 
@@ -71,7 +71,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.7.2.dev0</span>
+    <span class="version">2.8.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -108,7 +108,7 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">What is Mlflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">What is MLflow?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">LLMs</a><ul class="current">
@@ -371,7 +371,7 @@ below:</p>
 <div class="section" id="use-a-custom-list-of-metrics">
 <h3>Use a Custom List of Metrics<a class="headerlink" href="#use-a-custom-list-of-metrics" title="Permalink to this headline"> </a></h3>
 <p>Using the pre-defined metrics associated with a given model type is not the only way to generate scoring metrics
-for LLM evaluation in MLFlow. You can specify a custom list of metrics in the <cite>extra_metrics</cite> argument in <cite>mlflow.evaluate</cite>:</p>
+for LLM evaluation in MLflow. You can specify a custom list of metrics in the <cite>extra_metrics</cite> argument in <cite>mlflow.evaluate</cite>:</p>
 <ul>
 <li><p>To add additional metrics to the default metrics list of pre-defined model type, keep the <cite>model_type</cite> and add your metrics to <code class="docutils literal notranslate"><span class="pre">extra_metrics</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
@@ -427,7 +427,7 @@ needs the following information:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">examples</span></code>: a few input/output examples with score, they are used as a reference for LLM judge.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">model</span></code>: the identifier of LLM judge.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">parameters</span></code>: the extra parameters to send to LLM judge, e.g., <code class="docutils literal notranslate"><span class="pre">temperature</span></code> for <code class="docutils literal notranslate"><span class="pre">&quot;openai:/gpt-3.5-turbo-16k&quot;</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">aggregations</span></code>: aggregation strategy for the metrics.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aggregations</span></code>: The list of options to aggregate the per-row scores using numpy functions.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">greater_is_better</span></code>: indicates if a higher score means your model is better.</p></li>
 </ul>
 <p>Under the hood, <code class="docutils literal notranslate"><span class="pre">definition</span></code>, <code class="docutils literal notranslate"><span class="pre">grading_prompt</span></code>, <code class="docutils literal notranslate"><span class="pre">examples</span></code> together with evaluation data and model output will be
@@ -497,8 +497,8 @@ we will use <a class="reference internal" href="../../python_api/mlflow.metrics.
 </pre></div>
 </div>
 </div>
-<div class="section" id="create-per-row-llm-evluation-metrics-category-2">
-<h3>Create Per-row LLM Evluation Metrics (Category 2)<a class="headerlink" href="#create-per-row-llm-evluation-metrics-category-2" title="Permalink to this headline"> </a></h3>
+<div class="section" id="create-heuristic-based-llm-evaluation-metrics-category-2">
+<h3>Create heuristic-based LLM Evaluation Metrics (Category 2)<a class="headerlink" href="#create-heuristic-based-llm-evaluation-metrics-category-2" title="Permalink to this headline"> </a></h3>
 <p>This is very similar to creating a custom traditional metrics, with the exception of returning a <cite>EvaluationResult</cite> instance.
 Basically you need to:</p>
 <ol class="arabic simple">
@@ -548,9 +548,9 @@ general we call that MLflow model. The</p></li>
 <h3>Evaluating with an MLflow Model<a class="headerlink" href="#evaluating-with-an-mlflow-model" title="Permalink to this headline"> </a></h3>
 <p>For detailed instruction on how to convert your model into a <code class="docutils literal notranslate"><span class="pre">mlflow.pyfunc.PyFuncModel</span></code> instance, please read
 <a class="reference external" href="https://mlflow.org/docs/latest/python_api/mlflow.pyfunc.html#creating-custom-pyfunc-models">this doc</a>. But in short,
-to evaluate your model as an MLflow model, we recomment following the steps below:</p>
+to evaluate your model as an MLflow model, we recommend following the steps below:</p>
 <ol class="arabic">
-<li><p>Convert your LLM to MLflow model and log it to MLflow server by <code class="docutils literal notranslate"><span class="pre">log_model</span></code>. Each flavor (<code class="docutils literal notranslate"><span class="pre">opeanai</span></code>, <code class="docutils literal notranslate"><span class="pre">pytorch</span></code>, …)
+<li><p>Package your LLM as an MLflow model and log it to MLflow server by <code class="docutils literal notranslate"><span class="pre">log_model</span></code>. Each flavor (<code class="docutils literal notranslate"><span class="pre">opeanai</span></code>, <code class="docutils literal notranslate"><span class="pre">pytorch</span></code>, …)
 has its own <code class="docutils literal notranslate"><span class="pre">log_model</span></code> API, e.g., <a class="reference internal" href="../../python_api/openai/index.html#mlflow.openai.log_model" title="mlflow.openai.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.openai.log_model()</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
     <span class="n">system_prompt</span> <span class="o">=</span> <span class="s2">&quot;Answer the following question in two sentences&quot;</span>
@@ -769,7 +769,7 @@ MLflow UI. To view the evaluation results on MLflow UI, please follow the steps 
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.7.2.dev0',
+      VERSION:'2.8.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',
@@ -833,8 +833,10 @@ MLflow UI. To view the evaluation results on MLflow UI, please follow the steps 
 
                 // Display "Code copied to clipboard" near the clicked icon
                 const message = document.createElement('span');
-                message.textContent = "Code copied to clipboard!";
+                message.textContent = "Copied!";
                 message.classList.add('copy-message'); 
+
+                // Append the message to the icon
                 this.appendChild(message);
 
                 setTimeout(() => {
@@ -845,6 +847,38 @@ MLflow UI. To view the evaluation results on MLflow UI, please follow the steps 
             highlight.appendChild(copyIcon);
         });
     });
-  </script> 
+  </script>
+
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        // Force download for notebook-download-btn
+        const downloadButtons = document.querySelectorAll('.notebook-download-btn');
+        downloadButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default behavior
+
+                // Fetch the raw content of the notebook from GitHub
+                fetch(button.href)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.style.display = 'none';
+                        link.href = url;
+                        const filename = button.href.split('/').pop();
+                        link.download = filename; 
+
+                        document.body.appendChild(link);
+                        link.click();
+
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(link);
+                    })
+                    .catch(err => console.error('Error fetching the notebook:', err));
+            });
+        });
+    });
+</script> 
 </body>
 </html>

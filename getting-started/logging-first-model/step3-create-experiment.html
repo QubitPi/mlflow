@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Creating Experiments &mdash; MLflow 2.7.2.dev0 documentation</title>
+  <title>Creating Experiments &mdash; MLflow 2.8.1.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -45,7 +45,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.7.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Getting Started with MLflow" href="../index.html"/>
         <link rel="next" title="Searching Experiments" href="/step4-experiment-search.html"/>
         <link rel="prev" title="Using the MLflow Client API" href="/step2-mlflow-client.html"/> 
@@ -71,7 +71,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.7.2.dev0</span>
+    <span class="version">2.8.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -108,7 +108,7 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">What is Mlflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">What is MLflow?</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Getting Started with MLflow</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html#id1">Logging your first MLflow Model</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html#guide-sections">Guide sections</a><ul class="current">
@@ -206,17 +206,14 @@
 <p>In the previous section, we became familiar with the MLflow Client and its <code class="docutils literal notranslate"><span class="pre">search_experiments</span></code> API.
 Before we get into creating experiments and adding metadata tags to them, let’s take a brief look at the
 MLflow UI.</p>
-<p>In the first section of this tutorial, we started the MLflow UI from a command prompt, specifying the
-host as <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> and the port as <code class="docutils literal notranslate"><span class="pre">8090</span></code>.  Let’s go to the UI and see what the Default Experiment looks like.</p>
+<p>In the first section of this tutorial, we started the MLflow Tracking Server from a command prompt, specifying the
+host as <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> and the port as <code class="docutils literal notranslate"><span class="pre">8080</span></code>.  Let’s go to the UI and see what the Default Experiment looks like.</p>
 <div class="section" id="viewing-the-mlflow-ui">
 <h2>Viewing the MLflow UI<a class="headerlink" href="#viewing-the-mlflow-ui" title="Permalink to this headline"> </a></h2>
-<p>In order to navigate to the MLflow UI server, we simply have to use a web browser and enter:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>http://127.0.0.1:8090
-</pre></div>
-</div>
-<p>Once navigating to the url for the MLflow UI, you will see the default experiment with no run data.</p>
+<p>In order to see the MLflow UI, we simply have to use a web browser to connect to the MLflow Tracking Server and navigate to <a class="reference external" href="http://127.0.0.1:8080">http://127.0.0.1:8080</a>.
+Once navigating to the url for the MLflow UI, you will see the default experiment with no run data.</p>
 <div class="figure align-center" id="id1">
-<a class="reference internal image-reference" href="../../_images/default-ui.gif"><img alt="A freshly initialized MLflow UI" src="../../_images/default-ui.gif" style="width: 1024px;" /></a>
+<a class="reference internal image-reference" href="../../_images/default-ui.png"><img alt="A freshly initialized MLflow UI" src="../../_images/default-ui.png" style="width: 1024px;" /></a>
 <p class="caption"><span class="caption-text">The default MLflow UI</span><a class="headerlink" href="#id1" title="Permalink to this image"> </a></p>
 </div>
 <p>As you can see, there are no runs recorded and only the Default Experiment (with an ID of <cite>0</cite>) is present.
@@ -350,7 +347,7 @@ larger project.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.7.2.dev0',
+      VERSION:'2.8.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',
@@ -414,8 +411,10 @@ larger project.</p>
 
                 // Display "Code copied to clipboard" near the clicked icon
                 const message = document.createElement('span');
-                message.textContent = "Code copied to clipboard!";
+                message.textContent = "Copied!";
                 message.classList.add('copy-message'); 
+
+                // Append the message to the icon
                 this.appendChild(message);
 
                 setTimeout(() => {
@@ -426,6 +425,38 @@ larger project.</p>
             highlight.appendChild(copyIcon);
         });
     });
-  </script> 
+  </script>
+
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        // Force download for notebook-download-btn
+        const downloadButtons = document.querySelectorAll('.notebook-download-btn');
+        downloadButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default behavior
+
+                // Fetch the raw content of the notebook from GitHub
+                fetch(button.href)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.style.display = 'none';
+                        link.href = url;
+                        const filename = button.href.split('/').pop();
+                        link.download = filename; 
+
+                        document.body.appendChild(link);
+                        link.click();
+
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(link);
+                    })
+                    .catch(err => console.error('Error fetching the notebook:', err));
+            });
+        });
+    });
+</script> 
 </body>
 </html>

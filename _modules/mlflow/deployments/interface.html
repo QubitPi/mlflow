@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.deployments.interface &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.deployments.interface &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="mlflow.deployments" href="../deployments.html"/> 
 
   
@@ -55,8 +57,10 @@
 <script type="text/javascript" src="../../../_static/jquery.js"></script>
 <script type="text/javascript" src="../../../_static/underscore.js"></script>
 <script type="text/javascript" src="../../../_static/doctools.js"></script>
+<script type="text/javascript" src="../../../_static/tabs.js"></script>
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -69,7 +73,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -115,6 +119,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-registry.html">MLflow Model Registry</a></li>
@@ -185,26 +190,31 @@
                 
   <h1>Source code for mlflow.deployments.interface</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">Logger</span>
 
 <span class="kn">from</span> <span class="nn">mlflow.deployments.base</span> <span class="kn">import</span> <span class="n">BaseDeploymentClient</span>
 <span class="kn">from</span> <span class="nn">mlflow.deployments.plugin_manager</span> <span class="kn">import</span> <span class="n">DeploymentPlugins</span>
-<span class="kn">from</span> <span class="nn">mlflow.deployments.utils</span> <span class="kn">import</span> <span class="n">parse_target_uri</span>
+<span class="kn">from</span> <span class="nn">mlflow.deployments.utils</span> <span class="kn">import</span> <span class="n">get_deployments_target</span><span class="p">,</span> <span class="n">parse_target_uri</span>
+<span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
 
 <span class="n">plugin_store</span> <span class="o">=</span> <span class="n">DeploymentPlugins</span><span class="p">()</span>
 <span class="n">plugin_store</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;sagemaker&quot;</span><span class="p">,</span> <span class="s2">&quot;mlflow.sagemaker&quot;</span><span class="p">)</span>
 
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">Logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<div class="viewcode-block" id="get_deploy_client"><a class="viewcode-back" href="../../../python_api/mlflow.deployments.html#mlflow.deployments.get_deploy_client">[docs]</a><span class="k">def</span> <span class="nf">get_deploy_client</span><span class="p">(</span><span class="n">target_uri</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns a subclass of :py:class:`mlflow.deployments.BaseDeploymentClient` exposing standard</span>
+
+<div class="viewcode-block" id="get_deploy_client"><a class="viewcode-back" href="../../../python_api/mlflow.deployments.html#mlflow.deployments.get_deploy_client">[docs]</a><span class="k">def</span> <span class="nf">get_deploy_client</span><span class="p">(</span><span class="n">target_uri</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a subclass of :py:class:`mlflow.deployments.BaseDeploymentClient` exposing standard</span>
 <span class="sd">    APIs for deploying models to the specified target. See available deployment APIs</span>
 <span class="sd">    by calling ``help()`` on the returned object or viewing docs for</span>
 <span class="sd">    :py:class:`mlflow.deployments.BaseDeploymentClient`. You can also run</span>
 <span class="sd">    ``mlflow deployments help -t &lt;target-uri&gt;`` via the CLI for more details on target-specific</span>
 <span class="sd">    configuration options.</span>
 
-<span class="sd">    :param target_uri: URI of target to deploy to.</span>
-
+<span class="sd">    Args:</span>
+<span class="sd">        target_uri: Optional URI of target to deploy to. If no target URI is provided, then</span>
+<span class="sd">            MLflow will attempt to get the deployments target set via `get_deployments_target()` or</span>
+<span class="sd">            `MLFLOW_DEPLOYMENTS_TARGET` environment variable.</span>
 
 <span class="sd">    .. code-block:: python</span>
 <span class="sd">        :caption: Example</span>
@@ -227,6 +237,16 @@
 <span class="sd">        # Delete our deployment</span>
 <span class="sd">        client.delete_deployment(&quot;spamDetector&quot;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">target_uri</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">target_uri</span> <span class="o">=</span> <span class="n">get_deployments_target</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">MlflowException</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;No deployments target has been set. Please either set the MLflow deployments &quot;</span>
+                <span class="s2">&quot;target via `mlflow.deployments.set_deployments_target()` or set the environment &quot;</span>
+                <span class="s2">&quot;variable MLFLOW_DEPLOYMENTS_TARGET to the running deployment server&#39;s uri&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
     <span class="n">target</span> <span class="o">=</span> <span class="n">parse_target_uri</span><span class="p">(</span><span class="n">target_uri</span><span class="p">)</span>
     <span class="n">plugin</span> <span class="o">=</span> <span class="n">plugin_store</span><span class="p">[</span><span class="n">target</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">plugin</span><span class="p">):</span>
@@ -236,18 +256,20 @@
 
 
 <div class="viewcode-block" id="run_local"><a class="viewcode-back" href="../../../python_api/mlflow.deployments.html#mlflow.deployments.run_local">[docs]</a><span class="k">def</span> <span class="nf">run_local</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">model_uri</span><span class="p">,</span> <span class="n">flavor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Deploys the specified model locally, for testing. Note that models deployed locally cannot</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deploys the specified model locally, for testing. Note that models deployed locally cannot</span>
 <span class="sd">    be managed by other deployment APIs (e.g. ``update_deployment``, ``delete_deployment``, etc).</span>
 
-<span class="sd">    :param target: Target to deploy to.</span>
-<span class="sd">    :param name:  Name to use for deployment</span>
-<span class="sd">    :param model_uri: URI of model to deploy</span>
-<span class="sd">    :param flavor: (optional) Model flavor to deploy. If unspecified, a default flavor</span>
-<span class="sd">                   will be chosen.</span>
-<span class="sd">    :param config: (optional) Dict containing updated target-specific configuration for</span>
-<span class="sd">                   the deployment</span>
-<span class="sd">    :return: None</span>
+<span class="sd">    Args:</span>
+<span class="sd">        target: Target to deploy to.</span>
+<span class="sd">        name: Name to use for deployment</span>
+<span class="sd">        model_uri: URI of model to deploy</span>
+<span class="sd">        flavor: (optional) Model flavor to deploy. If unspecified, a default flavor</span>
+<span class="sd">            will be chosen.</span>
+<span class="sd">        config: (optional) Dict containing updated target-specific configuration for</span>
+<span class="sd">            the deployment</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">plugin_store</span><span class="p">[</span><span class="n">target</span><span class="p">]</span><span class="o">.</span><span class="n">run_local</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">model_uri</span><span class="p">,</span> <span class="n">flavor</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>
 
@@ -265,7 +287,8 @@
 <span class="sd">      CLI profile https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html)</span>
 <span class="sd">    * Any other target-specific details.</span>
 
-<span class="sd">    :param target: Which target to use. This information is used to call the appropriate plugin</span>
+<span class="sd">    Args:</span>
+<span class="sd">        target: Which target to use. This information is used to call the appropriate plugin.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">plugin_store</span><span class="p">[</span><span class="n">target</span><span class="p">]</span><span class="o">.</span><span class="n">target_help</span><span class="p">()</span>
 </pre></div>
@@ -298,7 +321,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

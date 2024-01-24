@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.prophet &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.prophet &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -55,8 +57,10 @@
 <script type="text/javascript" src="../../_static/jquery.js"></script>
 <script type="text/javascript" src="../../_static/underscore.js"></script>
 <script type="text/javascript" src="../../_static/doctools.js"></script>
+<script type="text/javascript" src="../../_static/tabs.js"></script>
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -69,7 +73,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -115,6 +119,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
@@ -241,9 +246,10 @@
 
 <div class="viewcode-block" id="get_default_pip_requirements"><a class="viewcode-back" href="../../python_api/mlflow.prophet.html#mlflow.prophet.get_default_pip_requirements">[docs]</a><span class="k">def</span> <span class="nf">get_default_pip_requirements</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :return: A list of default pip requirements for MLflow Models produced by this flavor.</span>
-<span class="sd">             Calls to :func:`save_model()` and :func:`log_model()` produce a pip environment</span>
-<span class="sd">             that, at a minimum, contains these requirements.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        A list of default pip requirements for MLflow Models produced by this flavor.</span>
+<span class="sd">        Calls to :func:`save_model()` and :func:`log_model()` produce a pip environment</span>
+<span class="sd">        that, at a minimum, contains these requirements.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Note: Prophet&#39;s whl build process will fail due to missing dependencies, defaulting</span>
     <span class="c1"># to setup.py installation process.</span>
@@ -254,8 +260,9 @@
 
 <div class="viewcode-block" id="get_default_conda_env"><a class="viewcode-back" href="../../python_api/mlflow.prophet.html#mlflow.prophet.get_default_conda_env">[docs]</a><span class="k">def</span> <span class="nf">get_default_conda_env</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :return: The default Conda environment for MLflow Models produced by calls to</span>
-<span class="sd">             :func:`save_model()` and :func:`log_model()`.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        The default Conda environment for MLflow Models produced by calls to</span>
+<span class="sd">        :func:`save_model()` and :func:`log_model()`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_mlflow_conda_env</span><span class="p">(</span><span class="n">additional_pip_deps</span><span class="o">=</span><span class="n">get_default_pip_requirements</span><span class="p">())</span></div>
 
@@ -276,40 +283,41 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Save a Prophet model to a path on the local file system.</span>
 
-<span class="sd">    :param pr_model: Prophet model (an instance of Prophet() forecaster that has been fit</span>
-<span class="sd">                     on a temporal series.</span>
-<span class="sd">    :param path: Local path where the serialized model (as JSON) is to be saved.</span>
-<span class="sd">    :param conda_env: {{ conda_env }}</span>
-<span class="sd">    :param code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
-<span class="sd">                       containing file dependencies). These files are *prepended* to the system</span>
-<span class="sd">                       path when the model is loaded.</span>
-<span class="sd">    :param mlflow_model: :py:mod:`mlflow.models.Model` this flavor is being added to.</span>
-<span class="sd">    :param signature: an instance of the :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
-<span class="sd">                      class that describes the model&#39;s inputs and outputs. If not specified but an</span>
-<span class="sd">                      ``input_example`` is supplied, a signature will be automatically inferred</span>
-<span class="sd">                      based on the supplied input example and model. To disable automatic signature</span>
-<span class="sd">                      inference when providing an input example, set ``signature`` to ``False``.</span>
-<span class="sd">                      To manually infer a model signature, call</span>
-<span class="sd">                      :py:func:`infer_signature() &lt;mlflow.models.infer_signature&gt;` on datasets</span>
-<span class="sd">                      with valid model inputs, such as a training dataset with the target column</span>
-<span class="sd">                      omitted, and valid model outputs, like model predictions made on the training</span>
-<span class="sd">                      dataset, for example:</span>
+<span class="sd">    Args:</span>
+<span class="sd">        pr_model: Prophet model (an instance of Prophet() forecaster that has been fit</span>
+<span class="sd">            on a temporal series.</span>
+<span class="sd">        path: Local path where the serialized model (as JSON) is to be saved.</span>
+<span class="sd">        conda_env: {{ conda_env }}</span>
+<span class="sd">        code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
+<span class="sd">            containing file dependencies). These files are *prepended* to the system</span>
+<span class="sd">            path when the model is loaded.</span>
+<span class="sd">        mlflow_model: :py:mod:`mlflow.models.Model` this flavor is being added to.</span>
+<span class="sd">        signature: an instance of the :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
+<span class="sd">            class that describes the model&#39;s inputs and outputs. If not specified but an</span>
+<span class="sd">            ``input_example`` is supplied, a signature will be automatically inferred</span>
+<span class="sd">            based on the supplied input example and model. To disable automatic signature</span>
+<span class="sd">            inference when providing an input example, set ``signature`` to ``False``.</span>
+<span class="sd">            To manually infer a model signature, call</span>
+<span class="sd">            :py:func:`infer_signature() &lt;mlflow.models.infer_signature&gt;` on datasets</span>
+<span class="sd">            with valid model inputs, such as a training dataset with the target column</span>
+<span class="sd">            omitted, and valid model outputs, like model predictions made on the training</span>
+<span class="sd">            dataset, for example:</span>
 
-<span class="sd">                      .. code-block:: python</span>
+<span class="sd">            .. code-block:: python</span>
 
-<span class="sd">                        from mlflow.models import infer_signature</span>
+<span class="sd">                from mlflow.models import infer_signature</span>
 
-<span class="sd">                        model = Prophet().fit(df)</span>
-<span class="sd">                        train = model.history</span>
-<span class="sd">                        predictions = model.predict(model.make_future_dataframe(30))</span>
-<span class="sd">                        signature = infer_signature(train, predictions)</span>
-<span class="sd">    :param input_example: {{ input_example }}</span>
-<span class="sd">    :param pip_requirements: {{ pip_requirements }}</span>
-<span class="sd">    :param extra_pip_requirements: {{ extra_pip_requirements }}</span>
-<span class="sd">    :param metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
+<span class="sd">                model = Prophet().fit(df)</span>
+<span class="sd">                train = model.history</span>
+<span class="sd">                predictions = model.predict(model.make_future_dataframe(30))</span>
+<span class="sd">                signature = infer_signature(train, predictions)</span>
+<span class="sd">        input_example: {{ input_example }}</span>
+<span class="sd">        pip_requirements: {{ pip_requirements }}</span>
+<span class="sd">        extra_pip_requirements: {{ extra_pip_requirements }}</span>
+<span class="sd">        metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
 
-<span class="sd">                     .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                                             release without warning.</span>
+<span class="sd">            .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                release without warning.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">prophet</span>
 
@@ -405,52 +413,54 @@
     <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Log a Prophet model as an MLflow artifact for the current run.</span>
+<span class="sd">    Logs a Prophet model as an MLflow artifact for the current run.</span>
 
-<span class="sd">    :param pr_model: Prophet model to be saved.</span>
-<span class="sd">    :param artifact_path: Run-relative artifact path.</span>
-<span class="sd">    :param conda_env: {{ conda_env }}</span>
-<span class="sd">    :param code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
-<span class="sd">                       containing file dependencies). These files are *prepended* to the system</span>
-<span class="sd">                       path when the model is loaded.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        pr_model: Prophet model to be saved.</span>
+<span class="sd">        artifact_path: Run-relative artifact path.</span>
+<span class="sd">        conda_env: {{ conda_env }}</span>
+<span class="sd">        code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
+<span class="sd">            containing file dependencies). These files are *prepended* to the system</span>
+<span class="sd">            path when the model is loaded.</span>
+<span class="sd">        registered_model_name: This argument may change or be removed in a</span>
+<span class="sd">            future release without warning. If given, create a model</span>
+<span class="sd">            version under ``registered_model_name``, also creating a</span>
+<span class="sd">            registered model if one with the given name does not exist.</span>
+<span class="sd">        signature: An instance of the :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
+<span class="sd">            class that describes the model&#39;s inputs and outputs. If not specified but an</span>
+<span class="sd">            ``input_example`` is supplied, a signature will be automatically inferred</span>
+<span class="sd">            based on the supplied input example and model. To disable automatic signature</span>
+<span class="sd">            inference when providing an input example, set ``signature`` to ``False``.</span>
+<span class="sd">            To manually infer a model signature, call</span>
+<span class="sd">            :py:func:`infer_signature() &lt;mlflow.models.infer_signature&gt;` on datasets</span>
+<span class="sd">            with valid model inputs, such as a training dataset with the target column</span>
+<span class="sd">            omitted, and valid model outputs, like model predictions made on the training</span>
+<span class="sd">            dataset, for example:</span>
 
-<span class="sd">    :param registered_model_name: This argument may change or be removed in a</span>
-<span class="sd">                                  future release without warning. If given, create a model</span>
-<span class="sd">                                  version under ``registered_model_name``, also creating a</span>
-<span class="sd">                                  registered model if one with the given name does not exist.</span>
-<span class="sd">    :param signature: an instance of the :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
-<span class="sd">                      class that describes the model&#39;s inputs and outputs. If not specified but an</span>
-<span class="sd">                      ``input_example`` is supplied, a signature will be automatically inferred</span>
-<span class="sd">                      based on the supplied input example and model. To disable automatic signature</span>
-<span class="sd">                      inference when providing an input example, set ``signature`` to ``False``.</span>
-<span class="sd">                      To manually infer a model signature, call</span>
-<span class="sd">                      :py:func:`infer_signature() &lt;mlflow.models.infer_signature&gt;` on datasets</span>
-<span class="sd">                      with valid model inputs, such as a training dataset with the target column</span>
-<span class="sd">                      omitted, and valid model outputs, like model predictions made on the training</span>
-<span class="sd">                      dataset, for example:</span>
+<span class="sd">            .. code-block:: python</span>
 
-<span class="sd">                      .. code-block:: python</span>
+<span class="sd">                from mlflow.models import infer_signature</span>
 
-<span class="sd">                        from mlflow.models import infer_signature</span>
+<span class="sd">                model = Prophet().fit(df)</span>
+<span class="sd">                train = model.history</span>
+<span class="sd">                predictions = model.predict(model.make_future_dataframe(30))</span>
+<span class="sd">                signature = infer_signature(train, predictions)</span>
 
-<span class="sd">                        model = Prophet().fit(df)</span>
-<span class="sd">                        train = model.history</span>
-<span class="sd">                        predictions = model.predict(model.make_future_dataframe(30))</span>
-<span class="sd">                        signature = infer_signature(train, predictions)</span>
+<span class="sd">        input_example: {{ input_example }}</span>
+<span class="sd">        await_registration_for: Number of seconds to wait for the model version</span>
+<span class="sd">            to finish being created and is in ``READY`` status.</span>
+<span class="sd">            By default, the function waits for five minutes.</span>
+<span class="sd">            Specify 0 or None to skip waiting.</span>
+<span class="sd">        pip_requirements: {{ pip_requirements }}</span>
+<span class="sd">        extra_pip_requirements: {{ extra_pip_requirements }}</span>
+<span class="sd">        metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
 
-<span class="sd">    :param input_example: {{ input_example }}</span>
-<span class="sd">    :param await_registration_for: Number of seconds to wait for the model version</span>
-<span class="sd">                        to finish being created and is in ``READY`` status.</span>
-<span class="sd">                        By default, the function waits for five minutes.</span>
-<span class="sd">                        Specify 0 or None to skip waiting.</span>
-<span class="sd">    :param pip_requirements: {{ pip_requirements }}</span>
-<span class="sd">    :param extra_pip_requirements: {{ extra_pip_requirements }}</span>
-<span class="sd">    :param metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
+<span class="sd">            .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                    release without warning.</span>
 
-<span class="sd">                     .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                                             release without warning.</span>
-<span class="sd">    :return: A :py:class:`ModelInfo &lt;mlflow.models.model.ModelInfo&gt;` instance that contains the</span>
-<span class="sd">             metadata of the logged model.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        A :py:class:`ModelInfo &lt;mlflow.models.model.ModelInfo&gt;` instance that contains the</span>
+<span class="sd">        metadata of the logged model.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Model</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
         <span class="n">artifact_path</span><span class="o">=</span><span class="n">artifact_path</span><span class="p">,</span>
@@ -486,8 +496,10 @@
 
 <span class="k">def</span> <span class="nf">_load_pyfunc</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Load PyFunc implementation for Prophet. Called by ``pyfunc.load_model``.</span>
-<span class="sd">    :param path: Local filesystem path to the MLflow Model with the ``prophet`` flavor.</span>
+<span class="sd">    Loads PyFunc implementation for Prophet. Called by ``pyfunc.load_model``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path: Local filesystem path to the MLflow Model with the ``prophet`` flavor.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_ProphetModelWrapper</span><span class="p">(</span><span class="n">_load_model</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
 
@@ -496,21 +508,21 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load a Prophet model from a local file or a run.</span>
 
-<span class="sd">    :param model_uri: The location, in URI format, of the MLflow model. For example:</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model_uri: The location, in URI format, of the MLflow model. For example:</span>
+<span class="sd">            - ``/Users/me/path/to/local/model``</span>
+<span class="sd">            - ``relative/path/to/local/model``</span>
+<span class="sd">            - ``s3://my_bucket/path/to/model``</span>
+<span class="sd">            - ``runs:/&lt;mlflow_run_id&gt;/run-relative/path/to/model``</span>
+<span class="sd">            For more information about supported URI schemes, see</span>
+<span class="sd">            `Referencing Artifacts &lt;https://www.mlflow.org/docs/latest/tracking.html#</span>
+<span class="sd">            artifact-locations&gt;`_.</span>
+<span class="sd">        dst_path: The local filesystem path to which to download the model artifact.</span>
+<span class="sd">            This directory must already exist. If unspecified, a local output</span>
+<span class="sd">            path will be created.</span>
 
-<span class="sd">                      - ``/Users/me/path/to/local/model``</span>
-<span class="sd">                      - ``relative/path/to/local/model``</span>
-<span class="sd">                      - ``s3://my_bucket/path/to/model``</span>
-<span class="sd">                      - ``runs:/&lt;mlflow_run_id&gt;/run-relative/path/to/model``</span>
-
-<span class="sd">                      For more information about supported URI schemes, see</span>
-<span class="sd">                      `Referencing Artifacts &lt;https://www.mlflow.org/docs/latest/tracking.html#</span>
-<span class="sd">                      artifact-locations&gt;`_.</span>
-<span class="sd">    :param dst_path: The local filesystem path to which to download the model artifact.</span>
-<span class="sd">                     This directory must already exist. If unspecified, a local output</span>
-<span class="sd">                     path will be created.</span>
-
-<span class="sd">    :return: A Prophet model instance</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        A Prophet model instance</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">local_model_path</span> <span class="o">=</span> <span class="n">_download_artifact_from_uri</span><span class="p">(</span><span class="n">artifact_uri</span><span class="o">=</span><span class="n">model_uri</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">dst_path</span><span class="p">)</span>
     <span class="n">flavor_conf</span> <span class="o">=</span> <span class="n">_get_flavor_configuration</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">flavor_name</span><span class="o">=</span><span class="n">FLAVOR_NAME</span><span class="p">)</span>
@@ -530,13 +542,15 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">dataframe</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>  <span class="c1"># pylint: disable=unused-argument</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param dataframe: Model input data.</span>
-<span class="sd">        :param params: Additional parameters to pass to the model for inference.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            dataframe: Model input data.</span>
+<span class="sd">            params: Additional parameters to pass to the model for inference.</span>
 
-<span class="sd">                       .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                                               release without warning.</span>
+<span class="sd">                .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                    release without warning.</span>
 
-<span class="sd">        :return: Model predictions.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Model predictions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pr_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span>
 </pre></div>
@@ -569,7 +583,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

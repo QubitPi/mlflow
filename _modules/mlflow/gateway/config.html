@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.gateway.config &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.gateway.config &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -55,8 +57,10 @@
 <script type="text/javascript" src="../../../_static/jquery.js"></script>
 <script type="text/javascript" src="../../../_static/underscore.js"></script>
 <script type="text/javascript" src="../../../_static/doctools.js"></script>
+<script type="text/javascript" src="../../../_static/tabs.js"></script>
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -69,7 +73,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -115,6 +119,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-registry.html">MLflow Model Registry</a></li>
@@ -193,7 +198,8 @@
 <span class="kn">import</span> <span class="nn">pydantic</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">packaging</span> <span class="kn">import</span> <span class="n">version</span>
-<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span><span class="p">,</span> <span class="n">root_validator</span><span class="p">,</span> <span class="n">validator</span>
+<span class="kn">from</span> <span class="nn">packaging.version</span> <span class="kn">import</span> <span class="n">Version</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">,</span> <span class="n">root_validator</span><span class="p">,</span> <span class="n">validator</span>
 <span class="kn">from</span> <span class="nn">pydantic.json</span> <span class="kn">import</span> <span class="n">pydantic_encoder</span>
 
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
@@ -204,6 +210,7 @@
     <span class="n">MLFLOW_QUERY_SUFFIX</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.gateway.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">check_configuration_deprecated_fields</span><span class="p">,</span>
     <span class="n">check_configuration_route_name_collisions</span><span class="p">,</span>
     <span class="n">is_valid_ai21labs_model</span><span class="p">,</span>
     <span class="n">is_valid_endpoint_name</span><span class="p">,</span>
@@ -300,6 +307,8 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_validate_field_compatibility</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">info</span>
         <span class="n">api_type</span> <span class="o">=</span> <span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;openai_api_type&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">OpenAIAPIType</span><span class="o">.</span><span class="n">OPENAI</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">api_type</span> <span class="o">==</span> <span class="n">OpenAIAPIType</span><span class="o">.</span><span class="n">OPENAI</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;openai_deployment_name&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -364,7 +373,11 @@
 
 
 <div class="viewcode-block" id="MlflowModelServingConfig"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.MlflowModelServingConfig">[docs]</a><span class="k">class</span> <span class="nc">MlflowModelServingConfig</span><span class="p">(</span><span class="n">ConfigModel</span><span class="p">):</span>
-    <span class="n">model_server_url</span><span class="p">:</span> <span class="nb">str</span></div>
+    <span class="n">model_server_url</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="c1"># Workaround to suppress warning that Pydantic raises when a field name starts with &quot;model_&quot;.</span>
+    <span class="c1"># https://github.com/mlflow/mlflow/issues/10335</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">pydantic</span><span class="o">.</span><span class="n">ConfigDict</span><span class="p">(</span><span class="n">protected_namespaces</span><span class="o">=</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="HuggingFaceTextGenerationInferenceConfig"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.HuggingFaceTextGenerationInferenceConfig">[docs]</a><span class="k">class</span> <span class="nc">HuggingFaceTextGenerationInferenceConfig</span><span class="p">(</span><span class="n">ConfigModel</span><span class="p">):</span>
@@ -495,11 +508,35 @@
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_validate_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span></div></div>
 
 
+<div class="viewcode-block" id="AliasedConfigModel"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.AliasedConfigModel">[docs]</a><span class="k">class</span> <span class="nc">AliasedConfigModel</span><span class="p">(</span><span class="n">ConfigModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enables use of field aliases in a configuration model for backwards compatibility</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">Version</span><span class="p">(</span><span class="n">pydantic</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">Version</span><span class="p">(</span><span class="s2">&quot;2.0&quot;</span><span class="p">):</span>
+        <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">populate_by_name</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+            <span class="n">allow_population_by_field_name</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Limit"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.Limit">[docs]</a><span class="k">class</span> <span class="nc">Limit</span><span class="p">(</span><span class="n">LimitModel</span><span class="p">):</span>
+    <span class="n">calls</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">renewal_period</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+<div class="viewcode-block" id="LimitsConfig"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.LimitsConfig">[docs]</a><span class="k">class</span> <span class="nc">LimitsConfig</span><span class="p">(</span><span class="n">ConfigModel</span><span class="p">):</span>
+    <span class="n">limits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Limit</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
 <span class="c1"># pylint: disable=no-self-argument</span>
-<div class="viewcode-block" id="RouteConfig"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.RouteConfig">[docs]</a><span class="k">class</span> <span class="nc">RouteConfig</span><span class="p">(</span><span class="n">ConfigModel</span><span class="p">):</span>
+<div class="viewcode-block" id="RouteConfig"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.RouteConfig">[docs]</a><span class="k">class</span> <span class="nc">RouteConfig</span><span class="p">(</span><span class="n">AliasedConfigModel</span><span class="p">):</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">route_type</span><span class="p">:</span> <span class="n">RouteType</span>
+    <span class="n">route_type</span><span class="p">:</span> <span class="n">RouteType</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;endpoint_type&quot;</span><span class="p">)</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">Model</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Limit</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="RouteConfig.validate_endpoint_name"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.RouteConfig.validate_endpoint_name">[docs]</a>    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">validate_endpoint_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">route_name</span><span class="p">):</span>
@@ -550,6 +587,23 @@
             <span class="k">return</span> <span class="n">value</span>
         <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The route_type &#39;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39; is not supported.&quot;</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="RouteConfig.validate_limit"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.RouteConfig.validate_limit">[docs]</a>    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;limit&quot;</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">validate_limit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">limits</span> <span class="kn">import</span> <span class="n">parse</span>
+
+        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">limit</span> <span class="o">=</span> <span class="n">Limit</span><span class="p">(</span><span class="o">**</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">parse</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">limit</span><span class="o">.</span><span class="n">calls</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">limit</span><span class="o">.</span><span class="n">renewal_period</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                    <span class="s2">&quot;Failed to parse the rate limit configuration.&quot;</span>
+                    <span class="s2">&quot;Please make sure limit.calls is a positive number and&quot;</span>
+                    <span class="s2">&quot;limit.renewal_period is a right granularity&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">value</span></div>
+
 <div class="viewcode-block" id="RouteConfig.to_route"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.RouteConfig.to_route">[docs]</a>    <span class="k">def</span> <span class="nf">to_route</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Route&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Route</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
@@ -559,6 +613,7 @@
                 <span class="n">provider</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">provider</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">route_url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MLFLOW_GATEWAY_ROUTE_BASE</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}{</span><span class="n">MLFLOW_QUERY_SUFFIX</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">,</span>
         <span class="p">)</span></div></div>
 
 
@@ -569,38 +624,46 @@
     <span class="n">provider</span><span class="p">:</span> <span class="nb">str</span></div>
 
 
-<div class="viewcode-block" id="Route"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.Route">[docs]</a><span class="k">class</span> <span class="nc">Route</span><span class="p">(</span><span class="n">ResponseModel</span><span class="p">):</span>
+<span class="n">_ROUTE_EXTRA_SCHEMA</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;example&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;openai-completions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;route_type&quot;</span><span class="p">:</span> <span class="s2">&quot;llm/v1/completions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;route_url&quot;</span><span class="p">:</span> <span class="s2">&quot;/gateway/routes/completions/invocations&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="Route"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.Route">[docs]</a><span class="k">class</span> <span class="nc">Route</span><span class="p">(</span><span class="n">ConfigModel</span><span class="p">):</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">route_type</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">RouteModelInfo</span>
     <span class="n">route_url</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Limit</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Route.Config"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.Route.Config">[docs]</a>    <span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
-        <span class="n">schema_extra</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;example&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;openai-completions&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;route_type&quot;</span><span class="p">:</span> <span class="s2">&quot;llm/v1/completions&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span>
-                <span class="p">},</span>
-                <span class="s2">&quot;route_url&quot;</span><span class="p">:</span> <span class="s2">&quot;/gateway/routes/completions/invocations&quot;</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">}</span></div></div>
+        <span class="k">if</span> <span class="n">IS_PYDANTIC_V2</span><span class="p">:</span>
+            <span class="n">json_schema_extra</span> <span class="o">=</span> <span class="n">_ROUTE_EXTRA_SCHEMA</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">schema_extra</span> <span class="o">=</span> <span class="n">_ROUTE_EXTRA_SCHEMA</span></div>
+
+<div class="viewcode-block" id="Route.to_endpoint"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.Route.to_endpoint">[docs]</a>    <span class="k">def</span> <span class="nf">to_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">mlflow.deployments.server.config</span> <span class="kn">import</span> <span class="n">Endpoint</span>
+
+        <span class="k">return</span> <span class="n">Endpoint</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">endpoint_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">route_type</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">endpoint_url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">route_url</span><span class="p">,</span>
+            <span class="n">limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="Limit"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.Limit">[docs]</a><span class="k">class</span> <span class="nc">Limit</span><span class="p">(</span><span class="n">LimitModel</span><span class="p">):</span>
-    <span class="n">calls</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">renewal_period</span><span class="p">:</span> <span class="nb">str</span></div>
-
-
-<div class="viewcode-block" id="GatewayConfig"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.GatewayConfig">[docs]</a><span class="k">class</span> <span class="nc">GatewayConfig</span><span class="p">(</span><span class="n">ConfigModel</span><span class="p">):</span>
-    <span class="n">routes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RouteConfig</span><span class="p">]</span></div>
-
-
-<div class="viewcode-block" id="LimitsConfig"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.LimitsConfig">[docs]</a><span class="k">class</span> <span class="nc">LimitsConfig</span><span class="p">(</span><span class="n">ConfigModel</span><span class="p">):</span>
-    <span class="n">limits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Limit</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span></div>
+<div class="viewcode-block" id="GatewayConfig"><a class="viewcode-back" href="../../../python_api/mlflow.gateway.html#mlflow.gateway.config.GatewayConfig">[docs]</a><span class="k">class</span> <span class="nc">GatewayConfig</span><span class="p">(</span><span class="n">AliasedConfigModel</span><span class="p">):</span>
+    <span class="n">routes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RouteConfig</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;endpoints&quot;</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">_load_route_config</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">GatewayConfig</span><span class="p">:</span>
@@ -616,6 +679,7 @@
         <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;The file at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> is not a valid yaml file&quot;</span>
         <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+    <span class="n">check_configuration_deprecated_fields</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span>
     <span class="n">check_configuration_route_name_collisions</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">GatewayConfig</span><span class="p">(</span><span class="o">**</span><span class="n">configuration</span><span class="p">)</span>
@@ -669,7 +733,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

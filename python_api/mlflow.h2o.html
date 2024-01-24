@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.h2o &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.h2o &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.johnsnowlabs" href="/mlflow.johnsnowlabs.html"/>
         <link rel="prev" title="mlflow.gluon" href="/mlflow.gluon.html"/> 
@@ -59,6 +61,7 @@
 <script type="text/javascript" src="../_static/doctools.js"></script>
 <script type="text/javascript" src="../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -71,7 +74,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -117,6 +120,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model-registry.html">MLflow Model Registry</a></li>
@@ -144,7 +148,6 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.keras_core.html">mlflow.keras_core</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.langchain.html">mlflow.langchain</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.lightgbm.html">mlflow.lightgbm</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlflow.llm.html">mlflow.llm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.metrics.html">mlflow.metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.mleap.html">mlflow.mleap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.models.html">mlflow.models</a></li>
@@ -152,6 +155,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.paddle.html">mlflow.paddle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pmdarima.html">mlflow.pmdarima</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.projects.html">mlflow.projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.promptflow.html">mlflow.promptflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.prophet.html">mlflow.prophet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pyfunc.html">mlflow.pyfunc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pyspark.ml.html">mlflow.pyspark.ml</a></li>
@@ -165,6 +169,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.spacy.html">mlflow.spacy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.spark.html">mlflow.spark</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.statsmodels.html">mlflow.statsmodels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.system_metrics.html">mlflow.system_metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.tensorflow.html">mlflow.tensorflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.transformers.html">mlflow.transformers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.types.html">mlflow.types</a></li>
@@ -266,8 +271,8 @@ that, at minimum, contains these requirements.</p>
 <dl class="py function">
 <dt id="mlflow.h2o.load_model">
 <code class="sig-prename descclassname"><span class="pre">mlflow.h2o.</span></code><code class="sig-name descname"><span class="pre">load_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/h2o.html#load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.h2o.load_model" title="Permalink to this definition"> </a></dt>
-<dd><p>Load an H2O model from a local file (if <code class="docutils literal notranslate"><span class="pre">run_id</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>) or a run.
-This function expects there is an H2O instance initialised with <code class="docutils literal notranslate"><span class="pre">h2o.init</span></code>.</p>
+<dd><p>Load an H2O model from a local file (if <code class="docutils literal notranslate"><span class="pre">run_id</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>) or a run.</p>
+<p>This function expects there is an H2O instance initialised with <code class="docutils literal notranslate"><span class="pre">h2o.init</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -303,10 +308,11 @@ path will be created.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>h2o_model</strong> – H2O model to be saved.</p></li>
 <li><p><strong>artifact_path</strong> – Run-relative artifact path.</p></li>
-<li><p><strong>conda_env</strong> – <p>Either a dictionary representation of a Conda environment or the path to a conda environment yaml
-file. If provided, this describes the environment this model should be run in. At minimum, it
-should specify the dependencies contained in <a class="reference internal" href="#mlflow.h2o.get_default_conda_env" title="mlflow.h2o.get_default_conda_env"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_conda_env()</span></code></a>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a conda
-environment with pip requirements inferred by <a class="reference internal" href="mlflow.models.html#mlflow.models.infer_pip_requirements" title="mlflow.models.infer_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.infer_pip_requirements()</span></code></a> is added
+<li><p><strong>conda_env</strong> – <p>Either a dictionary representation of a Conda environment or the path to a conda
+environment yaml file. If provided, this describes the environment this model should be run in.
+At a minimum, it should specify the dependencies contained in <a class="reference internal" href="#mlflow.h2o.get_default_conda_env" title="mlflow.h2o.get_default_conda_env"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_conda_env()</span></code></a>.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a conda environment with pip requirements inferred by
+<a class="reference internal" href="mlflow.models.html#mlflow.models.infer_pip_requirements" title="mlflow.models.infer_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.infer_pip_requirements()</span></code></a> is added
 to the model. If the requirement inference fails, it falls back to using
 <a class="reference internal" href="#mlflow.h2o.get_default_pip_requirements" title="mlflow.h2o.get_default_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_pip_requirements()</span></code></a>. pip requirements from <code class="docutils literal notranslate"><span class="pre">conda_env</span></code> are written to a pip
 <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file and the full conda environment is written to <code class="docutils literal notranslate"><span class="pre">conda.yaml</span></code>.
@@ -354,11 +360,8 @@ dataset, for example:</p>
 as a hint of what data to feed the model. It will be converted to a Pandas
 DataFrame and then serialized to json using the Pandas split-oriented
 format, or a numpy array where the example will be serialized to json
-by converting it to a list. If input example is a tuple, then the first element
-must be a valid model input, and the second element must be a valid params
-dictionary that could be used for model inference. Bytes are base64-encoded.
-When the <code class="docutils literal notranslate"><span class="pre">signature</span></code> parameter is <code class="docutils literal notranslate"><span class="pre">None</span></code>, the input example is used to
-infer a model signature.</p></li>
+by converting it to a list. Bytes are base64-encoded. When the <code class="docutils literal notranslate"><span class="pre">signature</span></code> parameter is
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, the input example is used to infer a model signature.</p></li>
 <li><p><strong>pip_requirements</strong> – Either an iterable of pip requirement strings
 (e.g. <code class="docutils literal notranslate"><span class="pre">[&quot;h2o&quot;,</span> <span class="pre">&quot;-r</span> <span class="pre">requirements.txt&quot;,</span> <span class="pre">&quot;-c</span> <span class="pre">constraints.txt&quot;]</span></code>) or the string path to
 a pip requirements file on the local filesystem (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;requirements.txt&quot;</span></code>). If provided, this
@@ -368,7 +371,8 @@ If the requirement inference fails, it falls back to using <a class="reference i
 Both requirements and constraints are automatically parsed and written to <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> and
 <code class="docutils literal notranslate"><span class="pre">constraints.txt</span></code> files, respectively, and stored as part of the model. Requirements are also
 written to the <code class="docutils literal notranslate"><span class="pre">pip</span></code> section of the model’s conda environment (<code class="docutils literal notranslate"><span class="pre">conda.yaml</span></code>) file.</p></li>
-<li><p><strong>extra_pip_requirements</strong> – <p>Either an iterable of pip requirement strings
+<li><p><strong>extra_pip_requirements</strong> – <p>Either an iterable of pip
+requirement strings
 (e.g. <code class="docutils literal notranslate"><span class="pre">[&quot;pandas&quot;,</span> <span class="pre">&quot;-r</span> <span class="pre">requirements.txt&quot;,</span> <span class="pre">&quot;-c</span> <span class="pre">constraints.txt&quot;]</span></code>) or the string path to
 a pip requirements file on the local filesystem (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;requirements.txt&quot;</span></code>). If provided, this
 describes additional pip requirements that are appended to a default set of pip requirements
@@ -385,7 +389,7 @@ section of the model’s conda environment (<code class="docutils literal notran
 <li><p><code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code></p></li>
 </ul>
 </div>
-<p><a class="reference internal" href="../deployment/deploy-model-to-kubernetes/index.html#pip-requirements-example"><span class="std std-ref">This example</span></a> demonstrates how to specify pip requirements using
+<p><a class="reference external" href="https://github.com/mlflow/mlflow/blob/master/examples/pip_requirements/pip_requirements.py">This example</a> demonstrates how to specify pip requirements using
 <code class="docutils literal notranslate"><span class="pre">pip_requirements</span></code> and <code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code>.</p>
 </p></li>
 <li><p><strong>metadata</strong> – <p>Custom metadata dictionary passed to the model and stored in the MLmodel file.</p>
@@ -414,10 +418,11 @@ metadata of the logged model.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>h2o_model</strong> – H2O model to be saved.</p></li>
 <li><p><strong>path</strong> – Local path where the model is to be saved.</p></li>
-<li><p><strong>conda_env</strong> – <p>Either a dictionary representation of a Conda environment or the path to a conda environment yaml
-file. If provided, this describes the environment this model should be run in. At minimum, it
-should specify the dependencies contained in <a class="reference internal" href="#mlflow.h2o.get_default_conda_env" title="mlflow.h2o.get_default_conda_env"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_conda_env()</span></code></a>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a conda
-environment with pip requirements inferred by <a class="reference internal" href="mlflow.models.html#mlflow.models.infer_pip_requirements" title="mlflow.models.infer_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.infer_pip_requirements()</span></code></a> is added
+<li><p><strong>conda_env</strong> – <p>Either a dictionary representation of a Conda environment or the path to a conda
+environment yaml file. If provided, this describes the environment this model should be run in.
+At a minimum, it should specify the dependencies contained in <a class="reference internal" href="#mlflow.h2o.get_default_conda_env" title="mlflow.h2o.get_default_conda_env"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_conda_env()</span></code></a>.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a conda environment with pip requirements inferred by
+<a class="reference internal" href="mlflow.models.html#mlflow.models.infer_pip_requirements" title="mlflow.models.infer_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.infer_pip_requirements()</span></code></a> is added
 to the model. If the requirement inference fails, it falls back to using
 <a class="reference internal" href="#mlflow.h2o.get_default_pip_requirements" title="mlflow.h2o.get_default_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_pip_requirements()</span></code></a>. pip requirements from <code class="docutils literal notranslate"><span class="pre">conda_env</span></code> are written to a pip
 <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file and the full conda environment is written to <code class="docutils literal notranslate"><span class="pre">conda.yaml</span></code>.
@@ -463,11 +468,8 @@ dataset, for example:</p>
 as a hint of what data to feed the model. It will be converted to a Pandas
 DataFrame and then serialized to json using the Pandas split-oriented
 format, or a numpy array where the example will be serialized to json
-by converting it to a list. If input example is a tuple, then the first element
-must be a valid model input, and the second element must be a valid params
-dictionary that could be used for model inference. Bytes are base64-encoded.
-When the <code class="docutils literal notranslate"><span class="pre">signature</span></code> parameter is <code class="docutils literal notranslate"><span class="pre">None</span></code>, the input example is used to
-infer a model signature.</p></li>
+by converting it to a list. Bytes are base64-encoded. When the <code class="docutils literal notranslate"><span class="pre">signature</span></code> parameter is
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, the input example is used to infer a model signature.</p></li>
 <li><p><strong>pip_requirements</strong> – Either an iterable of pip requirement strings
 (e.g. <code class="docutils literal notranslate"><span class="pre">[&quot;h2o&quot;,</span> <span class="pre">&quot;-r</span> <span class="pre">requirements.txt&quot;,</span> <span class="pre">&quot;-c</span> <span class="pre">constraints.txt&quot;]</span></code>) or the string path to
 a pip requirements file on the local filesystem (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;requirements.txt&quot;</span></code>). If provided, this
@@ -477,7 +479,8 @@ If the requirement inference fails, it falls back to using <a class="reference i
 Both requirements and constraints are automatically parsed and written to <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> and
 <code class="docutils literal notranslate"><span class="pre">constraints.txt</span></code> files, respectively, and stored as part of the model. Requirements are also
 written to the <code class="docutils literal notranslate"><span class="pre">pip</span></code> section of the model’s conda environment (<code class="docutils literal notranslate"><span class="pre">conda.yaml</span></code>) file.</p></li>
-<li><p><strong>extra_pip_requirements</strong> – <p>Either an iterable of pip requirement strings
+<li><p><strong>extra_pip_requirements</strong> – <p>Either an iterable of pip
+requirement strings
 (e.g. <code class="docutils literal notranslate"><span class="pre">[&quot;pandas&quot;,</span> <span class="pre">&quot;-r</span> <span class="pre">requirements.txt&quot;,</span> <span class="pre">&quot;-c</span> <span class="pre">constraints.txt&quot;]</span></code>) or the string path to
 a pip requirements file on the local filesystem (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;requirements.txt&quot;</span></code>). If provided, this
 describes additional pip requirements that are appended to a default set of pip requirements
@@ -494,7 +497,7 @@ section of the model’s conda environment (<code class="docutils literal notran
 <li><p><code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code></p></li>
 </ul>
 </div>
-<p><a class="reference internal" href="../deployment/deploy-model-to-kubernetes/index.html#pip-requirements-example"><span class="std std-ref">This example</span></a> demonstrates how to specify pip requirements using
+<p><a class="reference external" href="https://github.com/mlflow/mlflow/blob/master/examples/pip_requirements/pip_requirements.py">This example</a> demonstrates how to specify pip requirements using
 <code class="docutils literal notranslate"><span class="pre">pip_requirements</span></code> and <code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code>.</p>
 </p></li>
 <li><p><strong>metadata</strong> – <p>Custom metadata dictionary passed to the model and stored in the MLmodel file.</p>
@@ -549,7 +552,7 @@ release without warning.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

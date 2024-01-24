@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.utils.async_logging.run_operations &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.utils.async_logging.run_operations &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../../../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../../index.html"/>
         <link rel="up" title="Module code" href="../../../index.html"/> 
 
   
@@ -55,8 +57,10 @@
 <script type="text/javascript" src="../../../../_static/jquery.js"></script>
 <script type="text/javascript" src="../../../../_static/underscore.js"></script>
 <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+<script type="text/javascript" src="../../../../_static/tabs.js"></script>
 <script type="text/javascript" src="../../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -69,7 +73,7 @@
     <a href="../../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -115,6 +119,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../model-registry.html">MLflow Model Registry</a></li>
@@ -182,19 +187,17 @@
               <div itemprop="articleBody">
                 
   <h1>Source code for mlflow.utils.async_logging.run_operations</h1><div class="highlight"><pre>
-<div class="viewcode-block" id="RunOperations"><a class="viewcode-back" href="../../../../python_api/mlflow.utils.html#mlflow.utils.async_logging.run_operations.RunOperations">[docs]</a><span></span><span class="k">class</span> <span class="nc">RunOperations</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Represents a collection of operations on one or more MLflow Runs, such as run creation</span>
-<span class="sd">    or metric logging.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+
+<div class="viewcode-block" id="RunOperations"><a class="viewcode-back" href="../../../../python_api/mlflow.utils.html#mlflow.utils.async_logging.run_operations.RunOperations">[docs]</a><span class="k">class</span> <span class="nc">RunOperations</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class that helps manage the futures of MLflow async logging.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation_futures</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_operation_futures</span> <span class="o">=</span> <span class="n">operation_futures</span> <span class="ow">or</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="RunOperations.wait"><a class="viewcode-back" href="../../../../python_api/mlflow.utils.html#mlflow.utils.async_logging.run_operations.RunOperations.wait">[docs]</a>    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Blocks on completion of the MLflow Run operations.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Blocks on completion of all futures.&quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
 
         <span class="n">failed_operations</span> <span class="o">=</span> <span class="p">[]</span>
@@ -205,25 +208,25 @@
                 <span class="n">failed_operations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">failed_operations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># Importing MlflowException gives circular reference / module load error, need to</span>
-            <span class="c1">#  figure out why.</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-                <span class="s2">&quot;The following failures occurred while performing one or more logging&quot;</span>
-                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; operations: </span><span class="si">{</span><span class="n">failed_operations</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;The following failures occurred while performing one or more async logging &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;operations: </span><span class="si">{</span><span class="n">failed_operations</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="get_combined_run_operations"><a class="viewcode-back" href="../../../../python_api/mlflow.utils.html#mlflow.utils.async_logging.run_operations.get_combined_run_operations">[docs]</a><span class="k">def</span> <span class="nf">get_combined_run_operations</span><span class="p">(</span><span class="n">run_operations_list</span><span class="p">:</span> <span class="p">[</span><span class="n">RunOperations</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">RunOperations</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Given a list of RunOperations, returns a single RunOperations object that represents the</span>
+<div class="viewcode-block" id="get_combined_run_operations"><a class="viewcode-back" href="../../../../python_api/mlflow.utils.html#mlflow.utils.async_logging.run_operations.get_combined_run_operations">[docs]</a><span class="k">def</span> <span class="nf">get_combined_run_operations</span><span class="p">(</span><span class="n">run_operations_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RunOperations</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">RunOperations</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Combine a list of RunOperations objects into a single RunOperations object.</span>
+
+<span class="sd">    Given a list of `RunOperations`, returns a single `RunOperations` object that represents the</span>
 <span class="sd">    combined set of operations. If the input list is empty, returns None. If the input list</span>
-<span class="sd">    contains only one element, returns that element. Otherwise, creates a new RunOperations</span>
+<span class="sd">    contains only one element, returns that element. Otherwise, creates a new `RunOperations`</span>
 <span class="sd">    object that combines the operation futures from each input RunOperations object.</span>
 
-<span class="sd">    :param run_operations_list: A list of RunOperations objects to combine.</span>
-<span class="sd">    :type run_operations_list: list[RunOperations]</span>
-<span class="sd">    :return: A single RunOperations object that represents the combined set of operations.</span>
-<span class="sd">    :rtype: RunOperations</span>
+<span class="sd">    Args:</span>
+<span class="sd">        run_operations_list: A list of `RunOperations` objects to combine.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A single `RunOperations` object that represents the combined set of operations.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">run_operations_list</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
@@ -266,7 +269,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

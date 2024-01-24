@@ -14,7 +14,7 @@
    "source": [
     "# LLM Evaluation with MLflow Example Notebook\n",
     "\n",
-    "In this notebook, we will demonstrate how to evaluate various LLMs and RAG systems with MLflow, leveraging simple metrics such as perplexity and toxicity, as well as LLM-judged metrics such as relevance, and even custom LLM-judged metrics such as professionalism"
+    "In this notebook, we will demonstrate how to evaluate various LLMs and RAG systems with MLflow, leveraging simple metrics such as toxicity, as well as LLM-judged metrics such as relevance, and even custom LLM-judged metrics such as professionalism"
    ]
   },
   {
@@ -29,47 +29,11 @@
     }
    },
    "source": [
-    "Set OpenAI Key"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 1,
-   "metadata": {
-    "application/vnd.databricks.v1+cell": {
-     "cellMetadata": {
-      "byteLimit": 2048000,
-      "rowLimit": 10000
-     },
-     "inputWidgets": {},
-     "nuid": "fb946228-62fb-4d68-9732-75935c9cb401",
-     "showTitle": false,
-     "title": ""
-    }
-   },
-   "outputs": [],
-   "source": [
-    "import os"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 2,
-   "metadata": {
-    "application/vnd.databricks.v1+cell": {
-     "cellMetadata": {
-      "byteLimit": 2048000,
-      "rowLimit": 10000
-     },
-     "inputWidgets": {},
-     "nuid": "bec25067-224d-4ee8-9b5d-0beeb6cde684",
-     "showTitle": false,
-     "title": ""
-    }
-   },
-   "outputs": [],
-   "source": [
-    "os.environ[\"OPENAI_API_KEY\"] = \"redacted\""
+    "We need to set our OpenAI API key, since we will be using GPT-4 for our LLM-judged metrics.\n",
+    "\n",
+    "In order to set your private key safely, please be sure to either export your key through a command-line terminal for your current instance, or, for a permanent addition to all user-based sessions, configure your favored environment management configuration file (i.e., .bashrc, .zshrc) to have the following entry:\n",
+    "\n",
+    "`OPENAI_API_KEY=<your openai API key>`"
    ]
   },
   {
@@ -520,7 +484,7 @@
     "    justification=\"The definition effectively explains what MLflow is \"\n",
     "    \"its purpose, and its developer. It could be more concise for a 5-score.\",\n",
     "    grading_context={\n",
-    "        \"ground_truth\": \"MLflow is an open-source platform for managing \"\n",
+    "        \"targets\": \"MLflow is an open-source platform for managing \"\n",
     "        \"the end-to-end machine learning (ML) lifecycle. It was developed by Databricks, \"\n",
     "        \"a company that specializes in big data and machine learning solutions. MLflow is \"\n",
     "        \"designed to address the challenges that data scientists and machine learning \"\n",
@@ -929,21 +893,6 @@
     ")\n",
     "\n",
     "print(professionalism_metric)"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "application/vnd.databricks.v1+cell": {
-     "cellMetadata": {},
-     "inputWidgets": {},
-     "nuid": "bc615396-b1c1-4302-872d-d19be010382a",
-     "showTitle": false,
-     "title": ""
-    }
-   },
-   "source": [
-    "TODO: Try out your new professionalism metric on a sample output to make sure it behaves as you expect"
    ]
   },
   {

@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Command-Line Interface &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>Command-Line Interface &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="index.html"/>
         <link rel="next" title="Search Runs" href="/search-runs.html"/>
         <link rel="prev" title="MLflow Authentication REST API" href="/auth/rest-api.html"/> 
 
@@ -58,6 +60,7 @@
 <script type="text/javascript" src="_static/doctools.js"></script>
 <script type="text/javascript" src="_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -70,7 +73,7 @@
     <a href="index.html" class="wy-nav-top-logo"
       ><img src="_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -116,6 +119,7 @@
 <li class="toctree-l1"><a class="reference internal" href="traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model-registry.html">MLflow Model Registry</a></li>
@@ -148,6 +152,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#mlflow-deployments-list-endpoints">list-endpoints</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mlflow-deployments-predict">predict</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mlflow-deployments-run-local">run-local</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mlflow-deployments-start-server">start-server</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mlflow-deployments-update">update</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mlflow-deployments-update-endpoint">update-endpoint</a></li>
 </ul>
@@ -452,7 +457,7 @@ recover from failures.</p>
 <p>Deploy MLflow models to custom targets.
 Run <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options for a given target.
-Support is currently installed for deployment to: sagemaker</p>
+Support is currently installed for deployment to: databricks, http, https, openai, sagemaker</p>
 <p>See all supported deployment targets and installation instructions in
 <a class="reference external" href="https://mlflow.org/docs/latest/plugins.html#community-plugins">https://mlflow.org/docs/latest/plugins.html#community-plugins</a></p>
 <p>You can also write your own plugin for deployment to a custom target. For instructions on
@@ -494,7 +499,7 @@ writing and distributing a plugin, see
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
 for a given target.
-Support is currently installed for deployment to: sagemaker</p>
+Support is currently installed for deployment to: databricks, http, https, openai, sagemaker</p>
 <p>See all supported deployment targets and installation
 instructions at
 <a class="reference external" href="https://mlflow.org/docs/latest/plugins.html#community-plugins">https://mlflow.org/docs/latest/plugins.html#community-plugins</a></p>
@@ -540,7 +545,7 @@ instructions at
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
 for a given target.
-Support is currently installed for deployment to: sagemaker</p>
+Support is currently installed for deployment to: databricks, http, https, openai, sagemaker</p>
 <p>See all supported deployment targets and installation
 instructions at
 <a class="reference external" href="https://mlflow.org/docs/latest/plugins.html#community-plugins">https://mlflow.org/docs/latest/plugins.html#community-plugins</a></p>
@@ -579,7 +584,7 @@ instructions at
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
 for a given target.
-Support is currently installed for deployment to: sagemaker</p>
+Support is currently installed for deployment to: databricks, http, https, openai, sagemaker</p>
 <p>See all supported deployment targets and installation
 instructions at
 <a class="reference external" href="https://mlflow.org/docs/latest/plugins.html#community-plugins">https://mlflow.org/docs/latest/plugins.html#community-plugins</a></p>
@@ -606,7 +611,7 @@ instructions at
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
 for a given target.
-Support is currently installed for deployment to: sagemaker</p>
+Support is currently installed for deployment to: databricks, http, https, openai, sagemaker</p>
 <p>See all supported deployment targets and installation
 instructions at
 <a class="reference external" href="https://mlflow.org/docs/latest/plugins.html#community-plugins">https://mlflow.org/docs/latest/plugins.html#community-plugins</a></p>
@@ -646,7 +651,7 @@ see the following documentation:
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
 for a given target.
-Support is currently installed for deployment to: sagemaker</p>
+Support is currently installed for deployment to: databricks, http, https, openai, sagemaker</p>
 <p>See all supported deployment targets and installation
 instructions at
 <a class="reference external" href="https://mlflow.org/docs/latest/plugins.html#community-plugins">https://mlflow.org/docs/latest/plugins.html#community-plugins</a></p>
@@ -692,7 +697,7 @@ target.</p>
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
 for a given target.
-Support is currently installed for deployment to: sagemaker</p>
+Support is currently installed for deployment to: databricks, http, https, openai, sagemaker</p>
 <p>See all supported deployment targets and installation
 instructions at
 <a class="reference external" href="https://mlflow.org/docs/latest/plugins.html#community-plugins">https://mlflow.org/docs/latest/plugins.html#community-plugins</a></p>
@@ -719,7 +724,7 @@ instructions at
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
 for a given target.
-Support is currently installed for deployment to: sagemaker</p>
+Support is currently installed for deployment to: databricks, http, https, openai, sagemaker</p>
 <p>See all supported deployment targets and installation
 instructions at
 <a class="reference external" href="https://mlflow.org/docs/latest/plugins.html#community-plugins">https://mlflow.org/docs/latest/plugins.html#community-plugins</a></p>
@@ -741,7 +746,7 @@ options and the target’s URI format.</p>
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
 for a given target.
-Support is currently installed for deployment to: sagemaker</p>
+Support is currently installed for deployment to: databricks, http, https, openai, sagemaker</p>
 <p>See all supported deployment targets and installation
 instructions at
 <a class="reference external" href="https://mlflow.org/docs/latest/plugins.html#community-plugins">https://mlflow.org/docs/latest/plugins.html#community-plugins</a></p>
@@ -769,7 +774,7 @@ the <cite>delete</cite>, <cite>update</cite>, and <cite>get</cite> commands.</p>
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
 for a given target.
-Support is currently installed for deployment to: sagemaker</p>
+Support is currently installed for deployment to: databricks, http, https, openai, sagemaker</p>
 <p>See all supported deployment targets and installation
 instructions at
 <a class="reference external" href="https://mlflow.org/docs/latest/plugins.html#community-plugins">https://mlflow.org/docs/latest/plugins.html#community-plugins</a></p>
@@ -790,7 +795,7 @@ instructions at
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
 for a given target.
-Support is currently installed for deployment to: sagemaker</p>
+Support is currently installed for deployment to: databricks, http, https, openai, sagemaker</p>
 <p>See all supported deployment targets and installation
 instructions at
 <a class="reference external" href="https://mlflow.org/docs/latest/plugins.html#community-plugins">https://mlflow.org/docs/latest/plugins.html#community-plugins</a></p>
@@ -823,7 +828,7 @@ instructions at
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
 for a given target.
-Support is currently installed for deployment to: sagemaker</p>
+Support is currently installed for deployment to: databricks, http, https, openai, sagemaker</p>
 <p>See all supported deployment targets and installation
 instructions at
 <a class="reference external" href="https://mlflow.org/docs/latest/plugins.html#community-plugins">https://mlflow.org/docs/latest/plugins.html#community-plugins</a></p>
@@ -868,7 +873,7 @@ instructions at
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
 for a given target.
-Support is currently installed for deployment to: sagemaker</p>
+Support is currently installed for deployment to: databricks, http, https, openai, sagemaker</p>
 <p>See all supported deployment targets and installation
 instructions at
 <a class="reference external" href="https://mlflow.org/docs/latest/plugins.html#community-plugins">https://mlflow.org/docs/latest/plugins.html#community-plugins</a></p>
@@ -884,6 +889,47 @@ instructions at
 <dt id="cmdoption-mlflow-deployments-run-local-f">
 <code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--flavor</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;flavor&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-run-local-f" title="Permalink to this definition"> </a></dt>
 <dd><p>Which flavor to be deployed. This will be auto inferred if it’s not given</p>
+</dd></dl>
+
+</div>
+<div class="section" id="mlflow-deployments-start-server">
+<h4>start-server<a class="headerlink" href="#mlflow-deployments-start-server" title="Permalink to this headline"> </a></h4>
+<p>Start the MLflow Deployments server</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mlflow<span class="w"> </span>deployments<span class="w"> </span>start-server<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-mlflow-deployments-start-server-config-path">
+<code class="sig-name descname"><span class="pre">--config-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;config_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-start-server-config-path" title="Permalink to this definition"> </a></dt>
+<dd><p><strong>Required</strong> The path to the deployments configuration file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-mlflow-deployments-start-server-host">
+<code class="sig-name descname"><span class="pre">--host</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;host&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-start-server-host" title="Permalink to this definition"> </a></dt>
+<dd><p>The network address to listen on (default: 127.0.0.1).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-mlflow-deployments-start-server-port">
+<code class="sig-name descname"><span class="pre">--port</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;port&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-start-server-port" title="Permalink to this definition"> </a></dt>
+<dd><p>The port to listen on (default: 5000).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-mlflow-deployments-start-server-workers">
+<code class="sig-name descname"><span class="pre">--workers</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;workers&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-start-server-workers" title="Permalink to this definition"> </a></dt>
+<dd><p>The number of workers.</p>
+</dd></dl>
+
+<p class="rubric">Environment variables</p>
+<span class="target" id="mlflow-deployments-start-server-config-path-mlflow-deployments-config"></span><dl class="std envvar">
+<dt>
+<code class="sig-name descname"><span class="pre">MLFLOW_DEPLOYMENTS_CONFIG</span></code></dt>
+<dd><blockquote>
+<div><p>Provide a default for <a class="reference internal" href="#cmdoption-mlflow-deployments-start-server-config-path"><code class="xref std std-option docutils literal notranslate"><span class="pre">--config-path</span></code></a></p>
+</div></blockquote>
 </dd></dl>
 
 </div>
@@ -922,7 +968,7 @@ model URI must also be specified).</p>
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
 for a given target.
-Support is currently installed for deployment to: sagemaker</p>
+Support is currently installed for deployment to: databricks, http, https, openai, sagemaker</p>
 <p>See all supported deployment targets and installation
 instructions at
 <a class="reference external" href="https://mlflow.org/docs/latest/plugins.html#community-plugins">https://mlflow.org/docs/latest/plugins.html#community-plugins</a></p>
@@ -968,7 +1014,7 @@ instructions at
 <cite>mlflow deployments help –target-name &lt;target-name&gt;</cite> for
 more details on the supported URI format and config options
 for a given target.
-Support is currently installed for deployment to: sagemaker</p>
+Support is currently installed for deployment to: databricks, http, https, openai, sagemaker</p>
 <p>See all supported deployment targets and installation
 instructions at
 <a class="reference external" href="https://mlflow.org/docs/latest/plugins.html#community-plugins">https://mlflow.org/docs/latest/plugins.html#community-plugins</a></p>
@@ -1395,6 +1441,12 @@ environment manager. The following values are supported:</p>
 <dt id="cmdoption-mlflow-models-predict-install-mlflow">
 <code class="sig-name descname"><span class="pre">--install-mlflow</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-mlflow-models-predict-install-mlflow" title="Permalink to this definition"> </a></dt>
 <dd><p>If specified and there is a conda or virtualenv environment to be activated mlflow will be installed into the environment after it has been activated. The version of installed mlflow will be the same as the one used to invoke this command.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-mlflow-models-predict-r">
+<code class="sig-name descname"><span class="pre">-r</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--pip-requirements-override</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;pip_requirements_override&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-predict-r" title="Permalink to this definition"> </a></dt>
+<dd><p>Specify packages and versions to override the dependencies defined in the model. Must be a comma-separated string like x==y,z==a.</p>
 </dd></dl>
 
 </div>
@@ -2495,7 +2547,7 @@ to pass <code class="docutils literal notranslate"><span class="pre">--host</spa
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'./',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

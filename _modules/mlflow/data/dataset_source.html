@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.data.dataset_source &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.data.dataset_source &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="mlflow.data" href="../data.html"/> 
 
   
@@ -55,8 +57,10 @@
 <script type="text/javascript" src="../../../_static/jquery.js"></script>
 <script type="text/javascript" src="../../../_static/underscore.js"></script>
 <script type="text/javascript" src="../../../_static/doctools.js"></script>
+<script type="text/javascript" src="../../../_static/tabs.js"></script>
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -69,7 +73,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -115,6 +119,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-registry.html">MLflow Model Registry</a></li>
@@ -201,10 +206,11 @@
     <span class="nd">@staticmethod</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">_get_source_type</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Obtains a string representing the source type of the dataset.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Obtains a string representing the source type of the dataset.</span>
 
-<span class="sd">        :return: A string representing the source type of the dataset, e.g. &quot;s3&quot;, &quot;delta_table&quot;, ...</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            A string representing the source type of the dataset, e.g. &quot;s3&quot;, &quot;delta_table&quot;, ...</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="DatasetSource.load"><a class="viewcode-back" href="../../../python_api/mlflow.data.html#mlflow.data.dataset_source.DatasetSource.load">[docs]</a>    <span class="nd">@abstractmethod</span>
@@ -215,40 +221,49 @@
 <span class="sd">        source CSV files from S3 to the local filesystem, load a source Delta Table as a Spark</span>
 <span class="sd">        DataFrame, etc.</span>
 
-<span class="sd">        :return: The downloaded source, e.g. a local filesystem path, a Spark DataFrame, etc.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The downloaded source, e.g. a local filesystem path, a Spark DataFrame, etc.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
     <span class="nd">@staticmethod</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">_can_resolve</span><span class="p">(</span><span class="n">raw_source</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Determines whether this type of DatasetSource can be resolved from a specified raw source</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Determines whether this type of DatasetSource can be resolved from a specified raw source</span>
 <span class="sd">        object. For example, an S3DatasetSource can be resolved from an S3 URI like</span>
 <span class="sd">        &quot;s3://mybucket/path/to/iris/data&quot; but not from an Azure Blob Storage URI like</span>
 <span class="sd">        &quot;wasbs:/account@host.blob.core.windows.net&quot;.</span>
 
-<span class="sd">        :param raw_source: The raw source, e.g. a string like &quot;s3://mybucket/path/to/iris/data&quot;.</span>
-<span class="sd">        :return: True if this DatsetSource can resolve the raw source, False otherwise.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            raw_source: The raw source, e.g. a string like &quot;s3://mybucket/path/to/iris/data&quot;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if this DatsetSource can resolve the raw source, False otherwise.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">_resolve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">raw_source</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DatasetSource&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Constructs an instance of the DatasetSource from a raw source object, such as a</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs an instance of the DatasetSource from a raw source object, such as a</span>
 <span class="sd">        string URI like &quot;s3://mybucket/path/to/iris/data&quot; or a delta table identifier</span>
 <span class="sd">        like &quot;my.delta.table@2&quot;.</span>
 
-<span class="sd">        :param raw_source: The raw source, e.g. a string like &quot;s3://mybucket/path/to/iris/data&quot;.</span>
-<span class="sd">        :return: A DatasetSource instance derived from the raw_source.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            raw_source: The raw source, e.g. a string like &quot;s3://mybucket/path/to/iris/data&quot;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A DatasetSource instance derived from the raw_source.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Obtains a JSON-compatible dictionary representation of the DatasetSource.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Obtains a JSON-compatible dictionary representation of the DatasetSource.</span>
 
-<span class="sd">        :return: A JSON-compatible dictionary representation of the DatasetSource.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            A JSON-compatible dictionary representation of the DatasetSource.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="DatasetSource.to_json"><a class="viewcode-back" href="../../../python_api/mlflow.data.html#mlflow.data.dataset_source.DatasetSource.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -256,29 +271,35 @@
 <span class="sd">        Obtains a JSON string representation of the</span>
 <span class="sd">        :py:class:`DatasetSource &lt;mlflow.data.dataset_source.DatasetSource&gt;`.</span>
 
-<span class="sd">        :return: A JSON string representation of the</span>
-<span class="sd">                 :py:class:`DatasetSource &lt;mlflow.data.dataset_source.DatasetSource&gt;`.</span>
-
+<span class="sd">        Returns:</span>
+<span class="sd">            A JSON string representation of the</span>
+<span class="sd">            :py:class:`DatasetSource &lt;mlflow.data.dataset_source.DatasetSource&gt;`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_to_dict</span><span class="p">())</span></div>
 
     <span class="nd">@classmethod</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">_from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">source_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;DatasetSource&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Constructs an instance of the DatasetSource from a dictionary representation.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs an instance of the DatasetSource from a dictionary representation.</span>
 
-<span class="sd">        :param source_dict: A dictionary representation of the DatasetSource.</span>
-<span class="sd">        :return: A DatasetSource instance.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            source_dict: A dictionary representation of the DatasetSource.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A DatasetSource instance.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="DatasetSource.from_json"><a class="viewcode-back" href="../../../python_api/mlflow.data.html#mlflow.data.dataset_source.DatasetSource.from_json">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">source_json</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DatasetSource&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Constructs an instance of the DatasetSource from a JSON string representation.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs an instance of the DatasetSource from a JSON string representation.</span>
 
-<span class="sd">        :param source_dict: A JSON string representation of the DatasetSource.</span>
-<span class="sd">        :return: A DatasetSource instance.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            source_dict: A JSON string representation of the DatasetSource.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A DatasetSource instance.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_from_dict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">source_json</span><span class="p">))</span></div></div>
 </pre></div>
@@ -311,7 +332,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

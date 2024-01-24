@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Retrieval Augmented Generation (RAG) &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>Retrieval Augmented Generation (RAG) &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,15 +39,17 @@
     <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="LLMs" href="../index.html"/>
-        <link rel="next" title="Question Generation for Retrieval Evaluation" href="/notebooks/index.html"/>
+        <link rel="next" title="RAG Tutorials" href="/notebooks/index.html"/>
         <link rel="prev" title="MLflow’s LLM Tracking Capabilities" href="/../llm-tracking/index.html"/> 
 
   
@@ -59,6 +61,7 @@
 <script type="text/javascript" src="../../_static/doctools.js"></script>
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -71,7 +74,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -112,20 +115,21 @@
 <li class="toctree-l1"><a class="reference internal" href="../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">LLMs</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../index.html#id1">MLflow AI Gateway</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#id4">LLM Evaluation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#id5">Prompt Engineering UI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#id1">MLflow Deployments Server for LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#id2">LLM Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#id3">Prompt Engineering UI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#native-mlflow-flavors-for-llms">Native MLflow Flavors for LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#id6">LLM Tracking in MLflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#id4">LLM Tracking in MLflow</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html#tutorials-and-use-case-guides-for-llms-in-mlflow">Tutorials and Use Case Guides for LLMs in MLflow</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Retrieval Augmented Generation (RAG)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#benefits-of-rag">Benefits of RAG</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#understanding-the-power-of-rag">Understanding the Power of RAG</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#explore-the-tutorial">Explore the Tutorial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#explore-rag-tutorials">Explore RAG Tutorials</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../custom-pyfunc-for-llms/index.html">Deploying Advanced LLMs with Custom PyFuncs in MLflow</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../llm-evaluate/notebooks/index.html">LLM Evaluation Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 </ul>
 </li>
 </ul>
@@ -135,6 +139,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
@@ -235,9 +240,9 @@ chances of LLMs producing misleading or incorrect information. Furthermore, it o
 businesses, as there’s less need for continuous retraining of the model. With RAG, LLMs can provide answers that are not
 only more accurate but also more trustworthy, paving the way for a new era of AI-driven insights and interactions.</p>
 </div>
-<div class="section" id="explore-the-tutorial">
-<h2>Explore the Tutorial<a class="headerlink" href="#explore-the-tutorial" title="Permalink to this headline"> </a></h2>
-<a href="notebooks/index.html" class="download-btn">View the RAG Question Generation Tutorial</a><br><div class="toctree-wrapper compound">
+<div class="section" id="explore-rag-tutorials">
+<h2>Explore RAG Tutorials<a class="headerlink" href="#explore-rag-tutorials" title="Permalink to this headline"> </a></h2>
+<a href="notebooks/index.html" class="download-btn">View RAG Tutorials</a><br/><div class="toctree-wrapper compound">
 </div>
 </div>
 </div>
@@ -252,7 +257,7 @@ only more accurate but also more trustworthy, paving the way for a new era of AI
         <a href="../llm-tracking/index.html" class="btn btn-neutral" title="MLflow’s LLM Tracking Capabilities" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
       
       
-        <a href="notebooks/index.html" class="btn btn-neutral" title="Question Generation for Retrieval Evaluation" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
+        <a href="notebooks/index.html" class="btn btn-neutral" title="RAG Tutorials" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
       
     </div>
   
@@ -280,7 +285,7 @@ only more accurate but also more trustworthy, paving the way for a new era of AI
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

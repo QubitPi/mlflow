@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.transformers &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.transformers &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -55,8 +57,10 @@
 <script type="text/javascript" src="../../_static/jquery.js"></script>
 <script type="text/javascript" src="../../_static/underscore.js"></script>
 <script type="text/javascript" src="../../_static/doctools.js"></script>
+<script type="text/javascript" src="../../_static/tabs.js"></script>
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -69,7 +73,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -115,6 +119,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
@@ -194,6 +199,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">string</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
@@ -202,6 +208,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">packaging.version</span> <span class="kn">import</span> <span class="n">Version</span>
 
 <span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">pyfunc</span>
 <span class="kn">from</span> <span class="nn">mlflow.environment_variables</span> <span class="kn">import</span> <span class="p">(</span>
@@ -222,7 +229,11 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.model</span> <span class="kn">import</span> <span class="n">MLMODEL_FILE_NAME</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">_contains_params</span><span class="p">,</span> <span class="n">_save_example</span>
-<span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">BAD_REQUEST</span><span class="p">,</span> <span class="n">INVALID_PARAMETER_VALUE</span>
+<span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BAD_REQUEST</span><span class="p">,</span>
+    <span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
+    <span class="n">RESOURCE_DOES_NOT_EXIST</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking._model_registry</span> <span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
 <span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">ColSpec</span><span class="p">,</span> <span class="n">Schema</span><span class="p">,</span> <span class="n">TensorSpec</span>
 <span class="kn">from</span> <span class="nn">mlflow.types.utils</span> <span class="kn">import</span> <span class="n">_validate_input_dictionary_contains_only_strings_and_lists_of_strings</span>
@@ -242,7 +253,6 @@
     <span class="n">_CONSTRAINTS_FILE_NAME</span><span class="p">,</span>
     <span class="n">_PYTHON_ENV_FILE_NAME</span><span class="p">,</span>
     <span class="n">_REQUIREMENTS_FILE_NAME</span><span class="p">,</span>
-    <span class="n">_find_duplicate_requirements</span><span class="p">,</span>
     <span class="n">_mlflow_conda_env</span><span class="p">,</span>
     <span class="n">_process_conda_env</span><span class="p">,</span>
     <span class="n">_process_pip_requirements</span><span class="p">,</span>
@@ -279,6 +289,7 @@
 <span class="n">_PIPELINE_MODEL_TYPE_KEY</span> <span class="o">=</span> <span class="s2">&quot;pipeline_model_type&quot;</span>
 <span class="n">_PROCESSOR_KEY</span> <span class="o">=</span> <span class="s2">&quot;processor&quot;</span>
 <span class="n">_PROCESSOR_TYPE_KEY</span> <span class="o">=</span> <span class="s2">&quot;processor_type&quot;</span>
+<span class="n">_PROMPT_TEMPLATE_KEY</span> <span class="o">=</span> <span class="s2">&quot;prompt_template&quot;</span>
 <span class="n">_SUPPORTED_RETURN_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;pipeline&quot;</span><span class="p">,</span> <span class="s2">&quot;components&quot;</span><span class="p">}</span>
 <span class="c1"># The default device id for CPU is -1 and GPU IDs are ordinal starting at 0, as documented here:</span>
 <span class="c1"># https://huggingface.co/transformers/v4.7.0/main_classes/pipelines.html</span>
@@ -289,7 +300,27 @@
 <span class="n">_TOKENIZER_TYPE_KEY</span> <span class="o">=</span> <span class="s2">&quot;tokenizer_type&quot;</span>
 <span class="n">_TORCH_DTYPE_KEY</span> <span class="o">=</span> <span class="s2">&quot;torch_dtype&quot;</span>
 <span class="n">_METADATA_PIPELINE_SCALAR_CONFIG_KEYS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_FRAMEWORK_KEY</span><span class="p">}</span>
-<span class="n">_SUPPORTED_SAVE_KEYS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_MODEL_KEY</span><span class="p">,</span> <span class="n">_TOKENIZER_KEY</span><span class="p">,</span> <span class="n">_FEATURE_EXTRACTOR_KEY</span><span class="p">,</span> <span class="n">_IMAGE_PROCESSOR_KEY</span><span class="p">}</span>
+<span class="n">_SUPPORTED_SAVE_KEYS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">_MODEL_KEY</span><span class="p">,</span>
+    <span class="n">_TOKENIZER_KEY</span><span class="p">,</span>
+    <span class="n">_FEATURE_EXTRACTOR_KEY</span><span class="p">,</span>
+    <span class="n">_IMAGE_PROCESSOR_KEY</span><span class="p">,</span>
+    <span class="n">_TORCH_DTYPE_KEY</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_SUPPORTED_PROMPT_TEMPLATING_TASK_TYPES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;feature-extraction&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fill-mask&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;summarization&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;text2text-generation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;text-generation&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_PROMPT_TEMPLATE_RETURN_FULL_TEXT_INFO</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;text-generation pipelines saved with prompt templates have the `return_full_text` &quot;</span>
+    <span class="s2">&quot;pipeline kwarg set to False by default. To override this behavior, provide a &quot;</span>
+    <span class="s2">&quot;`model_config` dict with `return_full_text` set to `True` when saving the model.&quot;</span>
+<span class="p">)</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -298,9 +329,12 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determines which pip libraries should be included based on the base model engine type.</span>
 
-<span class="sd">    :param model: The model instance to be saved in order to provide the required underlying</span>
-<span class="sd">                  deep learning execution framework dependency requirements.</span>
-<span class="sd">    :return: A list of strings representing the underlying engine-specific dependencies</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model: The model instance to be saved in order to provide the required underlying</span>
+<span class="sd">            deep learning execution framework dependency requirements.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A list of strings representing the underlying engine-specific dependencies</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">engine</span> <span class="o">=</span> <span class="n">_get_engine_type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">engine</span> <span class="o">==</span> <span class="s2">&quot;torch&quot;</span><span class="p">:</span>
@@ -319,12 +353,15 @@
 <div class="viewcode-block" id="get_default_pip_requirements"><a class="viewcode-back" href="../../python_api/mlflow.transformers.html#mlflow.transformers.get_default_pip_requirements">[docs]</a><span class="nd">@experimental</span>
 <span class="k">def</span> <span class="nf">get_default_pip_requirements</span><span class="p">(</span><span class="n">model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :param model: The model instance to be saved in order to provide the required underlying</span>
-<span class="sd">                  deep learning execution framework dependency requirements. Note that this must</span>
-<span class="sd">                  be the actual model instance and not a Pipeline.</span>
-<span class="sd">    :return: A list of default pip requirements for MLflow Models that have been produced with the</span>
-<span class="sd">             ``transformers`` flavor. Calls to :py:func:`save_model()` and :py:func:`log_model()`</span>
-<span class="sd">             produce a pip environment that contain these requirements at a minimum.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model: The model instance to be saved in order to provide the required underlying</span>
+<span class="sd">            deep learning execution framework dependency requirements. Note that this must</span>
+<span class="sd">            be the actual model instance and not a Pipeline.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A list of default pip requirements for MLflow Models that have been produced with the</span>
+<span class="sd">        ``transformers`` flavor. Calls to :py:func:`save_model()` and :py:func:`log_model()`</span>
+<span class="sd">        produce a pip environment that contain these requirements at a minimum.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">FlaxPreTrainedModel</span><span class="p">,</span> <span class="n">PreTrainedModel</span><span class="p">,</span> <span class="n">TFPreTrainedModel</span>
@@ -386,8 +423,9 @@
 <div class="viewcode-block" id="get_default_conda_env"><a class="viewcode-back" href="../../python_api/mlflow.transformers.html#mlflow.transformers.get_default_conda_env">[docs]</a><span class="nd">@experimental</span>
 <span class="k">def</span> <span class="nf">get_default_conda_env</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :return: The default Conda environment for MLflow Models produced with the ``transformers``</span>
-<span class="sd">             flavor, based on the model instance framework type of the model to be logged.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        The default Conda environment for MLflow Models produced with the ``transformers``</span>
+<span class="sd">        flavor, based on the model instance framework type of the model to be logged.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_mlflow_conda_env</span><span class="p">(</span><span class="n">additional_pip_deps</span><span class="o">=</span><span class="n">get_default_pip_requirements</span><span class="p">(</span><span class="n">model</span><span class="p">))</span></div>
 
@@ -411,182 +449,186 @@
     <span class="n">conda_env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">model_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">example_no_conversion</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">prompt_template</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># pylint: disable=unused-argument</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Save a trained transformers model to a path on the local file system.</span>
 
-<span class="sd">    :param transformers_model:</span>
-<span class="sd">        A trained transformers `Pipeline` or a dictionary that maps required components of a</span>
-<span class="sd">        pipeline to the named keys of [&quot;model&quot;, &quot;image_processor&quot;, &quot;tokenizer&quot;,</span>
-<span class="sd">        &quot;feature_extractor&quot;]. The `model` key in the dictionary must map to a value that inherits</span>
-<span class="sd">        from `PreTrainedModel`, `TFPreTrainedModel`, or `FlaxPreTrainedModel`.</span>
-<span class="sd">        All other component entries in the dictionary must support the defined task type that is</span>
-<span class="sd">        associated with the base model type configuration.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        transformers_model:</span>
+<span class="sd">            A trained transformers `Pipeline` or a dictionary that maps required components of a</span>
+<span class="sd">            pipeline to the named keys of [&quot;model&quot;, &quot;image_processor&quot;, &quot;tokenizer&quot;,</span>
+<span class="sd">            &quot;feature_extractor&quot;]. The `model` key in the dictionary must map to a value that</span>
+<span class="sd">            inherits from `PreTrainedModel`, `TFPreTrainedModel`, or `FlaxPreTrainedModel`.</span>
+<span class="sd">            All other component entries in the dictionary must support the defined task type that is</span>
+<span class="sd">            associated with the base model type configuration.</span>
 
-<span class="sd">        An example of supplying component-level parts of a transformers model is shown below:</span>
+<span class="sd">            An example of supplying component-level parts of a transformers model is shown below:</span>
 
-<span class="sd">        .. code-block:: python</span>
+<span class="sd">            .. code-block:: python</span>
 
-<span class="sd">          from transformers import MobileBertForQuestionAnswering, AutoTokenizer</span>
+<span class="sd">                from transformers import MobileBertForQuestionAnswering, AutoTokenizer</span>
 
-<span class="sd">          architecture = &quot;csarron/mobilebert-uncased-squad-v2&quot;</span>
-<span class="sd">          tokenizer = AutoTokenizer.from_pretrained(architecture)</span>
-<span class="sd">          model = MobileBertForQuestionAnswering.from_pretrained(architecture)</span>
+<span class="sd">                architecture = &quot;csarron/mobilebert-uncased-squad-v2&quot;</span>
+<span class="sd">                tokenizer = AutoTokenizer.from_pretrained(architecture)</span>
+<span class="sd">                model = MobileBertForQuestionAnswering.from_pretrained(architecture)</span>
 
-<span class="sd">          with mlflow.start_run():</span>
-<span class="sd">              components = {</span>
-<span class="sd">                  &quot;model&quot;: model,</span>
-<span class="sd">                  &quot;tokenizer&quot;: tokenizer,</span>
-<span class="sd">              }</span>
-<span class="sd">              mlflow.transformers.save_model(</span>
-<span class="sd">                  transformers_model=components,</span>
-<span class="sd">                  path=&quot;path/to/save/model&quot;,</span>
-<span class="sd">              )</span>
+<span class="sd">                with mlflow.start_run():</span>
+<span class="sd">                    components = {</span>
+<span class="sd">                        &quot;model&quot;: model,</span>
+<span class="sd">                        &quot;tokenizer&quot;: tokenizer,</span>
+<span class="sd">                    }</span>
+<span class="sd">                    mlflow.transformers.save_model(</span>
+<span class="sd">                        transformers_model=components,</span>
+<span class="sd">                        path=&quot;path/to/save/model&quot;,</span>
+<span class="sd">                    )</span>
 
-<span class="sd">        An example of submitting a `Pipeline` from a default pipeline instantiation:</span>
+<span class="sd">            An example of submitting a `Pipeline` from a default pipeline instantiation:</span>
 
-<span class="sd">        .. code-block:: python</span>
+<span class="sd">            .. code-block:: python</span>
 
-<span class="sd">          from transformers import pipeline</span>
+<span class="sd">                from transformers import pipeline</span>
 
-<span class="sd">          qa_pipe = pipeline(&quot;question-answering&quot;, &quot;csarron/mobilebert-uncased-squad-v2&quot;)</span>
+<span class="sd">                qa_pipe = pipeline(&quot;question-answering&quot;, &quot;csarron/mobilebert-uncased-squad-v2&quot;)</span>
 
-<span class="sd">          with mlflow.start_run():</span>
-<span class="sd">              mlflow.transformers.save_model(</span>
-<span class="sd">                  transformers_model=qa_pipe,</span>
-<span class="sd">                  path=&quot;path/to/save/model&quot;,</span>
-<span class="sd">              )</span>
+<span class="sd">                with mlflow.start_run():</span>
+<span class="sd">                    mlflow.transformers.save_model(</span>
+<span class="sd">                        transformers_model=qa_pipe,</span>
+<span class="sd">                        path=&quot;path/to/save/model&quot;,</span>
+<span class="sd">                    )</span>
 
-<span class="sd">    :param path: Local path destination for the serialized model to be saved.</span>
-<span class="sd">    :param processor: An optional ``Processor`` subclass object. Some model architectures,</span>
-<span class="sd">                      particularly multi-modal types, utilize Processors to combine text</span>
-<span class="sd">                      encoding and image or audio encoding in a single entrypoint.</span>
+<span class="sd">        path: Local path destination for the serialized model to be saved.</span>
+<span class="sd">        processor: An optional ``Processor`` subclass object. Some model architectures,</span>
+<span class="sd">            particularly multi-modal types, utilize Processors to combine text</span>
+<span class="sd">            encoding and image or audio encoding in a single entrypoint.</span>
 
-<span class="sd">                      .. Note:: If a processor is supplied when saving a model, the</span>
-<span class="sd">                                model will be unavailable for loading as a ``Pipeline`` or for</span>
-<span class="sd">                                usage with pyfunc inference.</span>
+<span class="sd">            .. Note:: If a processor is supplied when saving a model, the</span>
+<span class="sd">                        model will be unavailable for loading as a ``Pipeline`` or for</span>
+<span class="sd">                        usage with pyfunc inference.</span>
+<span class="sd">        task: The transformers-specific task type of the model. These strings are utilized so</span>
+<span class="sd">            that a pipeline can be created with the appropriate internal call architecture</span>
+<span class="sd">            to meet the needs of a given model. If this argument is not specified, the</span>
+<span class="sd">            pipeline utilities within the transformers library will be used to infer the</span>
+<span class="sd">            correct task type. If the value specified is not a supported type within the</span>
+<span class="sd">            version of transformers that is currently installed, an Exception will be thrown.</span>
+<span class="sd">        model_card: An Optional `ModelCard` instance from `huggingface-hub`. If provided, the</span>
+<span class="sd">            contents of the model card will be saved along with the provided</span>
+<span class="sd">            `transformers_model`. If not provided, an attempt will be made to fetch</span>
+<span class="sd">            the card from the base pretrained model that is provided (or the one that is</span>
+<span class="sd">            included within a provided `Pipeline`).</span>
 
-<span class="sd">    :param task: The transformers-specific task type of the model. These strings are utilized so</span>
-<span class="sd">                 that a pipeline can be created with the appropriate internal call architecture</span>
-<span class="sd">                 to meet the needs of a given model. If this argument is not specified, the</span>
-<span class="sd">                 pipeline utilities within the transformers library will be used to infer the</span>
-<span class="sd">                 correct task type. If the value specified is not a supported type within the</span>
-<span class="sd">                 version of transformers that is currently installed, an Exception will be thrown.</span>
-<span class="sd">    :param model_card: An Optional `ModelCard` instance from `huggingface-hub`. If provided, the</span>
-<span class="sd">                       contents of the model card will be saved along with the provided</span>
-<span class="sd">                       `transformers_model`. If not provided, an attempt will be made to fetch</span>
-<span class="sd">                       the card from the base pretrained model that is provided (or the one that is</span>
-<span class="sd">                       included within a provided `Pipeline`).</span>
+<span class="sd">            .. Note:: In order for a ModelCard to be fetched (if not provided),</span>
+<span class="sd">                        the huggingface_hub package must be installed and the version</span>
+<span class="sd">                        must be &gt;=0.10.0</span>
+<span class="sd">        inference_config:</span>
 
-<span class="sd">                       .. Note:: In order for a ModelCard to be fetched (if not provided),</span>
-<span class="sd">                                 the huggingface_hub package must be installed and the version</span>
-<span class="sd">                                 must be &gt;=0.10.0</span>
+<span class="sd">            .. Warning:: Deprecated. `inference_config` is deprecated in favor of `model_config`.</span>
 
-<span class="sd">    :param inference_config:</span>
+<span class="sd">        model_config:</span>
+<span class="sd">            A dict of valid overrides that can be applied to a pipeline instance during inference.</span>
+<span class="sd">            These arguments are used exclusively for the case of loading the model as a ``pyfunc``</span>
+<span class="sd">            Model or for use in Spark.</span>
+<span class="sd">            These values are not applied to a returned Pipeline from a call to</span>
+<span class="sd">            ``mlflow.transformers.load_model()``</span>
 
-<span class="sd">        .. Warning:: Deprecated. `inference_config` is deprecated in favor of `model_config`.</span>
+<span class="sd">            .. Warning:: If the key provided is not compatible with either the</span>
+<span class="sd">                    Pipeline instance for the task provided or is not a valid</span>
+<span class="sd">                    override to any arguments available in the Model, an</span>
+<span class="sd">                    Exception will be raised at runtime. It is very important</span>
+<span class="sd">                    to validate the entries in this dictionary to ensure</span>
+<span class="sd">                    that they are valid prior to saving or logging.</span>
 
-<span class="sd">    :param model_config:</span>
-<span class="sd">        A dict of valid overrides that can be applied to a pipeline instance during inference.</span>
-<span class="sd">        These arguments are used exclusively for the case of loading the model as a ``pyfunc``</span>
-<span class="sd">        Model or for use in Spark.</span>
-<span class="sd">        These values are not applied to a returned Pipeline from a call to</span>
-<span class="sd">        ``mlflow.transformers.load_model()``</span>
+<span class="sd">            An example of providing overrides for a question generation model:</span>
 
-<span class="sd">        .. Warning:: If the key provided is not compatible with either the</span>
-<span class="sd">                  Pipeline instance for the task provided or is not a valid</span>
-<span class="sd">                  override to any arguments available in the Model, an</span>
-<span class="sd">                  Exception will be raised at runtime. It is very important</span>
-<span class="sd">                  to validate the entries in this dictionary to ensure</span>
-<span class="sd">                  that they are valid prior to saving or logging.</span>
+<span class="sd">            .. code-block:: python</span>
 
-<span class="sd">        An example of providing overrides for a question generation model:</span>
+<span class="sd">                from transformers import pipeline, AutoTokenizer</span>
 
-<span class="sd">        .. code-block:: python</span>
+<span class="sd">                task = &quot;text-generation&quot;</span>
+<span class="sd">                architecture = &quot;gpt2&quot;</span>
 
-<span class="sd">            from transformers import pipeline, AutoTokenizer</span>
+<span class="sd">                sentence_pipeline = pipeline(</span>
+<span class="sd">                    task=task,</span>
+<span class="sd">                    tokenizer=AutoTokenizer.from_pretrained(architecture),</span>
+<span class="sd">                    model=architecture,  # pylint: disable=line-too-long</span>
+<span class="sd">                )</span>
 
-<span class="sd">            task = &quot;text-generation&quot;</span>
-<span class="sd">            architecture = &quot;gpt2&quot;</span>
+<span class="sd">                # Validate that the overrides function</span>
+<span class="sd">                prompts = [&quot;Generative models are&quot;, &quot;I&#39;d like a coconut so that I can&quot;]</span>
 
-<span class="sd">            sentence_pipeline = pipeline(</span>
-<span class="sd">                task=task, tokenizer=AutoTokenizer.from_pretrained(architecture), model=architecture</span>
-<span class="sd">            )</span>
+<span class="sd">                # validation of config prior to save or log</span>
+<span class="sd">                model_config = {</span>
+<span class="sd">                    &quot;top_k&quot;: 2,</span>
+<span class="sd">                    &quot;num_beams&quot;: 5,</span>
+<span class="sd">                    &quot;max_length&quot;: 30,</span>
+<span class="sd">                    &quot;temperature&quot;: 0.62,</span>
+<span class="sd">                    &quot;top_p&quot;: 0.85,</span>
+<span class="sd">                    &quot;repetition_penalty&quot;: 1.15,</span>
+<span class="sd">                }</span>
 
-<span class="sd">            # Validate that the overrides function</span>
-<span class="sd">            prompts = [&quot;Generative models are&quot;, &quot;I&#39;d like a coconut so that I can&quot;]</span>
+<span class="sd">                # Verify that no exceptions are thrown</span>
+<span class="sd">                sentence_pipeline(prompts, **model_config)</span>
 
-<span class="sd">            # validation of config prior to save or log</span>
-<span class="sd">            model_config = {</span>
-<span class="sd">                &quot;top_k&quot;: 2,</span>
-<span class="sd">                &quot;num_beams&quot;: 5,</span>
-<span class="sd">                &quot;max_length&quot;: 30,</span>
-<span class="sd">                &quot;temperature&quot;: 0.62,</span>
-<span class="sd">                &quot;top_p&quot;: 0.85,</span>
-<span class="sd">                &quot;repetition_penalty&quot;: 1.15,</span>
-<span class="sd">            }</span>
+<span class="sd">                mlflow.transformers.save_model(</span>
+<span class="sd">                    transformers_model=sentence_pipeline,</span>
+<span class="sd">                    path=&quot;/path/for/model&quot;,</span>
+<span class="sd">                    task=task,</span>
+<span class="sd">                    model_config=model_config,</span>
+<span class="sd">                )</span>
 
-<span class="sd">            # Verify that no exceptions are thrown</span>
-<span class="sd">            sentence_pipeline(prompts, **model_config)</span>
+<span class="sd">        code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
+<span class="sd">            containing file dependencies). These files are *prepended* to the system</span>
+<span class="sd">            path when the model is loaded.</span>
+<span class="sd">        mlflow_model: An MLflow model object that specifies the flavor that this model is being</span>
+<span class="sd">            added to.</span>
+<span class="sd">        signature: A Model Signature object that describes the input and output Schema of the</span>
+<span class="sd">            model. The model signature can be inferred using `infer_signature` function</span>
+<span class="sd">            of `mlflow.models.signature`.</span>
+<span class="sd">            Example:</span>
 
-<span class="sd">            mlflow.transformers.save_model(</span>
-<span class="sd">                transformers_model=sentence_pipeline,</span>
-<span class="sd">                path=&quot;/path/for/model&quot;,</span>
-<span class="sd">                task=task,</span>
-<span class="sd">                model_config=model_config,</span>
-<span class="sd">            )</span>
+<span class="sd">            .. code-block:: python</span>
 
-<span class="sd">    :param code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
-<span class="sd">                       containing file dependencies). These files are *prepended* to the system</span>
-<span class="sd">                       path when the model is loaded.</span>
-<span class="sd">    :param mlflow_model: An MLflow model object that specifies the flavor that this model is being</span>
-<span class="sd">                         added to.</span>
-<span class="sd">    :param signature: A Model Signature object that describes the input and output Schema of the</span>
-<span class="sd">                      model. The model signature can be inferred using `infer_signature` function</span>
-<span class="sd">                      of `mlflow.models.signature`.</span>
-<span class="sd">                      Example:</span>
+<span class="sd">                from mlflow.models import infer_signature</span>
+<span class="sd">                from mlflow.transformers import generate_signature_output</span>
+<span class="sd">                from transformers import pipeline</span>
 
-<span class="sd">                      .. code-block:: python</span>
+<span class="sd">                en_to_de = pipeline(&quot;translation_en_to_de&quot;)</span>
 
-<span class="sd">                        from mlflow.models import infer_signature</span>
-<span class="sd">                        from mlflow.transformers import generate_signature_output</span>
-<span class="sd">                        from transformers import pipeline</span>
+<span class="sd">                data = &quot;MLflow is great!&quot;</span>
+<span class="sd">                output = generate_signature_output(en_to_de, data)</span>
+<span class="sd">                signature = infer_signature(data, output)</span>
 
-<span class="sd">                        en_to_de = pipeline(&quot;translation_en_to_de&quot;)</span>
+<span class="sd">                mlflow.transformers.save_model(</span>
+<span class="sd">                    transformers_model=en_to_de,</span>
+<span class="sd">                    path=&quot;/path/to/save/model&quot;,</span>
+<span class="sd">                    signature=signature,</span>
+<span class="sd">                    input_example=data,</span>
+<span class="sd">                )</span>
 
-<span class="sd">                        data = &quot;MLflow is great!&quot;</span>
-<span class="sd">                        output = generate_signature_output(en_to_de, data)</span>
-<span class="sd">                        signature = infer_signature(data, output)</span>
+<span class="sd">                loaded = mlflow.pyfunc.load_model(&quot;/path/to/save/model&quot;)</span>
+<span class="sd">                print(loaded.predict(data))</span>
+<span class="sd">                # MLflow ist großartig!</span>
 
-<span class="sd">                        mlflow.transformers.save_model(</span>
-<span class="sd">                            transformers_model=en_to_de,</span>
-<span class="sd">                            path=&quot;/path/to/save/model&quot;,</span>
-<span class="sd">                            signature=signature,</span>
-<span class="sd">                            input_example=data,</span>
-<span class="sd">                        )</span>
+<span class="sd">            If an input_example is provided and the signature is not, a signature will</span>
+<span class="sd">            be inferred automatically and applied to the MLmodel file iff the</span>
+<span class="sd">            pipeline type is a text-based model (NLP). If the pipeline type is not</span>
+<span class="sd">            a supported type, this inference functionality will not function correctly</span>
+<span class="sd">            and a warning will be issued. In order to ensure that a precise signature</span>
+<span class="sd">            is logged, it is recommended to explicitly provide one.</span>
+<span class="sd">        input_example: {{ input_example }}</span>
+<span class="sd">        pip_requirements: {{ pip_requirements }}</span>
+<span class="sd">        extra_pip_requirements: {{ extra_pip_requirements }}</span>
+<span class="sd">        conda_env: {{ conda_env }}</span>
+<span class="sd">        metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
 
-<span class="sd">                        loaded = mlflow.pyfunc.load_model(&quot;/path/to/save/model&quot;)</span>
-<span class="sd">                        print(loaded.predict(data))</span>
-<span class="sd">                        # MLflow ist großartig!</span>
+<span class="sd">            .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                    release without warning.</span>
+<span class="sd">        example_no_conversion: {{ example_no_conversion }}</span>
+<span class="sd">        prompt_template: {{ prompt_template }}</span>
+<span class="sd">        kwargs: Optional additional configurations for transformers serialization.</span>
 
-<span class="sd">                      If an input_example is provided and the signature is not, a signature will</span>
-<span class="sd">                      be inferred automatically and applied to the MLmodel file iff the</span>
-<span class="sd">                      pipeline type is a text-based model (NLP). If the pipeline type is not</span>
-<span class="sd">                      a supported type, this inference functionality will not function correctly</span>
-<span class="sd">                      and a warning will be issued. In order to ensure that a precise signature</span>
-<span class="sd">                      is logged, it is recommended to explicitly provide one.</span>
-<span class="sd">    :param input_example: {{ input_example }}</span>
-<span class="sd">    :param pip_requirements: {{ pip_requirements }}</span>
-<span class="sd">    :param extra_pip_requirements: {{ extra_pip_requirements }}</span>
-<span class="sd">    :param conda_env: {{ conda_env }}</span>
-<span class="sd">    :param metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
-
-<span class="sd">                     .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                                             release without warning.</span>
-
-<span class="sd">    :param kwargs: Optional additional configurations for transformers serialization.</span>
-<span class="sd">    :return: None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">transformers</span>
 
@@ -630,9 +672,22 @@
         <span class="n">mlflow_model</span><span class="o">.</span><span class="n">signature</span> <span class="o">=</span> <span class="n">signature</span>
     <span class="k">if</span> <span class="n">input_example</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">input_example</span> <span class="o">=</span> <span class="n">_format_input_example_for_special_cases</span><span class="p">(</span><span class="n">input_example</span><span class="p">,</span> <span class="n">built_pipeline</span><span class="p">)</span>
-        <span class="n">_save_example</span><span class="p">(</span><span class="n">mlflow_model</span><span class="p">,</span> <span class="n">input_example</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="n">_save_example</span><span class="p">(</span><span class="n">mlflow_model</span><span class="p">,</span> <span class="n">input_example</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">example_no_conversion</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mlflow_model</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+    <span class="k">if</span> <span class="n">prompt_template</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># prevent saving prompt templates for unsupported pipeline types</span>
+        <span class="k">if</span> <span class="n">built_pipeline</span><span class="o">.</span><span class="n">task</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_SUPPORTED_PROMPT_TEMPLATING_TASK_TYPES</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Prompt templating is not supported for the `</span><span class="si">{</span><span class="n">built_pipeline</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">` task type. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Supported task types are: </span><span class="si">{</span><span class="n">_SUPPORTED_PROMPT_TEMPLATING_TASK_TYPES</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">_validate_prompt_template</span><span class="p">(</span><span class="n">prompt_template</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span>
+            <span class="n">mlflow_model</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">_PROMPT_TEMPLATE_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="n">prompt_template</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mlflow_model</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">_PROMPT_TEMPLATE_KEY</span><span class="p">:</span> <span class="n">prompt_template</span><span class="p">}</span>
 
     <span class="n">flavor_conf</span> <span class="o">=</span> <span class="n">_generate_base_flavor_configuration</span><span class="p">(</span><span class="n">built_pipeline</span><span class="p">,</span> <span class="n">resolved_task</span><span class="p">)</span>
 
@@ -685,6 +740,16 @@
                 <span class="n">built_pipeline</span><span class="p">,</span> <span class="n">input_example</span><span class="p">,</span> <span class="n">model_config</span> <span class="ow">or</span> <span class="n">inference_config</span>
             <span class="p">)</span>
 
+        <span class="c1"># if pipeline is text-generation and a prompt template is specified,</span>
+        <span class="c1"># provide the return_full_text=False config by default to avoid confusing</span>
+        <span class="c1"># extra text for end-users</span>
+        <span class="k">if</span> <span class="n">prompt_template</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">built_pipeline</span><span class="o">.</span><span class="n">task</span> <span class="o">==</span> <span class="s2">&quot;text-generation&quot;</span><span class="p">:</span>
+            <span class="n">return_full_text_key</span> <span class="o">=</span> <span class="s2">&quot;return_full_text&quot;</span>
+            <span class="n">model_config</span> <span class="o">=</span> <span class="n">model_config</span> <span class="ow">or</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">return_full_text_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">model_config</span><span class="p">:</span>
+                <span class="n">model_config</span><span class="p">[</span><span class="n">return_full_text_key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_PROMPT_TEMPLATE_RETURN_FULL_TEXT_INFO</span><span class="p">)</span>
+
         <span class="n">pyfunc</span><span class="o">.</span><span class="n">add_to_model</span><span class="p">(</span>
             <span class="n">mlflow_model</span><span class="p">,</span>
             <span class="n">loader_module</span><span class="o">=</span><span class="s2">&quot;mlflow.transformers&quot;</span><span class="p">,</span>
@@ -730,14 +795,6 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">conda_env</span><span class="p">,</span> <span class="n">pip_requirements</span><span class="p">,</span> <span class="n">pip_constraints</span> <span class="o">=</span> <span class="n">_process_conda_env</span><span class="p">(</span><span class="n">conda_env</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">duplicates</span> <span class="o">:=</span> <span class="n">_find_duplicate_requirements</span><span class="p">(</span><span class="n">pip_requirements</span><span class="p">):</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;Duplicate packages are present within the pip requirements. Duplicate packages: &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">duplicates</span><span class="si">}</span><span class="s2">. Please manually specify the requirements by using the &quot;</span>
-            <span class="s2">&quot;`pip_requirements` argument in order to prevent unexpected installation &quot;</span>
-            <span class="s2">&quot;issues for this model.&quot;</span>
-        <span class="p">)</span>
-
     <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">_CONDA_ENV_FILE_NAME</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">conda_env</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
@@ -769,189 +826,193 @@
     <span class="n">conda_env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">model_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">example_no_conversion</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">prompt_template</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Log a ``transformers`` object as an MLflow artifact for the current run.</span>
 
-<span class="sd">    :param transformers_model:</span>
-<span class="sd">        A trained transformers `Pipeline` or a dictionary that maps required components of a</span>
-<span class="sd">        pipeline to the named keys of [&quot;model&quot;, &quot;image_processor&quot;, &quot;tokenizer&quot;,</span>
-<span class="sd">        &quot;feature_extractor&quot;]. The `model` key in the dictionary must map to a value that inherits</span>
-<span class="sd">        from `PreTrainedModel`, `TFPreTrainedModel`, or `FlaxPreTrainedModel`.</span>
-<span class="sd">        All other component entries in the dictionary must support the defined task type that is</span>
-<span class="sd">        associated with the base model type configuration.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        transformers_model:</span>
+<span class="sd">            A trained transformers `Pipeline` or a dictionary that maps required components of a</span>
+<span class="sd">            pipeline to the named keys of [&quot;model&quot;, &quot;image_processor&quot;, &quot;tokenizer&quot;,</span>
+<span class="sd">            &quot;feature_extractor&quot;]. The `model` key in the dictionary must map to a value that</span>
+<span class="sd">            inherits from `PreTrainedModel`, `TFPreTrainedModel`, or `FlaxPreTrainedModel`.</span>
+<span class="sd">            All other component entries in the dictionary must support the defined task type that is</span>
+<span class="sd">            associated with the base model type configuration.</span>
 
-<span class="sd">        An example of supplying component-level parts of a transformers model is shown below:</span>
+<span class="sd">            An example of supplying component-level parts of a transformers model is shown below:</span>
 
-<span class="sd">        .. code-block:: python</span>
+<span class="sd">            .. code-block:: python</span>
 
-<span class="sd">          from transformers import MobileBertForQuestionAnswering, AutoTokenizer</span>
+<span class="sd">                from transformers import MobileBertForQuestionAnswering, AutoTokenizer</span>
 
-<span class="sd">          architecture = &quot;csarron/mobilebert-uncased-squad-v2&quot;</span>
-<span class="sd">          tokenizer = AutoTokenizer.from_pretrained(architecture)</span>
-<span class="sd">          model = MobileBertForQuestionAnswering.from_pretrained(architecture)</span>
+<span class="sd">                architecture = &quot;csarron/mobilebert-uncased-squad-v2&quot;</span>
+<span class="sd">                tokenizer = AutoTokenizer.from_pretrained(architecture)</span>
+<span class="sd">                model = MobileBertForQuestionAnswering.from_pretrained(architecture)</span>
 
-<span class="sd">          with mlflow.start_run():</span>
-<span class="sd">              components = {</span>
-<span class="sd">                  &quot;model&quot;: model,</span>
-<span class="sd">                  &quot;tokenizer&quot;: tokenizer,</span>
-<span class="sd">              }</span>
-<span class="sd">              mlflow.transformers.log_model(</span>
-<span class="sd">                  transformers_model=components,</span>
-<span class="sd">                  artifact_path=&quot;my_model&quot;,</span>
-<span class="sd">              )</span>
+<span class="sd">                with mlflow.start_run():</span>
+<span class="sd">                    components = {</span>
+<span class="sd">                        &quot;model&quot;: model,</span>
+<span class="sd">                        &quot;tokenizer&quot;: tokenizer,</span>
+<span class="sd">                    }</span>
+<span class="sd">                    mlflow.transformers.log_model(</span>
+<span class="sd">                        transformers_model=components,</span>
+<span class="sd">                        artifact_path=&quot;my_model&quot;,</span>
+<span class="sd">                    )</span>
 
-<span class="sd">        An example of submitting a `Pipeline` from a default pipeline instantiation:</span>
+<span class="sd">            An example of submitting a `Pipeline` from a default pipeline instantiation:</span>
 
-<span class="sd">        .. code-block:: python</span>
+<span class="sd">            .. code-block:: python</span>
 
-<span class="sd">          from transformers import pipeline</span>
+<span class="sd">                from transformers import pipeline</span>
 
-<span class="sd">          qa_pipe = pipeline(&quot;question-answering&quot;, &quot;csarron/mobilebert-uncased-squad-v2&quot;)</span>
+<span class="sd">                qa_pipe = pipeline(&quot;question-answering&quot;, &quot;csarron/mobilebert-uncased-squad-v2&quot;)</span>
 
-<span class="sd">          with mlflow.start_run():</span>
-<span class="sd">              mlflow.transformers.log_model(</span>
-<span class="sd">                  transformers_model=qa_pipe,</span>
-<span class="sd">                  artifact_path=&quot;my_pipeline&quot;,</span>
-<span class="sd">              )</span>
+<span class="sd">                with mlflow.start_run():</span>
+<span class="sd">                    mlflow.transformers.log_model(</span>
+<span class="sd">                        transformers_model=qa_pipe,</span>
+<span class="sd">                        artifact_path=&quot;my_pipeline&quot;,</span>
+<span class="sd">                    )</span>
 
-<span class="sd">    :param artifact_path: Local path destination for the serialized model to be saved.</span>
-<span class="sd">    :param processor: An optional ``Processor`` subclass object. Some model architectures,</span>
-<span class="sd">                  particularly multi-modal types, utilize Processors to combine text</span>
-<span class="sd">                  encoding and image or audio encoding in a single entrypoint.</span>
+<span class="sd">        artifact_path: Local path destination for the serialized model to be saved.</span>
+<span class="sd">        processor: An optional ``Processor`` subclass object. Some model architectures,</span>
+<span class="sd">            particularly multi-modal types, utilize Processors to combine text</span>
+<span class="sd">            encoding and image or audio encoding in a single entrypoint.</span>
 
-<span class="sd">                  .. Note:: If a processor is supplied when logging a model, the</span>
-<span class="sd">                            model will be unavailable for loading as a ``Pipeline`` or for usage</span>
-<span class="sd">                            with pyfunc inference.</span>
+<span class="sd">                .. Note:: If a processor is supplied when logging a model, the</span>
+<span class="sd">                    model will be unavailable for loading as a ``Pipeline`` or for usage</span>
+<span class="sd">                    with pyfunc inference.</span>
+<span class="sd">        task: The transformers-specific task type of the model. These strings are utilized so</span>
+<span class="sd">            that a pipeline can be created with the appropriate internal call architecture</span>
+<span class="sd">            to meet the needs of a given model. If this argument is not specified, the</span>
+<span class="sd">            pipeline utilities within the transformers library will be used to infer the</span>
+<span class="sd">            correct task type. If the value specified is not a supported type within the</span>
+<span class="sd">            version of transformers that is currently installed, an Exception will be thrown.</span>
+<span class="sd">        model_card: An Optional `ModelCard` instance from `huggingface-hub`. If provided, the</span>
+<span class="sd">            contents of the model card will be saved along with the provided</span>
+<span class="sd">            `transformers_model`. If not provided, an attempt will be made to fetch</span>
+<span class="sd">            the card from the base pretrained model that is provided (or the one that is</span>
+<span class="sd">            included within a provided `Pipeline`).</span>
 
-<span class="sd">    :param task: The transformers-specific task type of the model. These strings are utilized so</span>
-<span class="sd">                 that a pipeline can be created with the appropriate internal call architecture</span>
-<span class="sd">                 to meet the needs of a given model. If this argument is not specified, the</span>
-<span class="sd">                 pipeline utilities within the transformers library will be used to infer the</span>
-<span class="sd">                 correct task type. If the value specified is not a supported type within the</span>
-<span class="sd">                 version of transformers that is currently installed, an Exception will be thrown.</span>
-<span class="sd">    :param model_card: An Optional `ModelCard` instance from `huggingface-hub`. If provided, the</span>
-<span class="sd">                       contents of the model card will be saved along with the provided</span>
-<span class="sd">                       `transformers_model`. If not provided, an attempt will be made to fetch</span>
-<span class="sd">                       the card from the base pretrained model that is provided (or the one that is</span>
-<span class="sd">                       included within a provided `Pipeline`).</span>
+<span class="sd">                .. Note:: In order for a ModelCard to be fetched (if not provided),</span>
+<span class="sd">                    the huggingface_hub package must be installed and the version</span>
+<span class="sd">                    must be &gt;=0.10.0</span>
+<span class="sd">        inference_config:</span>
 
-<span class="sd">                       .. Note:: In order for a ModelCard to be fetched (if not provided),</span>
-<span class="sd">                                 the huggingface_hub package must be installed and the version</span>
-<span class="sd">                                 must be &gt;=0.10.0</span>
+<span class="sd">            .. Warning:: Deprecated. `inference_config` is deprecated in favor of `model_config`.</span>
+<span class="sd">        model_config:</span>
+<span class="sd">            A dict of valid overrides that can be applied to a pipeline instance during inference.</span>
+<span class="sd">            These arguments are used exclusively for the case of loading the model as a ``pyfunc``</span>
+<span class="sd">            Model or for use in Spark. These values are not applied to a returned Pipeline from a</span>
+<span class="sd">            call to ``mlflow.transformers.load_model()``</span>
 
-<span class="sd">    :param inference_config:</span>
+<span class="sd">            .. Warning:: If the key provided is not compatible with either the</span>
+<span class="sd">                         Pipeline instance for the task provided or is not a valid</span>
+<span class="sd">                         override to any arguments available in the Model, an</span>
+<span class="sd">                         Exception will be raised at runtime. It is very important</span>
+<span class="sd">                         to validate the entries in this dictionary to ensure</span>
+<span class="sd">                         that they are valid prior to saving or logging.</span>
 
-<span class="sd">        .. Warning:: Deprecated. `inference_config` is deprecated in favor of `model_config`.</span>
+<span class="sd">            An example of providing overrides for a question generation model:</span>
 
-<span class="sd">    :param model_config:</span>
-<span class="sd">        A dict of valid overrides that can be applied to a pipeline instance during inference. These</span>
-<span class="sd">        arguments are used exclusively for the case of loading the model as a ``pyfunc`` Model or</span>
-<span class="sd">        for use in Spark. These values are not applied to a returned Pipeline from a call to</span>
-<span class="sd">        ``mlflow.transformers.load_model()``</span>
+<span class="sd">            .. code-block:: python</span>
 
-<span class="sd">        .. Warning:: If the key provided is not compatible with either the</span>
-<span class="sd">                     Pipeline instance for the task provided or is not a valid</span>
-<span class="sd">                     override to any arguments available in the Model, an</span>
-<span class="sd">                     Exception will be raised at runtime. It is very important</span>
-<span class="sd">                     to validate the entries in this dictionary to ensure</span>
-<span class="sd">                     that they are valid prior to saving or logging.</span>
+<span class="sd">                from transformers import pipeline, AutoTokenizer</span>
 
-<span class="sd">        An example of providing overrides for a question generation model:</span>
+<span class="sd">                task = &quot;text-generation&quot;</span>
+<span class="sd">                architecture = &quot;gpt2&quot;</span>
 
-<span class="sd">        .. code-block:: python</span>
+<span class="sd">                sentence_pipeline = pipeline(</span>
+<span class="sd">                    task=task,</span>
+<span class="sd">                    tokenizer=AutoTokenizer.from_pretrained(architecture),</span>
+<span class="sd">                    model=architecture,  # pylint: disable=line-too-long</span>
+<span class="sd">                )</span>
 
-<span class="sd">          from transformers import pipeline, AutoTokenizer</span>
+<span class="sd">                # Validate that the overrides function</span>
+<span class="sd">                prompts = [&quot;Generative models are&quot;, &quot;I&#39;d like a coconut so that I can&quot;]</span>
 
-<span class="sd">          task = &quot;text-generation&quot;</span>
-<span class="sd">          architecture = &quot;gpt2&quot;</span>
+<span class="sd">                # validation of config prior to save or log</span>
+<span class="sd">                model_config = {</span>
+<span class="sd">                    &quot;top_k&quot;: 2,</span>
+<span class="sd">                    &quot;num_beams&quot;: 5,</span>
+<span class="sd">                    &quot;max_length&quot;: 30,</span>
+<span class="sd">                    &quot;temperature&quot;: 0.62,</span>
+<span class="sd">                    &quot;top_p&quot;: 0.85,</span>
+<span class="sd">                    &quot;repetition_penalty&quot;: 1.15,</span>
+<span class="sd">                }</span>
 
-<span class="sd">          sentence_pipeline = pipeline(</span>
-<span class="sd">              task=task, tokenizer=AutoTokenizer.from_pretrained(architecture), model=architecture</span>
-<span class="sd">          )</span>
+<span class="sd">                # Verify that no exceptions are thrown</span>
+<span class="sd">                sentence_pipeline(prompts, **model_config)</span>
 
-<span class="sd">          # Validate that the overrides function</span>
-<span class="sd">          prompts = [&quot;Generative models are&quot;, &quot;I&#39;d like a coconut so that I can&quot;]</span>
+<span class="sd">                with mlflow.start_run():</span>
+<span class="sd">                    mlflow.transformers.log_model(</span>
+<span class="sd">                        transformers_model=sentence_pipeline,</span>
+<span class="sd">                        artifact_path=&quot;my_sentence_generator&quot;,</span>
+<span class="sd">                        task=task,</span>
+<span class="sd">                        model_config=model_config,</span>
+<span class="sd">                    )</span>
 
-<span class="sd">          # validation of config prior to save or log</span>
-<span class="sd">          model_config = {</span>
-<span class="sd">              &quot;top_k&quot;: 2,</span>
-<span class="sd">              &quot;num_beams&quot;: 5,</span>
-<span class="sd">              &quot;max_length&quot;: 30,</span>
-<span class="sd">              &quot;temperature&quot;: 0.62,</span>
-<span class="sd">              &quot;top_p&quot;: 0.85,</span>
-<span class="sd">              &quot;repetition_penalty&quot;: 1.15,</span>
-<span class="sd">          }</span>
+<span class="sd">        code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
+<span class="sd">            containing file dependencies). These files are *prepended* to the system</span>
+<span class="sd">            path when the model is loaded.</span>
+<span class="sd">        registered_model_name: This argument may change or be removed in a</span>
+<span class="sd">            future release without warning. If given, create a model</span>
+<span class="sd">            version under ``registered_model_name``, also creating a</span>
+<span class="sd">            registered model if one with the given name does not exist.</span>
+<span class="sd">        signature: A Model Signature object that describes the input and output Schema of the</span>
+<span class="sd">            model. The model signature can be inferred using `infer_signature` function</span>
+<span class="sd">            of `mlflow.models.signature`.</span>
+<span class="sd">            Example:</span>
 
-<span class="sd">          # Verify that no exceptions are thrown</span>
-<span class="sd">          sentence_pipeline(prompts, **model_config)</span>
+<span class="sd">            .. code-block:: python</span>
 
-<span class="sd">          with mlflow.start_run():</span>
-<span class="sd">              mlflow.transformers.log_model(</span>
-<span class="sd">                  transformers_model=sentence_pipeline,</span>
-<span class="sd">                  artifact_path=&quot;my_sentence_generator&quot;,</span>
-<span class="sd">                  task=task,</span>
-<span class="sd">                  model_config=model_config,</span>
-<span class="sd">              )</span>
+<span class="sd">                from mlflow.models import infer_signature</span>
+<span class="sd">                from mlflow.transformers import generate_signature_output</span>
+<span class="sd">                from transformers import pipeline</span>
 
-<span class="sd">    :param code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
-<span class="sd">                       containing file dependencies). These files are *prepended* to the system</span>
-<span class="sd">                       path when the model is loaded.</span>
-<span class="sd">    :param registered_model_name: This argument may change or be removed in a</span>
-<span class="sd">                                  future release without warning. If given, create a model</span>
-<span class="sd">                                  version under ``registered_model_name``, also creating a</span>
-<span class="sd">                                  registered model if one with the given name does not exist.</span>
-<span class="sd">    :param signature: A Model Signature object that describes the input and output Schema of the</span>
-<span class="sd">                      model. The model signature can be inferred using `infer_signature` function</span>
-<span class="sd">                      of `mlflow.models.signature`.</span>
-<span class="sd">                      Example:</span>
+<span class="sd">                en_to_de = pipeline(&quot;translation_en_to_de&quot;)</span>
 
-<span class="sd">                      .. code-block:: python</span>
+<span class="sd">                data = &quot;MLflow is great!&quot;</span>
+<span class="sd">                output = generate_signature_output(en_to_de, data)</span>
+<span class="sd">                signature = infer_signature(data, output)</span>
 
-<span class="sd">                        from mlflow.models import infer_signature</span>
-<span class="sd">                        from mlflow.transformers import generate_signature_output</span>
-<span class="sd">                        from transformers import pipeline</span>
+<span class="sd">                with mlflow.start_run() as run:</span>
+<span class="sd">                    mlflow.transformers.log_model(</span>
+<span class="sd">                        transformers_model=en_to_de,</span>
+<span class="sd">                        artifact_path=&quot;english_to_german_translator&quot;,</span>
+<span class="sd">                        signature=signature,</span>
+<span class="sd">                        input_example=data,</span>
+<span class="sd">                    )</span>
 
-<span class="sd">                        en_to_de = pipeline(&quot;translation_en_to_de&quot;)</span>
+<span class="sd">                model_uri = f&quot;runs:/{run.info.run_id}/english_to_german_translator&quot;</span>
+<span class="sd">                loaded = mlflow.pyfunc.load_model(model_uri)</span>
 
-<span class="sd">                        data = &quot;MLflow is great!&quot;</span>
-<span class="sd">                        output = generate_signature_output(en_to_de, data)</span>
-<span class="sd">                        signature = infer_signature(data, output)</span>
+<span class="sd">                print(loaded.predict(data))</span>
+<span class="sd">                # MLflow ist großartig!</span>
 
-<span class="sd">                        with mlflow.start_run() as run:</span>
-<span class="sd">                            mlflow.transformers.log_model(</span>
-<span class="sd">                                transformers_model=en_to_de,</span>
-<span class="sd">                                artifact_path=&quot;english_to_german_translator&quot;,</span>
-<span class="sd">                                signature=signature,</span>
-<span class="sd">                                input_example=data,</span>
-<span class="sd">                            )</span>
+<span class="sd">            If an input_example is provided and the signature is not, a signature will</span>
+<span class="sd">            be inferred automatically and applied to the MLmodel file iff the</span>
+<span class="sd">            pipeline type is a text-based model (NLP). If the pipeline type is not</span>
+<span class="sd">            a supported type, this inference functionality will not function correctly</span>
+<span class="sd">            and a warning will be issued. In order to ensure that a precise signature</span>
+<span class="sd">            is logged, it is recommended to explicitly provide one.</span>
+<span class="sd">        input_example: {{ input_example }}</span>
+<span class="sd">        await_registration_for: Number of seconds to wait for the model version</span>
+<span class="sd">            to finish being created and is in ``READY`` status.</span>
+<span class="sd">            By default, the function waits for five minutes.</span>
+<span class="sd">            Specify 0 or None to skip waiting.</span>
+<span class="sd">        pip_requirements: {{ pip_requirements }}</span>
+<span class="sd">        extra_pip_requirements: {{ extra_pip_requirements }}</span>
+<span class="sd">        conda_env: {{ conda_env }}</span>
+<span class="sd">        metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
 
-<span class="sd">                        model_uri = f&quot;runs:/{run.info.run_id}/english_to_german_translator&quot;</span>
-<span class="sd">                        loaded = mlflow.pyfunc.load_model(model_uri)</span>
-
-<span class="sd">                        print(loaded.predict(data))</span>
-<span class="sd">                        # MLflow ist großartig!</span>
-
-<span class="sd">                      If an input_example is provided and the signature is not, a signature will</span>
-<span class="sd">                      be inferred automatically and applied to the MLmodel file iff the</span>
-<span class="sd">                      pipeline type is a text-based model (NLP). If the pipeline type is not</span>
-<span class="sd">                      a supported type, this inference functionality will not function correctly</span>
-<span class="sd">                      and a warning will be issued. In order to ensure that a precise signature</span>
-<span class="sd">                      is logged, it is recommended to explicitly provide one.</span>
-<span class="sd">    :param input_example: {{ input_example }}</span>
-<span class="sd">    :param await_registration_for: Number of seconds to wait for the model version</span>
-<span class="sd">                                   to finish being created and is in ``READY`` status.</span>
-<span class="sd">                                   By default, the function waits for five minutes.</span>
-<span class="sd">                                   Specify 0 or None to skip waiting.</span>
-<span class="sd">    :param pip_requirements: {{ pip_requirements }}</span>
-<span class="sd">    :param extra_pip_requirements: {{ extra_pip_requirements }}</span>
-<span class="sd">    :param conda_env: {{ conda_env }}</span>
-<span class="sd">    :param metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
-
-<span class="sd">                     .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                                             release without warning.</span>
-<span class="sd">    :param kwargs: Additional arguments for :py:class:`mlflow.models.model.Model`</span>
+<span class="sd">            .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                    release without warning.</span>
+<span class="sd">        example_no_conversion: {{ example_no_conversion }}</span>
+<span class="sd">        prompt_template: {{ prompt_template }}</span>
+<span class="sd">        kwargs: Additional arguments for :py:class:`mlflow.models.model.Model`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Model</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
         <span class="n">artifact_path</span><span class="o">=</span><span class="n">artifact_path</span><span class="p">,</span>
@@ -971,6 +1032,8 @@
         <span class="n">pip_requirements</span><span class="o">=</span><span class="n">pip_requirements</span><span class="p">,</span>
         <span class="n">extra_pip_requirements</span><span class="o">=</span><span class="n">extra_pip_requirements</span><span class="p">,</span>
         <span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">,</span>
+        <span class="n">example_no_conversion</span><span class="o">=</span><span class="n">example_no_conversion</span><span class="p">,</span>
+        <span class="n">prompt_template</span><span class="o">=</span><span class="n">prompt_template</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span></div>
 
@@ -983,47 +1046,50 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load a ``transformers`` object from a local file or a run.</span>
 
-<span class="sd">    :param model_uri: The location, in URI format, of the MLflow model. For example:</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model_uri: The location, in URI format, of the MLflow model. For example:</span>
 
-<span class="sd">                      - ``/Users/me/path/to/local/model``</span>
-<span class="sd">                      - ``relative/path/to/local/model``</span>
-<span class="sd">                      - ``s3://my_bucket/path/to/model``</span>
-<span class="sd">                      - ``runs:/&lt;mlflow_run_id&gt;/run-relative/path/to/model``</span>
-<span class="sd">                      - ``mlflow-artifacts:/path/to/model``</span>
+<span class="sd">            - ``/Users/me/path/to/local/model``</span>
+<span class="sd">            - ``relative/path/to/local/model``</span>
+<span class="sd">            - ``s3://my_bucket/path/to/model``</span>
+<span class="sd">            - ``runs:/&lt;mlflow_run_id&gt;/run-relative/path/to/model``</span>
+<span class="sd">            - ``mlflow-artifacts:/path/to/model``</span>
 
-<span class="sd">                      For more information about supported URI schemes, see</span>
-<span class="sd">                      `Referencing Artifacts &lt;https://www.mlflow.org/docs/latest/tracking.html#</span>
-<span class="sd">                      artifact-locations&gt;`_.</span>
-<span class="sd">    :param dst_path: The local filesystem path to utilize for downloading the model artifact.</span>
-<span class="sd">                     This directory must already exist if provided. If unspecified, a local output</span>
-<span class="sd">                     path will be created.</span>
-<span class="sd">    :param return_type: A return type modifier for the stored ``transformers`` object.</span>
-<span class="sd">                        If set as &quot;components&quot;, the return type will be a dictionary of the saved</span>
-<span class="sd">                        individual components of either the ``Pipeline`` or the pre-trained model.</span>
-<span class="sd">                        The components for NLP-focused models will typically consist of a</span>
-<span class="sd">                        return representation as shown below with a text-classification example:</span>
+<span class="sd">            For more information about supported URI schemes, see</span>
+<span class="sd">            `Referencing Artifacts &lt;https://www.mlflow.org/docs/latest/tracking.html#</span>
+<span class="sd">            artifact-locations&gt;`_.</span>
+<span class="sd">        dst_path: The local filesystem path to utilize for downloading the model artifact.</span>
+<span class="sd">            This directory must already exist if provided. If unspecified, a local output</span>
+<span class="sd">            path will be created.</span>
+<span class="sd">        return_type: A return type modifier for the stored ``transformers`` object.</span>
+<span class="sd">            If set as &quot;components&quot;, the return type will be a dictionary of the saved</span>
+<span class="sd">            individual components of either the ``Pipeline`` or the pre-trained model.</span>
+<span class="sd">            The components for NLP-focused models will typically consist of a</span>
+<span class="sd">            return representation as shown below with a text-classification example:</span>
 
-<span class="sd">                        .. code-block:: python</span>
+<span class="sd">            .. code-block:: python</span>
 
-<span class="sd">                          {&quot;model&quot;: BertForSequenceClassification, &quot;tokenizer&quot;: BertTokenizerFast}</span>
+<span class="sd">                {&quot;model&quot;: BertForSequenceClassification, &quot;tokenizer&quot;: BertTokenizerFast}</span>
 
-<span class="sd">                        Vision models will return an ``ImageProcessor`` instance of the appropriate</span>
-<span class="sd">                        type, while multi-modal models will return both a ``FeatureExtractor`` and</span>
-<span class="sd">                        a ``Tokenizer`` along with the model.</span>
-<span class="sd">                        Returning &quot;components&quot; can be useful for certain model types that do not</span>
-<span class="sd">                        have the desired pipeline return types for certain use cases.</span>
-<span class="sd">                        If set as &quot;pipeline&quot;, the model, along with any and all required</span>
-<span class="sd">                        ``Tokenizer``, ``FeatureExtractor``, ``Processor``, or ``ImageProcessor``</span>
-<span class="sd">                        objects will be returned within a ``Pipeline`` object of the appropriate</span>
-<span class="sd">                        type defined by the ``task`` set by the model instance type. To override</span>
-<span class="sd">                        this behavior, supply a valid ``task`` argument during model logging or</span>
-<span class="sd">                        saving. Default is &quot;pipeline&quot;.</span>
-<span class="sd">    :param device: The device on which to load the model. Default is None. Use 0 to</span>
-<span class="sd">                   load to the default GPU.</span>
-<span class="sd">    :param kwargs: Optional configuration options for loading of a ``transformers`` object.</span>
-<span class="sd">                   For information on parameters and their usage, see</span>
-<span class="sd">                   `transformers documentation &lt;https://huggingface.co/docs/transformers/index&gt;`_.</span>
-<span class="sd">    :return: A ``transformers`` model instance or a dictionary of components</span>
+<span class="sd">            Vision models will return an ``ImageProcessor`` instance of the appropriate</span>
+<span class="sd">            type, while multi-modal models will return both a ``FeatureExtractor`` and</span>
+<span class="sd">            a ``Tokenizer`` along with the model.</span>
+<span class="sd">            Returning &quot;components&quot; can be useful for certain model types that do not</span>
+<span class="sd">            have the desired pipeline return types for certain use cases.</span>
+<span class="sd">            If set as &quot;pipeline&quot;, the model, along with any and all required</span>
+<span class="sd">            ``Tokenizer``, ``FeatureExtractor``, ``Processor``, or ``ImageProcessor``</span>
+<span class="sd">            objects will be returned within a ``Pipeline`` object of the appropriate</span>
+<span class="sd">            type defined by the ``task`` set by the model instance type. To override</span>
+<span class="sd">            this behavior, supply a valid ``task`` argument during model logging or</span>
+<span class="sd">            saving. Default is &quot;pipeline&quot;.</span>
+<span class="sd">        device: The device on which to load the model. Default is None. Use 0 to</span>
+<span class="sd">            load to the default GPU.</span>
+<span class="sd">        kwargs: Optional configuration options for loading of a ``transformers`` object.</span>
+<span class="sd">            For information on parameters and their usage, see</span>
+<span class="sd">            `transformers documentation &lt;https://huggingface.co/docs/transformers/index&gt;`_.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A ``transformers`` model instance or a dictionary of components</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">return_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_SUPPORTED_RETURN_TYPES</span><span class="p">:</span>
@@ -1413,9 +1479,12 @@
 <span class="sd">    underlying model&#39;s intended use case. This utility relies on the definitions within the</span>
 <span class="sd">    transformers pipeline construction utility functions.</span>
 
-<span class="sd">    :param model: Either the model or the Pipeline object that the task will be extracted or</span>
-<span class="sd">                  inferred from</span>
-<span class="sd">    :return: The task type string</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model: Either the model or the Pipeline object that the task will be extracted or</span>
+<span class="sd">            inferred from</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The task type string</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">Pipeline</span>
     <span class="kn">from</span> <span class="nn">transformers.pipelines</span> <span class="kn">import</span> <span class="n">get_task</span>
@@ -1521,7 +1590,6 @@
         <span class="s2">&quot;DocumentQuestionAnsweringPipeline&quot;</span><span class="p">,</span>
         <span class="s2">&quot;ImageToTextPipeline&quot;</span><span class="p">,</span>
         <span class="s2">&quot;VisualQuestionAnsweringPipeline&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ImageClassificationPipeline&quot;</span><span class="p">,</span>
         <span class="s2">&quot;ImageSegmentationPipeline&quot;</span><span class="p">,</span>
         <span class="s2">&quot;DepthEstimationPipeline&quot;</span><span class="p">,</span>
         <span class="s2">&quot;ObjectDetectionPipeline&quot;</span><span class="p">,</span>
@@ -1531,11 +1599,6 @@
         <span class="s2">&quot;ZeroShotAudioClassificationPipeline&quot;</span><span class="p">,</span>
     <span class="p">]</span>
 
-    <span class="n">impermissible_attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;image_processor&quot;</span><span class="p">}</span>
-
-    <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">impermissible_attrs</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
     <span class="k">for</span> <span class="n">model_type</span> <span class="ow">in</span> <span class="n">exclusion_model_types</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">transformers</span><span class="p">,</span> <span class="n">model_type</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">transformers</span><span class="p">,</span> <span class="n">model_type</span><span class="p">)):</span>
@@ -1580,6 +1643,7 @@
             <span class="n">params</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">_contains_params</span><span class="p">(</span><span class="n">example</span><span class="p">):</span>
                 <span class="n">example</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">example</span>
+            <span class="n">example</span> <span class="o">=</span> <span class="n">_format_input_example_for_special_cases</span><span class="p">(</span><span class="n">example</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">)</span>
             <span class="n">prediction</span> <span class="o">=</span> <span class="n">generate_signature_output</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">example</span><span class="p">,</span> <span class="n">model_config</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">infer_signature</span><span class="p">(</span><span class="n">example</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -1603,7 +1667,13 @@
             <span class="k">return</span> <span class="n">ModelSignature</span><span class="p">(</span>
                 <span class="n">inputs</span><span class="o">=</span><span class="n">Schema</span><span class="p">([</span><span class="n">ColSpec</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)]),</span> <span class="n">outputs</span><span class="o">=</span><span class="n">Schema</span><span class="p">([</span><span class="n">ColSpec</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)])</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TextClassificationPipeline</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">pipeline</span><span class="p">,</span>
+            <span class="p">(</span>
+                <span class="n">transformers</span><span class="o">.</span><span class="n">TextClassificationPipeline</span><span class="p">,</span>
+                <span class="n">transformers</span><span class="o">.</span><span class="n">ImageClassificationPipeline</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">):</span>
             <span class="k">return</span> <span class="n">ModelSignature</span><span class="p">(</span>
                 <span class="n">inputs</span><span class="o">=</span><span class="n">Schema</span><span class="p">([</span><span class="n">ColSpec</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)]),</span>
                 <span class="n">outputs</span><span class="o">=</span><span class="n">Schema</span><span class="p">([</span><span class="n">ColSpec</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">),</span> <span class="n">ColSpec</span><span class="p">(</span><span class="s2">&quot;double&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;score&quot;</span><span class="p">)]),</span>
@@ -1689,6 +1759,7 @@
     <span class="n">feature_extractor</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">image_processor</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">processor</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">torch_dtype</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">dict_repr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_asdict</span><span class="p">()</span>
@@ -1712,7 +1783,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_validate_submitted_types</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="p">,</span> <span class="n">image_processor</span><span class="p">,</span> <span class="n">processor</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="p">,</span> <span class="n">image_processor</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">torch_dtype</span>
     <span class="p">):</span>
         <span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="p">(</span>
             <span class="n">FeatureExtractionMixin</span><span class="p">,</span>
@@ -1746,6 +1817,12 @@
         <span class="k">for</span> <span class="n">arg</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">types</span> <span class="ow">in</span> <span class="n">validation</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">arg</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">types</span><span class="p">):</span>
                 <span class="n">invalid_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_build_exception_msg</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">types</span><span class="p">))</span>
+        <span class="c1"># only import torch when torch_dtype is not None</span>
+        <span class="k">if</span> <span class="n">torch_dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">dtype</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">torch_dtype</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
+                <span class="n">invalid_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_build_exception_msg</span><span class="p">(</span><span class="n">torch_dtype</span><span class="p">,</span> <span class="s2">&quot;torch_dtype&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">invalid_types</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">invalid_types</span><span class="p">),</span> <span class="n">error_code</span><span class="o">=</span><span class="n">BAD_REQUEST</span><span class="p">)</span>
 
@@ -1757,13 +1834,16 @@
         <span class="n">feature_extractor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">image_processor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">processor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">torch_dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># pylint: disable=unused-argument</span>
     <span class="p">):</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">_validate_submitted_types</span><span class="p">(</span>
-            <span class="n">model</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="p">,</span> <span class="n">image_processor</span><span class="p">,</span> <span class="n">processor</span>
+            <span class="n">model</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="p">,</span> <span class="n">image_processor</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">torch_dtype</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">_TransformersModel</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="p">,</span> <span class="n">image_processor</span><span class="p">,</span> <span class="n">processor</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_TransformersModel</span><span class="p">(</span>
+            <span class="n">model</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="p">,</span> <span class="n">image_processor</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="n">torch_dtype</span>
+        <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_get_model_config</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">pyfunc_config</span><span class="p">):</span>
@@ -1789,10 +1869,13 @@
     <span class="n">local_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">flavor_configuration</span> <span class="o">=</span> <span class="n">_get_flavor_configuration</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">FLAVOR_NAME</span><span class="p">)</span>
     <span class="n">model_config</span> <span class="o">=</span> <span class="n">_get_model_config</span><span class="p">(</span><span class="n">local_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">_COMPONENTS_BINARY_KEY</span><span class="p">),</span> <span class="n">model_config</span><span class="p">)</span>
+    <span class="n">prompt_template</span> <span class="o">=</span> <span class="n">_get_prompt_template</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">_TransformersWrapper</span><span class="p">(</span>
         <span class="n">_load_model</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">),</span> <span class="n">flavor_configuration</span><span class="p">,</span> <span class="s2">&quot;pipeline&quot;</span><span class="p">),</span>
         <span class="n">flavor_configuration</span><span class="p">,</span>
         <span class="n">model_config</span><span class="p">,</span>
+        <span class="n">prompt_template</span><span class="p">,</span>
     <span class="p">)</span>
 
 
@@ -1803,13 +1886,16 @@
 <span class="sd">    for model saving and logging. This function simulates loading of a saved model or pipeline</span>
 <span class="sd">    as a ``pyfunc`` model without having to incur a write to disk.</span>
 
-<span class="sd">    :param pipeline: A ``transformers`` pipeline object. Note that component-level or model-level</span>
-<span class="sd">                     inputs are not permitted for extracting an output example.</span>
-<span class="sd">    :param data: An example input that is compatible with the given pipeline</span>
-<span class="sd">    :param model_config: Any additional model configuration, provided as kwargs, to inform</span>
-<span class="sd">                         the format of the output type from a pipeline inference call.</span>
-<span class="sd">    :param params: A dictionary of additional parameters to pass to the pipeline for inference.</span>
-<span class="sd">    :return: The output from the ``pyfunc`` pipeline wrapper&#39;s ``predict`` method</span>
+<span class="sd">    Args:</span>
+<span class="sd">        pipeline: A ``transformers`` pipeline object. Note that component-level or model-level</span>
+<span class="sd">            inputs are not permitted for extracting an output example.</span>
+<span class="sd">        data: An example input that is compatible with the given pipeline</span>
+<span class="sd">        model_config: Any additional model configuration, provided as kwargs, to inform</span>
+<span class="sd">            the format of the output type from a pipeline inference call.</span>
+<span class="sd">        params: A dictionary of additional parameters to pass to the pipeline for inference.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The output from the ``pyfunc`` pipeline wrapper&#39;s ``predict`` method</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">transformers</span>
 
@@ -1826,10 +1912,11 @@
 
 
 <span class="k">class</span> <span class="nc">_TransformersWrapper</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">flavor_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">flavor_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prompt_template</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">pipeline</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flavor_config</span> <span class="o">=</span> <span class="n">flavor_config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_config</span> <span class="o">=</span> <span class="n">model_config</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prompt_template</span> <span class="o">=</span> <span class="n">prompt_template</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conversation</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># NB: Current special-case custom pipeline types that have not been added to</span>
         <span class="c1"># the native-supported transformers package but require custom parsing:</span>
@@ -1912,19 +1999,21 @@
 
     <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param data: Model input data.</span>
-<span class="sd">        :param params: Additional parameters to pass to the model for inference.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            data: Model input data.</span>
+<span class="sd">            params: Additional parameters to pass to the model for inference.</span>
 
-<span class="sd">                       .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                                               release without warning.</span>
+<span class="sd">                .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                        release without warning.</span>
 
-<span class="sd">        :return: Model predictions.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Model predictions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_override_model_config</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="n">input_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_pandas_to_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
             <span class="n">input_data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">))</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">data</span><span class="p">):</span>
@@ -1934,8 +2023,6 @@
                     <span class="s2">&quot;dictionaries must be strings and values must be either str or List[str].&quot;</span><span class="p">,</span>
                     <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
                 <span class="p">)</span>
-            <span class="n">input_data</span> <span class="o">=</span> <span class="n">data</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
             <span class="n">input_data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
@@ -1968,20 +2055,27 @@
             <span class="n">output_key</span> <span class="o">=</span> <span class="s2">&quot;translation_text&quot;</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">SummarizationPipeline</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_validate_str_or_list_str</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_prompt_template</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="n">output_key</span> <span class="o">=</span> <span class="s2">&quot;summary_text&quot;</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Text2TextGenerationPipeline</span><span class="p">):</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_text2text_input</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_prompt_template</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="n">output_key</span> <span class="o">=</span> <span class="s2">&quot;generated_text&quot;</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TextGenerationPipeline</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_validate_str_or_list_str</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_prompt_template</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="n">output_key</span> <span class="o">=</span> <span class="s2">&quot;generated_text&quot;</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">QuestionAnsweringPipeline</span><span class="p">):</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_question_answer_input</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="n">output_key</span> <span class="o">=</span> <span class="s2">&quot;answer&quot;</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">FillMaskPipeline</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_validate_str_or_list_str</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_prompt_template</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="n">output_key</span> <span class="o">=</span> <span class="s2">&quot;token_str&quot;</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TextClassificationPipeline</span><span class="p">):</span>
+            <span class="n">output_key</span> <span class="o">=</span> <span class="s2">&quot;label&quot;</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ImageClassificationPipeline</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_image_input</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="n">output_key</span> <span class="o">=</span> <span class="s2">&quot;label&quot;</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ZeroShotClassificationPipeline</span><span class="p">):</span>
             <span class="n">output_key</span> <span class="o">=</span> <span class="s2">&quot;labels&quot;</span>
@@ -1994,6 +2088,7 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">FeatureExtractionPipeline</span><span class="p">):</span>
             <span class="n">output_key</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_feature_extraction_input</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_prompt_template</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ConversationalPipeline</span><span class="p">):</span>
             <span class="n">output_key</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conversation</span><span class="p">:</span>
@@ -2061,7 +2156,11 @@
             <span class="n">output</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">raw_output</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span>
-            <span class="p">(</span><span class="n">transformers</span><span class="o">.</span><span class="n">AudioClassificationPipeline</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TextClassificationPipeline</span><span class="p">),</span>
+            <span class="p">(</span>
+                <span class="n">transformers</span><span class="o">.</span><span class="n">AudioClassificationPipeline</span><span class="p">,</span>
+                <span class="n">transformers</span><span class="o">.</span><span class="n">TextClassificationPipeline</span><span class="p">,</span>
+                <span class="n">transformers</span><span class="o">.</span><span class="n">ImageClassificationPipeline</span><span class="p">,</span>
+            <span class="p">),</span>
         <span class="p">):</span>
             <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">raw_output</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -2374,8 +2473,9 @@
                 <span class="n">data_out</span> <span class="o">=</span> <span class="n">data_out</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">data_in</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">data_out</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;A:&quot;</span><span class="p">):</span>
                     <span class="n">data_out</span> <span class="o">=</span> <span class="n">data_out</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
-                <span class="c1"># If the user has indicated to remove newlines and extra spaces from the generated</span>
-                <span class="c1"># text, replace them with a single space.</span>
+
+            <span class="c1"># If the user has indicated to remove newlines and extra spaces from the generated</span>
+            <span class="c1"># text, replace them with a single space.</span>
             <span class="k">if</span> <span class="n">collapse_whitespace</span><span class="p">:</span>
                 <span class="n">data_out</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">data_out</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">data_out</span>
@@ -2748,6 +2848,65 @@
                     <span class="n">parsed_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">parsed_data</span>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">is_base64_image</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether input image is a base64 encoded&quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">image</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">image</span>
+        <span class="k">except</span> <span class="n">binascii</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_convert_image_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Conversion utility for decoding the base64 encoded bytes data of a raw image file when</span>
+<span class="sd">        parsed through model serving, if applicable. Direct usage of the pyfunc implementation</span>
+<span class="sd">        outside of model serving will treat this utility as a noop.</span>
+
+<span class="sd">        For reference, the expected encoding for input to Model Serving will be:</span>
+
+<span class="sd">        import requests</span>
+<span class="sd">        import base64</span>
+
+<span class="sd">        response = requests.get(&quot;https://www.my.images/a/sound/file.jpg&quot;)</span>
+<span class="sd">        encoded_image = base64.b64encode(response.content).decode(&quot;utf-8&quot;)</span>
+
+<span class="sd">        inference_data = json.dumps({&quot;inputs&quot;: [encoded_image]})</span>
+
+<span class="sd">        or</span>
+
+<span class="sd">        inference_df = pd.DataFrame(</span>
+<span class="sd">        pd.Series([encoded_image], name=&quot;image_file&quot;)</span>
+<span class="sd">        )</span>
+<span class="sd">        split_dict = {&quot;dataframe_split&quot;: inference_df.to_dict(orient=&quot;split&quot;)}</span>
+<span class="sd">        split_json = json.dumps(split_dict)</span>
+
+<span class="sd">        or</span>
+
+<span class="sd">        records_dict = {&quot;dataframe_records&quot;: inference_df.to_dict(orient=&quot;records&quot;)}</span>
+<span class="sd">        records_json = json.dumps(records_dict)</span>
+
+<span class="sd">        This utility will convert this JSON encoded, base64 encoded text back into bytes for</span>
+<span class="sd">        input into the Image pipelines for inference.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">process_input_element</span><span class="p">(</span><span class="n">input_element</span><span class="p">):</span>
+            <span class="n">input_value</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">input_element</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_base64_image</span><span class="p">(</span><span class="n">input_value</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_validate_str_input_uri_or_file</span><span class="p">(</span><span class="n">input_value</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">input_value</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">input_data</span>
+        <span class="p">):</span>
+            <span class="c1"># Use a list comprehension for readability</span>
+            <span class="c1"># the elimination of empty collection declarations</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">process_input_element</span><span class="p">(</span><span class="n">element</span><span class="p">)</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">input_data</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_base64_image</span><span class="p">(</span><span class="n">input_data</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validate_str_input_uri_or_file</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">input_data</span>
+
     <span class="k">def</span> <span class="nf">_convert_audio_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Conversion utility for decoding the base64 encoded bytes data of a raw soundfile when</span>
@@ -2831,12 +2990,17 @@
             <span class="k">return</span> <span class="n">decode_audio</span><span class="p">(</span><span class="n">encoded_audio</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_validate_str_input_uri_or_file</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1"># For new schema, we extract the data field out when converting</span>
+        <span class="c1"># pandas DataFrame to dictionary.</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">decode_audio</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_validate_str_input_uri_or_file</span><span class="p">(</span><span class="n">input_str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Validation of blob references to audio files, if a string is input to the ``predict``</span>
+<span class="sd">        Validation of blob references to either audio or image files,</span>
+<span class="sd">        if a string is input to the ``predict``</span>
 <span class="sd">        method, perform validation of the string contents by checking for a valid uri or</span>
 <span class="sd">        filesystem reference instead of surfacing the cryptic stack trace that is otherwise raised</span>
 <span class="sd">        for an invalid uri input.</span>
@@ -2852,11 +3016,44 @@
         <span class="n">valid_uri</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">input_str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_uri</span><span class="p">(</span><span class="n">input_str</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">valid_uri</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_str</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">20</span><span class="p">:</span>
+                <span class="n">data_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Received: </span><span class="si">{</span><span class="n">input_str</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Received (truncated): </span><span class="si">{</span><span class="n">input_str</span><span class="p">[:</span><span class="mi">20</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
                 <span class="s2">&quot;An invalid string input was provided. String inputs to &quot;</span>
-                <span class="s2">&quot;audio files must be either a file location or a uri.&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;audio or image files must be either a file location or a uri.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;audio files must be either a file location or a uri. </span><span class="si">{</span><span class="n">data_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">error_code</span><span class="o">=</span><span class="n">BAD_REQUEST</span><span class="p">,</span>
             <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_format_prompt_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wraps the input data in the specified prompt template. If no template is</span>
+<span class="sd">        specified, or if the pipeline is an unsupported type, or if the input type</span>
+<span class="sd">        is not a string or list of strings, then the input data is returned unchanged.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">prompt_template</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">input_data</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">task</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_SUPPORTED_PROMPT_TEMPLATING_TASK_TYPES</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;_format_prompt_template called on an unexpected pipeline type. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Expected one of: </span><span class="si">{</span><span class="n">_SUPPORTED_PROMPT_TEMPLATING_TASK_TYPES</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Received: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prompt_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="n">input_data</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="c1"># if every item is a string, then apply formatting to every item</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">input_data</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">prompt_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="n">data</span><span class="p">)</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">input_data</span><span class="p">]</span>
+
+        <span class="c1"># throw for unsupported types</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+            <span class="s2">&quot;Prompt templating is only supported for data of type str or List[str]. &quot;</span>
+        <span class="p">)</span>
 
 
 <div class="viewcode-block" id="autolog"><a class="viewcode-back" href="../../python_api/mlflow.transformers.html#mlflow.transformers.autolog">[docs]</a><span class="nd">@experimental</span>
@@ -2890,7 +3087,15 @@
         <span class="kn">import</span> <span class="nn">setfit</span>
 
         <span class="n">safe_patch</span><span class="p">(</span>
-            <span class="n">FLAVOR_NAME</span><span class="p">,</span> <span class="n">setfit</span><span class="o">.</span><span class="n">SetFitTrainer</span><span class="p">,</span> <span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">train</span><span class="p">),</span> <span class="n">manage_run</span><span class="o">=</span><span class="kc">False</span>
+            <span class="n">FLAVOR_NAME</span><span class="p">,</span>
+            <span class="p">(</span>
+                <span class="n">setfit</span><span class="o">.</span><span class="n">SetFitTrainer</span>
+                <span class="k">if</span> <span class="n">Version</span><span class="p">(</span><span class="n">setfit</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">Version</span><span class="p">(</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">setfit</span><span class="o">.</span><span class="n">Trainer</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;train&quot;</span><span class="p">,</span>
+            <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">train</span><span class="p">),</span>
+            <span class="n">manage_run</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">ImportError</span><span class="p">):</span>
@@ -2901,6 +3106,43 @@
         <span class="k">for</span> <span class="n">clazz</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
                 <span class="n">safe_patch</span><span class="p">(</span><span class="n">FLAVOR_NAME</span><span class="p">,</span> <span class="n">clazz</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">train</span><span class="p">),</span> <span class="n">manage_run</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_prompt_template</span><span class="p">(</span><span class="n">model_path</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">model_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Could not find an &quot;</span><span class="si">{</span><span class="n">MLMODEL_FILE_NAME</span><span class="si">}</span><span class="s1">&quot; configuration file at &quot;</span><span class="si">{</span><span class="n">model_path</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">,</span>
+            <span class="n">RESOURCE_DOES_NOT_EXIST</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">model_conf</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">model_conf</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">model_conf</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_PROMPT_TEMPLATE_KEY</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_prompt_template</span><span class="p">(</span><span class="n">prompt_template</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">prompt_template</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prompt_template</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Argument `prompt_template` must be a string, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">prompt_template</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">format_args</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">string</span><span class="o">.</span><span class="n">Formatter</span><span class="p">()</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">prompt_template</span><span class="p">)</span> <span class="k">if</span> <span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">]</span>
+
+    <span class="c1"># expect there to only be one format arg, and for that arg to be &quot;prompt&quot;</span>
+    <span class="k">if</span> <span class="n">format_args</span> <span class="o">!=</span> <span class="p">[</span><span class="s2">&quot;prompt&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+            <span class="s2">&quot;Argument `prompt_template` must be a string with a single format arg, &#39;prompt&#39;. &quot;</span>
+            <span class="s2">&quot;For example: &#39;Answer the following question in a friendly tone. Q: </span><span class="si">{prompt}</span><span class="s2">. A:&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Received </span><span class="si">{</span><span class="n">prompt_template</span><span class="si">}</span><span class="s2">. &quot;</span>
+        <span class="p">)</span>
 </pre></div>
 
               </div>
@@ -2931,7 +3173,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

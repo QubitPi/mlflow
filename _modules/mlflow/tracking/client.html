@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.tracking.client &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.tracking.client &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -55,8 +57,10 @@
 <script type="text/javascript" src="../../../_static/jquery.js"></script>
 <script type="text/javascript" src="../../../_static/underscore.js"></script>
 <script type="text/javascript" src="../../../_static/doctools.js"></script>
+<script type="text/javascript" src="../../../_static/tabs.js"></script>
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -69,7 +73,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -115,6 +119,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-registry.html">MLflow Model Registry</a></li>
@@ -195,6 +200,7 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">yaml</span>
@@ -221,7 +227,7 @@
 <span class="kn">from</span> <span class="nn">mlflow.tracking._tracking_service.client</span> <span class="kn">import</span> <span class="n">TrackingServiceClient</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="n">_upload_artifacts_to_databricks</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.registry</span> <span class="kn">import</span> <span class="n">UnsupportedModelRegistryStoreURIException</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">experimental</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">deprecated</span><span class="p">,</span> <span class="n">experimental</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.async_logging.run_operations</span> <span class="kn">import</span> <span class="n">RunOperations</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.databricks_utils</span> <span class="kn">import</span> <span class="n">get_databricks_run_url</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.logging_utils</span> <span class="kn">import</span> <span class="n">eprint</span>
@@ -245,6 +251,12 @@
     <span class="kn">import</span> <span class="nn">plotly</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">_STAGES_DEPRECATION_WARNING</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;Model registry stages will be removed in a future major release. To learn more about the &quot;</span>
+    <span class="s2">&quot;deprecation of model registry stages, see our migration guide here: https://mlflow.org/docs/&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mlflow</span><span class="o">.</span><span class="n">__version__</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.dev0&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/model-registry.html#migrating-from-stages&quot;</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="MlflowClient"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient">[docs]</a><span class="k">class</span> <span class="nc">MlflowClient</span><span class="p">:</span>
@@ -1762,7 +1774,13 @@
                 <span class="s2">&quot;data must be a pandas.DataFrame or a dictionary&quot;</span>
             <span class="p">)</span>
 
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="c1"># catch error `If using all scalar values, you must pass an index`</span>
+            <span class="c1"># for data like {&quot;inputs&quot;: &quot;What is MLflow?&quot;}</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">data</span><span class="p">])</span>
         <span class="n">norm_path</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">artifact_file</span><span class="p">)</span>
         <span class="n">artifact_dir</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">norm_path</span><span class="p">)</span>
         <span class="n">artifact_dir</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">artifact_dir</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="n">artifact_dir</span>
@@ -1780,7 +1798,13 @@
             <span class="p">)</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_artifact_helper</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">artifact_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">artifact_path</span><span class="p">:</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">artifact_path</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;split&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">artifact_path</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;split&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Failed to save </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2"> as table as the data is not JSON serializable. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
 
         <span class="n">run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
 
@@ -2590,7 +2614,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span><span class="o">.</span><span class="n">get_registered_model</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MlflowClient.get_latest_versions"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.get_latest_versions">[docs]</a>    <span class="k">def</span> <span class="nf">get_latest_versions</span><span class="p">(</span>
+<div class="viewcode-block" id="MlflowClient.get_latest_versions"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.get_latest_versions">[docs]</a>    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">since</span><span class="o">=</span><span class="s2">&quot;2.9.0&quot;</span><span class="p">,</span> <span class="n">impact</span><span class="o">=</span><span class="n">_STAGES_DEPRECATION_WARNING</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_latest_versions</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stages</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ModelVersion</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2832,10 +2857,13 @@
         <span class="n">await_creation_for</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelVersion</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a new model version from given source (artifact URI).</span>
+<span class="sd">        Create a new model version from given source.</span>
 
 <span class="sd">        :param name: Name for the containing registered model.</span>
-<span class="sd">        :param source: Source path where the MLflow model is stored.</span>
+<span class="sd">        :param source: URI indicating the location of the model artifacts. The artifact URI can be</span>
+<span class="sd">                       run relative (e.g. ``runs:/&lt;run_id&gt;/&lt;model_artifact_path&gt;``), a model</span>
+<span class="sd">                       registry URI (e.g. ``models:/&lt;model_name&gt;/&lt;version&gt;``), or other URIs</span>
+<span class="sd">                       supported by the model registry backend (e.g. `&quot;s3://my_bucket/my/model&quot;`).</span>
 <span class="sd">        :param run_id: Run ID from MLflow tracking server that generated the model</span>
 <span class="sd">        :param tags: A dictionary of key-value pairs that are converted into</span>
 <span class="sd">                     :py:class:`mlflow.entities.model_registry.ModelVersionTag` objects.</span>
@@ -2914,6 +2942,59 @@
 <span class="sd">                         registered model with this name does not exist, it will be created.</span>
 <span class="sd">        :return: Single :py:class:`mlflow.entities.model_registry.ModelVersion` object representing</span>
 <span class="sd">                 the copied model version.</span>
+
+<span class="sd">        .. code-block:: python</span>
+<span class="sd">            :caption: Example</span>
+
+<span class="sd">            import mlflow.sklearn</span>
+<span class="sd">            from mlflow import MlflowClient</span>
+<span class="sd">            from mlflow.models import infer_signature</span>
+<span class="sd">            from sklearn.datasets import make_regression</span>
+<span class="sd">            from sklearn.ensemble import RandomForestRegressor</span>
+
+
+<span class="sd">            def print_model_version_info(mv):</span>
+<span class="sd">                print(f&quot;Name: {mv.name}&quot;)</span>
+<span class="sd">                print(f&quot;Version: {mv.version}&quot;)</span>
+<span class="sd">                print(f&quot;Source: {mv.source}&quot;)</span>
+
+
+<span class="sd">            mlflow.set_tracking_uri(&quot;sqlite:///mlruns.db&quot;)</span>
+<span class="sd">            X, y = make_regression(n_features=4, n_informative=2, random_state=0, shuffle=False)</span>
+
+<span class="sd">            # Log a model</span>
+<span class="sd">            with mlflow.start_run() as run:</span>
+<span class="sd">                params = {&quot;n_estimators&quot;: 3, &quot;random_state&quot;: 42}</span>
+<span class="sd">                rfr = RandomForestRegressor(**params).fit(X, y)</span>
+<span class="sd">                signature = infer_signature(X, rfr.predict(X))</span>
+<span class="sd">                mlflow.log_params(params)</span>
+<span class="sd">                mlflow.sklearn.log_model(rfr, artifact_path=&quot;sklearn-model&quot;, signature=signature)</span>
+
+<span class="sd">            # Create source model version</span>
+<span class="sd">            client = MlflowClient()</span>
+<span class="sd">            src_name = &quot;RandomForestRegression-staging&quot;</span>
+<span class="sd">            client.create_registered_model(src_name)</span>
+<span class="sd">            src_uri = f&quot;runs:/{run.info.run_id}/sklearn-model&quot;</span>
+<span class="sd">            mv_src = client.create_model_version(src_name, src_uri, run.info.run_id)</span>
+<span class="sd">            print_model_version_info(mv_src)</span>
+<span class="sd">            print(&quot;--&quot;)</span>
+
+<span class="sd">            # Copy the source model version into a new registered model</span>
+<span class="sd">            dst_name = &quot;RandomForestRegression-production&quot;</span>
+<span class="sd">            src_model_uri = f&quot;models:/{mv_src.name}/{mv_src.version}&quot;</span>
+<span class="sd">            mv_copy = client.copy_model_version(src_model_uri, dst_name)</span>
+<span class="sd">            print_model_version_info(mv_copy)</span>
+
+<span class="sd">        .. code-block:: text</span>
+<span class="sd">            :caption: Output</span>
+
+<span class="sd">            Name: RandomForestRegression-staging</span>
+<span class="sd">            Version: 1</span>
+<span class="sd">            Source: runs:/53e08bb38f0c487fa36c5872515ed998/sklearn-model</span>
+<span class="sd">            --</span>
+<span class="sd">            Name: RandomForestRegression-production</span>
+<span class="sd">            Version: 1</span>
+<span class="sd">            Source: models:/RandomForestRegression-staging/1</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">src_model_uri</span><span class="p">)</span><span class="o">.</span><span class="n">scheme</span> <span class="o">!=</span> <span class="s2">&quot;models&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
@@ -3004,7 +3085,8 @@
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="MlflowClient.transition_model_version_stage"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.transition_model_version_stage">[docs]</a>    <span class="k">def</span> <span class="nf">transition_model_version_stage</span><span class="p">(</span>
+<div class="viewcode-block" id="MlflowClient.transition_model_version_stage"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.transition_model_version_stage">[docs]</a>    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">since</span><span class="o">=</span><span class="s2">&quot;2.9.0&quot;</span><span class="p">,</span> <span class="n">impact</span><span class="o">=</span><span class="n">_STAGES_DEPRECATION_WARNING</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">transition_model_version_stage</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">archive_existing_versions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelVersion</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3354,7 +3436,8 @@
             <span class="n">filter_string</span><span class="p">,</span> <span class="n">max_results</span><span class="p">,</span> <span class="n">order_by</span><span class="p">,</span> <span class="n">page_token</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="MlflowClient.get_model_version_stages"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.get_model_version_stages">[docs]</a>    <span class="k">def</span> <span class="nf">get_model_version_stages</span><span class="p">(</span>
+<div class="viewcode-block" id="MlflowClient.get_model_version_stages"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.get_model_version_stages">[docs]</a>    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">since</span><span class="o">=</span><span class="s2">&quot;2.9.0&quot;</span><span class="p">,</span> <span class="n">impact</span><span class="o">=</span><span class="n">_STAGES_DEPRECATION_WARNING</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_model_version_stages</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>  <span class="c1"># pylint: disable=unused-argument</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3480,6 +3563,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_validate_model_version_or_stage_exists</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">stage</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">stage</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The `stage` parameter of the `set_model_version_tag` API is deprecated. &quot;</span>
+                <span class="o">+</span> <span class="n">_STAGES_DEPRECATION_WARNING</span><span class="p">,</span>
+                <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">latest_versions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_latest_versions</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">stages</span><span class="o">=</span><span class="p">[</span><span class="n">stage</span><span class="p">])</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">latest_versions</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find any model version for </span><span class="si">{</span><span class="n">stage</span><span class="si">}</span><span class="s2"> stage&quot;</span><span class="p">)</span>
@@ -3565,6 +3654,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_validate_model_version_or_stage_exists</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">stage</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">stage</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The `stage` parameter of the `delete_model_version_tag` API is deprecated. &quot;</span>
+                <span class="o">+</span> <span class="n">_STAGES_DEPRECATION_WARNING</span><span class="p">,</span>
+                <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">latest_versions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_latest_versions</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">stages</span><span class="o">=</span><span class="p">[</span><span class="n">stage</span><span class="p">])</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">latest_versions</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span><span class="s2">&quot;Could not find any model version for </span><span class="si">{stage}</span><span class="s2"> stage&quot;</span><span class="p">)</span>
@@ -3712,7 +3807,7 @@
 <span class="sd">            print_model_version_info(mv)</span>
 
 <span class="sd">            # Delete registered model alias</span>
-<span class="sd">            client.set_registered_model_alias(name, &quot;test-alias&quot;)</span>
+<span class="sd">            client.delete_registered_model_alias(name, &quot;test-alias&quot;)</span>
 <span class="sd">            print()</span>
 <span class="sd">            print_model_info(model)</span>
 <span class="sd">            print_model_version_info(mv)</span>
@@ -3867,7 +3962,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

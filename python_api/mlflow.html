@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.artifacts" href="/mlflow.artifacts.html"/>
         <link rel="prev" title="Python API" href="/index.html"/> 
@@ -59,6 +61,7 @@
 <script type="text/javascript" src="../_static/doctools.js"></script>
 <script type="text/javascript" src="../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -71,7 +74,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -117,6 +120,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model-registry.html">MLflow Model Registry</a></li>
@@ -144,7 +148,6 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.keras_core.html">mlflow.keras_core</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.langchain.html">mlflow.langchain</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.lightgbm.html">mlflow.lightgbm</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlflow.llm.html">mlflow.llm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.metrics.html">mlflow.metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.mleap.html">mlflow.mleap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.models.html">mlflow.models</a></li>
@@ -152,6 +155,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.paddle.html">mlflow.paddle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pmdarima.html">mlflow.pmdarima</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.projects.html">mlflow.projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.promptflow.html">mlflow.promptflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.prophet.html">mlflow.prophet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pyfunc.html">mlflow.pyfunc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pyspark.ml.html">mlflow.pyspark.ml</a></li>
@@ -165,6 +169,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.spacy.html">mlflow.spacy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.spark.html">mlflow.spark</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.statsmodels.html">mlflow.statsmodels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.system_metrics.html">mlflow.system_metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.tensorflow.html">mlflow.tensorflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.transformers.html">mlflow.transformers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.types.html">mlflow.types</a></li>
@@ -324,7 +329,7 @@ to access such attributes, use the <a class="reference internal" href="mlflow.cl
 <code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">autolog</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_input_examples</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_model_signatures</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_models</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_datasets</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusive</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_for_unsupported_versions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_tags</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#autolog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.autolog" title="Permalink to this definition"> </a></dt>
 <dd><p>Enables (or disables) and configures autologging for all supported integrations.</p>
 <p>The parameters are passed to any autologging integrations that support them.</p>
-<p>See the <a class="reference internal" href="../tracking.html#automatic-logging"><span class="std std-ref">tracking docs</span></a> for a list of supported autologging
+<p>See the <a class="reference internal" href="../tracking/autolog.html#automatic-logging"><span class="std std-ref">tracking docs</span></a> for a list of supported autologging
 integrations.</p>
 <p>Note that framework-specific configurations set at any point will take precedence over
 any configurations set by this function. For example:</p>
@@ -601,7 +606,7 @@ system metrics logging for individual runs by <cite>mlflow.start_run(log_system_
 
 <dl class="py function">
 <dt id="mlflow.doctor">
-<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">doctor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask_envs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/_doctor.html#doctor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.doctor" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">doctor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask_envs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/utils/doctor.html#doctor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.doctor" title="Permalink to this definition"> </a></dt>
 <dd><p>Prints out useful information for debugging issues with MLflow.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -768,7 +773,7 @@ precision_recall_auc), precision-recall merged curves plot, ROC merged curves pl
 <li><dl class="simple">
 <dt>For question-answering models, the default evaluator logs:</dt><dd><ul>
 <li><p><strong>metrics</strong>: <code class="docutils literal notranslate"><span class="pre">exact_match</span></code>, <code class="docutils literal notranslate"><span class="pre">token_count</span></code>, <a class="reference external" href="https://huggingface.co/spaces/evaluate-measurement/toxicity">toxicity</a> (requires <a class="reference external" href="https://pypi.org/project/evaluate">evaluate</a>,
-<a class="reference external" href="https://pytorch.org/get-started/locally/">pytorch</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests#Flesch%E2%80%93Kincaid_grade_level">flesch_kincaid_grade_level</a> (requires <a class="reference external" href="https://pypi.org/project/textstat">textstat</a>) and <a class="reference external" href="https://en.wikipedia.org/wiki/Automated_readability_index">ari_grade_level</a>.</p></li>
+<a class="reference external" href="https://pytorch.org/get-started/locally/">torch</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests#Flesch%E2%80%93Kincaid_grade_level">flesch_kincaid_grade_level</a> (requires <a class="reference external" href="https://pypi.org/project/textstat">textstat</a>) and <a class="reference external" href="https://en.wikipedia.org/wiki/Automated_readability_index">ari_grade_level</a>.</p></li>
 <li><p><strong>artifacts</strong>: A JSON file containing the inputs, outputs, targets (if the <code class="docutils literal notranslate"><span class="pre">targets</span></code>
 argument is supplied), and per-row metrics of the model in tabular format.</p></li>
 </ul>
@@ -778,7 +783,7 @@ argument is supplied), and per-row metrics of the model in tabular format.</p></
 <li><dl class="simple">
 <dt>For text-summarization models, the default evaluator logs:</dt><dd><ul>
 <li><p><strong>metrics</strong>: <code class="docutils literal notranslate"><span class="pre">token_count</span></code>, <a class="reference external" href="https://huggingface.co/spaces/evaluate-metric/rouge">ROUGE</a> (requires <a class="reference external" href="https://pypi.org/project/evaluate">evaluate</a>, <a class="reference external" href="https://pypi.org/project/nltk">nltk</a>, and
-<a class="reference external" href="https://pypi.org/project/rouge-score">rouge_score</a> to be installed), <a class="reference external" href="https://huggingface.co/spaces/evaluate-measurement/toxicity">toxicity</a> (requires <a class="reference external" href="https://pypi.org/project/evaluate">evaluate</a>, <a class="reference external" href="https://pytorch.org/get-started/locally/">pytorch</a>,
+<a class="reference external" href="https://pypi.org/project/rouge-score">rouge_score</a> to be installed), <a class="reference external" href="https://huggingface.co/spaces/evaluate-measurement/toxicity">toxicity</a> (requires <a class="reference external" href="https://pypi.org/project/evaluate">evaluate</a>, <a class="reference external" href="https://pytorch.org/get-started/locally/">torch</a>,
 <a class="reference external" href="https://huggingface.co/docs/transformers/installation">transformers</a>), <a class="reference external" href="https://en.wikipedia.org/wiki/Automated_readability_index">ari_grade_level</a> (requires <a class="reference external" href="https://pypi.org/project/textstat">textstat</a>),
 <a class="reference external" href="https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests#Flesch%E2%80%93Kincaid_grade_level">flesch_kincaid_grade_level</a> (requires <a class="reference external" href="https://pypi.org/project/textstat">textstat</a>).</p></li>
 <li><p><strong>artifacts</strong>: A JSON file containing the inputs, outputs, targets (if the <code class="docutils literal notranslate"><span class="pre">targets</span></code>
@@ -789,7 +794,7 @@ argument is supplied), and per-row metrics of the model in the tabular format.</
 </li>
 <li><dl class="simple">
 <dt>For text models, the default evaluator logs:</dt><dd><ul>
-<li><p><strong>metrics</strong>: <code class="docutils literal notranslate"><span class="pre">token_count</span></code>, <a class="reference external" href="https://huggingface.co/spaces/evaluate-measurement/toxicity">toxicity</a> (requires <a class="reference external" href="https://pypi.org/project/evaluate">evaluate</a>, <a class="reference external" href="https://pytorch.org/get-started/locally/">pytorch</a>,
+<li><p><strong>metrics</strong>: <code class="docutils literal notranslate"><span class="pre">token_count</span></code>, <a class="reference external" href="https://huggingface.co/spaces/evaluate-measurement/toxicity">toxicity</a> (requires <a class="reference external" href="https://pypi.org/project/evaluate">evaluate</a>, <a class="reference external" href="https://pytorch.org/get-started/locally/">torch</a>,
 <a class="reference external" href="https://huggingface.co/docs/transformers/installation">transformers</a>), <a class="reference external" href="https://en.wikipedia.org/wiki/Automated_readability_index">ari_grade_level</a> (requires <a class="reference external" href="https://pypi.org/project/textstat">textstat</a>),
 <a class="reference external" href="https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests#Flesch%E2%80%93Kincaid_grade_level">flesch_kincaid_grade_level</a> (requires <a class="reference external" href="https://pypi.org/project/textstat">textstat</a>).</p></li>
 <li><p><strong>artifacts</strong>: A JSON file containing the inputs, outputs, targets (if the <code class="docutils literal notranslate"><span class="pre">targets</span></code>
@@ -800,8 +805,9 @@ argument is supplied), and per-row metrics of the model in tabular format.</p></
 </li>
 <li><dl class="simple">
 <dt>For retriever models, the default evaluator logs:</dt><dd><ul>
-<li><p><strong>metrics</strong>: <a class="reference internal" href="mlflow.metrics.html#mlflow.metrics.precision_at_k" title="mlflow.metrics.precision_at_k"><code class="xref py py-mod docutils literal notranslate"><span class="pre">precision_at_k(k)</span></code></a> and
-<a class="reference internal" href="mlflow.metrics.html#mlflow.metrics.recall_at_k" title="mlflow.metrics.recall_at_k"><code class="xref py py-mod docutils literal notranslate"><span class="pre">recall_at_k(k)</span></code></a> - both have a default value of
+<li><p><strong>metrics</strong>: <a class="reference internal" href="mlflow.metrics.html#mlflow.metrics.precision_at_k" title="mlflow.metrics.precision_at_k"><code class="xref py py-mod docutils literal notranslate"><span class="pre">precision_at_k(k)</span></code></a>,
+<a class="reference internal" href="mlflow.metrics.html#mlflow.metrics.recall_at_k" title="mlflow.metrics.recall_at_k"><code class="xref py py-mod docutils literal notranslate"><span class="pre">recall_at_k(k)</span></code></a> and
+<a class="reference internal" href="mlflow.metrics.html#mlflow.metrics.ndcg_at_k" title="mlflow.metrics.ndcg_at_k"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ndcg_at_k(k)</span></code></a> - all have a default value of
 <code class="docutils literal notranslate"><span class="pre">retriever_k</span></code> = 3.</p></li>
 <li><p><strong>artifacts</strong>: A JSON file containing the inputs, outputs, targets, and per-row metrics
 of the model in tabular format.</p></li>
@@ -852,8 +858,9 @@ metrics.</p></li>
 predictions to column names used when invoking the evaluation functions.</p></li>
 <li><p><strong>retriever_k</strong>: A parameter used when <code class="docutils literal notranslate"><span class="pre">model_type=&quot;retriever&quot;</span></code> as the number of
 top-ranked retrieved documents to use when computing the built-in metric
-<a class="reference internal" href="mlflow.metrics.html#mlflow.metrics.precision_at_k" title="mlflow.metrics.precision_at_k"><code class="xref py py-mod docutils literal notranslate"><span class="pre">precision_at_k(k)</span></code></a> and
-<a class="reference internal" href="mlflow.metrics.html#mlflow.metrics.recall_at_k" title="mlflow.metrics.recall_at_k"><code class="xref py py-mod docutils literal notranslate"><span class="pre">recall_at_k(k)</span></code></a>. Default value is 3. For all other
+<a class="reference internal" href="mlflow.metrics.html#mlflow.metrics.precision_at_k" title="mlflow.metrics.precision_at_k"><code class="xref py py-mod docutils literal notranslate"><span class="pre">precision_at_k(k)</span></code></a>,
+<a class="reference internal" href="mlflow.metrics.html#mlflow.metrics.recall_at_k" title="mlflow.metrics.recall_at_k"><code class="xref py py-mod docutils literal notranslate"><span class="pre">recall_at_k(k)</span></code></a> and
+<a class="reference internal" href="mlflow.metrics.html#mlflow.metrics.ndcg_at_k" title="mlflow.metrics.ndcg_at_k"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ndcg_at_k(k)</span></code></a>. Default value is 3. For all other
 model types, this parameter will be ignored.</p></li>
 </ul>
 </dd>
@@ -986,11 +993,11 @@ contains model outputs.</p></li>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;answer&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;bar&quot;</span><span class="p">],</span> <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;baz&quot;</span><span class="p">]})</span>
 
 
-<span class="n">results</span> <span class="o">=</span> <span class="n">evalaute</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 
 <span class="c1"># Evaluate a static dataset</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;foo&quot;</span><span class="p">],</span> <span class="s2">&quot;answer&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;bar&quot;</span><span class="p">],</span> <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;baz&quot;</span><span class="p">]})</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">evalaute</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1196,6 +1203,12 @@ from the baseline model is used (if any).</p></li>
 metrics of candidate model and baseline model, and artifacts of candidate model.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="mlflow.flush_async_logging">
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">flush_async_logging</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#flush_async_logging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.flush_async_logging" title="Permalink to this definition"> </a></dt>
+<dd><p>Flush all pending async logging.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1611,7 +1624,7 @@ or else throw a MlflowException.</p>
 
 <dl class="py function">
 <dt id="mlflow.log_artifact">
-<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_artifact</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_artifact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_artifact" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_artifact</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_artifact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_artifact" title="Permalink to this definition"> </a></dt>
 <dd><p>Log a local file or directory as an artifact of the currently active run. If no run is
 active, this method will create a new active run.</p>
 <dl class="field-list simple">
@@ -1642,7 +1655,7 @@ active, this method will create a new active run.</p>
 
 <dl class="py function">
 <dt id="mlflow.log_artifacts">
-<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_artifacts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_dir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_artifacts" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_artifacts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_dir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_artifacts" title="Permalink to this definition"> </a></dt>
 <dd><p>Log all the contents of a local directory as artifacts of the run. If no run is active,
 this method will create a new active run.</p>
 <dl class="field-list simple">
@@ -1680,7 +1693,7 @@ this method will create a new active run.</p>
 
 <dl class="py function">
 <dt id="mlflow.log_dict">
-<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dictionary</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_dict" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dictionary</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_dict" title="Permalink to this definition"> </a></dt>
 <dd><p>Log a JSON/YAML-serializable object (e.g. <cite>dict</cite>) as an artifact. The serialization
 format (JSON or YAML) is automatically inferred from the extension of <cite>artifact_file</cite>.
 If the file extension doesn’t exist or match any of [“.json”, “.yml”, “.yaml”],
@@ -1875,7 +1888,7 @@ This will be set as an input tag with key <cite>mlflow.data.context</cite>.</p><
 
 <dl class="py function">
 <dt id="mlflow.log_metric">
-<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_metric</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synchronous</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlflow.utils.html#mlflow.utils.async_logging.run_operations.RunOperations" title="mlflow.utils.async_logging.run_operations.RunOperations"><span class="pre">mlflow.utils.async_logging.run_operations.RunOperations</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_metric" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_metric</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synchronous</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlflow.utils.html#mlflow.utils.async_logging.run_operations.RunOperations" title="mlflow.utils.async_logging.run_operations.RunOperations"><span class="pre">mlflow.utils.async_logging.run_operations.RunOperations</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_metric" title="Permalink to this definition"> </a></dt>
 <dd><p>Log a metric under the current run. If no run is active, this method will create
 a new active run.</p>
 <dl class="field-list simple">
@@ -1891,6 +1904,7 @@ SQLAlchemy store replaces +/- Infinity with max / min float values.
 All backend stores will support values up to length 5000, but some
 may support larger values.</p></li>
 <li><p><strong>step</strong> – Metric step (int). Defaults to zero if unspecified.</p></li>
+<li><p><strong>timestamp</strong> – Time when this metric was calculated. Defaults to the current system time.</p></li>
 <li><p><strong>synchronous</strong> – <em>Experimental</em> If True, blocks until the metric is logged
 successfully. If False, logs the metric asynchronously and
 returns a future representing the logging operation.</p></li>
@@ -1920,7 +1934,7 @@ logging operation.</p>
 
 <dl class="py function">
 <dt id="mlflow.log_metrics">
-<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synchronous</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlflow.utils.html#mlflow.utils.async_logging.run_operations.RunOperations" title="mlflow.utils.async_logging.run_operations.RunOperations"><span class="pre">mlflow.utils.async_logging.run_operations.RunOperations</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_metrics" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synchronous</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlflow.utils.html#mlflow.utils.async_logging.run_operations.RunOperations" title="mlflow.utils.async_logging.run_operations.RunOperations"><span class="pre">mlflow.utils.async_logging.run_operations.RunOperations</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_metrics" title="Permalink to this definition"> </a></dt>
 <dd><p>Log multiple metrics for the current run. If no run is active, this method will create a new
 active run.</p>
 <dl class="field-list simple">
@@ -2041,7 +2055,7 @@ represents future for logging operation.</p>
 
 <dl class="py function">
 <dt id="mlflow.log_table">
-<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_table</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_table" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_table</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_table" title="Permalink to this definition"> </a></dt>
 <dd><div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Experimental: This function may change or be removed in a future release without warning.</p>
@@ -2098,7 +2112,7 @@ the table is saved (e.g. “dir/file.json”).</p></li>
 
 <dl class="py function">
 <dt id="mlflow.log_text">
-<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_text</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_text" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_text</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_text" title="Permalink to this definition"> </a></dt>
 <dd><p>Log text as an artifact.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2129,15 +2143,20 @@ the text is saved (e.g. “dir/file.txt”).</p></li>
 
 <dl class="py function">
 <dt id="mlflow.login">
-<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">login</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'databricks'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/utils/credentials.html#login"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.login" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">login</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'databricks'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/utils/credentials.html#login"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.login" title="Permalink to this definition"> </a></dt>
 <dd><p>Configure MLflow server authentication and connect MLflow to tracking server.</p>
 <p>This method provides a simple way to connect MLflow to its tracking server. Currently only
 Databricks tracking server is supported. Users will be prompted to enter the credentials if no
 existing Databricks profile is found, and the credentials will be saved to <cite>~/.databrickscfg</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>backend</strong> – string, the backend of the tracking server. Currently only “databricks” is
-supported.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>backend</strong> – string, the backend of the tracking server. Currently only “databricks” is
+supported.</p></li>
+<li><p><strong>interacive</strong> – bool, controls request for user input on missing credentials. If true, user
+input will be requested if no credentials are found, otherwise an exception will be
+raised if no credentials are found.</p></li>
+</ul>
 </dd>
 </dl>
 <div class="literal-block-wrapper docutils container" id="id69">
@@ -2713,13 +2732,17 @@ respectively.</p>
 <dd><p>Set the given experiment as the active experiment. The experiment must either be specified by
 name via <cite>experiment_name</cite> or by ID via <cite>experiment_id</cite>. The experiment name and ID cannot
 both be specified.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the experiment being set by name does not exist, a new experiment will be
+created with the given name. After the experiment has been created, it will be set
+as the active experiment. On certain platforms, such as Databricks, the experiment name
+must be an absolute path, e.g. <code class="docutils literal notranslate"><span class="pre">&quot;/Users/&lt;username&gt;/my-experiment&quot;</span></code>.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>experiment_name</strong> – Case sensitive name of the experiment to be activated. If an experiment
-with this name does not exist, a new experiment wth this name is
-created. On certain platforms such as Databricks, the experiment name
-must an absolute path, e.g. <code class="docutils literal notranslate"><span class="pre">&quot;/Users/&lt;username&gt;/my-experiment&quot;</span></code>.</p></li>
+<li><p><strong>experiment_name</strong> – Case sensitive name of the experiment to be activated.</p></li>
 <li><p><strong>experiment_id</strong> – ID of the experiment to be activated. If an experiment with this ID
 does not exist, an exception is thrown.</p></li>
 </ul>
@@ -3016,7 +3039,7 @@ otherwise, you must call <code class="docutils literal notranslate"><span class=
 other parameters are ignored. <code class="docutils literal notranslate"><span class="pre">run_id</span></code> takes precedence over <code class="docutils literal notranslate"><span class="pre">MLFLOW_RUN_ID</span></code>.</p>
 <p>If resuming an existing run, the run status is set to <code class="docutils literal notranslate"><span class="pre">RunStatus.RUNNING</span></code>.</p>
 <p>MLflow sets a variety of default tags on the run, as defined in
-<a class="reference internal" href="../tracking.html#system-tags"><span class="std std-ref">MLflow system tags</span></a>.</p>
+<a class="reference internal" href="../tracking/tracking-api.html#system-tags"><span class="std std-ref">MLflow system tags</span></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -3041,7 +3064,7 @@ If a run is being resumed, the description is set on the resumed run.
 If a new run is being created, the description is set on the new run.</p></li>
 <li><p><strong>log_system_metrics</strong> – bool, defaults to None. If True, system metrics will be logged
 to MLflow, e.g., cpu/gpu utilization. If None, we will check environment variable
-<cite>MLFLOW_SYSTEM_METRICS_SAMPLING_INTERVAL</cite> to determine whether to log system metrics.
+<cite>MLFLOW_ENABLE_SYSTEM_METRICS_LOGGING</cite> to determine whether to log system metrics.
 System metrics logging is an experimental feature in MLflow 2.8 and subject to change.</p></li>
 </ul>
 </dd>
@@ -3143,7 +3166,7 @@ child runs:
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Starting the MLflow Tracking Server &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>Starting the MLflow Tracking Server &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,14 +39,16 @@
     <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../index.html"/>
-        <link rel="up" title="Getting Started with MLflow" href="../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../index.html"/>
+        <link rel="up" title="Tutorial Overview" href="index.html"/>
         <link rel="next" title="Using the MLflow Client API" href="/step2-mlflow-client.html"/>
         <link rel="prev" title="Tutorial Overview" href="/index.html"/> 
 
@@ -59,6 +61,7 @@
 <script type="text/javascript" src="../../_static/doctools.js"></script>
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -71,7 +74,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -110,9 +113,10 @@
         <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">What is MLflow?</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Getting Started with MLflow</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html#id1">Logging your first MLflow Model</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="../index.html#guide-sections">Guide sections</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="index.html">Tutorial Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#guidance-on-running-tutorials">Guidance on Running Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#getting-started-guides">Getting Started Guides</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#further-learning-what-s-next">Further Learning - What’s Next?</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Tutorial Overview</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">Starting the MLflow Tracking Server</a></li>
 <li class="toctree-l4"><a class="reference internal" href="step2-mlflow-client.html">Using the MLflow Client API</a></li>
 <li class="toctree-l4"><a class="reference internal" href="step3-create-experiment.html">Creating Experiments</a></li>
@@ -124,8 +128,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#id2">15 minute Quickstart - Learn the basics of MLflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#id3">15 minute Quickstart - Comparing Runs and Deploying your Best Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../new-features/index.html">New Features</a></li>
@@ -135,6 +137,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
@@ -188,6 +191,8 @@
     
         <li><a href="../index.html">Getting Started with MLflow</a> <span class="db-icon db-icon-chevron-right"></span></li>
     
+        <li><a href="index.html">Tutorial Overview</a> <span class="db-icon db-icon-chevron-right"></span></li>
+    
     
       <li>Starting the MLflow Tracking Server</li>
     
@@ -218,8 +223,10 @@ Tracking Server and the MLflow UI. This guide will walk you through the steps to
 </div>
 </div>
 </div>
-<div class="section" id="step-2-launch-the-mlflow-tracking-server">
-<h2>Step 2: Launch the MLflow Tracking Server<a class="headerlink" href="#step-2-launch-the-mlflow-tracking-server" title="Permalink to this headline"> </a></h2>
+<div class="section" id="step-2-optional-launch-the-mlflow-tracking-server">
+<h2>Step 2 (Optional): Launch the MLflow Tracking Server<a class="headerlink" href="#step-2-optional-launch-the-mlflow-tracking-server" title="Permalink to this headline"> </a></h2>
+<p>If you would like to use a simpler solution by leveraging a managed instance of the MLflow Tracking Server,
+please <a class="reference external" href="../running-notebooks/index.html">see the details about options here</a>.</p>
 <p>To begin, you’ll need to initiate the MLflow Tracking Server. Remember to keep the command prompt
 running during the tutorial, as closing it will shut down the server.</p>
 <div class="code-section docutils container">
@@ -286,7 +293,7 @@ explore the myriad of functionalities MLflow has to offer, streamlining and enha
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

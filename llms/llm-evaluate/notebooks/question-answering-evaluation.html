@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>LLM Evaluation with MLflow Example Notebook &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>LLM Evaluation with MLflow Example Notebook &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="LLM Evaluation Examples" href="index.html"/>
         <link rel="next" title="LLM RAG Evaluation with MLflow Example Notebook" href="/rag-evaluation.html"/>
         <link rel="prev" title="LLM Evaluation Examples" href="/index.html"/> 
@@ -59,6 +61,7 @@
 <script type="text/javascript" src="../../../_static/doctools.js"></script>
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script type="text/javascript" src="../../../None"></script>
 
@@ -73,7 +76,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -114,21 +117,26 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">LLMs</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#id1">MLflow AI Gateway</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#id4">LLM Evaluation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#id5">Prompt Engineering UI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#id1">MLflow Deployments Server for LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#id2">LLM Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#id3">Prompt Engineering UI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#native-mlflow-flavors-for-llms">Native MLflow Flavors for LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#id6">LLM Tracking in MLflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#id4">LLM Tracking in MLflow</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../index.html#tutorials-and-use-case-guides-for-llms-in-mlflow">Tutorials and Use Case Guides for LLMs in MLflow</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../../rag/index.html">Retrieval Augmented Generation (RAG)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../custom-pyfunc-for-llms/index.html">Deploying Advanced LLMs with Custom PyFuncs in MLflow</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="index.html">LLM Evaluation Examples</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">LLM Evaluation with MLflow Example Notebook</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rag-evaluation.html">LLM RAG Evaluation with MLflow Example Notebook</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rag-evaluation-llama2.html">LLM RAG Evaluation with MLflow using llama2-as-judge Example Notebook</a></li>
+<li class="toctree-l4"><a class="reference internal" href="huggingface-evaluation.html">Evaluate a Hugging Face LLM with <code class="docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="index.html#qa-evaluation-notebook">QA Evaluation Notebook</a></li>
-<li class="toctree-l4"><a class="reference internal" href="index.html#rag-evaluation-notebook">RAG Evaluation Notebook</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#rag-evaluation-notebook-using-gpt-4-as-judge">RAG Evaluation Notebook (using gpt-4-as-judge)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#rag-evaluation-notebook-using-llama2-70b-as-judge">RAG Evaluation Notebook (using llama2-70b-as-judge)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#evaluating-a-hugging-face-llm-notebook-using-gpt-4-as-judge">Evaluating a 🤗 Hugging Face LLM Notebook (using gpt-4-as-judge)</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 </ul>
 </li>
 </ul>
@@ -138,6 +146,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-registry.html">MLflow Model Registry</a></li>
@@ -456,24 +465,10 @@ div.rendered_html tbody tr:hover {
 </style>
 <div class="section" id="LLM-Evaluation-with-MLflow-Example-Notebook">
 <h1>LLM Evaluation with MLflow Example Notebook<a class="headerlink" href="#LLM-Evaluation-with-MLflow-Example-Notebook" title="Permalink to this headline"> </a></h1>
-<p>In this notebook, we will demonstrate how to evaluate various LLMs and RAG systems with MLflow, leveraging simple metrics such as perplexity and toxicity, as well as LLM-judged metrics such as relevance, and even custom LLM-judged metrics such as professionalism</p>
-<p>Set OpenAI Key</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;redacted&quot;</span>
-</pre></div>
-</div>
-</div>
+<p>In this notebook, we will demonstrate how to evaluate various LLMs and RAG systems with MLflow, leveraging simple metrics such as toxicity, as well as LLM-judged metrics such as relevance, and even custom LLM-judged metrics such as professionalism</p>
+<p>We need to set our OpenAI API key, since we will be using GPT-4 for our LLM-judged metrics.</p>
+<p>In order to set your private key safely, please be sure to either export your key through a command-line terminal for your current instance, or, for a permanent addition to all user-based sessions, configure your favored environment management configuration file (i.e., .bashrc, .zshrc) to have the following entry:</p>
+<p><code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY=&lt;your</span> <span class="pre">openai</span> <span class="pre">API</span> <span class="pre">key&gt;</span></code></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -684,7 +679,7 @@ Using default facebook/roberta-hate-speech-dynabench-r4-target checkpoint
     <span class="n">justification</span><span class="o">=</span><span class="s2">&quot;The definition effectively explains what MLflow is &quot;</span>
     <span class="s2">&quot;its purpose, and its developer. It could be more concise for a 5-score.&quot;</span><span class="p">,</span>
     <span class="n">grading_context</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;ground_truth&quot;</span><span class="p">:</span> <span class="s2">&quot;MLflow is an open-source platform for managing &quot;</span>
+        <span class="s2">&quot;targets&quot;</span><span class="p">:</span> <span class="s2">&quot;MLflow is an open-source platform for managing &quot;</span>
         <span class="s2">&quot;the end-to-end machine learning (ML) lifecycle. It was developed by Databricks, &quot;</span>
         <span class="s2">&quot;a company that specializes in big data and machine learning solutions. MLflow is &quot;</span>
         <span class="s2">&quot;designed to address the challenges that data scientists and machine learning &quot;</span>
@@ -1016,7 +1011,6 @@ justification: Your step-by-step reasoning about the model&#39;s professionalism
     )
 </pre></div></div>
 </div>
-<p>TODO: Try out your new professionalism metric on a sample output to make sure it behaves as you expect</p>
 <p>Call <code class="docutils literal notranslate"><span class="pre">mlflow.evaluate</span></code> with your new professionalism metric.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
@@ -1363,7 +1357,7 @@ justification: Your step-by-step reasoning about the model&#39;s professionalism
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

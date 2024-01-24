@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>MLflow LLM Evaluate &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>MLflow LLM Evaluate &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,16 +39,18 @@
     <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="LLMs" href="../index.html"/>
         <link rel="next" title="Prompt Engineering UI (Experimental)" href="/../prompt-engineering/index.html"/>
-        <link rel="prev" title="Querying routes in the AI Gateway" href="/../gateway/guides/step2-query-gateway.html"/> 
+        <link rel="prev" title="Querying endpoints in the MLflow Deployment Server" href="/../deployments/guides/step2-query-deployments.html"/> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
@@ -59,6 +61,7 @@
 <script type="text/javascript" src="../../_static/doctools.js"></script>
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -71,7 +74,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -112,8 +115,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">LLMs</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../index.html#id1">MLflow AI Gateway</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html#id4">LLM Evaluation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#id1">MLflow Deployments Server for LLMs</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#id2">LLM Evaluation</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">MLflow LLM Evaluate</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#full-notebook-guides-and-examples">Full Notebook Guides and Examples</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#quickstart">Quickstart</a></li>
@@ -126,9 +129,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../index.html#benefits-of-mlflow-s-llm-evaluation">Benefits of MLflow’s LLM Evaluation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#id5">Prompt Engineering UI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#id3">Prompt Engineering UI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#native-mlflow-flavors-for-llms">Native MLflow Flavors for LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#id6">LLM Tracking in MLflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#id4">LLM Tracking in MLflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#tutorials-and-use-case-guides-for-llms-in-mlflow">Tutorials and Use Case Guides for LLMs in MLflow</a></li>
 </ul>
 </li>
@@ -137,6 +140,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
@@ -221,7 +225,7 @@ numpy array or an <a class="reference internal" href="../../python_api/mlflow.da
 <h2>Full Notebook Guides and Examples<a class="headerlink" href="#full-notebook-guides-and-examples" title="Permalink to this headline"> </a></h2>
 <p>If you’re interested in thorough use-case oriented guides that showcase the simplicity and power of MLflow’s evaluate
 functionality for LLMs, please navigate to the notebook collection below:</p>
-<a href="notebooks/index.html" class="download-btn">View the Notebook Guides</a><br></div>
+<a href="notebooks/index.html" class="download-btn">View the Notebook Guides</a><br/></div>
 <div class="section" id="quickstart">
 <h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline"> </a></h2>
 <p>Below is a simple example that gives an quick overview of how MLflow LLM evaluation works. The example builds
@@ -317,7 +321,7 @@ These metrics are similar to traditional metrics.</p></li>
 </ul>
 </div>
 <div class="section" id="use-default-metrics-for-pre-defined-model-types">
-<h3>Use Default Metrics for Pre-defined Model Types<a class="headerlink" href="#use-default-metrics-for-pre-defined-model-types" title="Permalink to this headline"> </a></h3>
+<span id="llm-eval-default-metrics"></span><h3>Use Default Metrics for Pre-defined Model Types<a class="headerlink" href="#use-default-metrics-for-pre-defined-model-types" title="Permalink to this headline"> </a></h3>
 <p>MLflow LLM evaluation includes default collections of metrics for pre-selected tasks, e.g, “question-answering”. Depending on the
 LLM use case that you are evaluating, these pre-defined collections can greatly simplify the process of running evaluations. To use
 defaults metrics for pre-selected tasks, specify the <code class="docutils literal notranslate"><span class="pre">model_type</span></code> argument in <a class="reference internal" href="../../python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a>, as shown by the example
@@ -362,14 +366,14 @@ below:</p>
 </div></blockquote>
 </li>
 </ul>
-<p><sup>1</sup> Requires package <a class="reference external" href="https://pypi.org/project/evaluate">evaluate</a>, <a class="reference external" href="https://pytorch.org/get-started/locally/">pytorch</a>, and
+<p><sup>1</sup> Requires package <a class="reference external" href="https://pypi.org/project/evaluate">evaluate</a>, <a class="reference external" href="https://pytorch.org/get-started/locally/">torch</a>, and
 <a class="reference external" href="https://huggingface.co/docs/transformers/installation">transformers</a></p>
 <p><sup>2</sup> Requires package <a class="reference external" href="https://pypi.org/project/textstat">textstat</a></p>
 <p><sup>3</sup> Requires package <a class="reference external" href="https://pypi.org/project/evaluate">evaluate</a>, <a class="reference external" href="https://pypi.org/project/nltk">nltk</a>, and
 <a class="reference external" href="https://pypi.org/project/rouge-score">rouge-score</a></p>
 </div>
 <div class="section" id="use-a-custom-list-of-metrics">
-<h3>Use a Custom List of Metrics<a class="headerlink" href="#use-a-custom-list-of-metrics" title="Permalink to this headline"> </a></h3>
+<span id="llm-eval-custom-metrics"></span><h3>Use a Custom List of Metrics<a class="headerlink" href="#use-a-custom-list-of-metrics" title="Permalink to this headline"> </a></h3>
 <p>Using the pre-defined metrics associated with a given model type is not the only way to generate scoring metrics
 for LLM evaluation in MLflow. You can specify a custom list of metrics in the <cite>extra_metrics</cite> argument in <cite>mlflow.evaluate</cite>:</p>
 <ul>
@@ -398,7 +402,7 @@ for LLM evaluation in MLflow. You can specify a custom list of metrics in the <c
 </div></blockquote>
 </li>
 </ul>
-<p>The full reference for supported evaluation metrics can be found <a class="reference external" href="../python_api/mlflow.html#mlflow.evaluate">here</a>.</p>
+<p>The full reference for supported evaluation metrics can be found <a class="reference external" href="../../python_api/mlflow.html#mlflow.evaluate">here</a>.</p>
 </div>
 <div class="section" id="metrics-with-llm-as-the-judge">
 <h3>Metrics with LLM as the Judge<a class="headerlink" href="#metrics-with-llm-as-the-judge" title="Permalink to this headline"> </a></h3>
@@ -413,6 +417,29 @@ metrics:</p>
 <li><p><a class="reference internal" href="../../python_api/mlflow.metrics.html#mlflow.metrics.genai.faithfulness" title="mlflow.metrics.genai.faithfulness"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.metrics.genai.faithfulness()</span></code></a>: Use this metric when you want to evaluate how faithful the model generated output is based on the context provided. High scores mean that the outputs contain information that is in line with the context, while low scores mean that outputs may disagree with the context (input is ignored).</p></li>
 </ul>
 </div>
+<div class="section" id="selecting-the-llm-as-judge-model">
+<h3>Selecting the LLM-as-judge Model<a class="headerlink" href="#selecting-the-llm-as-judge-model" title="Permalink to this headline"> </a></h3>
+<p>By default, llm-as-judge metrics use <code class="docutils literal notranslate"><span class="pre">openai:/gpt-4</span></code> as the judge. You can change the default judge model by passing an override to the <code class="docutils literal notranslate"><span class="pre">model</span></code> argument within the metric definition, as shown below. In addition to OpenAI models, you can also use any endpoint via MLflow Deployments. Use <a class="reference internal" href="../../python_api/mlflow.deployments.html#mlflow.deployments.set_deployments_target" title="mlflow.deployments.set_deployments_target"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.deployments.set_deployments_target()</span></code></a> to set the target deployment client.</p>
+<p>To use an endpoint hosted by a local MLflow Deployments Server, you can use the following code.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.deployments</span> <span class="kn">import</span> <span class="n">set_deployments_target</span>
+
+<span class="n">set_deployments_target</span><span class="p">(</span><span class="s2">&quot;http://localhost:5000&quot;</span><span class="p">)</span>
+<span class="n">my_answer_similarity</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">answer_similarity</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;endpoints:/my-endpoint&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>To use an endpoint hosted on Databricks, you can use the following code.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.deployments</span> <span class="kn">import</span> <span class="n">set_deployments_target</span>
+
+<span class="n">set_deployments_target</span><span class="p">(</span><span class="s2">&quot;databricks&quot;</span><span class="p">)</span>
+<span class="n">llama2_answer_similarity</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">answer_similarity</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;endpoints:/databricks-llama-2-70b-chat&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>For more information about how various models perform as judges, please refer to <a class="reference external" href="https://www.databricks.com/blog/LLM-auto-eval-best-practices-RAG">this blog</a>.</p>
+</div>
 </div>
 <div class="section" id="creating-custom-llm-evaluation-metrics">
 <h2>Creating Custom LLM-evaluation Metrics<a class="headerlink" href="#creating-custom-llm-evaluation-metrics" title="Permalink to this headline"> </a></h2>
@@ -425,7 +452,7 @@ needs the following information:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">definition</span></code>: describe what’s the metric doing.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">grading_prompt</span></code>: describe the scoring critieria.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">examples</span></code>: a few input/output examples with score, they are used as a reference for LLM judge.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">model</span></code>: the identifier of LLM judge.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model</span></code>: the identifier of LLM judge, in the format of “openai:/gpt-4” or “endpoints:/databricks-llama-2-70b-chat”.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">parameters</span></code>: the extra parameters to send to LLM judge, e.g., <code class="docutils literal notranslate"><span class="pre">temperature</span></code> for <code class="docutils literal notranslate"><span class="pre">&quot;openai:/gpt-3.5-turbo-16k&quot;</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">aggregations</span></code>: The list of options to aggregate the per-row scores using numpy functions.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">greater_is_better</span></code>: indicates if a higher score means your model is better.</p></li>
@@ -499,7 +526,7 @@ we will use <a class="reference internal" href="../../python_api/mlflow.metrics.
 </div>
 <div class="section" id="create-heuristic-based-llm-evaluation-metrics-category-2">
 <h3>Create heuristic-based LLM Evaluation Metrics (Category 2)<a class="headerlink" href="#create-heuristic-based-llm-evaluation-metrics-category-2" title="Permalink to this headline"> </a></h3>
-<p>This is very similar to creating a custom traditional metrics, with the exception of returning a <cite>EvaluationResult</cite> instance.
+<p>This is very similar to creating custom traditional metrics, with the exception of returning a <a class="reference internal" href="../../python_api/mlflow.metrics.html#mlflow.metrics.MetricValue" title="mlflow.metrics.MetricValue"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.metrics.MetricValue()</span></code></a> instance.
 Basically you need to:</p>
 <ol class="arabic simple">
 <li><p>Implement a <code class="docutils literal notranslate"><span class="pre">eval_fn</span></code> to define your scoring logic, it must take in 3 args <code class="docutils literal notranslate"><span class="pre">predictions</span></code>, <code class="docutils literal notranslate"><span class="pre">targets</span></code> and <code class="docutils literal notranslate"><span class="pre">metrics</span></code>.
@@ -507,14 +534,14 @@ Basically you need to:</p>
 <li><p>Pass <code class="docutils literal notranslate"><span class="pre">eval_fn</span></code> and other arguments to <code class="docutils literal notranslate"><span class="pre">mlflow.metrics.make_metric</span></code> API to create the metric.</p></li>
 </ol>
 <p>The following code creates a dummy per-row metric called <code class="docutils literal notranslate"><span class="pre">&quot;over_10_chars&quot;</span></code>: if the model output is greater than 10,
-the score is 1 otherwise 0.</p>
+the score is “yes” otherwise “no”.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">eval_fn</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">metrics</span><span class="p">):</span>
     <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">predictions</span><span class="p">)):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">predictions</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
-            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;yes&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;no&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">MetricValue</span><span class="p">(</span>
         <span class="n">scores</span><span class="o">=</span><span class="n">scores</span><span class="p">,</span>
         <span class="n">aggregate_results</span><span class="o">=</span><span class="n">standard_aggregations</span><span class="p">(</span><span class="n">scores</span><span class="p">),</span>
@@ -625,7 +652,7 @@ up OpenAI authentication to run the code below.</p>
 </div>
 </div>
 <div class="section" id="evaluating-with-a-static-dataset">
-<h3>Evaluating with a Static Dataset<a class="headerlink" href="#evaluating-with-a-static-dataset" title="Permalink to this headline"> </a></h3>
+<span id="llm-eval-static-dataset"></span><h3>Evaluating with a Static Dataset<a class="headerlink" href="#evaluating-with-a-static-dataset" title="Permalink to this headline"> </a></h3>
 <p>For MLflow &gt;= 2.8.0, <a class="reference internal" href="../../python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a> supports evaluating a static dataset without specifying a model.
 This is useful when you save the model output to a column in a Pandas DataFrame or an MLflow PandasDataset, and
 want to evaluate the static dataset without re-running the model.</p>
@@ -679,7 +706,7 @@ top-level <code class="docutils literal notranslate"><span class="pre">predictio
 <h2>Viewing Evaluation Results<a class="headerlink" href="#viewing-evaluation-results" title="Permalink to this headline"> </a></h2>
 <div class="section" id="view-evaluation-results-via-code">
 <h3>View Evaluation Results via Code<a class="headerlink" href="#view-evaluation-results-via-code" title="Permalink to this headline"> </a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code> returns the evaluation results as an <a class="reference internal" href="../../python_api/mlflow.models.html#mlflow.models.EvaluationResult" title="mlflow.models.EvaluationResult"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.EvaluationResult()</span></code></a> instace.
+<p><code class="docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code> returns the evaluation results as an <a class="reference internal" href="../../python_api/mlflow.models.html#mlflow.models.EvaluationResult" title="mlflow.models.EvaluationResult"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.EvaluationResult()</span></code></a> instance.
 To see the score on selected metrics, you can check:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">metrics</span></code>: stores the aggregated results, like average/variance across the evaluation dataset. Let’s take a second
@@ -738,7 +765,7 @@ MLflow UI. To view the evaluation results on MLflow UI, please follow the steps 
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../gateway/guides/step2-query-gateway.html" class="btn btn-neutral" title="Querying routes in the AI Gateway" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
+        <a href="../deployments/guides/step2-query-deployments.html" class="btn btn-neutral" title="Querying endpoints in the MLflow Deployment Server" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
       
       
         <a href="../prompt-engineering/index.html" class="btn btn-neutral" title="Prompt Engineering UI (Experimental)" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
@@ -769,7 +796,7 @@ MLflow UI. To view the evaluation results on MLflow UI, please follow the steps 
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

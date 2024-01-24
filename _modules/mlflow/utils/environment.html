@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.utils.environment &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.utils.environment &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -55,8 +57,10 @@
 <script type="text/javascript" src="../../../_static/jquery.js"></script>
 <script type="text/javascript" src="../../../_static/underscore.js"></script>
 <script type="text/javascript" src="../../../_static/doctools.js"></script>
+<script type="text/javascript" src="../../../_static/tabs.js"></script>
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -69,7 +73,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -115,6 +119,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-registry.html">MLflow Model Registry</a></li>
@@ -185,7 +190,9 @@
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
 
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">packaging.requirements</span> <span class="kn">import</span> <span class="n">InvalidRequirement</span><span class="p">,</span> <span class="n">Requirement</span>
@@ -199,6 +206,7 @@
 <span class="kn">from</span> <span class="nn">mlflow.utils.requirements_utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">_infer_requirements</span><span class="p">,</span>
     <span class="n">_parse_requirements</span><span class="p">,</span>
+    <span class="n">warn_dependency_requirement_mismatches</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.version</span> <span class="kn">import</span> <span class="n">VERSION</span>
 
@@ -233,13 +241,14 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Represents environment information for MLflow Models and Projects.</span>
 
-<span class="sd">        :param python: Python version for the environment. If unspecified, defaults to the current</span>
-<span class="sd">                       Python version.</span>
-<span class="sd">        :param build_dependencies: List of build dependencies for the environment that must</span>
-<span class="sd">                                   be installed before installing ``dependencies``. If unspecified,</span>
-<span class="sd">                                   defaults to an empty list.</span>
-<span class="sd">        :param dependencies: List of dependencies for the environment. If unspecified, defaults to</span>
-<span class="sd">                             an empty list.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            python: Python version for the environment. If unspecified, defaults to the current</span>
+<span class="sd">                Python version.</span>
+<span class="sd">            build_dependencies: List of build dependencies for the environment that must</span>
+<span class="sd">                be installed before installing ``dependencies``. If unspecified,</span>
+<span class="sd">                defaults to an empty list.</span>
+<span class="sd">            dependencies: List of dependencies for the environment. If unspecified, defaults to</span>
+<span class="sd">                an empty list.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">python</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">python</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`python` must be a string but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">python</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -382,25 +391,32 @@
     <span class="n">additional_conda_channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">install_mlflow</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Creates a Conda environment with the specified package channels and dependencies. If there are</span>
-<span class="sd">    any pip dependencies, including from the install_mlflow parameter, then pip will be added to</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates a Conda environment with the specified package channels and dependencies. If there</span>
+<span class="sd">    are any pip dependencies, including from the install_mlflow parameter, then pip will be added to</span>
 <span class="sd">    the conda dependencies. This is done to ensure that the pip inside the conda environment is</span>
 <span class="sd">    used to install the pip dependencies.</span>
 
-<span class="sd">    :param path: Local filesystem path where the conda env file is to be written. If unspecified,</span>
-<span class="sd">                 the conda env will not be written to the filesystem; it will still be returned</span>
-<span class="sd">                 in dictionary format.</span>
-<span class="sd">    :param additional_conda_deps: List of additional conda dependencies passed as strings.</span>
-<span class="sd">    :param additional_pip_deps: List of additional pip dependencies passed as strings.</span>
-<span class="sd">    :param additional_conda_channels: List of additional conda channels to search when resolving</span>
-<span class="sd">                                      packages.</span>
-<span class="sd">    :return: ``None`` if ``path`` is specified. Otherwise, the a dictionary representation of the</span>
-<span class="sd">             Conda environment.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        path: Local filesystem path where the conda env file is to be written. If unspecified,</span>
+<span class="sd">            the conda env will not be written to the filesystem; it will still be returned</span>
+<span class="sd">            in dictionary format.</span>
+<span class="sd">        additional_conda_deps: List of additional conda dependencies passed as strings.</span>
+<span class="sd">        additional_pip_deps: List of additional pip dependencies passed as strings.</span>
+<span class="sd">        additional_conda_channels: List of additional conda channels to search when resolving</span>
+<span class="sd">            packages.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None if path is specified. Otherwise, the a dictionary representation of the</span>
+<span class="sd">        Conda environment.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">pip_deps</span> <span class="o">=</span> <span class="p">([</span><span class="sa">f</span><span class="s2">&quot;mlflow==</span><span class="si">{</span><span class="n">VERSION</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">install_mlflow</span> <span class="k">else</span> <span class="p">[])</span> <span class="o">+</span> <span class="p">(</span>
-        <span class="n">additional_pip_deps</span> <span class="k">if</span> <span class="n">additional_pip_deps</span> <span class="k">else</span> <span class="p">[]</span>
+    <span class="n">additional_pip_deps</span> <span class="o">=</span> <span class="n">additional_pip_deps</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="n">mlflow_deps</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mlflow==</span><span class="si">{</span><span class="n">VERSION</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">install_mlflow</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_contains_mlflow_requirement</span><span class="p">(</span><span class="n">additional_pip_deps</span><span class="p">)</span>
+        <span class="k">else</span> <span class="p">[]</span>
     <span class="p">)</span>
+    <span class="n">pip_deps</span> <span class="o">=</span> <span class="n">mlflow_deps</span> <span class="o">+</span> <span class="n">additional_pip_deps</span>
     <span class="n">conda_deps</span> <span class="o">=</span> <span class="n">additional_conda_deps</span> <span class="k">if</span> <span class="n">additional_conda_deps</span> <span class="k">else</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">pip_deps</span><span class="p">:</span>
         <span class="n">pip_version</span> <span class="o">=</span> <span class="n">_get_pip_version</span><span class="p">()</span>
@@ -434,9 +450,10 @@
 
 <span class="k">def</span> <span class="nf">_get_pip_version</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :return: The version of ``pip`` that is installed in the current environment,</span>
-<span class="sd">             or ``None`` if ``pip`` is not currently installed / does not have a</span>
-<span class="sd">             ``__version__`` attribute.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        The version of ``pip`` that is installed in the current environment,</span>
+<span class="sd">        or ``None`` if ``pip`` is not currently installed / does not have a</span>
+<span class="sd">        ``__version__`` attribute.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">import</span> <span class="nn">pip</span>
@@ -465,7 +482,8 @@
 
 <span class="k">def</span> <span class="nf">_get_pip_deps</span><span class="p">(</span><span class="n">conda_env</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :return: The pip dependencies from the conda env</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        The pip dependencies from the conda env.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">conda_env</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="n">conda_env</span><span class="p">[</span><span class="s2">&quot;dependencies&quot;</span><span class="p">]:</span>
@@ -510,14 +528,16 @@
 
 
 <span class="k">def</span> <span class="nf">_parse_pip_requirements</span><span class="p">(</span><span class="n">pip_requirements</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Parses an iterable of pip requirement strings or a pip requirements file.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parses an iterable of pip requirement strings or a pip requirements file.</span>
 
-<span class="sd">    :param pip_requirements: Either an iterable of pip requirement strings</span>
-<span class="sd">        (e.g. ``[&quot;scikit-learn&quot;, &quot;-r requirements.txt&quot;]``) or the string path to a pip requirements</span>
-<span class="sd">        file on the local filesystem (e.g. ``&quot;requirements.txt&quot;``). If ``None``, an empty list will</span>
-<span class="sd">        be returned.</span>
-<span class="sd">    :return: A tuple of parsed requirements and constraints.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        pip_requirements: Either an iterable of pip requirement strings</span>
+<span class="sd">            (e.g. ``[&quot;scikit-learn&quot;, &quot;-r requirements.txt&quot;]``) or the string path to a pip</span>
+<span class="sd">            requirements file on the local filesystem (e.g. ``&quot;requirements.txt&quot;``). If ``None``,</span>
+<span class="sd">            an empty list will be returned.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A tuple of parsed requirements and constraints.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">pip_requirements</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
@@ -561,15 +581,18 @@
 
 
 <div class="viewcode-block" id="infer_pip_requirements"><a class="viewcode-back" href="../../../python_api/mlflow.models.html#mlflow.models.infer_pip_requirements">[docs]</a><span class="k">def</span> <span class="nf">infer_pip_requirements</span><span class="p">(</span><span class="n">model_uri</span><span class="p">,</span> <span class="n">flavor</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Infers the pip requirements of the specified model by creating a subprocess and loading</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Infers the pip requirements of the specified model by creating a subprocess and loading</span>
 <span class="sd">    the model in it to determine which packages are imported.</span>
 
-<span class="sd">    :param model_uri: The URI of the model.</span>
-<span class="sd">    :param flavor: The flavor name of the model.</span>
-<span class="sd">    :param fallback: If provided, an unexpected error during the inference procedure is swallowed</span>
-<span class="sd">                     and the value of ``fallback`` is returned. Otherwise, the error is raised.</span>
-<span class="sd">    :return: A list of inferred pip requirements (e.g. ``[&quot;scikit-learn==0.24.2&quot;, ...]``).</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model_uri: The URI of the model.</span>
+<span class="sd">        flavor: The flavor name of the model.</span>
+<span class="sd">        fallback: If provided, an unexpected error during the inference procedure is swallowed</span>
+<span class="sd">            and the value of ``fallback`` is returned. Otherwise, the error is raised.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A list of inferred pip requirements (e.g. ``[&quot;scikit-learn==0.24.2&quot;, ...]``).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_infer_requirements</span><span class="p">(</span><span class="n">model_uri</span><span class="p">,</span> <span class="n">flavor</span><span class="p">)</span>
@@ -644,10 +667,11 @@
 
 
 <span class="k">def</span> <span class="nf">_generate_mlflow_version_pinning</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns a pinned requirement for the current MLflow version (e.g., &quot;mlflow==3.2.1&quot;).</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a pinned requirement for the current MLflow version (e.g., &quot;mlflow==3.2.1&quot;).</span>
 
-<span class="sd">    :return: A pinned requirement for the current MLflow version.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        A pinned requirement for the current MLflow version.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">_MLFLOW_TESTING</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
         <span class="c1"># The local PyPI server should be running. It serves a wheel for the current MLflow version.</span>
@@ -694,31 +718,147 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">_contains_mlflow_requirement</span><span class="p">(</span><span class="n">pip_reqs</span><span class="p">):</span>
         <span class="n">pip_reqs</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_generate_mlflow_version_pinning</span><span class="p">())</span>
 
+    <span class="n">sanitized_pip_reqs</span> <span class="o">=</span> <span class="n">_deduplicate_requirements</span><span class="p">(</span><span class="n">pip_reqs</span><span class="p">)</span>
+
+    <span class="c1"># Check if pip requirements contain incompatible version with the current environment</span>
+    <span class="n">warn_dependency_requirement_mismatches</span><span class="p">(</span><span class="n">sanitized_pip_reqs</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="n">constraints</span><span class="p">:</span>
-        <span class="n">pip_reqs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-c </span><span class="si">{</span><span class="n">_CONSTRAINTS_FILE_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">sanitized_pip_reqs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-c </span><span class="si">{</span><span class="n">_CONSTRAINTS_FILE_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="c1"># Set `install_mlflow` to False because `pip_reqs` already contains `mlflow`</span>
-    <span class="n">conda_env</span> <span class="o">=</span> <span class="n">_mlflow_conda_env</span><span class="p">(</span><span class="n">additional_pip_deps</span><span class="o">=</span><span class="n">pip_reqs</span><span class="p">,</span> <span class="n">install_mlflow</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">conda_env</span><span class="p">,</span> <span class="n">pip_reqs</span><span class="p">,</span> <span class="n">constraints</span>
+    <span class="n">conda_env</span> <span class="o">=</span> <span class="n">_mlflow_conda_env</span><span class="p">(</span><span class="n">additional_pip_deps</span><span class="o">=</span><span class="n">sanitized_pip_reqs</span><span class="p">,</span> <span class="n">install_mlflow</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">conda_env</span><span class="p">,</span> <span class="n">sanitized_pip_reqs</span><span class="p">,</span> <span class="n">constraints</span>
 
 
-<span class="k">def</span> <span class="nf">_find_duplicate_requirements</span><span class="p">(</span><span class="n">requirements</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_deduplicate_requirements</span><span class="p">(</span><span class="n">requirements</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Checks if duplicate base package requirements are specified in any list of requirements</span>
-<span class="sd">    and returns the list of duplicate base package names.</span>
-<span class="sd">    Note that git urls and paths to local files are not being considered for duplication checking.</span>
+<span class="sd">    De-duplicates a list of pip package requirements, handling complex scenarios such as merging</span>
+<span class="sd">    extras and combining version constraints.</span>
+
+<span class="sd">    This function processes a list of pip package requirements and de-duplicates them. It handles</span>
+<span class="sd">    standard PyPI packages and non-standard requirements (like URLs or local paths). The function</span>
+<span class="sd">    merges extras and combines version constraints for duplicate packages. The most restrictive</span>
+<span class="sd">    version specifications or the ones with extras are prioritized. If incompatible version</span>
+<span class="sd">    constraints are detected, it raises an MlflowException.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        requirements (list of str): A list of pip package requirement strings.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list of str: A deduplicated list of pip package requirements.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        MlflowException: If incompatible version constraints are detected among the provided</span>
+<span class="sd">                         requirements.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        - Input: [&quot;packageA&quot;, &quot;packageA==1.0&quot;]</span>
+<span class="sd">          Output: [&quot;packageA==1.0&quot;]</span>
+
+<span class="sd">        - Input: [&quot;packageX&gt;1.0&quot;, &quot;packageX[extras]&quot;, &quot;packageX&lt;2.0&quot;]</span>
+<span class="sd">          Output: [&quot;packageX[extras]&gt;1.0,&lt;2.0&quot;]</span>
+
+<span class="sd">        - Input: [&quot;markdown[extra1]&gt;=3.5.1&quot;, &quot;markdown[extra2]&lt;4&quot;, &quot;markdown&quot;]</span>
+<span class="sd">          Output: [&quot;markdown[extra1,extra2]&gt;=3.5.1,&lt;4&quot;]</span>
+
+<span class="sd">        - Input: [&quot;scikit-learn==1.1&quot;, &quot;scikit-learn&lt;1&quot;]</span>
+<span class="sd">          Raises MlflowException indicating incompatible versions.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        - Non-standard requirements (like URLs or file paths) are included as-is.</span>
+<span class="sd">        - If a requirement appears multiple times with different sets of extras, they are merged.</span>
+<span class="sd">        - The function uses `_validate_version_constraints` to check for incompatible version</span>
+<span class="sd">          constraints by doing a dry-run pip install of a requirements collection.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">base_package_names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">deduped_reqs</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">requirements</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">requirements</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">base_package_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Requirement</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">InvalidRequirement</span><span class="p">:</span>
-            <span class="c1"># Skip anything that&#39;s not a valid package requirement</span>
-            <span class="k">continue</span>
+            <span class="n">parsed_req</span> <span class="o">=</span> <span class="n">Requirement</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+            <span class="n">base_pkg</span> <span class="o">=</span> <span class="n">parsed_req</span><span class="o">.</span><span class="n">name</span>
 
-    <span class="n">package_counts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">base_package_names</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">package</span> <span class="k">for</span> <span class="n">package</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">package_counts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">existing_req</span> <span class="o">=</span> <span class="n">deduped_reqs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_pkg</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">existing_req</span><span class="p">:</span>
+                <span class="n">deduped_reqs</span><span class="p">[</span><span class="n">base_pkg</span><span class="p">]</span> <span class="o">=</span> <span class="n">parsed_req</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Verify that there are not unresolvable constraints applied if set and combine</span>
+                <span class="c1"># if possible</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">existing_req</span><span class="o">.</span><span class="n">specifier</span>
+                    <span class="ow">and</span> <span class="n">parsed_req</span><span class="o">.</span><span class="n">specifier</span>
+                    <span class="ow">and</span> <span class="n">existing_req</span><span class="o">.</span><span class="n">specifier</span> <span class="o">!=</span> <span class="n">parsed_req</span><span class="o">.</span><span class="n">specifier</span>
+                <span class="p">):</span>
+                    <span class="n">_validate_version_constraints</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">existing_req</span><span class="p">),</span> <span class="n">req</span><span class="p">])</span>
+                    <span class="n">parsed_req</span><span class="o">.</span><span class="n">specifier</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">existing_req</span><span class="o">.</span><span class="n">specifier</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">parsed_req</span><span class="o">.</span><span class="n">specifier</span><span class="p">)]</span>
+                    <span class="p">)</span>
+
+                <span class="c1"># Preserve existing specifiers</span>
+                <span class="k">if</span> <span class="n">existing_req</span><span class="o">.</span><span class="n">specifier</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">parsed_req</span><span class="o">.</span><span class="n">specifier</span><span class="p">:</span>
+                    <span class="n">parsed_req</span><span class="o">.</span><span class="n">specifier</span> <span class="o">=</span> <span class="n">existing_req</span><span class="o">.</span><span class="n">specifier</span>
+
+                <span class="c1"># Combine and apply extras if specified</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">existing_req</span><span class="o">.</span><span class="n">extras</span>
+                    <span class="ow">and</span> <span class="n">parsed_req</span><span class="o">.</span><span class="n">extras</span>
+                    <span class="ow">and</span> <span class="n">existing_req</span><span class="o">.</span><span class="n">extras</span> <span class="o">!=</span> <span class="n">parsed_req</span><span class="o">.</span><span class="n">extras</span>
+                <span class="p">):</span>
+                    <span class="n">parsed_req</span><span class="o">.</span><span class="n">extras</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">existing_req</span><span class="o">.</span><span class="n">extras</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">parsed_req</span><span class="o">.</span><span class="n">extras</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">existing_req</span><span class="o">.</span><span class="n">extras</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">parsed_req</span><span class="o">.</span><span class="n">extras</span><span class="p">:</span>
+                    <span class="n">parsed_req</span><span class="o">.</span><span class="n">extras</span> <span class="o">=</span> <span class="n">existing_req</span><span class="o">.</span><span class="n">extras</span>
+
+                <span class="n">deduped_reqs</span><span class="p">[</span><span class="n">base_pkg</span><span class="p">]</span> <span class="o">=</span> <span class="n">parsed_req</span>
+
+        <span class="k">except</span> <span class="n">InvalidRequirement</span><span class="p">:</span>
+            <span class="c1"># Include non-standard package strings as-is</span>
+            <span class="k">if</span> <span class="n">req</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">deduped_reqs</span><span class="p">:</span>
+                <span class="n">deduped_reqs</span><span class="p">[</span><span class="n">req</span><span class="p">]</span> <span class="o">=</span> <span class="n">req</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">req</span><span class="p">)</span> <span class="k">for</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">deduped_reqs</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_version_constraints</span><span class="p">(</span><span class="n">requirements</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validates the version constraints of given Python package requirements using pip&#39;s resolver with</span>
+<span class="sd">    the `--dry-run` option enabled that performs validation only (will not install packages).</span>
+
+<span class="sd">    This function writes the requirements to a temporary file and then attempts to resolve</span>
+<span class="sd">    them using pip&#39;s `--dry-run` install option. If any version conflicts are detected, it</span>
+<span class="sd">    raises an MlflowException with details of the conflict.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        requirements (list of str): A list of package requirements (e.g., `[&quot;pandas&gt;=1.15&quot;,</span>
+<span class="sd">        &quot;pandas&lt;2&quot;]`).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        MlflowException: If any version conflicts are detected among the provided requirements.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None: This function does not return anything. It either completes successfully or raises</span>
+<span class="sd">        an MlflowException.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        _validate_version_constraints([&quot;tensorflow&lt;2.0&quot;, &quot;tensorflow&gt;2.3&quot;])</span>
+<span class="sd">        # This will raise an exception due to boundary validity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w+&quot;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp_file</span><span class="p">:</span>
+        <span class="n">tmp_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">requirements</span><span class="p">))</span>
+        <span class="n">tmp_file_name</span> <span class="o">=</span> <span class="n">tmp_file</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;pip&quot;</span><span class="p">,</span> <span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="s2">&quot;--dry-run&quot;</span><span class="p">,</span> <span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="n">tmp_file_name</span><span class="p">],</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+            <span class="s2">&quot;The specified requirements versions are incompatible. Detected &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;conflicts: </span><span class="se">\n</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tmp_file_name</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_process_conda_env</span><span class="p">(</span><span class="n">conda_env</span><span class="p">):</span>
@@ -738,9 +878,11 @@
     <span class="c1"># User-specified `conda_env` may contain requirements/constraints file references</span>
     <span class="n">pip_reqs</span> <span class="o">=</span> <span class="n">_get_pip_deps</span><span class="p">(</span><span class="n">conda_env</span><span class="p">)</span>
     <span class="n">pip_reqs</span><span class="p">,</span> <span class="n">constraints</span> <span class="o">=</span> <span class="n">_parse_pip_requirements</span><span class="p">(</span><span class="n">pip_reqs</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="ow">not</span> <span class="n">_contains_mlflow_requirement</span><span class="p">(</span><span class="n">pip_reqs</span><span class="p">):</span>
         <span class="n">pip_reqs</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_generate_mlflow_version_pinning</span><span class="p">())</span>
+
+    <span class="c1"># Check if pip requirements contain incompatible version with the current environment</span>
+    <span class="n">warn_dependency_requirement_mismatches</span><span class="p">(</span><span class="n">pip_reqs</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">constraints</span><span class="p">:</span>
         <span class="n">pip_reqs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-c </span><span class="si">{</span><span class="n">_CONSTRAINTS_FILE_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -750,12 +892,15 @@
 
 
 <span class="k">def</span> <span class="nf">_get_mlflow_env_name</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Creates an environment name for an MLflow model by hashing the given string.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates an environment name for an MLflow model by hashing the given string.</span>
 
-<span class="sd">    :param s: String to hash (e.g. the content of `conda.yaml`).</span>
-<span class="sd">    :returns: String in the form of &quot;mlflow-{hash}&quot;</span>
-<span class="sd">              (e.g. &quot;mlflow-da39a3ee5e6b4b0d3255bfef95601890afd80709&quot;)</span>
+<span class="sd">    Args:</span>
+<span class="sd">        s: String to hash (e.g. the content of `conda.yaml`).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        String in the form of &quot;mlflow-{hash}&quot;</span>
+<span class="sd">        (e.g. &quot;mlflow-da39a3ee5e6b4b0d3255bfef95601890afd80709&quot;)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;mlflow-&quot;</span> <span class="o">+</span> <span class="n">insecure_hash</span><span class="o">.</span><span class="n">sha1</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
 
@@ -846,7 +991,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

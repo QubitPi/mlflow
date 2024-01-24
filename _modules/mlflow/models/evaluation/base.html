@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.models.evaluation.base &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.models.evaluation.base &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,14 +39,16 @@
     <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../../../index.html"/>
-        <link rel="up" title="mlflow.models" href="../../models.html"/> 
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../../index.html"/>
+        <link rel="up" title="Module code" href="../../../index.html"/> 
 
   
   <script src="../../../../_static/js/modernizr.min.js"></script>
@@ -55,8 +57,10 @@
 <script type="text/javascript" src="../../../../_static/jquery.js"></script>
 <script type="text/javascript" src="../../../../_static/underscore.js"></script>
 <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+<script type="text/javascript" src="../../../../_static/tabs.js"></script>
 <script type="text/javascript" src="../../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -69,7 +73,7 @@
     <a href="../../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -115,6 +119,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../model-registry.html">MLflow Model Registry</a></li>
@@ -167,8 +172,6 @@
     <li><a href="../../../../index.html">Documentation</a> <span class="db-icon db-icon-chevron-right"></span></li>
     
         <li><a href="../../../index.html">Module code</a> <span class="db-icon db-icon-chevron-right"></span></li>
-    
-        <li><a href="../../models.html">mlflow.models</a> <span class="db-icon db-icon-chevron-right"></span></li>
     
     
       <li>mlflow.models.evaluation.base</li>
@@ -1407,14 +1410,14 @@
 
 <span class="sd">     - For question-answering models, the default evaluator logs:</span>
 <span class="sd">        - **metrics**: ``exact_match``, ``token_count``, `toxicity`_ (requires `evaluate`_,</span>
-<span class="sd">          `pytorch`_, `flesch_kincaid_grade_level`_ (requires `textstat`_) and `ari_grade_level`_.</span>
+<span class="sd">          `torch`_, `flesch_kincaid_grade_level`_ (requires `textstat`_) and `ari_grade_level`_.</span>
 <span class="sd">        - **artifacts**: A JSON file containing the inputs, outputs, targets (if the ``targets``</span>
 <span class="sd">          argument is supplied), and per-row metrics of the model in tabular format.</span>
 
 <span class="sd">        .. _toxicity:</span>
 <span class="sd">            https://huggingface.co/spaces/evaluate-measurement/toxicity</span>
 
-<span class="sd">        .. _pytorch:</span>
+<span class="sd">        .. _torch:</span>
 <span class="sd">            https://pytorch.org/get-started/locally/</span>
 
 <span class="sd">        .. _transformers:</span>
@@ -1434,7 +1437,7 @@
 
 <span class="sd">     - For text-summarization models, the default evaluator logs:</span>
 <span class="sd">        - **metrics**: ``token_count``, `ROUGE`_ (requires `evaluate`_, `nltk`_, and</span>
-<span class="sd">          `rouge_score`_ to be installed), `toxicity`_ (requires `evaluate`_, `pytorch`_,</span>
+<span class="sd">          `rouge_score`_ to be installed), `toxicity`_ (requires `evaluate`_, `torch`_,</span>
 <span class="sd">          `transformers`_), `ari_grade_level`_ (requires `textstat`_),</span>
 <span class="sd">          `flesch_kincaid_grade_level`_ (requires `textstat`_).</span>
 <span class="sd">        - **artifacts**: A JSON file containing the inputs, outputs, targets (if the ``targets``</span>
@@ -1446,7 +1449,7 @@
 <span class="sd">        .. _toxicity:</span>
 <span class="sd">            https://huggingface.co/spaces/evaluate-measurement/toxicity</span>
 
-<span class="sd">        .. _pytorch:</span>
+<span class="sd">        .. _torch:</span>
 <span class="sd">            https://pytorch.org/get-started/locally/</span>
 
 <span class="sd">        .. _transformers:</span>
@@ -1471,7 +1474,7 @@
 <span class="sd">            https://pypi.org/project/textstat</span>
 
 <span class="sd">     - For text models, the default evaluator logs:</span>
-<span class="sd">        - **metrics**: ``token_count``, `toxicity`_ (requires `evaluate`_, `pytorch`_,</span>
+<span class="sd">        - **metrics**: ``token_count``, `toxicity`_ (requires `evaluate`_, `torch`_,</span>
 <span class="sd">          `transformers`_), `ari_grade_level`_ (requires `textstat`_),</span>
 <span class="sd">          `flesch_kincaid_grade_level`_ (requires `textstat`_).</span>
 <span class="sd">        - **artifacts**: A JSON file containing the inputs, outputs, targets (if the ``targets``</span>
@@ -1483,7 +1486,7 @@
 <span class="sd">        .. _toxicity:</span>
 <span class="sd">            https://huggingface.co/spaces/evaluate-measurement/toxicity</span>
 
-<span class="sd">        .. _pytorch:</span>
+<span class="sd">        .. _torch:</span>
 <span class="sd">            https://pytorch.org/get-started/locally/</span>
 
 <span class="sd">        .. _transformers:</span>
@@ -1499,8 +1502,9 @@
 <span class="sd">            https://pypi.org/project/textstat</span>
 
 <span class="sd">     - For retriever models, the default evaluator logs:</span>
-<span class="sd">        - **metrics**: :mod:`precision_at_k(k) &lt;mlflow.metrics.precision_at_k&gt;` and</span>
-<span class="sd">          :mod:`recall_at_k(k) &lt;mlflow.metrics.recall_at_k&gt;` - both have a default value of</span>
+<span class="sd">        - **metrics**: :mod:`precision_at_k(k) &lt;mlflow.metrics.precision_at_k&gt;`,</span>
+<span class="sd">          :mod:`recall_at_k(k) &lt;mlflow.metrics.recall_at_k&gt;` and</span>
+<span class="sd">          :mod:`ndcg_at_k(k) &lt;mlflow.metrics.ndcg_at_k&gt;` - all have a default value of</span>
 <span class="sd">          ``retriever_k`` = 3.</span>
 <span class="sd">        - **artifacts**: A JSON file containing the inputs, outputs, targets, and per-row metrics</span>
 <span class="sd">          of the model in tabular format.</span>
@@ -1550,8 +1554,9 @@
 <span class="sd">          predictions to column names used when invoking the evaluation functions.</span>
 <span class="sd">        - **retriever_k**: A parameter used when ``model_type=&quot;retriever&quot;`` as the number of</span>
 <span class="sd">          top-ranked retrieved documents to use when computing the built-in metric</span>
-<span class="sd">          :mod:`precision_at_k(k) &lt;mlflow.metrics.precision_at_k&gt;` and</span>
-<span class="sd">          :mod:`recall_at_k(k) &lt;mlflow.metrics.recall_at_k&gt;`. Default value is 3. For all other</span>
+<span class="sd">          :mod:`precision_at_k(k) &lt;mlflow.metrics.precision_at_k&gt;`,</span>
+<span class="sd">          :mod:`recall_at_k(k) &lt;mlflow.metrics.recall_at_k&gt;` and</span>
+<span class="sd">          :mod:`ndcg_at_k(k) &lt;mlflow.metrics.ndcg_at_k&gt;`. Default value is 3. For all other</span>
 <span class="sd">          model types, this parameter will be ignored.</span>
 
 <span class="sd">     - Limitations of evaluation dataset:</span>
@@ -1658,11 +1663,11 @@
 <span class="sd">                return pd.DataFrame({&quot;answer&quot;: [&quot;bar&quot;], &quot;source&quot;: [&quot;baz&quot;]})</span>
 
 
-<span class="sd">            results = evalaute(model=model, data=data, predictions=&quot;answer&quot;, ...)</span>
+<span class="sd">            results = evaluate(model=model, data=data, predictions=&quot;answer&quot;, ...)</span>
 
 <span class="sd">            # Evaluate a static dataset</span>
 <span class="sd">            data = pd.DataFrame({&quot;question&quot;: [&quot;foo&quot;], &quot;answer&quot;: [&quot;bar&quot;], &quot;source&quot;: [&quot;baz&quot;]})</span>
-<span class="sd">            results = evalaute(data=data, predictions=&quot;answer&quot;, ...)</span>
+<span class="sd">            results = evaluate(data=data, predictions=&quot;answer&quot;, ...)</span>
 
 <span class="sd">    :param model_type: (Optional) A string describing the model type. The default evaluator</span>
 <span class="sd">                       supports the following model types:</span>
@@ -2122,7 +2127,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

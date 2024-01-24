@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>MLflow Model Registry &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>MLflow Model Registry &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,15 +39,17 @@
     <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="index.html"/>
         <link rel="next" title="MLflow Recipes" href="/recipes.html"/>
-        <link rel="prev" title="MLflow Models" href="/models.html"/> 
+        <link rel="prev" title="MLflow Signature Playground Notebook" href="/model/notebooks/signature_examples.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -58,6 +60,7 @@
 <script type="text/javascript" src="_static/doctools.js"></script>
 <script type="text/javascript" src="_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -70,7 +73,7 @@
     <a href="index.html" class="wy-nav-top-logo"
       ><img src="_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -116,6 +119,7 @@
 <li class="toctree-l1"><a class="reference internal" href="traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">MLflow Models</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">MLflow Model Registry</a><ul>
@@ -139,10 +143,14 @@
 <li class="toctree-l4"><a class="reference internal" href="#deleting-mlflow-models">Deleting MLflow Models</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#registering-a-model-saved-outside-mlflow">Registering a Model Saved Outside MLflow</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#registering-an-unsupported-machine-learning-model">Registering an Unsupported Machine Learning Model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#transitioning-an-mlflow-models-stage">Transitioning an MLflow Model’s Stage</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#archiving-an-mlflow-model">Archiving an MLflow Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#deprecated-using-model-stages">Deprecated: Using Model Stages</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#migrating-from-stages">Migrating from Stages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#new-model-deployment-tools">New model deployment tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#migrating-models-away-from-stages">Migrating models away from stages</a></li>
 </ul>
 </li>
 </ul>
@@ -217,46 +225,51 @@ annotations.</p>
 <div class="contents local topic" id="table-of-contents">
 <p class="topic-title">Table of Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#concepts" id="id1">Concepts</a></p></li>
-<li><p><a class="reference internal" href="#model-registry-workflows" id="id2">Model Registry Workflows</a></p>
+<li><p><a class="reference internal" href="#concepts" id="id2">Concepts</a></p></li>
+<li><p><a class="reference internal" href="#model-registry-workflows" id="id3">Model Registry Workflows</a></p>
 <ul>
-<li><p><a class="reference internal" href="#ui-workflow" id="id3">UI Workflow</a></p>
+<li><p><a class="reference internal" href="#ui-workflow" id="id4">UI Workflow</a></p>
 <ul>
-<li><p><a class="reference internal" href="#register-a-model" id="id4">Register a Model</a></p></li>
-<li><p><a class="reference internal" href="#find-registered-models" id="id5">Find Registered Models</a></p></li>
-<li><p><a class="reference internal" href="#deploy-and-organize-models" id="id6">Deploy and Organize Models</a></p></li>
+<li><p><a class="reference internal" href="#register-a-model" id="id5">Register a Model</a></p></li>
+<li><p><a class="reference internal" href="#find-registered-models" id="id6">Find Registered Models</a></p></li>
+<li><p><a class="reference internal" href="#deploy-and-organize-models" id="id7">Deploy and Organize Models</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#api-workflow" id="id7">API Workflow</a></p>
+<li><p><a class="reference internal" href="#api-workflow" id="id8">API Workflow</a></p>
 <ul>
-<li><p><a class="reference internal" href="#adding-an-mlflow-model-to-the-model-registry" id="id8">Adding an MLflow Model to the Model Registry</a></p></li>
-<li><p><a class="reference internal" href="#deploy-and-organize-models-with-aliases-and-tags" id="id9">Deploy and Organize Models with Aliases and Tags</a></p></li>
-<li><p><a class="reference internal" href="#fetching-an-mlflow-model-from-the-model-registry" id="id10">Fetching an MLflow Model from the Model Registry</a></p></li>
-<li><p><a class="reference internal" href="#serving-an-mlflow-model-from-model-registry" id="id11">Serving an MLflow Model from Model Registry</a></p></li>
-<li><p><a class="reference internal" href="#promoting-an-mlflow-model-across-environments" id="id12">Promoting an MLflow Model across environments</a></p></li>
-<li><p><a class="reference internal" href="#adding-or-updating-an-mlflow-model-descriptions" id="id13">Adding or Updating an MLflow Model Descriptions</a></p></li>
-<li><p><a class="reference internal" href="#renaming-an-mlflow-model" id="id14">Renaming an MLflow Model</a></p></li>
-<li><p><a class="reference internal" href="#listing-and-searching-mlflow-models" id="id15">Listing and Searching MLflow Models</a></p></li>
-<li><p><a class="reference internal" href="#deleting-mlflow-models" id="id16">Deleting MLflow Models</a></p></li>
-<li><p><a class="reference internal" href="#registering-a-model-saved-outside-mlflow" id="id17">Registering a Model Saved Outside MLflow</a></p></li>
-<li><p><a class="reference internal" href="#registering-an-unsupported-machine-learning-model" id="id18">Registering an Unsupported Machine Learning Model</a></p></li>
-<li><p><a class="reference internal" href="#transitioning-an-mlflow-models-stage" id="id19">Transitioning an MLflow Model’s Stage</a></p></li>
-<li><p><a class="reference internal" href="#archiving-an-mlflow-model" id="id20">Archiving an MLflow Model</a></p></li>
+<li><p><a class="reference internal" href="#adding-an-mlflow-model-to-the-model-registry" id="id9">Adding an MLflow Model to the Model Registry</a></p></li>
+<li><p><a class="reference internal" href="#deploy-and-organize-models-with-aliases-and-tags" id="id10">Deploy and Organize Models with Aliases and Tags</a></p></li>
+<li><p><a class="reference internal" href="#fetching-an-mlflow-model-from-the-model-registry" id="id11">Fetching an MLflow Model from the Model Registry</a></p></li>
+<li><p><a class="reference internal" href="#serving-an-mlflow-model-from-model-registry" id="id12">Serving an MLflow Model from Model Registry</a></p></li>
+<li><p><a class="reference internal" href="#promoting-an-mlflow-model-across-environments" id="id13">Promoting an MLflow Model across environments</a></p></li>
+<li><p><a class="reference internal" href="#adding-or-updating-an-mlflow-model-descriptions" id="id14">Adding or Updating an MLflow Model Descriptions</a></p></li>
+<li><p><a class="reference internal" href="#renaming-an-mlflow-model" id="id15">Renaming an MLflow Model</a></p></li>
+<li><p><a class="reference internal" href="#listing-and-searching-mlflow-models" id="id16">Listing and Searching MLflow Models</a></p></li>
+<li><p><a class="reference internal" href="#deleting-mlflow-models" id="id17">Deleting MLflow Models</a></p></li>
+<li><p><a class="reference internal" href="#registering-a-model-saved-outside-mlflow" id="id18">Registering a Model Saved Outside MLflow</a></p></li>
+<li><p><a class="reference internal" href="#registering-an-unsupported-machine-learning-model" id="id19">Registering an Unsupported Machine Learning Model</a></p></li>
+<li><p><a class="reference internal" href="#deprecated-using-model-stages" id="id20">Deprecated: Using Model Stages</a></p></li>
 </ul>
 </li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#migrating-from-stages" id="id21">Migrating from Stages</a></p>
+<ul>
+<li><p><a class="reference internal" href="#new-model-deployment-tools" id="id22">New model deployment tools</a></p></li>
+<li><p><a class="reference internal" href="#migrating-models-away-from-stages" id="id23">Migrating models away from stages</a></p></li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="section" id="concepts">
-<h2><a class="toc-backref" href="#id1">Concepts</a><a class="headerlink" href="#concepts" title="Permalink to this headline"> </a></h2>
+<h2><a class="toc-backref" href="#id2">Concepts</a><a class="headerlink" href="#concepts" title="Permalink to this headline"> </a></h2>
 <p>The Model Registry introduces a few concepts that describe and facilitate the full lifecycle of an MLflow Model.</p>
 <dl class="simple">
 <dt>Model</dt><dd><p>An MLflow Model is created from an experiment or run that is logged with one of the model flavor’s <code class="docutils literal notranslate"><span class="pre">mlflow.&lt;model_flavor&gt;.log_model()</span></code> methods. Once logged, this model can then be registered with the Model Registry.</p>
 </dd>
-<dt>Registered Model</dt><dd><p>An MLflow Model can be registered with the Model Registry. A registered model has a unique name, contains versions, associated transitional stages, model lineage, and other metadata.</p>
+<dt>Registered Model</dt><dd><p>An MLflow Model can be registered with the Model Registry. A registered model has a unique name, contains versions, aliases, tags, and other metadata.</p>
 </dd>
-<dt>Model Version</dt><dd><p>Each registered model can have one or many versions. When a new model is added to the Model Registry, it is added as version 1. Each new model registered to the same model name increments the version number.</p>
+<dt>Model Version</dt><dd><p>Each registered model can have one or many versions. When a new model is added to the Model Registry, it is added as version 1. Each new model registered to the same model name increments the version number. Model versions have tags, which can be useful for tracking attributes of the model version (e.g. <cite>pre_deploy_checks: “PASSED”</cite>)</p>
 </dd>
 </dl>
 <dl id="using-registered-model-aliases">
@@ -267,22 +280,20 @@ annotations.</p>
 </dd>
 <dt>Annotations and Descriptions</dt><dd><p>You can annotate the top-level model and each version individually using Markdown, including description and any relevant information useful for the team such as algorithm descriptions, dataset employed or methodology.</p>
 </dd>
-<dt>Model Stage</dt><dd><p>Each distinct model version can be assigned one stage at any given time. MLflow provides predefined stages for common use-cases such as <em>Staging</em>, <em>Production</em> or <em>Archived</em>. You can transition a model version from one stage to another stage.</p>
-</dd>
 </dl>
 </div>
 <div class="section" id="model-registry-workflows">
-<h2><a class="toc-backref" href="#id2">Model Registry Workflows</a><a class="headerlink" href="#model-registry-workflows" title="Permalink to this headline"> </a></h2>
+<h2><a class="toc-backref" href="#id3">Model Registry Workflows</a><a class="headerlink" href="#model-registry-workflows" title="Permalink to this headline"> </a></h2>
 <p>If running your own MLflow server, you must use a database-backed backend store in order to access
-the model registry via the UI or API. <a class="reference external" href="tracking.html#backend-stores">See here</a> for more information.</p>
+the model registry via the UI or API. <a class="reference external" href="tracking/backend-stores.html">See here</a> for more information.</p>
 <p>Before you can add a model to the Model Registry, you must log it using the <code class="docutils literal notranslate"><span class="pre">log_model</span></code> methods
 of the corresponding model flavors. Once a model has been logged, you can add, modify, update,
 or delete the model in the Model Registry through the UI or the API.</p>
 <div class="section" id="ui-workflow">
-<h3><a class="toc-backref" href="#id3">UI Workflow</a><a class="headerlink" href="#ui-workflow" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id4">UI Workflow</a><a class="headerlink" href="#ui-workflow" title="Permalink to this headline"> </a></h3>
 <p>This section demonstrates how to use the MLflow Model Registry UI to manage your MLflow models.</p>
 <div class="section" id="register-a-model">
-<h4><a class="toc-backref" href="#id4">Register a Model</a><a class="headerlink" href="#register-a-model" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id5">Register a Model</a><a class="headerlink" href="#register-a-model" title="Permalink to this headline"> </a></h4>
 <p>Follow the steps below to register your MLflow model in the Model Registry.</p>
 <ol class="arabic simple">
 <li><p>Open the details page for the MLflow Run containing the logged MLflow model you’d like to register. Select the model folder containing the intended MLflow model in the <strong>Artifacts</strong> section.</p></li>
@@ -303,7 +314,7 @@ or delete the model in the Model Registry through the UI or the API.</p>
 </div></blockquote>
 </div>
 <div class="section" id="find-registered-models">
-<h4><a class="toc-backref" href="#id5">Find Registered Models</a><a class="headerlink" href="#find-registered-models" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id6">Find Registered Models</a><a class="headerlink" href="#find-registered-models" title="Permalink to this headline"> </a></h4>
 <p>After you’ve registered your models in the Model Registry, you can navigate to them in the following ways.</p>
 <ul>
 <li><p>Navigate to the <strong>Registered Models</strong> page, which links to your registered models and correponding model versions.</p>
@@ -319,7 +330,7 @@ or delete the model in the Model Registry through the UI or the API.</p>
 </ul>
 </div>
 <div class="section" id="deploy-and-organize-models">
-<h4><a class="toc-backref" href="#id6">Deploy and Organize Models</a><a class="headerlink" href="#deploy-and-organize-models" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id7">Deploy and Organize Models</a><a class="headerlink" href="#deploy-and-organize-models" title="Permalink to this headline"> </a></h4>
 <p>You can deploy and organize your models in the Model Registry using model aliases and tags. To set aliases and tags for model versions in your registered model, navigate to the overview page of your registered model, such as the one below.</p>
 <div class="figure align-default">
 <img alt="_images/oss_registry_4_model.png" src="_images/oss_registry_4_model.png" />
@@ -336,11 +347,11 @@ or delete the model in the Model Registry through the UI or the API.</p>
 </div>
 </div>
 <div class="section" id="api-workflow">
-<h3><a class="toc-backref" href="#id7">API Workflow</a><a class="headerlink" href="#api-workflow" title="Permalink to this headline"> </a></h3>
+<h3><a class="toc-backref" href="#id8">API Workflow</a><a class="headerlink" href="#api-workflow" title="Permalink to this headline"> </a></h3>
 <p>An alternative way to interact with Model Registry is using the <a class="reference internal" href="python_api/index.html#python-api"><span class="std std-ref">MLflow model flavor</span></a> or <a class="reference internal" href="python_api/mlflow.client.html#mlflow-tracking"><span class="std std-ref">MLflow Client Tracking API</span></a> interface.
 In particular, you can register a model during an MLflow experiment run or after all your experiment runs.</p>
 <div class="section" id="adding-an-mlflow-model-to-the-model-registry">
-<h4><a class="toc-backref" href="#id8">Adding an MLflow Model to the Model Registry</a><a class="headerlink" href="#adding-an-mlflow-model-to-the-model-registry" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id9">Adding an MLflow Model to the Model Registry</a><a class="headerlink" href="#adding-an-mlflow-model-to-the-model-registry" title="Permalink to this headline"> </a></h4>
 <p>There are three programmatic ways to add a model to the registry. First, you can use the <code class="docutils literal notranslate"><span class="pre">mlflow.&lt;model_flavor&gt;.log_model()</span></code> method. For example, in your code:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_regression</span>
 <span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestRegressor</span>
@@ -408,7 +419,7 @@ as shown below to create a new version of the model.</p>
 </div>
 </div>
 <div class="section" id="deploy-and-organize-models-with-aliases-and-tags">
-<h4><a class="toc-backref" href="#id9">Deploy and Organize Models with Aliases and Tags</a><a class="headerlink" href="#deploy-and-organize-models-with-aliases-and-tags" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id10">Deploy and Organize Models with Aliases and Tags</a><a class="headerlink" href="#deploy-and-organize-models-with-aliases-and-tags" title="Permalink to this headline"> </a></h4>
 <p>Model aliases and tags help you deploy and organize your models in the Model Registry.</p>
 <p><strong>Set and delete aliases on models</strong></p>
 <p>To set, update, and delete aliases using the MLflow Client API, see the examples below:</p>
@@ -451,7 +462,7 @@ as shown below to create a new version of the model.</p>
 <p>For more details on alias and tag client APIs, see the <a class="reference internal" href="python_api/mlflow.client.html#module-mlflow.client" title="mlflow.client"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.client</span></code></a> API documentation.</p>
 </div>
 <div class="section" id="fetching-an-mlflow-model-from-the-model-registry">
-<h4><a class="toc-backref" href="#id10">Fetching an MLflow Model from the Model Registry</a><a class="headerlink" href="#fetching-an-mlflow-model-from-the-model-registry" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id11">Fetching an MLflow Model from the Model Registry</a><a class="headerlink" href="#fetching-an-mlflow-model-from-the-model-registry" title="Permalink to this headline"> </a></h4>
 <p>After you have registered an MLflow model, you can fetch that model using <code class="docutils literal notranslate"><span class="pre">mlflow.&lt;model_flavor&gt;.load_model()</span></code>, or more generally, <a class="reference internal" href="python_api/mlflow.pyfunc.html#mlflow.pyfunc.load_model" title="mlflow.pyfunc.load_model"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_model()</span></code></a>.
 You can use the loaded model for one off predictions or in inference workloads such as batch inference.</p>
 <p><strong>Fetch a specific model version</strong></p>
@@ -479,21 +490,9 @@ You can use the loaded model for one off predictions or in inference workloads s
 </pre></div>
 </div>
 <p>Note that model alias assignments can be updated independently of your production code. If the <code class="docutils literal notranslate"><span class="pre">champion</span></code> alias in the snippet above is reassigned to a new model version in the Model Registry, the next execution of this snippet will automatically pick up the new model version. This allows you to decouple model deployments from your inference workloads.</p>
-<p><strong>Fetch the latest model version in a specific stage</strong></p>
-<p>To fetch a model version by stage, simply provide the model stage as part of the model URI, and it will fetch the most recent version of the model in that stage.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.pyfunc</span>
-
-<span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;sk-learn-random-forest-reg-model&quot;</span>
-<span class="n">stage</span> <span class="o">=</span> <span class="s2">&quot;Staging&quot;</span>
-
-<span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_uri</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;models:/</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</pre></div>
-</div>
 </div>
 <div class="section" id="serving-an-mlflow-model-from-model-registry">
-<h4><a class="toc-backref" href="#id11">Serving an MLflow Model from Model Registry</a><a class="headerlink" href="#serving-an-mlflow-model-from-model-registry" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id12">Serving an MLflow Model from Model Registry</a><a class="headerlink" href="#serving-an-mlflow-model-from-model-registry" title="Permalink to this headline"> </a></h4>
 <p>After you have registered an MLflow model, you can serve the model as a service on your host.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env sh</span>
 
@@ -506,15 +505,24 @@ mlflow<span class="w"> </span>models<span class="w"> </span>serve<span class="w"
 </div>
 </div>
 <div class="section" id="promoting-an-mlflow-model-across-environments">
-<h4><a class="toc-backref" href="#id12">Promoting an MLflow Model across environments</a><a class="headerlink" href="#promoting-an-mlflow-model-across-environments" title="Permalink to this headline"> </a></h4>
-<p>Over the course of a model’s lifecycle, it might progress through various separate environments like
-development, testing, staging, production, and so on. This segregation facilitates continuous integration
-and deployment for the model. In MLflow, you can use registered models to set up environments for your
-MLflow Models, where each registered model corresponds to a specific environment. Furthermore, you can
-configure access controls for the registered models using <a class="reference internal" href="auth/index.html#auth"><span class="std std-ref">MLflow Authentication</span></a>. Then,
-to promote MLflow Models across environments, you can use the <a class="reference internal" href="python_api/mlflow.client.html#mlflow.client.MlflowClient.copy_model_version" title="mlflow.client.MlflowClient.copy_model_version"><code class="xref py py-meth docutils literal notranslate"><span class="pre">copy_model_version()</span></code></a> method
-to copy model versions across registered models.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+<h4><a class="toc-backref" href="#id13">Promoting an MLflow Model across environments</a><a class="headerlink" href="#promoting-an-mlflow-model-across-environments" title="Permalink to this headline"> </a></h4>
+<p>In mature DevOps and MLOps workflows, organizations use separate environments (typically, dev,
+staging, and prod) with access controls to enable quick development without compromising stability
+in production. In MLflow, you can use registered models and <a class="reference internal" href="auth/index.html#auth"><span class="std std-ref">MLflow Authentication</span></a> to
+express access-controlled environments for your MLflow models. For example, you can create registered
+models corresponding to each combination of environment and business problem (e.g.
+<code class="docutils literal notranslate"><span class="pre">prod.ml_team.revenue_forecasting</span></code>, <code class="docutils literal notranslate"><span class="pre">dev.ml_team.revenue_forecasting</span></code>) and configure permissions
+accordingly. As you iterate on MLflow models for your business problem, you can promote them
+through the various environments for continuous integration and deployment.</p>
+<p>For mature production-grade setups, we recommend setting up automated workflows that train and register
+models in each environment. To productionize the latest iteration on a business problem, promote your
+machine learning code across environments via source control and CI/CD systems.</p>
+<p>For simple model deployment use cases, you can register your trained MLflow Model to a dev environment
+registered model as the latest model version and then use <a class="reference internal" href="python_api/mlflow.client.html#mlflow.client.MlflowClient.copy_model_version" title="mlflow.client.MlflowClient.copy_model_version"><code class="xref py py-meth docutils literal notranslate"><span class="pre">copy_model_version()</span></code></a>
+to promote it across registered models.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
 <span class="n">client</span><span class="o">.</span><span class="n">copy_model_version</span><span class="p">(</span>
     <span class="n">src_model_uri</span><span class="o">=</span><span class="s2">&quot;models:/regression-model-staging@candidate&quot;</span><span class="p">,</span>
     <span class="n">dst_name</span><span class="o">=</span><span class="s2">&quot;regression-model-production&quot;</span><span class="p">,</span>
@@ -523,9 +531,15 @@ to copy model versions across registered models.</p>
 </div>
 <p>This code snippet copies the model version with the <code class="docutils literal notranslate"><span class="pre">candidate</span></code> alias in the <code class="docutils literal notranslate"><span class="pre">regression-model-staging</span></code>
 model to the <code class="docutils literal notranslate"><span class="pre">regression-model-production</span></code> model as the latest version.</p>
+<p>You can also promote model versions in the UI. To do this, navigate to the model version details page
+and select the <code class="docutils literal notranslate"><span class="pre">Promote</span> <span class="pre">model</span></code> button. This opens a modal where you can choose a registered model
+to which the current model version will be copied.</p>
+<div class="figure align-default">
+<img alt="_images/oss_registry_6_version.png" src="_images/oss_registry_6_version.png" />
+</div>
 </div>
 <div class="section" id="adding-or-updating-an-mlflow-model-descriptions">
-<h4><a class="toc-backref" href="#id13">Adding or Updating an MLflow Model Descriptions</a><a class="headerlink" href="#adding-or-updating-an-mlflow-model-descriptions" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id14">Adding or Updating an MLflow Model Descriptions</a><a class="headerlink" href="#adding-or-updating-an-mlflow-model-descriptions" title="Permalink to this headline"> </a></h4>
 <p>At any point in a model’s lifecycle development, you can update a model version’s description using <a class="reference internal" href="python_api/mlflow.client.html#mlflow.client.MlflowClient.update_model_version" title="mlflow.client.MlflowClient.update_model_version"><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_model_version()</span></code></a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
 <span class="n">client</span><span class="o">.</span><span class="n">update_model_version</span><span class="p">(</span>
@@ -537,7 +551,7 @@ model to the <code class="docutils literal notranslate"><span class="pre">regres
 </div>
 </div>
 <div class="section" id="renaming-an-mlflow-model">
-<h4><a class="toc-backref" href="#id14">Renaming an MLflow Model</a><a class="headerlink" href="#renaming-an-mlflow-model" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id15">Renaming an MLflow Model</a><a class="headerlink" href="#renaming-an-mlflow-model" title="Permalink to this headline"> </a></h4>
 <p>As well as adding or updating a description of a specific version of the model, you can rename an existing registered model using <a class="reference internal" href="python_api/mlflow.client.html#mlflow.client.MlflowClient.rename_registered_model" title="mlflow.client.MlflowClient.rename_registered_model"><code class="xref py py-meth docutils literal notranslate"><span class="pre">rename_registered_model()</span></code></a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
 <span class="n">client</span><span class="o">.</span><span class="n">rename_registered_model</span><span class="p">(</span>
@@ -548,7 +562,7 @@ model to the <code class="docutils literal notranslate"><span class="pre">regres
 </div>
 </div>
 <div class="section" id="listing-and-searching-mlflow-models">
-<h4><a class="toc-backref" href="#id15">Listing and Searching MLflow Models</a><a class="headerlink" href="#listing-and-searching-mlflow-models" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id16">Listing and Searching MLflow Models</a><a class="headerlink" href="#listing-and-searching-mlflow-models" title="Permalink to this headline"> </a></h4>
 <p>You can fetch a list of registered models in the registry with a simple method.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 
@@ -607,7 +621,7 @@ and provide a filter string such as <code class="docutils literal notranslate"><
 </div>
 </div>
 <div class="section" id="deleting-mlflow-models">
-<h4><a class="toc-backref" href="#id16">Deleting MLflow Models</a><a class="headerlink" href="#deleting-mlflow-models" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id17">Deleting MLflow Models</a><a class="headerlink" href="#deleting-mlflow-models" title="Permalink to this headline"> </a></h4>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Deleting registered models or model versions is irrevocable, so use it judiciously.</p>
@@ -631,7 +645,7 @@ in sklearn’s pickled format, you want to register this model with the Model Re
 an ML framework without a built-in MLflow model flavor support, for instance, <cite>vaderSentiment,</cite> and want to register the model.</p>
 </div>
 <div class="section" id="registering-a-model-saved-outside-mlflow">
-<h4><a class="toc-backref" href="#id17">Registering a Model Saved Outside MLflow</a><a class="headerlink" href="#registering-a-model-saved-outside-mlflow" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id18">Registering a Model Saved Outside MLflow</a><a class="headerlink" href="#registering-a-model-saved-outside-mlflow" title="Permalink to this headline"> </a></h4>
 <p>Not everyone will start their model training with MLflow. So you may have some models trained before the use of MLflow.
 Instead of retraining the models, all you want to do is register your saved models with the Model Registry.</p>
 <p>This code snippet creates a sklearn model, which we assume that you had created and saved in native pickle format.</p>
@@ -693,7 +707,7 @@ Mean squared error: 2548.07
 Coefficient of determination: 0.47
 </pre></div>
 </div>
-<p>Once saved in pickled format, we can load the sklearn model into memory using pickle API and
+<p>Once saved in pickled format, you can load the sklearn model into memory using pickle API and
 register the loaded model with the Model Registry.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
@@ -728,7 +742,7 @@ Model name: SklearnLinearRegression, version 1
 Created version &#39;1&#39; of model &#39;SklearnLinearRegression&#39;.
 </pre></div>
 </div>
-<p>Now, using MLflow fluent APIs, we reload the model from the Model Registry and score.</p>
+<p>Now, using MLflow fluent APIs, you reload the model from the Model Registry and score.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># load the model from the Model Registry and score</span>
 <span class="n">model_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;models:/</span><span class="si">{</span><span class="n">reg_model_name</span><span class="si">}</span><span class="s2">/1&quot;</span>
 <span class="n">loaded_model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">sklearn</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_uri</span><span class="p">)</span>
@@ -748,7 +762,7 @@ Coefficient of determination: 0.47
 </div>
 </div>
 <div class="section" id="registering-an-unsupported-machine-learning-model">
-<h4><a class="toc-backref" href="#id18">Registering an Unsupported Machine Learning Model</a><a class="headerlink" href="#registering-an-unsupported-machine-learning-model" title="Permalink to this headline"> </a></h4>
+<h4><a class="toc-backref" href="#id19">Registering an Unsupported Machine Learning Model</a><a class="headerlink" href="#registering-an-unsupported-machine-learning-model" title="Permalink to this headline"> </a></h4>
 <p>In some cases, you might use a machine learning framework without its built-in MLflow Model flavor support.
 For instance, the <cite>vaderSentiment</cite> library is a standard Natural Language Processing (NLP) library used
 for sentiment analysis. Since it lacks a built-in MLflow Model flavor, you cannot log or register the model
@@ -871,8 +885,14 @@ Created version &#39;1&#39; of model &#39;PyFuncVaderSentiments&#39;.
 </pre></div>
 </div>
 </div>
-<div class="section" id="transitioning-an-mlflow-models-stage">
-<h4><a class="toc-backref" href="#id19">Transitioning an MLflow Model’s Stage</a><a class="headerlink" href="#transitioning-an-mlflow-models-stage" title="Permalink to this headline"> </a></h4>
+<div class="section" id="deprecated-using-model-stages">
+<h4><a class="toc-backref" href="#id20">Deprecated: Using Model Stages</a><a class="headerlink" href="#deprecated-using-model-stages" title="Permalink to this headline"> </a></h4>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Model Stages are deprecated and will be removed in a future major release. To learn more about this deprecation, see our <a class="reference internal" href="#migrating-from-stages"><span class="std std-ref">migration guide</span></a> below.</p>
+</div>
+<p>See the sections below on using Model Stages in the MLflow Model Registry.</p>
+<p><strong>Transitioning an MLflow Model’s Stage</strong></p>
 <p>Over the course of the model’s lifecycle, a model evolves—from development to staging to production.
 You can transition a registered model to one of the stages: <strong>Staging</strong>, <strong>Production</strong> or <strong>Archived</strong>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
@@ -882,9 +902,19 @@ You can transition a registered model to one of the stages: <strong>Staging</str
 </pre></div>
 </div>
 <p>The accepted values for &lt;stage&gt; are: Staging|Archived|Production|None.</p>
+<p><strong>Fetch the latest model version in a specific stage</strong></p>
+<p>To fetch a model version by stage, simply provide the model stage as part of the model URI, and it will fetch the most recent version of the model in that stage.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.pyfunc</span>
+
+<span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;sk-learn-random-forest-reg-model&quot;</span>
+<span class="n">stage</span> <span class="o">=</span> <span class="s2">&quot;Staging&quot;</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_uri</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;models:/</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
 </div>
-<div class="section" id="archiving-an-mlflow-model">
-<h4><a class="toc-backref" href="#id20">Archiving an MLflow Model</a><a class="headerlink" href="#archiving-an-mlflow-model" title="Permalink to this headline"> </a></h4>
+<p><strong>Archiving an MLflow Model</strong></p>
 <p>You can move models versions out of a <strong>Production</strong> stage into an <strong>Archived</strong> stage.
 At a later point, if that archived model is not needed, you can delete it.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Archive models version 3 from Production into Archived</span>
@@ -897,6 +927,71 @@ At a later point, if that archived model is not needed, you can delete it.</p>
 </div>
 </div>
 </div>
+<div class="section" id="migrating-from-stages">
+<span id="id1"></span><h2><a class="toc-backref" href="#id21">Migrating from Stages</a><a class="headerlink" href="#migrating-from-stages" title="Permalink to this headline"> </a></h2>
+<p>As of MLflow 2.9.0, Model Stages have been deprecated and will be removed in a future major release. This is the culmination of extensive feedback on the inflexibility of model stages for expressing MLOps workflows, from which we developed and introduced of new tools for managing and deploying models in the MLflow Model Registry. Learn more below.</p>
+<div class="section" id="new-model-deployment-tools">
+<h3><a class="toc-backref" href="#id22">New model deployment tools</a><a class="headerlink" href="#new-model-deployment-tools" title="Permalink to this headline"> </a></h3>
+<p>Model stages were used to express the lifecycle of MLflow Models for productionization and deployment. Users transitioned model versions through four fixed stages (from <strong>none</strong>, to <strong>staging</strong>, to <strong>production</strong>, and then to <strong>archived</strong>) as they proposed, validated, deployed, and deprecated models for their ML use-cases. In doing so, model registry stages provided labeling and aliasing functionality for the model versions, by denoting the status of a model version in the UI and providing named references to model versions in the code (e.g. <code class="docutils literal notranslate"><span class="pre">/Staging</span></code> in the model URI). Model registry stages were also used to denote the environment that the model is in, though it was not possible to set up access controls for them.</p>
+<p>To replace and improve upon stages, we elevated <strong>model version tags</strong> in the UI and introduced <strong>model version aliases</strong> to provide flexible and powerful ways to label and alias MLflow models in the Model Registry. We also made it possible to <strong>set up separate environments</strong> for your models and configure access controls for each environment.</p>
+<p><strong>Model version tags</strong></p>
+<p>Model version tags can be used to annotate model versions with their status. For example, you could apply a tag of key <code class="docutils literal notranslate"><span class="pre">validation_status</span></code> and value <code class="docutils literal notranslate"><span class="pre">pending</span></code> to a model version while it is being validated and then update the tag value to <code class="docutils literal notranslate"><span class="pre">passed</span></code> when it has passed smoke tests and performance tests.</p>
+<p><strong>Model version aliases</strong></p>
+<p>Model version aliases provide a flexible way to create named references for particular model versions, and are useful for identifying which model version(s) are deployed within an environment. For example, setting a <strong>champion</strong> alias on a model version enables you to fetch the model version by that alias via the <a class="reference internal" href="python_api/mlflow.client.html#mlflow.client.MlflowClient.get_model_version_by_alias" title="mlflow.client.MlflowClient.get_model_version_by_alias"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_model_version_by_alias()</span></code></a> client API or the model URI <code class="docutils literal notranslate"><span class="pre">models:/&lt;registered</span> <span class="pre">model</span> <span class="pre">name&gt;&#64;champion</span></code>. Aliases can be reassigned to new model versions via the UI and client API. Unlike model registry stages, more than one alias can be applied to any given model version, allowing for easier A/B testing and model rollout.</p>
+<p><strong>Set up separate environments for models</strong></p>
+<p>In mature DevOps and MLOps workflows, organizations use separate environments (typically, dev, staging, and prod) with access controls to enable quick development without compromising stability in production. With <a class="reference internal" href="auth/index.html#auth"><span class="std std-ref">MLflow Authentication</span></a>, you can use registered models to express access-controlled environments for your MLflow models. For example, you can create registered models corresponding to each combination of environment and business problem (e.g. <code class="docutils literal notranslate"><span class="pre">prod.ml_team.revenue_forecasting</span></code>, <code class="docutils literal notranslate"><span class="pre">dev.ml_team.revenue_forecasting</span></code>) and configure permissions accordingly. Automate model retraining against your production registered models, or for simple model deployment use cases, use <a class="reference internal" href="python_api/mlflow.client.html#mlflow.client.MlflowClient.copy_model_version" title="mlflow.client.MlflowClient.copy_model_version"><code class="xref py py-meth docutils literal notranslate"><span class="pre">copy_model_version()</span></code></a> to promote model versions across registered models.</p>
+</div>
+<div class="section" id="migrating-models-away-from-stages">
+<h3><a class="toc-backref" href="#id23">Migrating models away from stages</a><a class="headerlink" href="#migrating-models-away-from-stages" title="Permalink to this headline"> </a></h3>
+<p>See the information below to learn how to use the new tools for your legacy Model Stage use-cases.</p>
+<p><strong>Model environments</strong></p>
+<p>To set up separate environments and permissions for your model versions, create separate registered models:</p>
+<ul class="simple">
+<li><p>Given a base name for your model’s use-case, e.g. <code class="docutils literal notranslate"><span class="pre">revenue_forecasting</span></code>, set up various registered models corresponding to your environments with different prefixes.</p></li>
+<li><p>For example, if you want three separate dev, staging, and production environments, you can set up <code class="docutils literal notranslate"><span class="pre">dev.ml_team.revenue_forecasting</span></code>, <code class="docutils literal notranslate"><span class="pre">staging.ml_team.revenue_forecasting</span></code>, and <code class="docutils literal notranslate"><span class="pre">prod.ml_team.revenue_forecasting</span></code> registered models.</p></li>
+<li><p>Use <a class="reference internal" href="auth/index.html#auth"><span class="std std-ref">MLflow Authentication</span></a> to grant appropriate permissions on these models.</p></li>
+</ul>
+<p><strong>Transition models across environments</strong></p>
+<p>Once you have registered models set up for each environment, you can build your MLOps workflows on top of them.</p>
+<ul class="simple">
+<li><p>For simple model promotion use cases, you can first register your MLflow models under the dev registered model and then promote models across environments using the <a class="reference internal" href="python_api/mlflow.client.html#mlflow.client.MlflowClient.copy_model_version" title="mlflow.client.MlflowClient.copy_model_version"><code class="xref py py-meth docutils literal notranslate"><span class="pre">copy_model_version()</span></code></a> client API.</p></li>
+<li><p>For more mature production-grade setups, we recommend promoting your ML code (including model training code, inference code, and ML infrastructure as code) across environments. This eliminates the need to transition models across environments. Dev ML code is experimental and in a dev environment, hence targeting the dev registered model. Before merging developed ML code into your source code repository, your CI stages the code in a staging environment for integration testing (targeting the staging registered model). Post-merge, the ML code is deployed to production for automated retraining (targeting the prod registered model). Such setups enable safe and robust CI/CD of ML systems - including not just model training, but also feature engineering, model monitoring, and automated retraining.</p></li>
+</ul>
+<p><strong>Model aliasing</strong></p>
+<p>To specify (via named references) which model version to deploy to serve traffic within an environment (e.g. production), use <strong>model aliases</strong>:</p>
+<ol class="arabic simple">
+<li><p>Decide on an equivalent model alias for each model registry stage (e.g., <strong>champion</strong> for the <strong>Production</strong> stage, to specify the model intended to serve the majority of traffic)</p></li>
+<li><p>Assign the chosen alias to the latest model version under each stage. You can use the helper function below for this.</p></li>
+<li><p>Update ML workflows to target the alias rather than the stage. For example, the model URI <code class="docutils literal notranslate"><span class="pre">models:/regression_model/Production</span></code> will be replaced by the model URI <code class="docutils literal notranslate"><span class="pre">models:/prod.ml_team.regression_model&#64;champion</span></code> in the production code.</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
+
+<span class="c1"># Initialize an MLflow Client</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">assign_alias_to_stage</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">stage</span><span class="p">,</span> <span class="n">alias</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assign an alias to the latest version of a registered model within a specified stage.</span>
+
+<span class="sd">    :param model_name: The name of the registered model.</span>
+<span class="sd">    :param stage: The stage of the model version for which the alias is to be assigned. Can be</span>
+<span class="sd">                &quot;Production&quot;, &quot;Staging&quot;, &quot;Archived&quot;, or &quot;None&quot;.</span>
+<span class="sd">    :param alias: The alias to assign to the model version.</span>
+<span class="sd">    :return: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">latest_mv</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_latest_versions</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">stages</span><span class="o">=</span><span class="p">[</span><span class="n">stage</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">set_registered_model_alias</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">alias</span><span class="p">,</span> <span class="n">latest_mv</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Model status</strong></p>
+<p>To represent and communicate the status of your model versions, use model version tags:</p>
+<ul class="simple">
+<li><p>Set tags on model versions to indicate the status of the model.</p></li>
+<li><p>For example, to indicate the review status of a model version, you can set a tag with key <code class="docutils literal notranslate"><span class="pre">validation_status</span></code> and value <code class="docutils literal notranslate"><span class="pre">pending</span></code> or <code class="docutils literal notranslate"><span class="pre">passed</span></code>.</p></li>
+</ul>
+</div>
+</div>
 </div>
 
 
@@ -906,7 +1001,7 @@ At a later point, if that archived model is not needed, you can delete it.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="models.html" class="btn btn-neutral" title="MLflow Models" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
+        <a href="model/notebooks/signature_examples.html" class="btn btn-neutral" title="MLflow Signature Playground Notebook" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
       
       
         <a href="recipes.html" class="btn btn-neutral" title="MLflow Recipes" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
@@ -937,7 +1032,7 @@ At a later point, if that archived model is not needed, you can delete it.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'./',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

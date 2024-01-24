@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.metrics.genai.metric_definitions &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.metrics.genai.metric_definitions &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../../../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../../index.html"/>
         <link rel="up" title="mlflow.metrics" href="../../metrics.html"/> 
 
   
@@ -55,8 +57,10 @@
 <script type="text/javascript" src="../../../../_static/jquery.js"></script>
 <script type="text/javascript" src="../../../../_static/underscore.js"></script>
 <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+<script type="text/javascript" src="../../../../_static/tabs.js"></script>
 <script type="text/javascript" src="../../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -69,7 +73,7 @@
     <a href="../../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -115,6 +119,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../model-registry.html">MLflow Model Registry</a></li>
@@ -213,9 +218,10 @@
 
 <span class="sd">    An MlflowException will be raised if the specified version for this metric does not exist.</span>
 
-<span class="sd">    :param model: (Optional) The model that will be used to evaluate this metric. Defaults to</span>
-<span class="sd">        gpt-4. Your use of a third party LLM service (e.g., OpenAI) for evaluation may</span>
-<span class="sd">        be subject to and governed by the LLM service&#39;s terms of use.</span>
+<span class="sd">    :param model: (Optional) Model uri of an openai or gateway judge model in the format of</span>
+<span class="sd">        &quot;openai:/gpt-4&quot; or &quot;gateway:/my-route&quot;. Defaults to</span>
+<span class="sd">        &quot;openai:/gpt-4&quot;. Your use of a third party LLM service (e.g., OpenAI) for</span>
+<span class="sd">        evaluation may be subject to and governed by the LLM service&#39;s terms of use.</span>
 <span class="sd">    :param metric_version: (Optional) The version of the answer similarity metric to use.</span>
 <span class="sd">        Defaults to the latest version.</span>
 <span class="sd">    :param examples: (Optional) Provide a list of examples to help the judge model evaluate the</span>
@@ -249,6 +255,7 @@
         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;answer_similarity&quot;</span><span class="p">,</span>
         <span class="n">definition</span><span class="o">=</span><span class="n">answer_similarity_class_module</span><span class="o">.</span><span class="n">definition</span><span class="p">,</span>
         <span class="n">grading_prompt</span><span class="o">=</span><span class="n">answer_similarity_class_module</span><span class="o">.</span><span class="n">grading_prompt</span><span class="p">,</span>
+        <span class="n">include_input</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">examples</span><span class="o">=</span><span class="n">examples</span><span class="p">,</span>
         <span class="n">version</span><span class="o">=</span><span class="n">metric_version</span><span class="p">,</span>
         <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
@@ -276,9 +283,10 @@
 
 <span class="sd">    An MlflowException will be raised if the specified version for this metric does not exist.</span>
 
-<span class="sd">    :param model: (Optional) The model that will be used to evaluate this metric. Defaults to</span>
-<span class="sd">        gpt-4. Your use of a third party LLM service (e.g., OpenAI) for evaluation may</span>
-<span class="sd">        be subject to and governed by the LLM service&#39;s terms of use.</span>
+<span class="sd">    :param model: (Optional) Model uri of an openai or gateway judge model in the format of</span>
+<span class="sd">        &quot;openai:/gpt-4&quot; or &quot;gateway:/my-route&quot;. Defaults to</span>
+<span class="sd">        &quot;openai:/gpt-4&quot;. Your use of a third party LLM service (e.g., OpenAI) for</span>
+<span class="sd">        evaluation may be subject to and governed by the LLM service&#39;s terms of use.</span>
 <span class="sd">    :param metric_version: (Optional) The version of the answer correctness metric to use.</span>
 <span class="sd">        Defaults to the latest version.</span>
 <span class="sd">    :param examples: (Optional) Provide a list of examples to help the judge model evaluate the</span>
@@ -339,9 +347,10 @@
 
 <span class="sd">    An MlflowException will be raised if the specified version for this metric does not exist.</span>
 
-<span class="sd">    :param model: (Optional) The model that will be used to evaluate this metric. Defaults to</span>
-<span class="sd">        gpt-4. Your use of a third party LLM service (e.g., OpenAI) for evaluation may</span>
-<span class="sd">        be subject to and governed by the LLM service&#39;s terms of use.</span>
+<span class="sd">    :param model: (Optional) Model uri of an openai or gateway judge model in the format of</span>
+<span class="sd">        &quot;openai:/gpt-4&quot; or &quot;gateway:/my-route&quot;. Defaults to</span>
+<span class="sd">        &quot;openai:/gpt-4&quot;. Your use of a third party LLM service (e.g., OpenAI) for</span>
+<span class="sd">        evaluation may be subject to and governed by the LLM service&#39;s terms of use.</span>
 <span class="sd">    :param metric_version: (Optional) The version of the faithfulness metric to use.</span>
 <span class="sd">        Defaults to the latest version.</span>
 <span class="sd">    :param examples: (Optional) Provide a list of examples to help the judge model evaluate the</span>
@@ -373,6 +382,7 @@
         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;faithfulness&quot;</span><span class="p">,</span>
         <span class="n">definition</span><span class="o">=</span><span class="n">faithfulness_class_module</span><span class="o">.</span><span class="n">definition</span><span class="p">,</span>
         <span class="n">grading_prompt</span><span class="o">=</span><span class="n">faithfulness_class_module</span><span class="o">.</span><span class="n">grading_prompt</span><span class="p">,</span>
+        <span class="n">include_input</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">examples</span><span class="o">=</span><span class="n">examples</span><span class="p">,</span>
         <span class="n">version</span><span class="o">=</span><span class="n">metric_version</span><span class="p">,</span>
         <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
@@ -396,9 +406,10 @@
 
 <span class="sd">    An MlflowException will be raised if the specified version for this metric does not exist.</span>
 
-<span class="sd">    :param model: (Optional) The model that will be used to evaluate this metric. Defaults to</span>
-<span class="sd">        gpt-4. Your use of a third party LLM service (e.g., OpenAI) for evaluation may</span>
-<span class="sd">        be subject to and governed by the LLM service&#39;s terms of use.</span>
+<span class="sd">    :param model: (Optional) Model uri of an openai or gateway judge model in the format of</span>
+<span class="sd">        &quot;openai:/gpt-4&quot; or &quot;gateway:/my-route&quot;. Defaults to</span>
+<span class="sd">        &quot;openai:/gpt-4&quot;. Your use of a third party LLM service (e.g., OpenAI) for</span>
+<span class="sd">        evaluation may be subject to and governed by the LLM service&#39;s terms of use.</span>
 <span class="sd">    :param metric_version: (Optional) The version of the answer relevance metric to use.</span>
 <span class="sd">        Defaults to the latest version.</span>
 <span class="sd">    :param examples: (Optional) Provide a list of examples to help the judge model evaluate the</span>
@@ -439,68 +450,6 @@
     <span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">relevance</span><span class="p">(</span>
-    <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">metric_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">examples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">EvaluationExample</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EvaluationMetric</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function will create a genai metric used to evaluate the evaluate the relevance of an</span>
-<span class="sd">    LLM using the model provided. Relevance will be assessed by the appropriateness, significance,</span>
-<span class="sd">    and applicability of the output with respect to the input and ``context``.</span>
-
-<span class="sd">    The ``context`` eval_arg must be provided as part of the input dataset or output</span>
-<span class="sd">    predictions. This can be mapped to a column of a different name using ``col_mapping``</span>
-<span class="sd">    in the ``evaluator_config`` parameter.</span>
-
-<span class="sd">    An MlflowException will be raised if the specified version for this metric does not exist.</span>
-
-<span class="sd">    :param model: (Optional) The model that will be used to evaluate this metric. Defaults to</span>
-<span class="sd">        gpt-4. Your use of a third party LLM service (e.g., OpenAI) for evaluation may</span>
-<span class="sd">        be subject to and governed by the LLM service&#39;s terms of use.</span>
-<span class="sd">    :param metric_version: (Optional) The version of the relevance metric to use.</span>
-<span class="sd">        Defaults to the latest version.</span>
-<span class="sd">    :param examples: (Optional) Provide a list of examples to help the judge model evaluate the</span>
-<span class="sd">        relevance. It is highly recommended to add examples to be used as a reference to evaluate</span>
-<span class="sd">        the new results.</span>
-<span class="sd">    :return: A metric object</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">metric_version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">metric_version</span> <span class="o">=</span> <span class="n">_get_latest_metric_version</span><span class="p">()</span>
-    <span class="n">class_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;mlflow.metrics.genai.prompts.</span><span class="si">{</span><span class="n">metric_version</span><span class="si">}</span><span class="s2">.RelevanceMetric&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">relevance_class_module</span> <span class="o">=</span> <span class="n">_get_class_from_string</span><span class="p">(</span><span class="n">class_name</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Failed to find relevance metric for version </span><span class="si">{</span><span class="n">metric_version</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Please check the version&quot;</span><span class="p">,</span>
-            <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
-        <span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Failed to construct relevance metric </span><span class="si">{</span><span class="n">metric_version</span><span class="si">}</span><span class="s2">. Error: </span><span class="si">{</span><span class="n">e</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="n">error_code</span><span class="o">=</span><span class="n">INTERNAL_ERROR</span><span class="p">,</span>
-        <span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span>
-
-    <span class="k">if</span> <span class="n">examples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">examples</span> <span class="o">=</span> <span class="n">relevance_class_module</span><span class="o">.</span><span class="n">default_examples</span>
-    <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">relevance_class_module</span><span class="o">.</span><span class="n">default_model</span>
-
-    <span class="k">return</span> <span class="n">make_genai_metric</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;relevance&quot;</span><span class="p">,</span>
-        <span class="n">definition</span><span class="o">=</span><span class="n">relevance_class_module</span><span class="o">.</span><span class="n">definition</span><span class="p">,</span>
-        <span class="n">grading_prompt</span><span class="o">=</span><span class="n">relevance_class_module</span><span class="o">.</span><span class="n">grading_prompt</span><span class="p">,</span>
-        <span class="n">examples</span><span class="o">=</span><span class="n">examples</span><span class="p">,</span>
-        <span class="n">version</span><span class="o">=</span><span class="n">metric_version</span><span class="p">,</span>
-        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
-        <span class="n">grading_context_columns</span><span class="o">=</span><span class="n">relevance_class_module</span><span class="o">.</span><span class="n">grading_context_columns</span><span class="p">,</span>
-        <span class="n">parameters</span><span class="o">=</span><span class="n">relevance_class_module</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span>
-        <span class="n">aggregations</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="s2">&quot;p90&quot;</span><span class="p">],</span>
-        <span class="n">greater_is_better</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
-
-
 <div class="viewcode-block" id="relevance"><a class="viewcode-back" href="../../../../python_api/mlflow.metrics.html#mlflow.metrics.genai.relevance">[docs]</a><span class="k">def</span> <span class="nf">relevance</span><span class="p">(</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">metric_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -517,9 +466,10 @@
 
 <span class="sd">    An MlflowException will be raised if the specified version for this metric does not exist.</span>
 
-<span class="sd">    :param model: (Optional) The model that will be used to evaluate this metric. Defaults to</span>
-<span class="sd">        gpt-4. Your use of a third party LLM service (e.g., OpenAI) for evaluation may</span>
-<span class="sd">        be subject to and governed by the LLM service&#39;s terms of use.</span>
+<span class="sd">    :param model: (Optional) Model uri of an openai or gateway judge model in the format of</span>
+<span class="sd">        &quot;openai:/gpt-4&quot; or &quot;gateway:/my-route&quot;. Defaults to</span>
+<span class="sd">        &quot;openai:/gpt-4&quot;. Your use of a third party LLM service (e.g., OpenAI) for</span>
+<span class="sd">        evaluation may be subject to and governed by the LLM service&#39;s terms of use.</span>
 <span class="sd">    :param metric_version: (Optional) The version of the relevance metric to use.</span>
 <span class="sd">        Defaults to the latest version.</span>
 <span class="sd">    :param examples: (Optional) Provide a list of examples to help the judge model evaluate the</span>
@@ -591,7 +541,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

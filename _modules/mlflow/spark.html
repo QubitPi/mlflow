@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.spark &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.spark &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -55,8 +57,10 @@
 <script type="text/javascript" src="../../_static/jquery.js"></script>
 <script type="text/javascript" src="../../_static/underscore.js"></script>
 <script type="text/javascript" src="../../_static/doctools.js"></script>
+<script type="text/javascript" src="../../_static/tabs.js"></script>
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -69,7 +73,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -115,6 +119,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-registry.html">MLflow Model Registry</a></li>
@@ -1223,10 +1228,10 @@
 <span class="sd">    Enables (or disables) and configures logging of Spark datasource paths, versions</span>
 <span class="sd">    (if applicable), and formats when they are read. This method is not threadsafe and assumes a</span>
 <span class="sd">    `SparkSession</span>
-<span class="sd">    &lt;https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.SparkSession&gt;`_</span>
+<span class="sd">    &lt;https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.SparkSession.html&gt;`_</span>
 <span class="sd">    already exists with the</span>
 <span class="sd">    `mlflow-spark JAR</span>
-<span class="sd">    &lt;http://mlflow.org/docs/latest/tracking.html#automatic-logging-from-spark-experimental&gt;`_</span>
+<span class="sd">    &lt;https://www.mlflow.org/docs/latest/tracking.html#spark&gt;`_</span>
 <span class="sd">    attached. It should be called on the Spark driver, not on the executors (i.e. do not call</span>
 <span class="sd">    this method within a function parallelized by Spark). This API requires Spark 3.0 or above.</span>
 
@@ -1250,10 +1255,10 @@
 
 <span class="sd">        # Create and persist some dummy data</span>
 <span class="sd">        # Note: On environments like Databricks with pre-created SparkSessions,</span>
-<span class="sd">        # ensure the org.mlflow:mlflow-spark:1.11.0 is attached as a library to</span>
+<span class="sd">        # ensure the org.mlflow:mlflow-spark:2.22.0 is attached as a library to</span>
 <span class="sd">        # your cluster</span>
 <span class="sd">        spark = (</span>
-<span class="sd">            SparkSession.builder.config(&quot;spark.jars.packages&quot;, &quot;org.mlflow:mlflow-spark:1.11.0&quot;)</span>
+<span class="sd">            SparkSession.builder.config(&quot;spark.jars.packages&quot;, &quot;org.mlflow:mlflow-spark:2.22.0&quot;)</span>
 <span class="sd">            .master(&quot;local[*]&quot;)</span>
 <span class="sd">            .getOrCreate()</span>
 <span class="sd">        )</span>
@@ -1282,6 +1287,7 @@
 <span class="sd">                   datasource autologging. If ``False``, show all events and warnings during Spark</span>
 <span class="sd">                   datasource autologging.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">pyspark_version</span>
     <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
 
     <span class="kn">from</span> <span class="nn">mlflow._spark_autologging</span> <span class="kn">import</span> <span class="p">(</span>
@@ -1289,6 +1295,23 @@
         <span class="n">_stop_listen_for_spark_activity</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="kn">from</span> <span class="nn">mlflow.utils._spark_utils</span> <span class="kn">import</span> <span class="n">_get_active_spark_session</span>
+
+    <span class="c1"># Check if environment variable PYSPARK_PIN_THREAD is set to false.</span>
+    <span class="c1"># The &quot;Pin thread&quot; concept was introduced since Pyspark 3.0.0 and set to default to true</span>
+    <span class="c1"># since Pyspark 3.2.0 (https://issues.apache.org/jira/browse/SPARK-35303). When pin thread</span>
+    <span class="c1"># is enabled, Pyspark manages Python and JVM threads in a 1:1, meaning that when one thread</span>
+    <span class="c1"># is terminated, the corresponding thread in the other side will be terminated as well.</span>
+    <span class="c1"># However, this causes an issue in spark autologging as our event listener thread may be</span>
+    <span class="c1"># terminated before receiving the datasource event.</span>
+    <span class="c1"># Hence, we have to disable it and decouple the thread management between Python and JVM.</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">Version</span><span class="p">(</span><span class="n">pyspark_version</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">Version</span><span class="p">(</span><span class="s2">&quot;3.2.0&quot;</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PYSPARK_PIN_THREAD&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;false&quot;</span>
+    <span class="p">):</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;With Pyspark &gt;= 3.2, PYSPARK_PIN_THREAD environment variable must be set to false &quot;</span>
+            <span class="s2">&quot;for Spark datasource autologging to work.&quot;</span>
+        <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">original</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -1342,7 +1365,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>LLM Evaluation Examples &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>LLM Evaluation Examples &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="LLMs" href="../../index.html"/>
         <link rel="next" title="LLM Evaluation with MLflow Example Notebook" href="/question-answering-evaluation.html"/>
         <link rel="prev" title="Serving LLMs with MLflow: Leveraging Custom PyFunc" href="/../../custom-pyfunc-for-llms/notebooks/custom-pyfunc-advanced-llm.html"/> 
@@ -59,6 +61,7 @@
 <script type="text/javascript" src="../../../_static/doctools.js"></script>
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -71,7 +74,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -112,21 +115,26 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">LLMs</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#id1">MLflow AI Gateway</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#id4">LLM Evaluation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#id5">Prompt Engineering UI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#id1">MLflow Deployments Server for LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#id2">LLM Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#id3">Prompt Engineering UI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#native-mlflow-flavors-for-llms">Native MLflow Flavors for LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#id6">LLM Tracking in MLflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#id4">LLM Tracking in MLflow</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../index.html#tutorials-and-use-case-guides-for-llms-in-mlflow">Tutorials and Use Case Guides for LLMs in MLflow</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../../rag/index.html">Retrieval Augmented Generation (RAG)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../custom-pyfunc-for-llms/index.html">Deploying Advanced LLMs with Custom PyFuncs in MLflow</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">LLM Evaluation Examples</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="question-answering-evaluation.html">LLM Evaluation with MLflow Example Notebook</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rag-evaluation.html">LLM RAG Evaluation with MLflow Example Notebook</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rag-evaluation-llama2.html">LLM RAG Evaluation with MLflow using llama2-as-judge Example Notebook</a></li>
+<li class="toctree-l4"><a class="reference internal" href="huggingface-evaluation.html">Evaluate a Hugging Face LLM with <code class="docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#qa-evaluation-notebook">QA Evaluation Notebook</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#rag-evaluation-notebook">RAG Evaluation Notebook</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rag-evaluation-notebook-using-gpt-4-as-judge">RAG Evaluation Notebook (using gpt-4-as-judge)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rag-evaluation-notebook-using-llama2-70b-as-judge">RAG Evaluation Notebook (using llama2-70b-as-judge)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evaluating-a-hugging-face-llm-notebook-using-gpt-4-as-judge">Evaluating a 🤗 Hugging Face LLM Notebook (using gpt-4-as-judge)</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
 </ul>
 </li>
 </ul>
@@ -136,6 +144,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-registry.html">MLflow Model Registry</a></li>
@@ -208,19 +217,31 @@
 The first notebook is centered around evaluating an LLM for question-answering with a
 prompt engineering approach. The second notebook is centered around evaluating a RAG system.
 Both notebooks will demonstrate how to use MLflow’s builtin metrics such as token_count and
-toxicity as well as LLM-judged intelligent metrics such as answer_relevance.</p>
+toxicity as well as LLM-judged intelligent metrics such as answer_relevance. The third notebook
+is the same as the second notebook, but uses Databricks’s served llama2-70b as the judge instead
+of gpt-4.</p>
 <div class="toctree-wrapper compound">
 </div>
 <div class="section" id="qa-evaluation-notebook">
 <h2>QA Evaluation Notebook<a class="headerlink" href="#qa-evaluation-notebook" title="Permalink to this headline"> </a></h2>
 <p>If you would like a copy of this notebook to execute in your environment, download the notebook here:</p>
-<a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/llm-evaluate/notebooks/question-answering-evaluation.ipynb" class="notebook-download-btn">Download the notebook</a><br><p>To follow along and see the sections of the notebook guide, click below:</p>
-<a href="question-answering-evaluation.html" class="download-btn">View the Notebook</a><br></div>
-<div class="section" id="rag-evaluation-notebook">
-<h2>RAG Evaluation Notebook<a class="headerlink" href="#rag-evaluation-notebook" title="Permalink to this headline"> </a></h2>
+<a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/llm-evaluate/notebooks/question-answering-evaluation.ipynb" class="notebook-download-btn">Download the notebook</a><br/><p>To follow along and see the sections of the notebook guide, click below:</p>
+<a href="question-answering-evaluation.html" class="download-btn">View the Notebook</a><br/></div>
+<div class="section" id="rag-evaluation-notebook-using-gpt-4-as-judge">
+<h2>RAG Evaluation Notebook (using gpt-4-as-judge)<a class="headerlink" href="#rag-evaluation-notebook-using-gpt-4-as-judge" title="Permalink to this headline"> </a></h2>
 <p>If you would like a copy of this notebook to execute in your environment, download the notebook here:</p>
-<a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/llm-evaluate/notebooks/rag-evaluation.ipynb" class="notebook-download-btn">Download the notebook</a><br><p>To follow along and see the sections of the notebook guide, click below:</p>
-<a href="rag-evaluation.html" class="download-btn">View the Notebook</a><br></div>
+<a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/llm-evaluate/notebooks/rag-evaluation.ipynb" class="notebook-download-btn">Download the notebook</a><br/><p>To follow along and see the sections of the notebook guide, click below:</p>
+<a href="rag-evaluation.html" class="download-btn">View the Notebook</a><br/></div>
+<div class="section" id="rag-evaluation-notebook-using-llama2-70b-as-judge">
+<h2>RAG Evaluation Notebook (using llama2-70b-as-judge)<a class="headerlink" href="#rag-evaluation-notebook-using-llama2-70b-as-judge" title="Permalink to this headline"> </a></h2>
+<p>If you would like a copy of this notebook to execute in your environment, download the notebook here:</p>
+<a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/llm-evaluate/notebooks/rag-evaluation-llama2.ipynb" class="notebook-download-btn">Download the notebook</a><br/><p>To follow along and see the sections of the notebook guide, click below:</p>
+<a href="rag-evaluation-llama2.html" class="download-btn">View the Notebook</a><br/></div>
+<div class="section" id="evaluating-a-hugging-face-llm-notebook-using-gpt-4-as-judge">
+<h2>Evaluating a 🤗 Hugging Face LLM Notebook (using gpt-4-as-judge)<a class="headerlink" href="#evaluating-a-hugging-face-llm-notebook-using-gpt-4-as-judge" title="Permalink to this headline"> </a></h2>
+<p>Learn how to evaluate an Open-Source 🤗 Hugging Face LLM with MLflow evaluate by downloading the notebook here:</p>
+<a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/llm-evaluate/notebooks/huggingface-evaluation.ipynb" class="notebook-download-btn">Download the notebook</a><br/><p>Or follow along directly in the docs here:</p>
+<a href="huggingface-evaluation.html" class="download-btn">View the Notebook</a><br/></div>
 </div>
 
 
@@ -261,7 +282,7 @@ toxicity as well as LLM-judged intelligent metrics such as answer_relevance.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

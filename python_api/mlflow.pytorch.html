@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.pytorch &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.pytorch &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.recipes" href="/mlflow.recipes.html"/>
         <link rel="prev" title="mlflow.pyspark.ml" href="/mlflow.pyspark.ml.html"/> 
@@ -59,6 +61,7 @@
 <script type="text/javascript" src="../_static/doctools.js"></script>
 <script type="text/javascript" src="../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -71,7 +74,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -117,6 +120,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model-registry.html">MLflow Model Registry</a></li>
@@ -144,7 +148,6 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.keras_core.html">mlflow.keras_core</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.langchain.html">mlflow.langchain</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.lightgbm.html">mlflow.lightgbm</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlflow.llm.html">mlflow.llm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.metrics.html">mlflow.metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.mleap.html">mlflow.mleap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.models.html">mlflow.models</a></li>
@@ -152,6 +155,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.paddle.html">mlflow.paddle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pmdarima.html">mlflow.pmdarima</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.projects.html">mlflow.projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.promptflow.html">mlflow.promptflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.prophet.html">mlflow.prophet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pyfunc.html">mlflow.pyfunc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pyspark.ml.html">mlflow.pyspark.ml</a></li>
@@ -165,6 +169,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.spacy.html">mlflow.spacy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.spark.html">mlflow.spark</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.statsmodels.html">mlflow.statsmodels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.system_metrics.html">mlflow.system_metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.tensorflow.html">mlflow.tensorflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.transformers.html">mlflow.transformers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.types.html">mlflow.types</a></li>
@@ -245,7 +250,7 @@ exports PyTorch models with the following flavors:</p>
 <code class="sig-prename descclassname"><span class="pre">mlflow.pytorch.</span></code><code class="sig-name descname"><span class="pre">autolog</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_every_n_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_every_n_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_for_unsupported_versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registered_model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/pytorch.html#autolog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pytorch.autolog" title="Permalink to this definition"> </a></dt>
 <dd><div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Autologging is known to be compatible with the following package versions: <code class="docutils literal notranslate"><span class="pre">1.9.0</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">torch</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">2.1.0</span></code>. Autologging may not succeed when used with package versions outside of this range.</p>
+<p>Autologging is known to be compatible with the following package versions: <code class="docutils literal notranslate"><span class="pre">1.9.0</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">torch</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">2.1.1</span></code>. Autologging may not succeed when used with package versions outside of this range.</p>
 </div>
 <p>Enables (or disables) and configures autologging from <a class="reference external" href="https://pytorch-lightning.readthedocs.io/en/latest">PyTorch Lightning</a> to MLflow.</p>
 <p>Autologging is performed when you call the <cite>fit</cite> method of
@@ -264,16 +269,18 @@ no notion of an “epoch”.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Only pytorch-lightning modules between versions 1.4.9 and
-2.1.0 are known to be compatible with mlflow’s autologging.</p>
+2.1.2 are known to be compatible with mlflow’s autologging.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>log_every_n_epoch</strong> – If specified, logs metrics once every <cite>n</cite> epochs. By default, metrics
 are logged after every epoch.</p></li>
-<li><p><strong>log_every_n_step</strong> – If specified, logs batch metrics once every <cite>n</cite> global step.
-By default, metrics are not logged for steps. Note that setting this to 1 can
-cause performance issues and is not recommended.</p></li>
+<li><p><strong>log_every_n_step</strong> – If specified, logs batch metrics once every <cite>n</cite> training step.
+By default, metrics are not logged for steps. Note that setting this to 1 can cause
+performance issues and is not recommended. Metrics are logged against Lightning’s global
+step number, and when multiple optimizers are used it is assumed that all optimizers
+are stepped in each training step.</p></li>
 <li><p><strong>log_models</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, trained models are logged as MLflow model artifacts.
 If <code class="docutils literal notranslate"><span class="pre">False</span></code>, trained models are not logged.</p></li>
 <li><p><strong>log_datasets</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, dataset information is logged to MLflow Tracking.
@@ -281,23 +288,23 @@ If <code class="docutils literal notranslate"><span class="pre">False</span></co
 <li><p><strong>disable</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, disables the PyTorch Lightning autologging integration.
 If <code class="docutils literal notranslate"><span class="pre">False</span></code>, enables the PyTorch Lightning autologging integration.</p></li>
 <li><p><strong>exclusive</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, autologged content is not logged to user-created fluent runs.
-If <code class="docutils literal notranslate"><span class="pre">False</span></code>, autologged content is logged to the active fluent run,
-which may be user-created.</p></li>
+If <code class="docutils literal notranslate"><span class="pre">False</span></code>, autologged content is logged to the active fluent run, which may be
+user-created.</p></li>
 <li><p><strong>disable_for_unsupported_versions</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, disable autologging for versions of
 pytorch and pytorch-lightning that have not been tested against this version
 of the MLflow client or are incompatible.</p></li>
 <li><p><strong>silent</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, suppress all event logs and warnings from MLflow during PyTorch
-Lightning autologging. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, show all events and warnings during
-PyTorch Lightning autologging.</p></li>
+Lightning autologging. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, show all events and warnings during PyTorch Lightning
+autologging.</p></li>
 <li><p><strong>registered_model_name</strong> – If given, each time a model is trained, it is registered as a
-new model version of the registered model with this name.
-The registered model is created if it does not already exist.</p></li>
+new model version of the registered model with this name. The registered model is created if
+it does not already exist.</p></li>
 <li><p><strong>extra_tags</strong> – A dictionary of extra tags to set on each managed run created by autologging.</p></li>
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id2" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id3" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">lightning</span> <span class="k">as</span> <span class="nn">L</span>
@@ -385,8 +392,8 @@ The registered model is created if it does not already exist.</p></li>
 <a class="reference internal" href="#mlflow.pytorch.save_model" title="mlflow.pytorch.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_model()</span></code></a> and <a class="reference internal" href="#mlflow.pytorch.log_model" title="mlflow.pytorch.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">log_model()</span></code></a>.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id3">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id3" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id4" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.pytorch</span>
 
 <span class="c1"># Log PyTorch model</span>
@@ -399,8 +406,8 @@ The registered model is created if it does not already exist.</p></li>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id4">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id4" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id5" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>conda env {&#39;name&#39;: &#39;mlflow-env&#39;,
            &#39;channels&#39;: [&#39;conda-forge&#39;],
            &#39;dependencies&#39;: [&#39;python=3.8.15&#39;,
@@ -440,12 +447,10 @@ that, at minimum, contains these requirements.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">models:/&lt;model_name&gt;/&lt;model_version&gt;</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">models:/&lt;model_name&gt;/&lt;stage&gt;</span></code></p></li>
 </ul>
-<p>For more information about supported URI schemes, see
-<a class="reference external" href="https://www.mlflow.org/docs/latest/concepts.html#artifact-locations">Referencing Artifacts</a>.</p>
+<p>For more information about supported URI schemes, see <a class="reference external" href="https://www.mlflow.org/docs/latest/concepts.html#artifact-locations">Referencing Artifacts</a>.</p>
 </p></li>
 <li><p><strong>dst_path</strong> – The local filesystem path to which to download the model artifact.
-This directory must already exist. If unspecified, a local output
-path will be created.</p></li>
+This directory must already exist. If unspecified, a local output path will be created.</p></li>
 <li><p><strong>kwargs</strong> – kwargs to pass to <code class="docutils literal notranslate"><span class="pre">torch.load</span></code> method.</p></li>
 </ul>
 </dd>
@@ -453,26 +458,17 @@ path will be created.</p></li>
 <dd class="field-even"><p>A PyTorch model.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id5">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id5" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id6">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id6" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">mlflow.pytorch</span>
 
 
-<span class="c1"># Class defined here</span>
-<span class="k">class</span> <span class="nc">LinearNNModel</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="o">...</span>
-
-
-<span class="c1"># Initialize our model, criterion and optimizer</span>
-<span class="o">...</span>
-
-<span class="c1"># Training loop</span>
-<span class="o">...</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="c1"># Log the model</span>
 <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
-    <span class="n">mlflow</span><span class="o">.</span><span class="n">pytorch</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">signature</span><span class="o">=</span><span class="n">signature</span><span class="p">)</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">pytorch</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">)</span>
 
 <span class="c1"># Inference after loading the logged model</span>
 <span class="n">model_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/model&quot;</span>
@@ -484,8 +480,8 @@ path will be created.</p></li>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id6">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id6" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id7">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id7" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>predict X: 4.0, y_pred: 7.57
 predict X: 6.0, y_pred: 11.64
 predict X: 30.0, y_pred: 60.48
@@ -508,8 +504,7 @@ predict X: 30.0, y_pred: 60.48
 <li><p><code class="docutils literal notranslate"><span class="pre">s3://my_bucket/path/to/state_dict</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">runs:/&lt;mlflow_run_id&gt;/run-relative/path/to/state_dict</span></code></p></li>
 </ul>
-<p>For more information about supported URI schemes, see
-<a class="reference external" href="https://www.mlflow.org/docs/latest/concepts.html#artifact-locations">Referencing Artifacts</a>.</p>
+<p>For more information about supported URI schemes, see <a class="reference external" href="https://www.mlflow.org/docs/latest/concepts.html#artifact-locations">Referencing Artifacts</a>.</p>
 </p></li>
 <li><p><strong>kwargs</strong> – kwargs to pass to <code class="docutils literal notranslate"><span class="pre">torch.load</span></code>.</p></li>
 </ul>
@@ -518,8 +513,8 @@ predict X: 30.0, y_pred: 60.48
 <dd class="field-even"><p>A state_dict</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id7">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id7" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id8">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id8" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
     <span class="n">artifact_path</span> <span class="o">=</span> <span class="s2">&quot;model&quot;</span>
     <span class="n">mlflow</span><span class="o">.</span><span class="n">pytorch</span><span class="o">.</span><span class="n">log_state_dict</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">artifact_path</span><span class="p">)</span>
@@ -550,24 +545,28 @@ can correctly provide valid input.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pytorch_model</strong> – <p>PyTorch model to be saved. Can be either an eager model (subclass of
-<code class="docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>) or scripted model prepared via <code class="docutils literal notranslate"><span class="pre">torch.jit.script</span></code>
-or <code class="docutils literal notranslate"><span class="pre">torch.jit.trace</span></code>.</p>
-<p>The model accept a single <code class="docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code> as
-input and produce a single output tensor.</p>
-<p>If saving an eager model, any code dependencies of the
-model’s class, including the class definition itself, should be
-included in one of the following locations:</p>
-<ul>
-<li><p>The package(s) listed in the model’s Conda environment, specified
-by the <code class="docutils literal notranslate"><span class="pre">conda_env</span></code> parameter.</p></li>
+<code class="docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>) or scripted model prepared via <code class="docutils literal notranslate"><span class="pre">torch.jit.script</span></code> or
+<code class="docutils literal notranslate"><span class="pre">torch.jit.trace</span></code>.</p>
+<p>The model accept a single <code class="docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code> as input and produce a single output tensor.</p>
+<p>If saving an eager model, any code dependencies of the model’s class, including the class
+definition itself, should be included in one of the following locations:</p>
+<blockquote>
+<div><ul>
+<li><dl class="simple">
+<dt>The package(s) listed in the model’s Conda environment, specified by the <code class="docutils literal notranslate"><span class="pre">conda_env</span></code></dt><dd><p>parameter.</p>
+</dd>
+</dl>
+</li>
 <li><p>One or more of the files specified by the <code class="docutils literal notranslate"><span class="pre">code_paths</span></code> parameter.</p></li>
 </ul>
+</div></blockquote>
 </p></li>
 <li><p><strong>artifact_path</strong> – Run-relative artifact path.</p></li>
-<li><p><strong>conda_env</strong> – <p>Either a dictionary representation of a Conda environment or the path to a conda environment yaml
-file. If provided, this describes the environment this model should be run in. At minimum, it
-should specify the dependencies contained in <a class="reference internal" href="#mlflow.pytorch.get_default_conda_env" title="mlflow.pytorch.get_default_conda_env"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_conda_env()</span></code></a>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a conda
-environment with pip requirements inferred by <a class="reference internal" href="mlflow.models.html#mlflow.models.infer_pip_requirements" title="mlflow.models.infer_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.infer_pip_requirements()</span></code></a> is added
+<li><p><strong>conda_env</strong> – <p>Either a dictionary representation of a Conda environment or the path to a conda
+environment yaml file. If provided, this describes the environment this model should be run in.
+At a minimum, it should specify the dependencies contained in <a class="reference internal" href="#mlflow.pytorch.get_default_conda_env" title="mlflow.pytorch.get_default_conda_env"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_conda_env()</span></code></a>.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a conda environment with pip requirements inferred by
+<a class="reference internal" href="mlflow.models.html#mlflow.models.infer_pip_requirements" title="mlflow.models.infer_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.infer_pip_requirements()</span></code></a> is added
 to the model. If the requirement inference fails, it falls back to using
 <a class="reference internal" href="#mlflow.pytorch.get_default_pip_requirements" title="mlflow.pytorch.get_default_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_pip_requirements()</span></code></a>. pip requirements from <code class="docutils literal notranslate"><span class="pre">conda_env</span></code> are written to a pip
 <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file and the full conda environment is written to <code class="docutils literal notranslate"><span class="pre">conda.yaml</span></code>.
@@ -588,15 +587,14 @@ The following is an <em>example</em> dictionary representation of a conda enviro
 </div>
 </p></li>
 <li><p><strong>code_paths</strong> – A list of local filesystem paths to Python file dependencies (or directories
-containing file dependencies). These files are <em>prepended</em> to the system
-path when the model is loaded.</p></li>
+containing file dependencies). These files are <em>prepended</em> to the system path when the model
+is loaded.</p></li>
 <li><p><strong>pickle_module</strong> – The module that PyTorch should use to serialize (“pickle”) the specified
-<code class="docutils literal notranslate"><span class="pre">pytorch_model</span></code>. This is passed as the <code class="docutils literal notranslate"><span class="pre">pickle_module</span></code> parameter
-to <code class="docutils literal notranslate"><span class="pre">torch.save()</span></code>. By default, this module is also used to
-deserialize (“unpickle”) the PyTorch model at load time.</p></li>
-<li><p><strong>registered_model_name</strong> – If given, create a model version under
-<code class="docutils literal notranslate"><span class="pre">registered_model_name</span></code>, also creating a registered model if one
-with the given name does not exist.</p></li>
+<code class="docutils literal notranslate"><span class="pre">pytorch_model</span></code>. This is passed as the <code class="docutils literal notranslate"><span class="pre">pickle_module</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">torch.save()</span></code>.
+By default, this module is also used to deserialize (“unpickle”) the PyTorch model at load
+time.</p></li>
+<li><p><strong>registered_model_name</strong> – If given, create a model version under <code class="docutils literal notranslate"><span class="pre">registered_model_name</span></code>,
+also create a registered model if one with the given name does not exist.</p></li>
 <li><p><strong>signature</strong> – <p>an instance of the <a class="reference internal" href="mlflow.models.html#mlflow.models.ModelSignature" title="mlflow.models.ModelSignature"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSignature</span></code></a>
 class that describes the model’s inputs and outputs. If not specified but an
 <code class="docutils literal notranslate"><span class="pre">input_example</span></code> is supplied, a signature will be automatically inferred
@@ -619,14 +617,11 @@ dataset, for example:</p>
 as a hint of what data to feed the model. It will be converted to a Pandas
 DataFrame and then serialized to json using the Pandas split-oriented
 format, or a numpy array where the example will be serialized to json
-by converting it to a list. If input example is a tuple, then the first element
-must be a valid model input, and the second element must be a valid params
-dictionary that could be used for model inference. Bytes are base64-encoded.
-When the <code class="docutils literal notranslate"><span class="pre">signature</span></code> parameter is <code class="docutils literal notranslate"><span class="pre">None</span></code>, the input example is used to
-infer a model signature.</p></li>
+by converting it to a list. Bytes are base64-encoded. When the <code class="docutils literal notranslate"><span class="pre">signature</span></code> parameter is
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, the input example is used to infer a model signature.</p></li>
 <li><p><strong>await_registration_for</strong> – Number of seconds to wait for the model version to finish
-being created and is in <code class="docutils literal notranslate"><span class="pre">READY</span></code> status. By default, the function
-waits for five minutes. Specify 0 or None to skip waiting.</p></li>
+being created and is in <code class="docutils literal notranslate"><span class="pre">READY</span></code> status. By default, the function waits for five minutes.
+Specify 0 or None to skip waiting.</p></li>
 <li><p><strong>requirements_file</strong> – <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p><code class="docutils literal notranslate"><span class="pre">requirements_file</span></code> has been deprecated. Please use <code class="docutils literal notranslate"><span class="pre">pip_requirements</span></code> instead.</p>
@@ -639,15 +634,13 @@ filesystem paths. For example, consider the following <code class="docutils lite
 <p>In this case, the <code class="docutils literal notranslate"><span class="pre">&quot;my_file&quot;</span></code> requirements file is downloaded from S3. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
 no requirements file is added to the model.</p>
 </p></li>
-<li><p><strong>extra_files</strong> – <p>A list containing the paths to corresponding extra files. Remote URIs
-are resolved to absolute filesystem paths.
-For example, consider the following <code class="docutils literal notranslate"><span class="pre">extra_files</span></code> list -</p>
-<dl class="simple">
-<dt>extra_files = [“s3://my-bucket/path/to/my_file1”,</dt><dd><p>”s3://my-bucket/path/to/my_file2”]</p>
-</dd>
-</dl>
+<li><p><strong>extra_files</strong> – <p>A list containing the paths to corresponding extra files, if <code class="docutils literal notranslate"><span class="pre">None</span></code>, no
+extra files are added to the model. Remote URIs are resolved to absolute filesystem paths.
+For example, consider the following <code class="docutils literal notranslate"><span class="pre">extra_files</span></code> list:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">extra_files</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;s3://my-bucket/path/to/my_file1&quot;</span><span class="p">,</span> <span class="s2">&quot;s3://my-bucket/path/to/my_file2&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
 <p>In this case, the <code class="docutils literal notranslate"><span class="pre">&quot;my_file1</span> <span class="pre">&amp;</span> <span class="pre">my_file2&quot;</span></code> extra file is downloaded from S3.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no extra files are added to the model.</p>
 </p></li>
 <li><p><strong>pip_requirements</strong> – Either an iterable of pip requirement strings
 (e.g. <code class="docutils literal notranslate"><span class="pre">[&quot;torch&quot;,</span> <span class="pre">&quot;-r</span> <span class="pre">requirements.txt&quot;,</span> <span class="pre">&quot;-c</span> <span class="pre">constraints.txt&quot;]</span></code>) or the string path to
@@ -658,7 +651,8 @@ If the requirement inference fails, it falls back to using <a class="reference i
 Both requirements and constraints are automatically parsed and written to <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> and
 <code class="docutils literal notranslate"><span class="pre">constraints.txt</span></code> files, respectively, and stored as part of the model. Requirements are also
 written to the <code class="docutils literal notranslate"><span class="pre">pip</span></code> section of the model’s conda environment (<code class="docutils literal notranslate"><span class="pre">conda.yaml</span></code>) file.</p></li>
-<li><p><strong>extra_pip_requirements</strong> – <p>Either an iterable of pip requirement strings
+<li><p><strong>extra_pip_requirements</strong> – <p>Either an iterable of pip
+requirement strings
 (e.g. <code class="docutils literal notranslate"><span class="pre">[&quot;pandas&quot;,</span> <span class="pre">&quot;-r</span> <span class="pre">requirements.txt&quot;,</span> <span class="pre">&quot;-c</span> <span class="pre">constraints.txt&quot;]</span></code>) or the string path to
 a pip requirements file on the local filesystem (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;requirements.txt&quot;</span></code>). If provided, this
 describes additional pip requirements that are appended to a default set of pip requirements
@@ -675,7 +669,7 @@ section of the model’s conda environment (<code class="docutils literal notran
 <li><p><code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code></p></li>
 </ul>
 </div>
-<p><a class="reference internal" href="../deployment/deploy-model-to-kubernetes/index.html#pip-requirements-example"><span class="std std-ref">This example</span></a> demonstrates how to specify pip requirements using
+<p><a class="reference external" href="https://github.com/mlflow/mlflow/blob/master/examples/pip_requirements/pip_requirements.py">This example</a> demonstrates how to specify pip requirements using
 <code class="docutils literal notranslate"><span class="pre">pip_requirements</span></code> and <code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code>.</p>
 </p></li>
 <li><p><strong>metadata</strong> – <p>Custom metadata dictionary passed to the model and stored in the MLmodel file.</p>
@@ -693,8 +687,8 @@ release without warning.</p>
 metadata of the logged model.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id8">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id8" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id9">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id9" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">mlflow</span>
@@ -745,8 +739,8 @@ metadata of the logged model.</p>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id9">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id9" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id10">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id10" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>run_id: 1a1ec9e413ce48e9abf9aec20efd6f71
 artifacts: [&#39;model/data/model.pth&#39;,
             &#39;model/data/pickle_module_info.txt&#39;]
@@ -755,9 +749,9 @@ artifacts: [&#39;scripted_model/data/model.pth&#39;,
 </pre></div>
 </div>
 </div>
-<div class="figure align-default" id="id10">
+<div class="figure align-default" id="id11">
 <img alt="../_images/pytorch_logged_models.png" src="../_images/pytorch_logged_models.png" />
-<p class="caption"><span class="caption-text">PyTorch logged models</span><a class="headerlink" href="#id10" title="Permalink to this image"> </a></p>
+<p class="caption"><span class="caption-text">PyTorch logged models</span><a class="headerlink" href="#id11" title="Permalink to this image"> </a></p>
 </div>
 </dd></dl>
 
@@ -779,8 +773,8 @@ an <a class="reference internal" href="../models.html#models"><span class="std s
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id11">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id11" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id12">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id12" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Log a model as a state_dict</span>
 <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
     <span class="n">state_dict</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
@@ -808,24 +802,27 @@ an <a class="reference internal" href="../models.html#models"><span class="std s
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pytorch_model</strong> – <p>PyTorch model to be saved. Can be either an eager model (subclass of
-<code class="docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>) or scripted model prepared via <code class="docutils literal notranslate"><span class="pre">torch.jit.script</span></code>
-or <code class="docutils literal notranslate"><span class="pre">torch.jit.trace</span></code>.</p>
-<p>The model accept a single <code class="docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code> as
-input and produce a single output tensor.</p>
-<p>If saving an eager model, any code dependencies of the
-model’s class, including the class definition itself, should be
-included in one of the following locations:</p>
-<ul>
-<li><p>The package(s) listed in the model’s Conda environment, specified
-by the <code class="docutils literal notranslate"><span class="pre">conda_env</span></code> parameter.</p></li>
+<code class="docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>) or a scripted model prepared via <code class="docutils literal notranslate"><span class="pre">torch.jit.script</span></code> or
+<code class="docutils literal notranslate"><span class="pre">torch.jit.trace</span></code>.</p>
+<p>To save an eager model, any code dependencies of the model’s class, including the class
+definition itself, should be included in one of the following locations:</p>
+<blockquote>
+<div><ul>
+<li><dl class="simple">
+<dt>The package(s) listed in the model’s Conda environment, specified by the <code class="docutils literal notranslate"><span class="pre">conda_env</span></code></dt><dd><p>parameter.</p>
+</dd>
+</dl>
+</li>
 <li><p>One or more of the files specified by the <code class="docutils literal notranslate"><span class="pre">code_paths</span></code> parameter.</p></li>
 </ul>
+</div></blockquote>
 </p></li>
 <li><p><strong>path</strong> – Local path where the model is to be saved.</p></li>
-<li><p><strong>conda_env</strong> – <p>Either a dictionary representation of a Conda environment or the path to a conda environment yaml
-file. If provided, this describes the environment this model should be run in. At minimum, it
-should specify the dependencies contained in <a class="reference internal" href="#mlflow.pytorch.get_default_conda_env" title="mlflow.pytorch.get_default_conda_env"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_conda_env()</span></code></a>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a conda
-environment with pip requirements inferred by <a class="reference internal" href="mlflow.models.html#mlflow.models.infer_pip_requirements" title="mlflow.models.infer_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.infer_pip_requirements()</span></code></a> is added
+<li><p><strong>conda_env</strong> – <p>Either a dictionary representation of a Conda environment or the path to a conda
+environment yaml file. If provided, this describes the environment this model should be run in.
+At a minimum, it should specify the dependencies contained in <a class="reference internal" href="#mlflow.pytorch.get_default_conda_env" title="mlflow.pytorch.get_default_conda_env"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_conda_env()</span></code></a>.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a conda environment with pip requirements inferred by
+<a class="reference internal" href="mlflow.models.html#mlflow.models.infer_pip_requirements" title="mlflow.models.infer_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.infer_pip_requirements()</span></code></a> is added
 to the model. If the requirement inference fails, it falls back to using
 <a class="reference internal" href="#mlflow.pytorch.get_default_pip_requirements" title="mlflow.pytorch.get_default_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_pip_requirements()</span></code></a>. pip requirements from <code class="docutils literal notranslate"><span class="pre">conda_env</span></code> are written to a pip
 <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file and the full conda environment is written to <code class="docutils literal notranslate"><span class="pre">conda.yaml</span></code>.
@@ -847,12 +844,11 @@ The following is an <em>example</em> dictionary representation of a conda enviro
 </p></li>
 <li><p><strong>mlflow_model</strong> – <a class="reference internal" href="mlflow.models.html#mlflow.models.Model" title="mlflow.models.Model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.models.Model</span></code></a> this flavor is being added to.</p></li>
 <li><p><strong>code_paths</strong> – A list of local filesystem paths to Python file dependencies (or directories
-containing file dependencies). These files are <em>prepended</em> to the system
-path when the model is loaded.</p></li>
+containing file dependencies). These files are <em>prepended</em> to the system path when the model
+is loaded.</p></li>
 <li><p><strong>pickle_module</strong> – The module that PyTorch should use to serialize (“pickle”) the specified
-<code class="docutils literal notranslate"><span class="pre">pytorch_model</span></code>. This is passed as the <code class="docutils literal notranslate"><span class="pre">pickle_module</span></code> parameter
-to <code class="docutils literal notranslate"><span class="pre">torch.save()</span></code>. By default, this module is also used to
-deserialize (“unpickle”) the PyTorch model at load time.</p></li>
+<code class="docutils literal notranslate"><span class="pre">pytorch_model</span></code>. This is passed as the <code class="docutils literal notranslate"><span class="pre">pickle_module</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">torch.save()</span></code>. By
+default, this module is also used to deserialize (“unpickle”) the model at loading time.</p></li>
 <li><p><strong>signature</strong> – <p>an instance of the <a class="reference internal" href="mlflow.models.html#mlflow.models.ModelSignature" title="mlflow.models.ModelSignature"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSignature</span></code></a>
 class that describes the model’s inputs and outputs. If not specified but an
 <code class="docutils literal notranslate"><span class="pre">input_example</span></code> is supplied, a signature will be automatically inferred
@@ -875,11 +871,8 @@ dataset, for example:</p>
 as a hint of what data to feed the model. It will be converted to a Pandas
 DataFrame and then serialized to json using the Pandas split-oriented
 format, or a numpy array where the example will be serialized to json
-by converting it to a list. If input example is a tuple, then the first element
-must be a valid model input, and the second element must be a valid params
-dictionary that could be used for model inference. Bytes are base64-encoded.
-When the <code class="docutils literal notranslate"><span class="pre">signature</span></code> parameter is <code class="docutils literal notranslate"><span class="pre">None</span></code>, the input example is used to
-infer a model signature.</p></li>
+by converting it to a list. Bytes are base64-encoded. When the <code class="docutils literal notranslate"><span class="pre">signature</span></code> parameter is
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, the input example is used to infer a model signature.</p></li>
 <li><p><strong>requirements_file</strong> – <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p><code class="docutils literal notranslate"><span class="pre">requirements_file</span></code> has been deprecated. Please use <code class="docutils literal notranslate"><span class="pre">pip_requirements</span></code> instead.</p>
@@ -911,7 +904,8 @@ If the requirement inference fails, it falls back to using <a class="reference i
 Both requirements and constraints are automatically parsed and written to <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> and
 <code class="docutils literal notranslate"><span class="pre">constraints.txt</span></code> files, respectively, and stored as part of the model. Requirements are also
 written to the <code class="docutils literal notranslate"><span class="pre">pip</span></code> section of the model’s conda environment (<code class="docutils literal notranslate"><span class="pre">conda.yaml</span></code>) file.</p></li>
-<li><p><strong>extra_pip_requirements</strong> – <p>Either an iterable of pip requirement strings
+<li><p><strong>extra_pip_requirements</strong> – <p>Either an iterable of pip
+requirement strings
 (e.g. <code class="docutils literal notranslate"><span class="pre">[&quot;pandas&quot;,</span> <span class="pre">&quot;-r</span> <span class="pre">requirements.txt&quot;,</span> <span class="pre">&quot;-c</span> <span class="pre">constraints.txt&quot;]</span></code>) or the string path to
 a pip requirements file on the local filesystem (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;requirements.txt&quot;</span></code>). If provided, this
 describes additional pip requirements that are appended to a default set of pip requirements
@@ -928,7 +922,7 @@ section of the model’s conda environment (<code class="docutils literal notran
 <li><p><code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code></p></li>
 </ul>
 </div>
-<p><a class="reference internal" href="../deployment/deploy-model-to-kubernetes/index.html#pip-requirements-example"><span class="std std-ref">This example</span></a> demonstrates how to specify pip requirements using
+<p><a class="reference external" href="https://github.com/mlflow/mlflow/blob/master/examples/pip_requirements/pip_requirements.py">This example</a> demonstrates how to specify pip requirements using
 <code class="docutils literal notranslate"><span class="pre">pip_requirements</span></code> and <code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code>.</p>
 </p></li>
 <li><p><strong>metadata</strong> – <p>Custom metadata dictionary passed to the model and stored in the MLmodel file.</p>
@@ -942,24 +936,14 @@ release without warning.</p>
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id12">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id12" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id13">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id13" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-
+<span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">import</span> <span class="nn">mlflow.pytorch</span>
 
 
-<span class="c1"># Class defined here</span>
-<span class="k">class</span> <span class="nc">LinearNNModel</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="o">...</span>
-
-
-<span class="c1"># Initialize our model, criterion and optimizer</span>
-<span class="o">...</span>
-
-<span class="c1"># Training loop</span>
-<span class="o">...</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="c1"># Save PyTorch models to current working directory</span>
 <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
@@ -982,8 +966,8 @@ release without warning.</p>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id13">
-<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id13" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id14">
+<div class="code-block-caption"><span class="caption-text">Output</span><a class="headerlink" href="#id14" title="Permalink to this code"> </a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Loaded model:
 predict X: 6.0, y_pred: 11.90
 predict X: 8.0, y_pred: 15.92
@@ -1055,7 +1039,7 @@ predict X: 30.0, y_pred: 60.13
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

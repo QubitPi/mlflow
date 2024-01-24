@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.utils &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.utils &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.xgboost" href="/mlflow.xgboost.html"/>
         <link rel="prev" title="mlflow.types" href="/mlflow.types.html"/> 
@@ -59,6 +61,7 @@
 <script type="text/javascript" src="../_static/doctools.js"></script>
 <script type="text/javascript" src="../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -71,7 +74,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -117,6 +120,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model-registry.html">MLflow Model Registry</a></li>
@@ -144,7 +148,6 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.keras_core.html">mlflow.keras_core</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.langchain.html">mlflow.langchain</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.lightgbm.html">mlflow.lightgbm</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlflow.llm.html">mlflow.llm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.metrics.html">mlflow.metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.mleap.html">mlflow.mleap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.models.html">mlflow.models</a></li>
@@ -152,6 +155,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.paddle.html">mlflow.paddle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pmdarima.html">mlflow.pmdarima</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.projects.html">mlflow.projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.promptflow.html">mlflow.promptflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.prophet.html">mlflow.prophet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pyfunc.html">mlflow.pyfunc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pyspark.ml.html">mlflow.pyspark.ml</a></li>
@@ -165,6 +169,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.spacy.html">mlflow.spacy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.spark.html">mlflow.spark</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.statsmodels.html">mlflow.statsmodels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.system_metrics.html">mlflow.system_metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.tensorflow.html">mlflow.tensorflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.transformers.html">mlflow.transformers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.types.html">mlflow.types</a></li>
@@ -235,32 +240,29 @@
 <span class="target" id="module-mlflow.utils.async_logging.run_operations"></span><dl class="py class">
 <dt id="mlflow.utils.async_logging.run_operations.RunOperations">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">mlflow.utils.async_logging.run_operations.</span></code><code class="sig-name descname"><span class="pre">RunOperations</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation_futures</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/utils/async_logging/run_operations.html#RunOperations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.utils.async_logging.run_operations.RunOperations" title="Permalink to this definition"> </a></dt>
-<dd><p>Represents a collection of operations on one or more MLflow Runs, such as run creation
-or metric logging.</p>
+<dd><p>Class that helps manage the futures of MLflow async logging.</p>
 <dl class="py method">
 <dt id="mlflow.utils.async_logging.run_operations.RunOperations.wait">
 <code class="sig-name descname"><span class="pre">wait</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/utils/async_logging/run_operations.html#RunOperations.wait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.utils.async_logging.run_operations.RunOperations.wait" title="Permalink to this definition"> </a></dt>
-<dd><p>Blocks on completion of the MLflow Run operations.</p>
+<dd><p>Blocks on completion of all futures.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt id="mlflow.utils.async_logging.run_operations.get_combined_run_operations">
-<code class="sig-prename descclassname"><span class="pre">mlflow.utils.async_logging.run_operations.</span></code><code class="sig-name descname"><span class="pre">get_combined_run_operations</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">run_operations_list:</span> <span class="pre">[&lt;class</span> <span class="pre">'mlflow.utils.async_logging.run_operations.RunOperations'&gt;]</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#mlflow.utils.async_logging.run_operations.RunOperations" title="mlflow.utils.async_logging.run_operations.RunOperations"><span class="pre">mlflow.utils.async_logging.run_operations.RunOperations</span></a><a class="reference internal" href="../_modules/mlflow/utils/async_logging/run_operations.html#get_combined_run_operations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.utils.async_logging.run_operations.get_combined_run_operations" title="Permalink to this definition"> </a></dt>
-<dd><p>Given a list of RunOperations, returns a single RunOperations object that represents the
+<code class="sig-prename descclassname"><span class="pre">mlflow.utils.async_logging.run_operations.</span></code><code class="sig-name descname"><span class="pre">get_combined_run_operations</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_operations_list</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mlflow.utils.async_logging.run_operations.RunOperations" title="mlflow.utils.async_logging.run_operations.RunOperations"><span class="pre">mlflow.utils.async_logging.run_operations.RunOperations</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#mlflow.utils.async_logging.run_operations.RunOperations" title="mlflow.utils.async_logging.run_operations.RunOperations"><span class="pre">mlflow.utils.async_logging.run_operations.RunOperations</span></a><a class="reference internal" href="../_modules/mlflow/utils/async_logging/run_operations.html#get_combined_run_operations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.utils.async_logging.run_operations.get_combined_run_operations" title="Permalink to this definition"> </a></dt>
+<dd><p>Combine a list of RunOperations objects into a single RunOperations object.</p>
+<p>Given a list of <cite>RunOperations</cite>, returns a single <cite>RunOperations</cite> object that represents the
 combined set of operations. If the input list is empty, returns None. If the input list
-contains only one element, returns that element. Otherwise, creates a new RunOperations
+contains only one element, returns that element. Otherwise, creates a new <cite>RunOperations</cite>
 object that combines the operation futures from each input RunOperations object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>run_operations_list</strong> (<em>list</em><em>[</em><a class="reference internal" href="#mlflow.utils.async_logging.run_operations.RunOperations" title="mlflow.utils.async_logging.run_operations.RunOperations"><em>RunOperations</em></a><em>]</em>) – A list of RunOperations objects to combine.</p>
+<dd class="field-odd"><p><strong>run_operations_list</strong> – A list of <cite>RunOperations</cite> objects to combine.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A single RunOperations object that represents the combined set of operations.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#mlflow.utils.async_logging.run_operations.RunOperations" title="mlflow.utils.async_logging.run_operations.RunOperations">RunOperations</a></p>
+<dd class="field-even"><p>A single <cite>RunOperations</cite> object that represents the combined set of operations.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -305,7 +307,7 @@ object that combines the operation futures from each input RunOperations object.
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

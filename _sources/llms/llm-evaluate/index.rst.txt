@@ -23,7 +23,7 @@ functionality for LLMs, please navigate to the notebook collection below:
 
 .. raw:: html
 
-    <a href="notebooks/index.html" class="download-btn">View the Notebook Guides</a><br>
+    <a href="notebooks/index.html" class="download-btn">View the Notebook Guides</a><br/>
 
 Quickstart
 ----------
@@ -125,6 +125,8 @@ There are two ways to select metrics to evaluate your model:
 * Use **default** metrics for pre-defined model types.
 * Use a **custom** list of metrics.
 
+.. _llm-eval-default-metrics:
+
 Use Default Metrics for Pre-defined Model Types
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -165,13 +167,15 @@ The supported LLM model types and associated metrics are listed below:
     * `flesch_kincaid_grade_level <https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests#Flesch%E2%80%93Kincaid_grade_level>`_ :sup:`2`
 
 
-:sup:`1` Requires package `evaluate <https://pypi.org/project/evaluate>`_, `pytorch <https://pytorch.org/get-started/locally/>`_, and 
+:sup:`1` Requires package `evaluate <https://pypi.org/project/evaluate>`_, `torch <https://pytorch.org/get-started/locally/>`_, and 
 `transformers <https://huggingface.co/docs/transformers/installation>`_
 
 :sup:`2` Requires package `textstat <https://pypi.org/project/textstat>`_
 
 :sup:`3` Requires package `evaluate <https://pypi.org/project/evaluate>`_, `nltk <https://pypi.org/project/nltk>`_, and 
 `rouge-score <https://pypi.org/project/rouge-score>`_
+
+.. _llm-eval-custom-metrics:
 
 Use a Custom List of Metrics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -205,7 +209,7 @@ for LLM evaluation in MLflow. You can specify a custom list of metrics in the `e
         )
 
 
-The full reference for supported evaluation metrics can be found `here <../python_api/mlflow.html#mlflow.evaluate>`_. 
+The full reference for supported evaluation metrics can be found `here <../../python_api/mlflow.html#mlflow.evaluate>`_.
 
 Metrics with LLM as the Judge
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -220,6 +224,34 @@ metrics:
 * :py:func:`mlflow.metrics.genai.relevance`: Use this metric when you want to evaluate how relevant the model generated output is with respect to both the input and the context. High scores mean that the model has understood the context and correct extracted relevant information from the context, while low score mean that output has completely ignored the question and the context and could be hallucinating.
 * :py:func:`mlflow.metrics.genai.faithfulness`: Use this metric when you want to evaluate how faithful the model generated output is based on the context provided. High scores mean that the outputs contain information that is in line with the context, while low scores mean that outputs may disagree with the context (input is ignored).
 
+Selecting the LLM-as-judge Model
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By default, llm-as-judge metrics use ``openai:/gpt-4`` as the judge. You can change the default judge model by passing an override to the ``model`` argument within the metric definition, as shown below. In addition to OpenAI models, you can also use any endpoint via MLflow Deployments. Use :py:func:`mlflow.deployments.set_deployments_target` to set the target deployment client.
+
+To use an endpoint hosted by a local MLflow Deployments Server, you can use the following code.
+
+.. code-block:: python
+
+    from mlflow.deployments import set_deployments_target
+
+    set_deployments_target("http://localhost:5000")
+    my_answer_similarity = mlflow.metrics.genai.answer_similarity(
+        model="endpoints:/my-endpoint"
+    )
+
+To use an endpoint hosted on Databricks, you can use the following code.
+
+.. code-block:: python
+
+    from mlflow.deployments import set_deployments_target
+
+    set_deployments_target("databricks")
+    llama2_answer_similarity = mlflow.metrics.genai.answer_similarity(
+        model="endpoints:/databricks-llama-2-70b-chat"
+    )
+
+For more information about how various models perform as judges, please refer to `this blog <https://www.databricks.com/blog/LLM-auto-eval-best-practices-RAG>`_.
 
 Creating Custom LLM-evaluation Metrics
 --------------------------------------
@@ -234,7 +266,7 @@ needs the following information:
 * ``definition``: describe what's the metric doing. 
 * ``grading_prompt``: describe the scoring critieria. 
 * ``examples``: a few input/output examples with score, they are used as a reference for LLM judge.
-* ``model``: the identifier of LLM judge. 
+* ``model``: the identifier of LLM judge, in the format of "openai:/gpt-4" or "endpoints:/databricks-llama-2-70b-chat".  
 * ``parameters``: the extra parameters to send to LLM judge, e.g., ``temperature`` for ``"openai:/gpt-3.5-turbo-16k"``.
 * ``aggregations``: The list of options to aggregate the per-row scores using numpy functions.
 * ``greater_is_better``: indicates if a higher score means your model is better.
@@ -314,7 +346,7 @@ Now let's define the ``professionalism`` metric, you will see how each field is 
 Create heuristic-based LLM Evaluation Metrics (Category 2)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This is very similar to creating a custom traditional metrics, with the exception of returning a `EvaluationResult` instance.
+This is very similar to creating custom traditional metrics, with the exception of returning a :py:func:`mlflow.metrics.MetricValue` instance.
 Basically you need to:
 
 1. Implement a ``eval_fn`` to define your scoring logic, it must take in 3 args ``predictions``, ``targets`` and ``metrics``.
@@ -322,7 +354,7 @@ Basically you need to:
 2. Pass ``eval_fn`` and other arguments to ``mlflow.metrics.make_metric`` API to create the metric. 
 
 The following code creates a dummy per-row metric called ``"over_10_chars"``: if the model output is greater than 10, 
-the score is 1 otherwise 0.
+the score is "yes" otherwise "no".
 
 .. code-block:: python
 
@@ -330,9 +362,9 @@ the score is 1 otherwise 0.
         scores = []
         for i in range(len(predictions)):
             if len(predictions[i]) > 10:
-                scores.append(1)
+                scores.append("yes")
             else:
-                scores.append(0)
+                scores.append("no")
         return MetricValue(
             scores=scores,
             aggregate_results=standard_aggregations(scores),
@@ -441,6 +473,8 @@ up OpenAI authentication to run the code below.
             model_type="question-answering",
         )
 
+.. _llm-eval-static-dataset:
+
 Evaluating with a Static Dataset
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -502,7 +536,7 @@ Viewing Evaluation Results
 View Evaluation Results via Code
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``mlflow.evaluate()`` returns the evaluation results as an :py:func:`mlflow.models.EvaluationResult` instace. 
+``mlflow.evaluate()`` returns the evaluation results as an :py:func:`mlflow.models.EvaluationResult` instance. 
 To see the score on selected metrics, you can check:
 
 * ``metrics``: stores the aggregated results, like average/variance across the evaluation dataset. Let's take a second

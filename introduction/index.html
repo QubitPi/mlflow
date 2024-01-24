@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>What is MLflow? &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>What is MLflow? &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,13 +39,15 @@
     <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../index.html"/>
         <link rel="next" title="Getting Started with MLflow" href="/../getting-started/index.html"/>
         <link rel="prev" title="MLflow: A Tool for Managing the Machine Learning Lifecycle" href="/../index.html"/> 
 
@@ -58,6 +60,7 @@
 <script type="text/javascript" src="../_static/doctools.js"></script>
 <script type="text/javascript" src="../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -70,7 +73,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -123,6 +126,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model-registry.html">MLflow Model Registry</a></li>
@@ -207,8 +211,8 @@ the various stages of ML development and deployment. Despite its expansive offer
 foundational components:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="../tracking.html#tracking"><span class="std std-ref">Tracking</span></a>: MLflow Tracking provides both an API and UI dedicated to the logging of parameters, code versions, metrics, and artifacts during the ML process. This centralized repository captures details such as parameters, metrics, artifacts, data, and environment configurations, giving teams insight into their models’ evolution over time. Whether working in standalone scripts, notebooks, or other environments, Tracking facilitates the logging of results either to local files or a server, making it easier to compare multiple runs across different users.</p></li>
-<li><p><a class="reference internal" href="../model-registry.html#registry"><span class="std std-ref">Model Registry</span></a>: A systematic approach to model management, the Model Registry assists in handling different versions of models, discerning their current state, and ensuring a smooth transition from development to production. It offers a centralized model store, APIs, and UI to collaboratively manage an MLflow Model’s full lifecycle, including model lineage, versioning, stage transitions, and annotations.</p></li>
-<li><p><a class="reference internal" href="../llms/gateway/index.html#gateway"><span class="std std-ref">AI Gateway</span></a>: This server, equipped with a set of standardized APIs, streamlines access to both SaaS and OSS LLM models. It serves as a unified interface, bolstering security through authenticated access, and offers a common set of APIs for prominent LLMs.</p></li>
+<li><p><a class="reference internal" href="../model-registry.html#registry"><span class="std std-ref">Model Registry</span></a>: A systematic approach to model management, the Model Registry assists in handling different versions of models, discerning their current state, and ensuring smooth productionization. It offers a centralized model store, APIs, and UI to collaboratively manage an MLflow Model’s full lifecycle, including model lineage, versioning, aliasing, tagging, and annotations.</p></li>
+<li><p><a class="reference internal" href="../llms/deployments/index.html#deployments"><span class="std std-ref">MLflow Deployments for LLMs</span></a>: This server, equipped with a set of standardized APIs, streamlines access to both SaaS and OSS LLM models. It serves as a unified interface, bolstering security through authenticated access, and offers a common set of APIs for prominent LLMs.</p></li>
 <li><p><a class="reference internal" href="../models.html#model-evaluation"><span class="std std-ref">Evaluate</span></a>: Designed for in-depth model analysis, this set of tools facilitates objective model comparison, be it traditional ML algorithms or cutting-edge LLMs.</p></li>
 <li><p><a class="reference internal" href="../llms/prompt-engineering/index.html#prompt-engineering"><span class="std std-ref">Prompt Engineering UI</span></a>: A dedicated environment for prompt engineering, this UI-centric component provides a space for prompt experimentation, refinement, evaluation, testing, and deployment.</p></li>
 <li><p><a class="reference internal" href="../recipes.html#recipes"><span class="std std-ref">Recipes</span></a>: Serving as a guide for structuring ML projects, Recipes, while offering recommendations, are focused on ensuring functional end results optimized for real-world deployment scenarios.</p></li>
@@ -224,13 +228,13 @@ Ensuring productivity and efficiency throughout this lifecycle poses several cha
 <li><p><strong>Experiment Management</strong>: It’s tough to keep track of the myriad experiments, especially when working with files or interactive notebooks. Determining which combination of data, code, and parameters led to a particular result can become a daunting task.</p></li>
 <li><p><strong>Reproducibility</strong>: Ensuring consistent results across runs is not trivial. Beyond just tracking code versions and parameters, capturing the entire environment, including library dependencies, is critical. This becomes even more challenging when collaborating with other data scientists or when scaling the code to different platforms.</p></li>
 <li><p><strong>Deployment Consistency</strong>: With the plethora of ML libraries available, there’s often no standardized way to package and deploy models. Custom solutions can lead to inconsistencies, and the crucial link between a model and the code and parameters that produced it might be lost.</p></li>
-<li><p><strong>Model Management</strong>: As data science teams produce numerous models, managing these models, their versions, and stage transitions becomes a significant hurdle. Without a centralized platform, managing model lifecycles, from development to staging to production, becomes unwieldy.</p></li>
+<li><p><strong>Model Management</strong>: As data science teams produce numerous models, managing, testing, and continuously deploying these models becomes a significant hurdle. Without a centralized platform, managing model lifecycles becomes unwieldy.</p></li>
 <li><p><strong>Library Agnosticism</strong>: While individual ML libraries might offer solutions to some of the challenges, achieving the best results often involves experimenting across multiple libraries. A platform that offers compatibility with various libraries while ensuring models are usable as reproducible “black boxes” is essential.</p></li>
 </ul>
 <p>MLflow addresses these challenges by offering a unified platform tailored for the entire ML lifecycle. Its benefits include:</p>
 <ul class="simple">
 <li><p><strong>Traceability</strong>: With tools like the Tracking Server, every experiment is logged, ensuring that teams can trace back and understand the evolution of models.</p></li>
-<li><p><strong>Consistency</strong>: Be it accessing models through the AI Gateway or structuring projects with MLflow Recipes, MLflow promotes a consistent approach, reducing both the learning curve and potential errors.</p></li>
+<li><p><strong>Consistency</strong>: Be it accessing models through the MLflow Deployments for LLMs or structuring projects with MLflow Recipes, MLflow promotes a consistent approach, reducing both the learning curve and potential errors.</p></li>
 <li><p><strong>Flexibility</strong>: MLflow’s library-agnostic design ensures compatibility with a wide range of machine learning libraries. It offers comprehensive support across different programming languages, backed by a robust <a class="reference internal" href="../rest-api.html#rest-api"><span class="std std-ref">REST API</span></a>, <a class="reference internal" href="../cli.html#cli"><span class="std std-ref">CLI</span></a>, and APIs for <a class="reference internal" href="../python_api/index.html#python-api"><span class="std std-ref">Python API</span></a>, <a class="reference internal" href="../R-api.html#r-api"><span class="std std-ref">R API</span></a>, and <a class="reference internal" href="../java_api/index.html#java-api"><span class="std std-ref">Java API</span></a>.</p></li>
 </ul>
 <p>By simplifying the complex landscape of ML workflows, MLflow empowers data scientists and developers to focus on building and refining models,
@@ -339,7 +343,7 @@ adeptly to accommodate varying data needs.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

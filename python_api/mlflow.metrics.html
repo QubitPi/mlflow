@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.metrics &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.metrics &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,16 +39,18 @@
     <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.mleap" href="/mlflow.mleap.html"/>
-        <link rel="prev" title="mlflow.llm" href="/mlflow.llm.html"/> 
+        <link rel="prev" title="mlflow.lightgbm" href="/mlflow.lightgbm.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -59,6 +61,7 @@
 <script type="text/javascript" src="../_static/doctools.js"></script>
 <script type="text/javascript" src="../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -71,7 +74,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -117,6 +120,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model-registry.html">MLflow Model Registry</a></li>
@@ -144,12 +148,13 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.keras_core.html">mlflow.keras_core</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.langchain.html">mlflow.langchain</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.lightgbm.html">mlflow.lightgbm</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlflow.llm.html">mlflow.llm</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">mlflow.metrics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#retriever-metrics">Retriever Metrics</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#generative-ai-metrics">Generative AI Metrics</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#regressor-metrics">Regressor Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#classifier-metrics">Classifier Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#text-metrics">Text Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#question-answering-metrics">Question Answering Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#retriever-metrics">Retriever Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generative-ai-metrics">Generative AI Metrics</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.mleap.html">mlflow.mleap</a></li>
@@ -158,6 +163,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.paddle.html">mlflow.paddle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pmdarima.html">mlflow.pmdarima</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.projects.html">mlflow.projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.promptflow.html">mlflow.promptflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.prophet.html">mlflow.prophet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pyfunc.html">mlflow.pyfunc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pyspark.ml.html">mlflow.pyspark.ml</a></li>
@@ -171,6 +177,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.spacy.html">mlflow.spacy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.spark.html">mlflow.spark</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.statsmodels.html">mlflow.statsmodels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.system_metrics.html">mlflow.system_metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.tensorflow.html">mlflow.tensorflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.transformers.html">mlflow.transformers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.types.html">mlflow.types</a></li>
@@ -327,10 +334,18 @@
 <span class="p">)</span>
 </pre></div>
 </div>
+<p>Information about how an <a class="reference internal" href="#mlflow.metrics.EvaluationMetric" title="mlflow.metrics.EvaluationMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvaluationMetric</span></code></a> is calculated, such as the grading prompt used is available via the <code class="docutils literal notranslate"><span class="pre">metric_details</span></code> property.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">from</span> <span class="nn">mlflow.metrics.genai</span> <span class="kn">import</span> <span class="n">relevance</span>
+
+<span class="n">my_relevance_metric</span> <span class="o">=</span> <span class="n">relevance</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">my_relevance_metric</span><span class="o">.</span><span class="n">metric_details</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>Evaluation results are stored as <a class="reference internal" href="#mlflow.metrics.MetricValue" title="mlflow.metrics.MetricValue"><code class="xref py py-class docutils literal notranslate"><span class="pre">MetricValue</span></code></a>. Aggregate results are logged to the MLflow run as metrics, while per-example results are logged to the MLflow run as artifacts in the form of an evaluation table.</p>
 <dl class="py class">
 <dt id="mlflow.metrics.MetricValue">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">mlflow.metrics.</span></code><code class="sig-name descname"><span class="pre">MetricValue</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scores</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">justifications</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregate_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/metrics/base.html#MetricValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.metrics.MetricValue" title="Permalink to this definition"> </a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">mlflow.metrics.</span></code><code class="sig-name descname"><span class="pre">MetricValue</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">justifications</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregate_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/metrics/base.html#MetricValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.metrics.MetricValue" title="Permalink to this definition"> </a></dt>
 <dd><div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Experimental: This class may change or be removed in a future release without warning.</p>
@@ -348,6 +363,8 @@
 </dd></dl>
 
 <p>We provide the following builtin factory functions to create <a class="reference internal" href="#mlflow.metrics.EvaluationMetric" title="mlflow.metrics.EvaluationMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvaluationMetric</span></code></a> for evaluating models. These metrics are computed automatically depending on the <code class="docutils literal notranslate"><span class="pre">model_type</span></code>. For more information on the <code class="docutils literal notranslate"><span class="pre">model_type</span></code> parameter, see <a class="reference internal" href="mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a> API.</p>
+<div class="section" id="regressor-metrics">
+<h2>Regressor Metrics<a class="headerlink" href="#regressor-metrics" title="Permalink to this headline"> </a></h2>
 <dl class="py function">
 <dt id="mlflow.metrics.mae">
 <code class="sig-prename descclassname"><span class="pre">mlflow.metrics.</span></code><code class="sig-name descname"><span class="pre">mae</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">mlflow.models.evaluation.base.EvaluationMetric</span><a class="reference internal" href="../_modules/mlflow/metrics.html#mae"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.metrics.mae" title="Permalink to this definition"> </a></dt>
@@ -392,6 +409,9 @@ negative infinity to 1, and measures the percentage of variance explained by the
 variables in a regression.</p>
 </dd></dl>
 
+</div>
+<div class="section" id="classifier-metrics">
+<h2>Classifier Metrics<a class="headerlink" href="#classifier-metrics" title="Permalink to this headline"> </a></h2>
 <dl class="py function">
 <dt id="mlflow.metrics.precision_score">
 <code class="sig-prename descclassname"><span class="pre">mlflow.metrics.</span></code><code class="sig-name descname"><span class="pre">precision_score</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">mlflow.models.evaluation.base.EvaluationMetric</span><a class="reference internal" href="../_modules/mlflow/metrics.html#precision_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.metrics.precision_score" title="Permalink to this definition"> </a></dt>
@@ -415,6 +435,9 @@ classification task.</p>
 classification task. F1 score is defined as 2 * (precision * recall) / (precision + recall).</p>
 </dd></dl>
 
+</div>
+<div class="section" id="text-metrics">
+<h2>Text Metrics<a class="headerlink" href="#text-metrics" title="Permalink to this headline"> </a></h2>
 <dl class="py function">
 <dt id="mlflow.metrics.ari_grade_level">
 <code class="sig-prename descclassname"><span class="pre">mlflow.metrics.</span></code><code class="sig-name descname"><span class="pre">ari_grade_level</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">mlflow.models.evaluation.base.EvaluationMetric</span><a class="reference internal" href="../_modules/mlflow/metrics.html#ari_grade_level"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.metrics.ari_grade_level" title="Permalink to this definition"> </a></dt>
@@ -453,6 +476,10 @@ which will likely range from around 0 to 15 (although it is not limited to this 
 </dl>
 </dd></dl>
 
+</div>
+<div class="section" id="question-answering-metrics">
+<h2>Question Answering Metrics<a class="headerlink" href="#question-answering-metrics" title="Permalink to this headline"> </a></h2>
+<p>Includes all of the above <strong>Text Metrics</strong> as well as the following:</p>
 <dl class="py function">
 <dt id="mlflow.metrics.exact_match">
 <code class="sig-prename descclassname"><span class="pre">mlflow.metrics.</span></code><code class="sig-name descname"><span class="pre">exact_match</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">mlflow.models.evaluation.base.EvaluationMetric</span><a class="reference internal" href="../_modules/mlflow/metrics.html#exact_match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.metrics.exact_match" title="Permalink to this definition"> </a></dt>
@@ -580,6 +607,7 @@ it takes to generate a prediction for a given input. Note that computing latency
 each row to be predicted sequentially, which will likely slow down the evaluation process.</p>
 </dd></dl>
 
+</div>
 <div class="section" id="retriever-metrics">
 <h2>Retriever Metrics<a class="headerlink" href="#retriever-metrics" title="Permalink to this headline"> </a></h2>
 <p>The following metrics are built-in metrics for the <code class="docutils literal notranslate"><span class="pre">'retriever'</span></code> model type, meaning they will be
@@ -629,8 +657,8 @@ each input query. <code class="docutils literal notranslate"><span class="pre">r
     <span class="n">extra_metrics</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">mlflow</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">precision_at_k</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span>
         <span class="n">mlflow</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">precision_at_k</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span>
-        <span class="n">mlflow</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">recall_at_k</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
-        <span class="n">mlflow</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">recall_at_k</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">recall_at_k</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span>
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">ndcg_at_k</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
     <span class="p">]</span>
 <span class="p">)</span>
 </pre></div>
@@ -639,7 +667,7 @@ each input query. <code class="docutils literal notranslate"><span class="pre">r
 </ol>
 <p>NOTE: In the 2nd method, it is recommended to omit the <code class="docutils literal notranslate"><span class="pre">model_type</span></code> as well, or else
 <code class="docutils literal notranslate"><span class="pre">precision&#64;3</span></code> and <code class="docutils literal notranslate"><span class="pre">recall&#64;3</span></code> will be  calculated in  addition to <code class="docutils literal notranslate"><span class="pre">precision&#64;5</span></code>,
-<code class="docutils literal notranslate"><span class="pre">precision&#64;6</span></code>, <code class="docutils literal notranslate"><span class="pre">recall&#64;4</span></code>, and <code class="docutils literal notranslate"><span class="pre">recall&#64;5</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">precision&#64;6</span></code>, <code class="docutils literal notranslate"><span class="pre">recall&#64;5</span></code>, and <code class="docutils literal notranslate"><span class="pre">ndcg_at_k&#64;5</span></code>.</p>
 </div></blockquote>
 </li>
 </ul>
@@ -653,7 +681,7 @@ each input query. <code class="docutils literal notranslate"><span class="pre">r
 <p>This function will create a metric for calculating <code class="docutils literal notranslate"><span class="pre">precision_at_k</span></code> for retriever models.</p>
 <p>This metric computes a score between 0 and 1 for each row representing the precision of the
 retriever model at the given <code class="docutils literal notranslate"><span class="pre">k</span></code> value. If no relevant documents are retrieved, the score is
-0, indicating that no relevant docs were retrieved. Let <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">min(k,</span> <span class="pre">#</span> <span class="pre">of</span> <span class="pre">retrieved</span> <span class="pre">doc</span> <span class="pre">IDs)</span></code>.
+0, indicating that no relevant docs are retrieved. Let <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">min(k,</span> <span class="pre">#</span> <span class="pre">of</span> <span class="pre">retrieved</span> <span class="pre">doc</span> <span class="pre">IDs)</span></code>.
 Then, in all other cases, the precision at k is calculated as follows:</p>
 <blockquote>
 <div><p><code class="docutils literal notranslate"><span class="pre">precision_at_k</span></code> = (# of relevant retrieved doc IDs in top-<code class="docutils literal notranslate"><span class="pre">x</span></code> ranked docs) / <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p>
@@ -670,13 +698,37 @@ Then, in all other cases, the precision at k is calculated as follows:</p>
 <p>This function will create a metric for calculating <code class="docutils literal notranslate"><span class="pre">recall_at_k</span></code> for retriever models.</p>
 <p>This metric computes a score between 0 and 1 for each row representing the recall ability of
 the retriever model at the given <code class="docutils literal notranslate"><span class="pre">k</span></code> value. If no ground truth doc IDs are provided and no
-documents were retrieved, the score is 1. However, if no ground truth doc IDs are provided and
-documents were retrieved, the score is 0. In all other cases, the recall at k is calculated as
+documents are retrieved, the score is 1. However, if no ground truth doc IDs are provided and
+documents are retrieved, the score is 0. In all other cases, the recall at k is calculated as
 follows:</p>
 <blockquote>
 <div><p><code class="docutils literal notranslate"><span class="pre">recall_at_k</span></code> = (# of unique relevant retrieved doc IDs in top-<code class="docutils literal notranslate"><span class="pre">k</span></code> ranked docs) / (# of
 ground truth doc IDs)</p>
 </div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="mlflow.metrics.ndcg_at_k">
+<code class="sig-prename descclassname"><span class="pre">mlflow.metrics.</span></code><code class="sig-name descname"><span class="pre">ndcg_at_k</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">mlflow.models.evaluation.base.EvaluationMetric</span><a class="reference internal" href="../_modules/mlflow/metrics.html#ndcg_at_k"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.metrics.ndcg_at_k" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This function may change or be removed in a future release without warning.</p>
+</div>
+<p>This function will create a metric for evaluating <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ndcg_score.html">NDCG&#64;k</a> for retriever models.</p>
+<p>NDCG score is capable of handling non-binary notions of relevance. However, for simplicity,
+we use binary relevance here. The relevance score for documents in the ground truth is 1,
+and the relevance score for documents not in the ground truth is 0.</p>
+<p>The NDCG score is calculated using sklearn.metrics.ndcg_score with the following edge cases
+on top of the sklearn implementation:</p>
+<ol class="arabic simple">
+<li><p>If no ground truth doc IDs are provided and no documents are retrieved, the score is 1.</p></li>
+<li><p>If no ground truth doc IDs are provided and documents are retrieved, the score is 0.</p></li>
+<li><p>If ground truth doc IDs are provided and no documents are retrieved, the score is 0.</p></li>
+<li><p>If duplicate doc IDs are retrieved and the duplicate doc IDs are in the ground truth,
+they will be treated as different docs. For example, if the ground truth doc IDs are
+[1, 2] and the retrieved doc IDs are [1, 1, 1, 3], the score will be equavalent to
+ground truth doc IDs [10, 11, 12, 2] and retrieved doc IDs [10, 11, 12, 3].</p></li>
+</ol>
 </dd></dl>
 
 <p>Users create their own <a class="reference internal" href="#mlflow.metrics.EvaluationMetric" title="mlflow.metrics.EvaluationMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvaluationMetric</span></code></a> using the <a class="reference internal" href="#mlflow.metrics.make_metric" title="mlflow.metrics.make_metric"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_metric</span></code></a> factory function</p>
@@ -734,8 +786,9 @@ for <code class="docutils literal notranslate"><span class="pre">&quot;mse&quot;
 </div>
 </dd></dl>
 
-<span class="target" id="module-mlflow.metrics"></span><div class="section" id="generative-ai-metrics">
-<h3>Generative AI Metrics<a class="headerlink" href="#generative-ai-metrics" title="Permalink to this headline"> </a></h3>
+<span class="target" id="module-mlflow.metrics"></span></div>
+<div class="section" id="generative-ai-metrics">
+<h2>Generative AI Metrics<a class="headerlink" href="#generative-ai-metrics" title="Permalink to this headline"> </a></h2>
 <p>We also provide generative AI (“genai”) <a class="reference internal" href="#mlflow.metrics.EvaluationMetric" title="mlflow.metrics.EvaluationMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvaluationMetric</span></code></a>s for evaluating text models. These metrics use an LLM to evaluate the quality of a model’s output text. Note that your use of a third party LLM service (e.g., OpenAI) for evaluation may be subject to and governed by the LLM service’s terms of use. The following factory functions help you customize the intelligent metric to your use case.</p>
 <span class="target" id="module-mlflow.metrics.genai"></span><dl class="py function">
 <dt id="mlflow.metrics.genai.answer_correctness">
@@ -754,9 +807,10 @@ in the <code class="docutils literal notranslate"><span class="pre">evaluator_co
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – (Optional) The model that will be used to evaluate this metric. Defaults to
-gpt-4. Your use of a third party LLM service (e.g., OpenAI) for evaluation may
-be subject to and governed by the LLM service’s terms of use.</p></li>
+<li><p><strong>model</strong> – (Optional) Model uri of an openai or gateway judge model in the format of
+“openai:/gpt-4” or “gateway:/my-route”. Defaults to
+“openai:/gpt-4”. Your use of a third party LLM service (e.g., OpenAI) for
+evaluation may be subject to and governed by the LLM service’s terms of use.</p></li>
 <li><p><strong>metric_version</strong> – (Optional) The version of the answer correctness metric to use.
 Defaults to the latest version.</p></li>
 <li><p><strong>examples</strong> – (Optional) Provide a list of examples to help the judge model evaluate the
@@ -784,9 +838,10 @@ applicability of the output with respect to the input.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – (Optional) The model that will be used to evaluate this metric. Defaults to
-gpt-4. Your use of a third party LLM service (e.g., OpenAI) for evaluation may
-be subject to and governed by the LLM service’s terms of use.</p></li>
+<li><p><strong>model</strong> – (Optional) Model uri of an openai or gateway judge model in the format of
+“openai:/gpt-4” or “gateway:/my-route”. Defaults to
+“openai:/gpt-4”. Your use of a third party LLM service (e.g., OpenAI) for
+evaluation may be subject to and governed by the LLM service’s terms of use.</p></li>
 <li><p><strong>metric_version</strong> – (Optional) The version of the answer relevance metric to use.
 Defaults to the latest version.</p></li>
 <li><p><strong>examples</strong> – (Optional) Provide a list of examples to help the judge model evaluate the
@@ -817,9 +872,10 @@ in the <code class="docutils literal notranslate"><span class="pre">evaluator_co
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – (Optional) The model that will be used to evaluate this metric. Defaults to
-gpt-4. Your use of a third party LLM service (e.g., OpenAI) for evaluation may
-be subject to and governed by the LLM service’s terms of use.</p></li>
+<li><p><strong>model</strong> – (Optional) Model uri of an openai or gateway judge model in the format of
+“openai:/gpt-4” or “gateway:/my-route”. Defaults to
+“openai:/gpt-4”. Your use of a third party LLM service (e.g., OpenAI) for
+evaluation may be subject to and governed by the LLM service’s terms of use.</p></li>
 <li><p><strong>metric_version</strong> – (Optional) The version of the answer similarity metric to use.
 Defaults to the latest version.</p></li>
 <li><p><strong>examples</strong> – (Optional) Provide a list of examples to help the judge model evaluate the
@@ -850,9 +906,10 @@ in the <code class="docutils literal notranslate"><span class="pre">evaluator_co
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – (Optional) The model that will be used to evaluate this metric. Defaults to
-gpt-4. Your use of a third party LLM service (e.g., OpenAI) for evaluation may
-be subject to and governed by the LLM service’s terms of use.</p></li>
+<li><p><strong>model</strong> – (Optional) Model uri of an openai or gateway judge model in the format of
+“openai:/gpt-4” or “gateway:/my-route”. Defaults to
+“openai:/gpt-4”. Your use of a third party LLM service (e.g., OpenAI) for
+evaluation may be subject to and governed by the LLM service’s terms of use.</p></li>
 <li><p><strong>metric_version</strong> – (Optional) The version of the faithfulness metric to use.
 Defaults to the latest version.</p></li>
 <li><p><strong>examples</strong> – (Optional) Provide a list of examples to help the judge model evaluate the
@@ -879,9 +936,10 @@ in the <code class="docutils literal notranslate"><span class="pre">evaluator_co
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – (Optional) The model that will be used to evaluate this metric. Defaults to
-gpt-4. Your use of a third party LLM service (e.g., OpenAI) for evaluation may
-be subject to and governed by the LLM service’s terms of use.</p></li>
+<li><p><strong>model</strong> – (Optional) Model uri of an openai or gateway judge model in the format of
+“openai:/gpt-4” or “gateway:/my-route”. Defaults to
+“openai:/gpt-4”. Your use of a third party LLM service (e.g., OpenAI) for
+evaluation may be subject to and governed by the LLM service’s terms of use.</p></li>
 <li><p><strong>metric_version</strong> – (Optional) The version of the relevance metric to use.
 Defaults to the latest version.</p></li>
 <li><p><strong>examples</strong> – (Optional) Provide a list of examples to help the judge model evaluate the
@@ -898,12 +956,13 @@ the new results.</p></li>
 <p>You can also create your own generative AI <a class="reference internal" href="#mlflow.metrics.EvaluationMetric" title="mlflow.metrics.EvaluationMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvaluationMetric</span></code></a>s using the <a class="reference internal" href="#mlflow.metrics.genai.make_genai_metric" title="mlflow.metrics.genai.make_genai_metric"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_genai_metric</span></code></a> factory function.</p>
 <dl class="py function">
 <dt id="mlflow.metrics.genai.make_genai_metric">
-<code class="sig-prename descclassname"><span class="pre">mlflow.metrics.genai.</span></code><code class="sig-name descname"><span class="pre">make_genai_metric</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grading_prompt</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">examples</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">mlflow.metrics.genai.base.EvaluationExample</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'v1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'openai:/gpt-4'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grading_context_columns</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregations</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">['mean',</span> <span class="pre">'variance',</span> <span class="pre">'p90']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">greater_is_better</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">mlflow.models.evaluation.base.EvaluationMetric</span><a class="reference internal" href="../_modules/mlflow/metrics/genai/genai_metric.html#make_genai_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.metrics.genai.make_genai_metric" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.metrics.genai.</span></code><code class="sig-name descname"><span class="pre">make_genai_metric</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grading_prompt</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">examples</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">mlflow.metrics.genai.base.EvaluationExample</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'v1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'openai:/gpt-4'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grading_context_columns</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_input</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregations</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">['mean',</span> <span class="pre">'variance',</span> <span class="pre">'p90']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">greater_is_better</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">mlflow.models.evaluation.base.EvaluationMetric</span><a class="reference internal" href="../_modules/mlflow/metrics/genai/genai_metric.html#make_genai_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.metrics.genai.make_genai_metric" title="Permalink to this definition"> </a></dt>
 <dd><div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Experimental: This function may change or be removed in a future release without warning.</p>
 </div>
-<p>Create a genai metric used to evaluate LLM using LLM as a judge in MLflow.</p>
+<p>Create a genai metric used to evaluate LLM using LLM as a judge in MLflow. The full grading
+prompt is stored in the metric_details field of the <code class="docutils literal notranslate"><span class="pre">EvaluationMetric</span></code> object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -912,15 +971,18 @@ the new results.</p></li>
 <li><p><strong>grading_prompt</strong> – Grading criteria of the metric.</p></li>
 <li><p><strong>examples</strong> – (Optional) Examples of the metric.</p></li>
 <li><p><strong>version</strong> – (Optional) Version of the metric. Currently supported versions are: v1.</p></li>
-<li><p><strong>model</strong> – (Optional) Model uri of the of an openai or gateway judge model in the format of
-“openai:/gpt-4” or “gateway:/my-route”. Defaults to
-“openai:/gpt-4”. Your use of a third party LLM service (e.g., OpenAI) for
-evaluation may be subject to and governed by the LLM service’s terms of use.</p></li>
+<li><p><strong>model</strong> – (Optional) Model uri of an openai, gateway, or deployments judge model in the
+format of “openai:/gpt-4”, “gateway:/my-route”, “endpoints:/databricks-llama-2-70b-chat”.
+Defaults to “openai:/gpt-4”. If using
+Azure OpenAI, the <code class="docutils literal notranslate"><span class="pre">OPENAI_DEPLOYMENT_NAME</span></code> environment variable will take precedence.
+Your use of a third party LLM service (e.g., OpenAI) for evaluation may be subject to and
+governed by the LLM service’s terms of use.</p></li>
 <li><p><strong>grading_context_columns</strong> – (Optional) The name of the grading context column, or a list of
 grading context column names, required to compute the metric. The
 <code class="docutils literal notranslate"><span class="pre">grading_context_columns</span></code> are used by the LLM as a judge as additional information to
 compute the metric. The columns are extracted from the input dataset or output predictions
 based on <code class="docutils literal notranslate"><span class="pre">col_mapping</span></code> in the <code class="docutils literal notranslate"><span class="pre">evaluator_config</span></code> passed to <a class="reference internal" href="mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a>.</p></li>
+<li><p><strong>include_input</strong> – (Optional) Whether to include the input when computing the metric.</p></li>
 <li><p><strong>parameters</strong> – (Optional) Parameters for the LLM used to compute the metric. By default, we
 set the temperature to 0.0, max_tokens to 200, and top_p to 1.0. We recommend
 setting the temperature to 0.0 for the LLM used as a judge to ensure consistent results.</p></li>
@@ -1002,7 +1064,7 @@ Defaults to 10 workers.</p></li>
 <p>When using generative AI <a class="reference internal" href="#mlflow.metrics.EvaluationMetric" title="mlflow.metrics.EvaluationMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvaluationMetric</span></code></a>s, it is important to pass in an <a class="reference internal" href="#mlflow.metrics.genai.EvaluationExample" title="mlflow.metrics.genai.EvaluationExample"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvaluationExample</span></code></a></p>
 <dl class="py class">
 <dt id="mlflow.metrics.genai.EvaluationExample">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">mlflow.metrics.genai.</span></code><code class="sig-name descname"><span class="pre">EvaluationExample</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">justification</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grading_context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/metrics/genai/base.html#EvaluationExample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.metrics.genai.EvaluationExample" title="Permalink to this definition"> </a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">mlflow.metrics.genai.</span></code><code class="sig-name descname"><span class="pre">EvaluationExample</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">justification</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grading_context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/metrics/genai/base.html#EvaluationExample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.metrics.genai.EvaluationExample" title="Permalink to this definition"> </a></dt>
 <dd><div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Experimental: This class may change or be removed in a future release without warning.</p>
@@ -1064,7 +1126,12 @@ Justification: &quot;The definition effectively explains what MLflow is &quot;
 </div>
 </dd></dl>
 
-</div>
+<p>Users must set the appropriate environment variables for the LLM service they are using for
+evaluation. For example, if you are using OpenAI’s API, you must set the <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code>
+environment variable. If using Azure OpenAI, you must also set the <code class="docutils literal notranslate"><span class="pre">OPENAI_API_TYPE</span></code>,
+<code class="docutils literal notranslate"><span class="pre">OPENAI_API_VERSION</span></code>, <code class="docutils literal notranslate"><span class="pre">OPENAI_API_BASE</span></code>, and <code class="docutils literal notranslate"><span class="pre">OPENAI_DEPLOYMENT_NAME</span></code> environment variables.
+See <a class="reference external" href="https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/switching-endpoints">Azure OpenAI documentation</a>
+Users do not need to set these environment variables if they are using a gateway route.</p>
 </div>
 </div>
 
@@ -1075,7 +1142,7 @@ Justification: &quot;The definition effectively explains what MLflow is &quot;
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="mlflow.llm.html" class="btn btn-neutral" title="mlflow.llm" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
+        <a href="mlflow.lightgbm.html" class="btn btn-neutral" title="mlflow.lightgbm" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
       
       
         <a href="mlflow.mleap.html" class="btn btn-neutral" title="mlflow.mleap" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
@@ -1106,7 +1173,7 @@ Justification: &quot;The definition effectively explains what MLflow is &quot;
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

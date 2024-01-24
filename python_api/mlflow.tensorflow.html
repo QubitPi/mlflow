@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.tensorflow &mdash; MLflow 2.8.1.dev0 documentation</title>
+  <title>mlflow.tensorflow &mdash; MLflow 2.9.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -39,16 +39,18 @@
     <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/cards.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/grids.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/mobile.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/simple-cards.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/tabs.css" type="text/css" />
     
   
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.8.1.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.transformers" href="/mlflow.transformers.html"/>
-        <link rel="prev" title="mlflow.statsmodels" href="/mlflow.statsmodels.html"/> 
+        <link rel="prev" title="mlflow.system_metrics" href="/mlflow.system_metrics.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -59,6 +61,7 @@
 <script type="text/javascript" src="../_static/doctools.js"></script>
 <script type="text/javascript" src="../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -71,7 +74,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.8.1.dev0</span>
+    <span class="version">2.9.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -117,6 +120,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../traditional-ml/index.html">Traditional ML</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deployment/index.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tracking.html">MLflow Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system-metrics/index.html">System Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../projects.html">MLflow Projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../models.html">MLflow Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model-registry.html">MLflow Model Registry</a></li>
@@ -144,7 +148,6 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.keras_core.html">mlflow.keras_core</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.langchain.html">mlflow.langchain</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.lightgbm.html">mlflow.lightgbm</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlflow.llm.html">mlflow.llm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.metrics.html">mlflow.metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.mleap.html">mlflow.mleap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.models.html">mlflow.models</a></li>
@@ -152,6 +155,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.paddle.html">mlflow.paddle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pmdarima.html">mlflow.pmdarima</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.projects.html">mlflow.projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.promptflow.html">mlflow.promptflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.prophet.html">mlflow.prophet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pyfunc.html">mlflow.pyfunc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.pyspark.ml.html">mlflow.pyspark.ml</a></li>
@@ -165,6 +169,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.spacy.html">mlflow.spacy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.spark.html">mlflow.spark</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.statsmodels.html">mlflow.statsmodels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.system_metrics.html">mlflow.system_metrics</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">mlflow.tensorflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.transformers.html">mlflow.transformers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.types.html">mlflow.types</a></li>
@@ -245,9 +250,9 @@ This module exports TensorFlow models with the following flavors:</p>
 <code class="sig-prename descclassname"><span class="pre">mlflow.tensorflow.</span></code><code class="sig-name descname"><span class="pre">autolog</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">every_n_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_for_unsupported_versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registered_model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_input_examples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_model_signatures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved_model_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keras_model_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/tensorflow.html#autolog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.tensorflow.autolog" title="Permalink to this definition"> </a></dt>
 <dd><div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Autologging is known to be compatible with the following package versions: <code class="docutils literal notranslate"><span class="pre">2.6.5</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">tensorflow</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">2.14.0</span></code>. Autologging may not succeed when used with package versions outside of this range.</p>
+<p>Autologging is known to be compatible with the following package versions: <code class="docutils literal notranslate"><span class="pre">2.6.5</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">tensorflow</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">2.15.0</span></code>. Autologging may not succeed when used with package versions outside of this range.</p>
 </div>
-<p>Enables autologging for <code class="docutils literal notranslate"><span class="pre">tf.keras</span></code> and <code class="docutils literal notranslate"><span class="pre">keras</span></code>.
+<p>Enables autologging for <code class="docutils literal notranslate"><span class="pre">tf.keras</span></code>.
 Note that only <code class="docutils literal notranslate"><span class="pre">tensorflow&gt;=2.3</span></code> are supported.
 As an example, try running the
 <a class="reference external" href="https://github.com/mlflow/mlflow/blob/master/examples/keras/train.py">Keras/TensorFlow example</a>.</p>
@@ -258,8 +263,10 @@ As an example, try running the
 </ul>
 <blockquote>
 <div><ul class="simple">
-<li><p>Training loss; validation loss; user-specified metrics</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">fit()</span></code> or <code class="docutils literal notranslate"><span class="pre">fit_generator()</span></code> parameters; optimizer name; learning rate; epsilon</p></li>
+<li><p>Training and validation loss.</p></li>
+<li><p>User-specified metrics.</p></li>
+<li><p>Optimizer config, e.g., learning_rate, momentum, etc.</p></li>
+<li><p>Training configs, e.g., epochs, batch_size, etc.</p></li>
 </ul>
 </div></blockquote>
 <ul class="simple">
@@ -267,9 +274,9 @@ As an example, try running the
 </ul>
 <blockquote>
 <div><ul class="simple">
-<li><p>Model summary on training start</p></li>
-<li><p><a class="reference external" href="https://mlflow.org/docs/latest/models.html">MLflow Model</a> (Keras model)</p></li>
-<li><p>TensorBoard logs on training end</p></li>
+<li><p>Model summary on training start.</p></li>
+<li><p>Saved Keras model in <a class="reference external" href="https://mlflow.org/docs/latest/models.html">MLflow Model</a> format.</p></li>
+<li><p>TensorBoard logs on training end.</p></li>
 </ul>
 </div></blockquote>
 </dd>
@@ -351,11 +358,20 @@ when a signature is not present, a Pandas DataFrame is returned.</p></li>
 <dl class="py function">
 <dt id="mlflow.tensorflow.get_default_pip_requirements">
 <code class="sig-prename descclassname"><span class="pre">mlflow.tensorflow.</span></code><code class="sig-name descname"><span class="pre">get_default_pip_requirements</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_cloudpickle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/tensorflow.html#get_default_pip_requirements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.tensorflow.get_default_pip_requirements" title="Permalink to this definition"> </a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A list of default pip requirements for MLflow Models produced by this flavor.
+<dd><dl class="simple">
+<dt>Returns</dt><dd><p>A list of default pip requirements for MLflow Models produced by this flavor.
 Calls to <a class="reference internal" href="#mlflow.tensorflow.save_model" title="mlflow.tensorflow.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_model()</span></code></a> and <a class="reference internal" href="#mlflow.tensorflow.log_model" title="mlflow.tensorflow.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">log_model()</span></code></a> produce a pip environment
 that, at minimum, contains these requirements.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="mlflow.tensorflow.get_global_custom_objects">
+<code class="sig-prename descclassname"><span class="pre">mlflow.tensorflow.</span></code><code class="sig-name descname"><span class="pre">get_global_custom_objects</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/tensorflow.html#get_global_custom_objects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.tensorflow.get_global_custom_objects" title="Permalink to this definition"> </a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A live reference to the global dictionary of custom objects.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -388,32 +404,11 @@ Only available when you are loading a tensorflow2 core model.</p></li>
 Only available when you are loading a Keras model.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A callable graph (tf.function) that takes inputs and returns inferences.</p>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>A callable graph (tf.function) that takes inputs and returns inferences.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id1" title="Permalink to this code"> </a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-
-<span class="n">tf_graph</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
-<span class="n">tf_sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">graph</span><span class="o">=</span><span class="n">tf_graph</span><span class="p">)</span>
-<span class="k">with</span> <span class="n">tf_graph</span><span class="o">.</span><span class="n">as_default</span><span class="p">():</span>
-    <span class="n">signature_definition</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">tensorflow</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span>
-        <span class="n">model_uri</span><span class="o">=</span><span class="s2">&quot;model_uri&quot;</span><span class="p">,</span> <span class="n">tf_sess</span><span class="o">=</span><span class="n">tf_sess</span>
-    <span class="p">)</span>
-    <span class="n">input_tensors</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">tf_graph</span><span class="o">.</span><span class="n">get_tensor_by_name</span><span class="p">(</span><span class="n">input_signature</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">input_signature</span> <span class="ow">in</span> <span class="n">signature_definition</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-    <span class="p">]</span>
-    <span class="n">output_tensors</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">tf_graph</span><span class="o">.</span><span class="n">get_tensor_by_name</span><span class="p">(</span><span class="n">output_signature</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">output_signature</span> <span class="ow">in</span> <span class="n">signature_definition</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-    <span class="p">]</span>
-</pre></div>
-</div>
-</div>
 </dd></dl>
 
 <dl class="py function">
@@ -458,10 +453,11 @@ custom classes or functions associated with the Keras model. MLflow saves
 these custom layers using CloudPickle and restores them automatically
 when the model is loaded with <a class="reference internal" href="#mlflow.tensorflow.load_model" title="mlflow.tensorflow.load_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.tensorflow.load_model()</span></code></a> and
 <a class="reference internal" href="mlflow.pyfunc.html#mlflow.pyfunc.load_model" title="mlflow.pyfunc.load_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.pyfunc.load_model()</span></code></a>.</p></li>
-<li><p><strong>conda_env</strong> – <p>Either a dictionary representation of a Conda environment or the path to a conda environment yaml
-file. If provided, this describes the environment this model should be run in. At minimum, it
-should specify the dependencies contained in <a class="reference internal" href="#mlflow.tensorflow.get_default_conda_env" title="mlflow.tensorflow.get_default_conda_env"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_conda_env()</span></code></a>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a conda
-environment with pip requirements inferred by <a class="reference internal" href="mlflow.models.html#mlflow.models.infer_pip_requirements" title="mlflow.models.infer_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.infer_pip_requirements()</span></code></a> is added
+<li><p><strong>conda_env</strong> – <p>Either a dictionary representation of a Conda environment or the path to a conda
+environment yaml file. If provided, this describes the environment this model should be run in.
+At a minimum, it should specify the dependencies contained in <a class="reference internal" href="#mlflow.tensorflow.get_default_conda_env" title="mlflow.tensorflow.get_default_conda_env"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_conda_env()</span></code></a>.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a conda environment with pip requirements inferred by
+<a class="reference internal" href="mlflow.models.html#mlflow.models.infer_pip_requirements" title="mlflow.models.infer_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.infer_pip_requirements()</span></code></a> is added
 to the model. If the requirement inference fails, it falls back to using
 <a class="reference internal" href="#mlflow.tensorflow.get_default_pip_requirements" title="mlflow.tensorflow.get_default_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_pip_requirements()</span></code></a>. pip requirements from <code class="docutils literal notranslate"><span class="pre">conda_env</span></code> are written to a pip
 <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file and the full conda environment is written to <code class="docutils literal notranslate"><span class="pre">conda.yaml</span></code>.
@@ -509,11 +505,8 @@ dataset, for example:</p>
 as a hint of what data to feed the model. It will be converted to a Pandas
 DataFrame and then serialized to json using the Pandas split-oriented
 format, or a numpy array where the example will be serialized to json
-by converting it to a list. If input example is a tuple, then the first element
-must be a valid model input, and the second element must be a valid params
-dictionary that could be used for model inference. Bytes are base64-encoded.
-When the <code class="docutils literal notranslate"><span class="pre">signature</span></code> parameter is <code class="docutils literal notranslate"><span class="pre">None</span></code>, the input example is used to
-infer a model signature.</p></li>
+by converting it to a list. Bytes are base64-encoded. When the <code class="docutils literal notranslate"><span class="pre">signature</span></code> parameter is
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, the input example is used to infer a model signature.</p></li>
 <li><p><strong>await_registration_for</strong> – Number of seconds to wait for the model version to finish
 being created and is in <code class="docutils literal notranslate"><span class="pre">READY</span></code> status. By default, the function
 waits for five minutes. Specify 0 or None to skip waiting.</p></li>
@@ -526,7 +519,8 @@ If the requirement inference fails, it falls back to using <a class="reference i
 Both requirements and constraints are automatically parsed and written to <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> and
 <code class="docutils literal notranslate"><span class="pre">constraints.txt</span></code> files, respectively, and stored as part of the model. Requirements are also
 written to the <code class="docutils literal notranslate"><span class="pre">pip</span></code> section of the model’s conda environment (<code class="docutils literal notranslate"><span class="pre">conda.yaml</span></code>) file.</p></li>
-<li><p><strong>extra_pip_requirements</strong> – <p>Either an iterable of pip requirement strings
+<li><p><strong>extra_pip_requirements</strong> – <p>Either an iterable of pip
+requirement strings
 (e.g. <code class="docutils literal notranslate"><span class="pre">[&quot;pandas&quot;,</span> <span class="pre">&quot;-r</span> <span class="pre">requirements.txt&quot;,</span> <span class="pre">&quot;-c</span> <span class="pre">constraints.txt&quot;]</span></code>) or the string path to
 a pip requirements file on the local filesystem (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;requirements.txt&quot;</span></code>). If provided, this
 describes additional pip requirements that are appended to a default set of pip requirements
@@ -543,7 +537,7 @@ section of the model’s conda environment (<code class="docutils literal notran
 <li><p><code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code></p></li>
 </ul>
 </div>
-<p><a class="reference internal" href="../deployment/deploy-model-to-kubernetes/index.html#pip-requirements-example"><span class="std std-ref">This example</span></a> demonstrates how to specify pip requirements using
+<p><a class="reference external" href="https://github.com/mlflow/mlflow/blob/master/examples/pip_requirements/pip_requirements.py">This example</a> demonstrates how to specify pip requirements using
 <code class="docutils literal notranslate"><span class="pre">pip_requirements</span></code> and <code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code>.</p>
 </p></li>
 <li><p><strong>saved_model_kwargs</strong> – a dict of kwargs to pass to <code class="docutils literal notranslate"><span class="pre">tensorflow.saved_model.save</span></code> method.</p></li>
@@ -557,8 +551,9 @@ release without warning.</p>
 </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <a class="reference internal" href="mlflow.models.html#mlflow.models.model.ModelInfo" title="mlflow.models.model.ModelInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelInfo</span></code></a> instance that contains the
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>A <a class="reference internal" href="mlflow.models.html#mlflow.models.model.ModelInfo" title="mlflow.models.model.ModelInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelInfo</span></code></a> instance that contains the
 metadata of the logged model.</p>
 </dd>
 </dl>
@@ -602,10 +597,11 @@ signature, for example:</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – The Keras model or Tensorflow module to be saved.</p></li>
 <li><p><strong>path</strong> – Local path where the MLflow model is to be saved.</p></li>
-<li><p><strong>conda_env</strong> – <p>Either a dictionary representation of a Conda environment or the path to a conda environment yaml
-file. If provided, this describes the environment this model should be run in. At minimum, it
-should specify the dependencies contained in <a class="reference internal" href="#mlflow.tensorflow.get_default_conda_env" title="mlflow.tensorflow.get_default_conda_env"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_conda_env()</span></code></a>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a conda
-environment with pip requirements inferred by <a class="reference internal" href="mlflow.models.html#mlflow.models.infer_pip_requirements" title="mlflow.models.infer_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.infer_pip_requirements()</span></code></a> is added
+<li><p><strong>conda_env</strong> – <p>Either a dictionary representation of a Conda environment or the path to a conda
+environment yaml file. If provided, this describes the environment this model should be run in.
+At a minimum, it should specify the dependencies contained in <a class="reference internal" href="#mlflow.tensorflow.get_default_conda_env" title="mlflow.tensorflow.get_default_conda_env"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_conda_env()</span></code></a>.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a conda environment with pip requirements inferred by
+<a class="reference internal" href="mlflow.models.html#mlflow.models.infer_pip_requirements" title="mlflow.models.infer_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.infer_pip_requirements()</span></code></a> is added
 to the model. If the requirement inference fails, it falls back to using
 <a class="reference internal" href="#mlflow.tensorflow.get_default_pip_requirements" title="mlflow.tensorflow.get_default_pip_requirements"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_pip_requirements()</span></code></a>. pip requirements from <code class="docutils literal notranslate"><span class="pre">conda_env</span></code> are written to a pip
 <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file and the full conda environment is written to <code class="docutils literal notranslate"><span class="pre">conda.yaml</span></code>.
@@ -656,11 +652,8 @@ dataset, for example:</p>
 as a hint of what data to feed the model. It will be converted to a Pandas
 DataFrame and then serialized to json using the Pandas split-oriented
 format, or a numpy array where the example will be serialized to json
-by converting it to a list. If input example is a tuple, then the first element
-must be a valid model input, and the second element must be a valid params
-dictionary that could be used for model inference. Bytes are base64-encoded.
-When the <code class="docutils literal notranslate"><span class="pre">signature</span></code> parameter is <code class="docutils literal notranslate"><span class="pre">None</span></code>, the input example is used to
-infer a model signature.</p></li>
+by converting it to a list. Bytes are base64-encoded. When the <code class="docutils literal notranslate"><span class="pre">signature</span></code> parameter is
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, the input example is used to infer a model signature.</p></li>
 <li><p><strong>pip_requirements</strong> – Either an iterable of pip requirement strings
 (e.g. <code class="docutils literal notranslate"><span class="pre">[&quot;tensorflow&quot;,</span> <span class="pre">&quot;-r</span> <span class="pre">requirements.txt&quot;,</span> <span class="pre">&quot;-c</span> <span class="pre">constraints.txt&quot;]</span></code>) or the string path to
 a pip requirements file on the local filesystem (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;requirements.txt&quot;</span></code>). If provided, this
@@ -670,7 +663,8 @@ If the requirement inference fails, it falls back to using <a class="reference i
 Both requirements and constraints are automatically parsed and written to <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> and
 <code class="docutils literal notranslate"><span class="pre">constraints.txt</span></code> files, respectively, and stored as part of the model. Requirements are also
 written to the <code class="docutils literal notranslate"><span class="pre">pip</span></code> section of the model’s conda environment (<code class="docutils literal notranslate"><span class="pre">conda.yaml</span></code>) file.</p></li>
-<li><p><strong>extra_pip_requirements</strong> – <p>Either an iterable of pip requirement strings
+<li><p><strong>extra_pip_requirements</strong> – <p>Either an iterable of pip
+requirement strings
 (e.g. <code class="docutils literal notranslate"><span class="pre">[&quot;pandas&quot;,</span> <span class="pre">&quot;-r</span> <span class="pre">requirements.txt&quot;,</span> <span class="pre">&quot;-c</span> <span class="pre">constraints.txt&quot;]</span></code>) or the string path to
 a pip requirements file on the local filesystem (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;requirements.txt&quot;</span></code>). If provided, this
 describes additional pip requirements that are appended to a default set of pip requirements
@@ -687,7 +681,7 @@ section of the model’s conda environment (<code class="docutils literal notran
 <li><p><code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code></p></li>
 </ul>
 </div>
-<p><a class="reference internal" href="../deployment/deploy-model-to-kubernetes/index.html#pip-requirements-example"><span class="std std-ref">This example</span></a> demonstrates how to specify pip requirements using
+<p><a class="reference external" href="https://github.com/mlflow/mlflow/blob/master/examples/pip_requirements/pip_requirements.py">This example</a> demonstrates how to specify pip requirements using
 <code class="docutils literal notranslate"><span class="pre">pip_requirements</span></code> and <code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code>.</p>
 </p></li>
 <li><p><strong>saved_model_kwargs</strong> – a dict of kwargs to pass to <code class="docutils literal notranslate"><span class="pre">tensorflow.saved_model.save</span></code> method
@@ -706,6 +700,84 @@ release without warning.</p>
 </dl>
 </dd></dl>
 
+<dl class="py class">
+<dt id="mlflow.tensorflow.MLflowCallback">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">mlflow.tensorflow.</span></code><code class="sig-name descname"><span class="pre">MLflowCallback</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_every_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_every_n_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/tensorflow/callback.html#MLflowCallback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.tensorflow.MLflowCallback" title="Permalink to this definition"> </a></dt>
+<dd><p>Callback for logging Tensorflow training metrics to MLflow.</p>
+<p>This callback logs model information at training start, and logs training metrics every epoch or
+every n steps (defined by the user) to MLflow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run</strong> – an <cite>mlflow.entities.run.Run</cite> instance, the MLflow run.</p></li>
+<li><p><strong>log_every_epoch</strong> – bool, If True, log metrics every epoch. If False, log metrics every n
+steps.</p></li>
+<li><p><strong>log_every_n_steps</strong> – int, log metrics every n steps. If None, log metrics every epoch.
+Must be <cite>None</cite> if <cite>log_every_epoch=True</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id4" title="Permalink to this code"> </a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tensorflow</span> <span class="kn">import</span> <span class="n">keras</span>
+<span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># Prepare data for a 2-class classification.</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="n">label</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">))</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">([</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+        <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">(),</span>
+        <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="mf">0.001</span><span class="p">),</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">SparseCategoricalAccuracy</span><span class="p">()],</span>
+<span class="p">)</span>
+
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">epochs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">MLflowCallback</span><span class="p">(</span><span class="n">run</span><span class="p">)],</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<dl class="py method">
+<dt id="mlflow.tensorflow.MLflowCallback.on_batch_end">
+<code class="sig-name descname"><span class="pre">on_batch_end</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/tensorflow/callback.html#MLflowCallback.on_batch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.tensorflow.MLflowCallback.on_batch_end" title="Permalink to this definition"> </a></dt>
+<dd><p>Log metrics at the end of each batch with user specified frequency.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mlflow.tensorflow.MLflowCallback.on_epoch_end">
+<code class="sig-name descname"><span class="pre">on_epoch_end</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/tensorflow/callback.html#MLflowCallback.on_epoch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.tensorflow.MLflowCallback.on_epoch_end" title="Permalink to this definition"> </a></dt>
+<dd><p>Log metrics at the end of each epoch.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mlflow.tensorflow.MLflowCallback.on_test_end">
+<code class="sig-name descname"><span class="pre">on_test_end</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/tensorflow/callback.html#MLflowCallback.on_test_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.tensorflow.MLflowCallback.on_test_end" title="Permalink to this definition"> </a></dt>
+<dd><p>Log validation metrics at validation end.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mlflow.tensorflow.MLflowCallback.on_train_begin">
+<code class="sig-name descname"><span class="pre">on_train_begin</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/tensorflow/callback.html#MLflowCallback.on_train_begin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.tensorflow.MLflowCallback.on_train_begin" title="Permalink to this definition"> </a></dt>
+<dd><p>Log model architecture and optimizer configuration when training begins.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -715,7 +787,7 @@ release without warning.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="mlflow.statsmodels.html" class="btn btn-neutral" title="mlflow.statsmodels" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
+        <a href="mlflow.system_metrics.html" class="btn btn-neutral" title="mlflow.system_metrics" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
       
       
         <a href="mlflow.transformers.html" class="btn btn-neutral" title="mlflow.transformers" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
@@ -746,7 +818,7 @@ release without warning.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.8.1.dev0',
+      VERSION:'2.9.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

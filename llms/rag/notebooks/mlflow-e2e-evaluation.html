@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/llms/rag/notebooks/mlflow-e2e-evaluation.ipynb -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>LLM RAG Evaluation with MLflow Example Notebook &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>LLM RAG Evaluation with MLflow Example Notebook &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="RAG Tutorials" href="index.html"/>
         <link rel="next" title="Question Generation For Retrieval Evaluation" href="/question-generation-retrieval-evaluation.html"/>
         <link rel="prev" title="RAG Tutorials" href="/index.html"/> 
@@ -76,7 +77,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -462,7 +463,7 @@ div.rendered_html tbody tr:hover {
 </style>
 <div class="section" id="LLM-RAG-Evaluation-with-MLflow-Example-Notebook">
 <h1>LLM RAG Evaluation with MLflow Example Notebook<a class="headerlink" href="#LLM-RAG-Evaluation-with-MLflow-Example-Notebook" title="Permalink to this headline"> </a></h1>
-<p>Welcome to this comprehensive tutorial on evaluating Retrieval-Augmented Generation (RAG) systems using MLflow. This tutorial is designed to guide you through the intricacies of assessing various RAG systems, focusing on how they can be effectively integrated and evaluated in a real-world context. Whether you are a data scientist, a machine learning engineer, or simply an enthusiast in the field of AI, this tutorial offers valuable insights and practical knowledge.</p>
+<a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/rag/notebooks/mlflow-e2e-evaluation.ipynb" class="notebook-download-btn"><i class="fas fa-download"></i>Download this Notebook</a><p>Welcome to this comprehensive tutorial on evaluating Retrieval-Augmented Generation (RAG) systems using MLflow. This tutorial is designed to guide you through the intricacies of assessing various RAG systems, focusing on how they can be effectively integrated and evaluated in a real-world context. Whether you are a data scientist, a machine learning engineer, or simply an enthusiast in the field of AI, this tutorial offers valuable insights and practical knowledge.</p>
 <div class="section" id="What-You-Will-Learn:">
 <h2>What You Will Learn:<a class="headerlink" href="#What-You-Will-Learn:" title="Permalink to this headline"> </a></h2>
 <ol class="arabic simple">
@@ -526,7 +527,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dbutils</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">restartPython</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dbutils</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">restartPython</span><span class="p">()</span>  <span class="c1"># noqa: F821</span>
 </pre></div>
 </div>
 </div>
@@ -540,18 +541,18 @@ div.rendered_html tbody tr:hover {
 
 <span class="kn">import</span> <span class="nn">chromadb</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">RetrievalQA</span>
+<span class="kn">from</span> <span class="nn">langchain.document_loaders</span> <span class="kn">import</span> <span class="n">WebBaseLoader</span>
+<span class="kn">from</span> <span class="nn">langchain.embeddings.databricks</span> <span class="kn">import</span> <span class="n">DatabricksEmbeddings</span>
+<span class="kn">from</span> <span class="nn">langchain.embeddings.sentence_transformer</span> <span class="kn">import</span> <span class="n">SentenceTransformerEmbeddings</span>
+<span class="kn">from</span> <span class="nn">langchain.llms</span> <span class="kn">import</span> <span class="n">Databricks</span>
+<span class="kn">from</span> <span class="nn">langchain.text_splitter</span> <span class="kn">import</span> <span class="n">CharacterTextSplitter</span>
+<span class="kn">from</span> <span class="nn">langchain.vectorstores</span> <span class="kn">import</span> <span class="n">Chroma</span>
+
 <span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">import</span> <span class="nn">mlflow.deployments</span>
 <span class="kn">from</span> <span class="nn">mlflow.deployments</span> <span class="kn">import</span> <span class="n">set_deployments_target</span>
 <span class="kn">from</span> <span class="nn">mlflow.metrics.genai.metric_definitions</span> <span class="kn">import</span> <span class="n">relevance</span>
-
-<span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">RetrievalQA</span>
-<span class="kn">from</span> <span class="nn">langchain.document_loaders</span> <span class="kn">import</span> <span class="n">WebBaseLoader</span>
-<span class="kn">from</span> <span class="nn">langchain.llms</span> <span class="kn">import</span> <span class="n">Databricks</span>
-<span class="kn">from</span> <span class="nn">langchain.embeddings.databricks</span> <span class="kn">import</span> <span class="n">DatabricksEmbeddings</span>
-<span class="kn">from</span> <span class="nn">langchain.text_splitter</span> <span class="kn">import</span> <span class="n">CharacterTextSplitter</span>
-<span class="kn">from</span> <span class="nn">langchain.vectorstores</span> <span class="kn">import</span> <span class="n">Chroma</span>
-<span class="kn">from</span> <span class="nn">langchain.embeddings.sentence_transformer</span> <span class="kn">import</span> <span class="n">SentenceTransformerEmbeddings</span>
 </pre></div>
 </div>
 </div>
@@ -618,7 +619,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dbutils</span><span class="o">.</span><span class="n">secrets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="n">SCOPE_NAME</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">KEY_NAME</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dbutils</span><span class="o">.</span><span class="n">secrets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="n">SCOPE_NAME</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">KEY_NAME</span><span class="p">)</span>  <span class="c1"># noqa: F821</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_TYPE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;azure&quot;</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_VERSION&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;2023-05-15&quot;</span>
 <span class="c1"># Ensure that you set the name of your OPEN_API_BASE value to the name of your OpenAI instance on Azure</span>
@@ -650,8 +651,9 @@ div.rendered_html tbody tr:hover {
                     <span class="s2">&quot;task&quot;</span><span class="p">:</span> <span class="s2">&quot;llm/v1/completions&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;openai_config&quot;</span><span class="p">:</span> <span class="p">{</span>
                         <span class="s2">&quot;openai_api_type&quot;</span><span class="p">:</span> <span class="s2">&quot;azure&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;openai_api_key&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">),</span>
-                        <span class="s2">&quot;openai_api_base&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_BASE&quot;</span><span class="p">),</span>
+                        <span class="c1"># replace with your own secrets, for reference see https://docs.databricks.com/en/security/secrets/secrets.html</span>
+                        <span class="s2">&quot;openai_api_key&quot;</span><span class="p">:</span> <span class="s2">&quot;{{secrets/scope/openai_api_key}}&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;openai_api_base&quot;</span><span class="p">:</span> <span class="s2">&quot;{{secrets/scope/openai_api_base}}&quot;</span><span class="p">,</span>
                         <span class="s2">&quot;openai_deployment_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-35-turbo&quot;</span><span class="p">,</span>
                         <span class="s2">&quot;openai_api_version&quot;</span><span class="p">:</span> <span class="s2">&quot;2023-05-15&quot;</span><span class="p">,</span>
                     <span class="p">},</span>
@@ -824,21 +826,19 @@ div.rendered_html tbody tr:hover {
 
     <span class="k">def</span> <span class="nf">retrieve_doc_ids</span><span class="p">(</span><span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">docs</span> <span class="o">=</span> <span class="n">retriever</span><span class="o">.</span><span class="n">get_relevant_documents</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
-        <span class="n">doc_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">doc</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">doc_ids</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">doc</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">retriever_model_function</span><span class="p">(</span><span class="n">question_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">question_df</span><span class="p">[</span><span class="s2">&quot;question&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">retrieve_doc_ids</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
-        <span class="n">evaluate_results</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
+    <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
             <span class="n">model</span><span class="o">=</span><span class="n">retriever_model_function</span><span class="p">,</span>
             <span class="n">data</span><span class="o">=</span><span class="n">eval_data</span><span class="p">,</span>
             <span class="n">model_type</span><span class="o">=</span><span class="s2">&quot;retriever&quot;</span><span class="p">,</span>
             <span class="n">targets</span><span class="o">=</span><span class="s2">&quot;source&quot;</span><span class="p">,</span>
             <span class="n">evaluators</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="n">evaluate_results</span>
 
 
 <span class="n">result1</span> <span class="o">=</span> <span class="n">evaluate_embedding</span><span class="p">(</span><span class="n">DatabricksEmbeddings</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;databricks-bge-large-en&quot;</span><span class="p">))</span>
@@ -915,21 +915,19 @@ div.rendered_html tbody tr:hover {
 
     <span class="k">def</span> <span class="nf">retrieve_doc_ids</span><span class="p">(</span><span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">docs</span> <span class="o">=</span> <span class="n">retriever</span><span class="o">.</span><span class="n">get_relevant_documents</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
-        <span class="n">doc_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">doc</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">doc_ids</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">doc</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">retriever_model_function</span><span class="p">(</span><span class="n">question_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">question_df</span><span class="p">[</span><span class="s2">&quot;question&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">retrieve_doc_ids</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
-        <span class="n">evaluate_results</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
+    <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
             <span class="n">model</span><span class="o">=</span><span class="n">retriever_model_function</span><span class="p">,</span>
             <span class="n">data</span><span class="o">=</span><span class="n">eval_data</span><span class="p">,</span>
             <span class="n">model_type</span><span class="o">=</span><span class="s2">&quot;retriever&quot;</span><span class="p">,</span>
             <span class="n">targets</span><span class="o">=</span><span class="s2">&quot;source&quot;</span><span class="p">,</span>
             <span class="n">evaluators</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="n">evaluate_results</span>
 
 
 <span class="n">result1</span> <span class="o">=</span> <span class="n">evaluate_chunk_size</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
@@ -1098,7 +1096,7 @@ div.rendered_html tbody tr:hover {
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

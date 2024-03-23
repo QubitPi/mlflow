@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/python_api/mlflow.tensorflow.rst -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.tensorflow &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>mlflow.tensorflow &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,7 +48,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.transformers" href="/mlflow.transformers.html"/>
         <link rel="prev" title="mlflow.system_metrics" href="/mlflow.system_metrics.html"/> 
@@ -74,7 +75,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -135,6 +136,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.artifacts.html">mlflow.artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.catboost.html">mlflow.catboost</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.client.html">mlflow.client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.config.html">mlflow.config</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.data.html">mlflow.data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.deployments.html">mlflow.deployments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.diviner.html">mlflow.diviner</a></li>
@@ -145,7 +147,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.gluon.html">mlflow.gluon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.h2o.html">mlflow.h2o</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.johnsnowlabs.html">mlflow.johnsnowlabs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlflow.keras_core.html">mlflow.keras_core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.keras.html">mlflow.keras</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.langchain.html">mlflow.langchain</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.lightgbm.html">mlflow.lightgbm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.metrics.html">mlflow.metrics</a></li>
@@ -247,10 +249,10 @@ This module exports TensorFlow models with the following flavors:</p>
 </dl>
 <dl class="py function">
 <dt id="mlflow.tensorflow.autolog">
-<code class="sig-prename descclassname"><span class="pre">mlflow.tensorflow.</span></code><code class="sig-name descname"><span class="pre">autolog</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">every_n_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_for_unsupported_versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registered_model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_input_examples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_model_signatures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved_model_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keras_model_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/tensorflow.html#autolog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.tensorflow.autolog" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.tensorflow.</span></code><code class="sig-name descname"><span class="pre">autolog</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">every_n_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_for_unsupported_versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registered_model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_input_examples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_model_signatures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved_model_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keras_model_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_every_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_every_n_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_monitor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'val_loss'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'min'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_save_best_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_save_weights_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_save_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'epoch'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/tensorflow.html#autolog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.tensorflow.autolog" title="Permalink to this definition"> </a></dt>
 <dd><div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Autologging is known to be compatible with the following package versions: <code class="docutils literal notranslate"><span class="pre">2.6.5</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">tensorflow</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">2.15.0</span></code>. Autologging may not succeed when used with package versions outside of this range.</p>
+<p>Autologging is known to be compatible with the following package versions: <code class="docutils literal notranslate"><span class="pre">2.6.5</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">tensorflow</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">2.15.0.post1</span></code>. Autologging may not succeed when used with package versions outside of this range.</p>
 </div>
 <p>Enables autologging for <code class="docutils literal notranslate"><span class="pre">tf.keras</span></code>.
 Note that only <code class="docutils literal notranslate"><span class="pre">tensorflow&gt;=2.3</span></code> are supported.
@@ -302,8 +304,8 @@ autologging by calling <cite>mlflow.tensorflow.autolog(disable=True)</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>every_n_iter</strong> – The frequency with which metrics should be logged. For example, a value of
-100 will log metrics at step 0, 100, 200, etc.</p></li>
+<li><p><strong>every_n_iter</strong> – deprecated, please use <code class="docutils literal notranslate"><span class="pre">log_every_epoch</span></code> instead. Per <code class="docutils literal notranslate"><span class="pre">every_n_iter</span></code>
+steps, metrics will be logged.</p></li>
 <li><p><strong>log_models</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, trained models are logged as MLflow model artifacts.
 If <code class="docutils literal notranslate"><span class="pre">False</span></code>, trained models are not logged.</p></li>
 <li><p><strong>log_datasets</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, dataset information is logged to MLflow Tracking.
@@ -339,6 +341,27 @@ when a signature is not present, a Pandas DataFrame is returned.</p></li>
 <li><p><strong>saved_model_kwargs</strong> – a dict of kwargs to pass to <code class="docutils literal notranslate"><span class="pre">tensorflow.saved_model.save</span></code> method.</p></li>
 <li><p><strong>keras_model_kwargs</strong> – a dict of kwargs to pass to <code class="docutils literal notranslate"><span class="pre">keras_model.save</span></code> method.</p></li>
 <li><p><strong>extra_tags</strong> – A dictionary of extra tags to set on each managed run created by autologging.</p></li>
+<li><p><strong>log_every_epoch</strong> – If True, training metrics will be logged at the end of each epoch.</p></li>
+<li><p><strong>log_every_n_steps</strong> – If set, training metrics will be logged every <cite>n</cite> training steps.
+<cite>log_every_n_steps</cite> must be <cite>None</cite> when <cite>log_every_epoch=True</cite>.</p></li>
+<li><p><strong>checkpoint</strong> – Enable automatic model checkpointing.</p></li>
+<li><p><strong>checkpoint_monitor</strong> – In automatic model checkpointing, the metric name to monitor if
+you set <cite>model_checkpoint_save_best_only</cite> to True.</p></li>
+<li><p><strong>checkpoint_save_best_only</strong> – If True, automatic model checkpointing only saves when
+the model is considered the “best” model according to the quantity
+monitored and previous checkpoint model is overwritten.</p></li>
+<li><p><strong>checkpoint_mode</strong> – one of {“min”, “max”}. In automatic model checkpointing,
+if save_best_only=True, the decision to overwrite the current save file is made based on
+either the maximization or the minimization of the monitored quantity.</p></li>
+<li><p><strong>checkpoint_save_weights_only</strong> – In automatic model checkpointing, if True, then
+only the model’s weights will be saved. Otherwise, the optimizer states,
+lr-scheduler states, etc are added in the checkpoint too.</p></li>
+<li><p><strong>checkpoint_save_freq</strong> – <cite>“epoch”</cite> or integer. When using <cite>“epoch”</cite>, the callback
+saves the model after each epoch. When using integer, the callback
+saves the model at end of this many batches. Note that if the saving isn’t aligned to
+epochs, the monitored metric may potentially be less reliable (it
+could reflect as little as 1 batch, since the metrics get reset
+every epoch). Defaults to <cite>“epoch”</cite>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -374,6 +397,58 @@ that, at minimum, contains these requirements.</p>
 <dd class="field-odd"><p>A live reference to the global dictionary of custom objects.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="mlflow.tensorflow.load_checkpoint">
+<code class="sig-prename descclassname"><span class="pre">mlflow.tensorflow.</span></code><code class="sig-name descname"><span class="pre">load_checkpoint</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/tensorflow.html#load_checkpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.tensorflow.load_checkpoint" title="Permalink to this definition"> </a></dt>
+<dd><p>If you enable “checkpoint” in autologging, during Keras model
+training execution, checkpointed models are logged as MLflow artifacts.
+Using this API, you can load the checkpointed model.</p>
+<p>If you want to load the latest checkpoint, set both <cite>epoch</cite> and <cite>global_step</cite> to None.
+If “checkpoint_save_freq” is set to “epoch” in autologging,
+you can set <cite>epoch</cite> param to the epoch of the checkpoint to load specific epoch checkpoint.
+If “checkpoint_save_freq” is set to an integer in autologging,
+you can set <cite>global_step</cite> param to the global step of the checkpoint to load specific
+global step checkpoint.
+<cite>epoch</cite> param and <cite>global_step</cite> can’t be set together.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – A Keras model, this argument is required
+only when the saved checkpoint is “weight-only”.</p></li>
+<li><p><strong>run_id</strong> – The id of the run which model is logged to. If not provided,
+current active run is used.</p></li>
+<li><p><strong>epoch</strong> – The epoch of the checkpoint to be loaded, if you set
+“checkpoint_save_freq” to “epoch”.</p></li>
+<li><p><strong>global_step</strong> – The global step of the checkpoint to be loaded, if
+you set “checkpoint_save_freq” to an integer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The instance of a Keras model restored from the specified checkpoint.</p>
+</dd>
+</dl>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id2" title="Permalink to this code"> </a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+
+<span class="n">mlflow</span><span class="o">.</span><span class="n">tensorflow</span><span class="o">.</span><span class="n">autolog</span><span class="p">(</span><span class="n">checkpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">checkpoint_save_best_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">create_tf_keras_model</span><span class="p">()</span>  <span class="c1"># Create a Keras model</span>
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="n">run_id</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
+
+<span class="c1"># load latest checkpoint model</span>
+<span class="n">latest_checkpoint_model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">tensorflow</span><span class="o">.</span><span class="n">load_checkpoint</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">)</span>
+
+<span class="c1"># load history checkpoint model logged in second epoch</span>
+<span class="n">checkpoint_model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">tensorflow</span><span class="o">.</span><span class="n">load_checkpoint</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -423,8 +498,8 @@ representation accepts pandas DataFrames as inference inputs.</p>
 <p>You can infer a model’s signature by calling the <a class="reference internal" href="mlflow.models.html#mlflow.models.infer_signature" title="mlflow.models.infer_signature"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.infer_signature()</span></code></a>
 API on features from the model’s test dataset. You can also manually create a model
 signature, for example:</p>
-<div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">Example of creating signature for saving TensorFlow and <cite>tf.Keras</cite> models</span><a class="headerlink" href="#id2" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Example of creating signature for saving TensorFlow and <cite>tf.Keras</cite> models</span><a class="headerlink" href="#id3" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">Schema</span><span class="p">,</span> <span class="n">TensorSpec</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">ModelSignature</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -572,8 +647,8 @@ representation accepts pandas DataFrames as inference inputs.
 You can infer a model’s signature by calling the <a class="reference internal" href="mlflow.models.html#mlflow.models.infer_signature" title="mlflow.models.infer_signature"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.models.infer_signature()</span></code></a>
 API on features from the model’s test dataset. You can also manually create a model
 signature, for example:</p>
-<div class="literal-block-wrapper docutils container" id="id3">
-<div class="code-block-caption"><span class="caption-text">Example of creating signature for saving TensorFlow and <cite>tf.Keras</cite> models</span><a class="headerlink" href="#id3" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">Example of creating signature for saving TensorFlow and <cite>tf.Keras</cite> models</span><a class="headerlink" href="#id4" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">Schema</span><span class="p">,</span> <span class="n">TensorSpec</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">ModelSignature</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -702,14 +777,13 @@ release without warning.</p>
 
 <dl class="py class">
 <dt id="mlflow.tensorflow.MLflowCallback">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">mlflow.tensorflow.</span></code><code class="sig-name descname"><span class="pre">MLflowCallback</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_every_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_every_n_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/tensorflow/callback.html#MLflowCallback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.tensorflow.MLflowCallback" title="Permalink to this definition"> </a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">mlflow.tensorflow.</span></code><code class="sig-name descname"><span class="pre">MLflowCallback</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_every_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_every_n_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/tensorflow/callback.html#MLflowCallback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.tensorflow.MLflowCallback" title="Permalink to this definition"> </a></dt>
 <dd><p>Callback for logging Tensorflow training metrics to MLflow.</p>
 <p>This callback logs model information at training start, and logs training metrics every epoch or
 every n steps (defined by the user) to MLflow.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>run</strong> – an <cite>mlflow.entities.run.Run</cite> instance, the MLflow run.</p></li>
 <li><p><strong>log_every_epoch</strong> – bool, If True, log metrics every epoch. If False, log metrics every n
 steps.</p></li>
 <li><p><strong>log_every_n_steps</strong> – int, log metrics every n steps. If None, log metrics every epoch.
@@ -717,8 +791,8 @@ Must be <cite>None</cite> if <cite>log_every_epoch=True</cite>.</p></li>
 </ul>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id4">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id4" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id5" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tensorflow</span> <span class="kn">import</span> <span class="n">keras</span>
 <span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -818,7 +892,7 @@ Must be <cite>None</cite> if <cite>log_every_epoch=True</cite>.</p></li>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

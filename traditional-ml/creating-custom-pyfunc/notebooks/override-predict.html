@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/traditional-ml/creating-custom-pyfunc/notebooks/override-predict.ipynb -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Customizing a Model’s predict method &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>Customizing a Model’s predict method &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,9 +48,9 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Custom PyFuncs with MLflow - Notebooks" href="index.html"/>
-        <link rel="next" title="Deployment" href="/../../../deployment/index.html"/>
+        <link rel="next" title="Serving Multiple Models on a Single Endpoint with a Custom PyFunc Model" href="/../../serving-multiple-models-with-pyfunc/index.html"/>
         <link rel="prev" title="Introduction" href="/basic-pyfunc.html"/> 
 
   
@@ -76,7 +77,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -129,6 +130,7 @@
 <li class="toctree-l4 current"><a class="reference internal" href="index.html">Full Notebooks</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../serving-multiple-models-with-pyfunc/index.html">Serving Multiple Models on a Single Endpoint with a Custom PyFunc Model</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#mlflow-tracking">MLflow Tracking</a></li>
@@ -467,15 +469,14 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_iris</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">dump</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_iris</span>
 <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
 <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
 
-<span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">dump</span>
-
 <span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.pyfunc</span> <span class="kn">import</span> <span class="n">PythonModel</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span> <span class="nn">mlflow.pyfunc</span> <span class="kn">import</span> <span class="n">PythonModel</span>
 </pre></div>
 </div>
 </div>
@@ -671,8 +672,8 @@ AttributeError:<span class="w"> </span><span class="s1">&#39;PyFuncModel&#39;</s
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">dump</span>
 
-<span class="kn">from</span> <span class="nn">mlflow.pyfunc</span> <span class="kn">import</span> <span class="n">PythonModel</span>
 <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span> <span class="nn">mlflow.pyfunc</span> <span class="kn">import</span> <span class="n">PythonModel</span>
 </pre></div>
 </div>
 </div>
@@ -708,12 +709,12 @@ will be deserialized properly.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">load_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">sklearn</span>
         <span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">load</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">artifacts</span><span class="p">[</span><span class="s2">&quot;model_path&quot;</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;predict_method&quot;</span><span class="p">:</span> <span class="s2">&quot;predict&quot;</span><span class="p">}):</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">params</span> <span class="ow">or</span> <span class="p">{</span><span class="s2">&quot;predict_method&quot;</span><span class="p">:</span> <span class="s2">&quot;predict&quot;</span><span class="p">}</span>
         <span class="n">predict_method</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;predict_method&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">predict_method</span> <span class="o">==</span> <span class="s2">&quot;predict&quot;</span><span class="p">:</span>
@@ -932,7 +933,7 @@ array([[-5.93696505e+00, -4.12026346e-01, -1.09346612e+00],
         <a href="basic-pyfunc.html" class="btn btn-neutral" title="Introduction" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
       
       
-        <a href="../../../deployment/index.html" class="btn btn-neutral" title="Deployment" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
+        <a href="../../serving-multiple-models-with-pyfunc/index.html" class="btn btn-neutral" title="Serving Multiple Models on a Single Endpoint with a Custom PyFunc Model" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
       
     </div>
   
@@ -960,7 +961,7 @@ array([[-5.93696505e+00, -4.12026346e-01, -1.09346612e+00],
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

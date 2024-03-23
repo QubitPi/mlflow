@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/_modules/mlflow/promptflow -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.promptflow &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>mlflow.promptflow &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -73,7 +74,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -251,13 +252,16 @@
     <span class="s2">&quot;Input must be a pandas DataFrame with only 1 row &quot;</span>
     <span class="s2">&quot;or a dictionary contains flow inputs key-value pairs.&quot;</span>
 <span class="p">)</span>
+<span class="n">_CONNECTION_PROVIDER_CONFIG_KEY</span> <span class="o">=</span> <span class="s2">&quot;connection_provider&quot;</span>
+<span class="n">_CONNECTION_OVERRIDES_CONFIG_KEY</span> <span class="o">=</span> <span class="s2">&quot;connection_overrides&quot;</span>
 
 
 <div class="viewcode-block" id="get_default_pip_requirements"><a class="viewcode-back" href="../../python_api/mlflow.promptflow.html#mlflow.promptflow.get_default_pip_requirements">[docs]</a><span class="k">def</span> <span class="nf">get_default_pip_requirements</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :return: A list of default pip requirements for MLflow Models produced by this flavor.</span>
-<span class="sd">             Calls to :func:`save_model()` and :func:`log_model()` produce a pip environment</span>
-<span class="sd">             that, at a minimum, contains these requirements.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        A list of default pip requirements for MLflow Models produced by this flavor.</span>
+<span class="sd">        Calls to :func:`save_model()` and :func:`log_model()` produce a pip environment</span>
+<span class="sd">        that, at a minimum, contains these requirements.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">tools_package</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">try</span><span class="p">:</span>
@@ -272,8 +276,9 @@
 
 <div class="viewcode-block" id="get_default_conda_env"><a class="viewcode-back" href="../../python_api/mlflow.promptflow.html#mlflow.promptflow.get_default_conda_env">[docs]</a><span class="k">def</span> <span class="nf">get_default_conda_env</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :return: The default Conda environment for MLflow Models produced by calls to</span>
-<span class="sd">             :func:`save_model()` and :func:`log_model()`.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        The default Conda environment for MLflow Models produced by calls to</span>
+<span class="sd">        :func:`save_model()` and :func:`log_model()`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_mlflow_conda_env</span><span class="p">(</span><span class="n">additional_pip_deps</span><span class="o">=</span><span class="n">get_default_pip_requirements</span><span class="p">())</span></div>
 
@@ -297,69 +302,72 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Log a Promptflow model as an MLflow artifact for the current run.</span>
 
-<span class="sd">    :param model: A promptflow model loaded by `promptflow.load_flow()`.</span>
-<span class="sd">    :param artifact_path: Run-relative artifact path.</span>
-<span class="sd">    :param conda_env: {{ conda_env }}</span>
-<span class="sd">    :param code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
-<span class="sd">                       containing file dependencies). These files are *prepended* to the system</span>
-<span class="sd">                       path when the model is loaded.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model: A promptflow model loaded by `promptflow.load_flow()`.</span>
+<span class="sd">        artifact_path: Run-relative artifact path.</span>
+<span class="sd">        conda_env: {{ conda_env }}</span>
+<span class="sd">        code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
+<span class="sd">            containing file dependencies). These files are *prepended* to the system</span>
+<span class="sd">            path when the model is loaded.</span>
+<span class="sd">        registered_model_name: If given, create a model version under</span>
+<span class="sd">            ``registered_model_name``, also creating a registered model if one</span>
+<span class="sd">            with the given name does not exist.</span>
+<span class="sd">        signature: {{ signature }}</span>
+<span class="sd">        input_example: {{ input_example }}</span>
+<span class="sd">        await_registration_for: Number of seconds to wait for the model version to finish</span>
+<span class="sd">            being created and is in ``READY`` status. By default, the function</span>
+<span class="sd">            waits for five minutes. Specify 0 or None to skip waiting.</span>
+<span class="sd">        pip_requirements: {{ pip_requirements }}</span>
+<span class="sd">        extra_pip_requirements: {{ extra_pip_requirements }}</span>
+<span class="sd">        metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
 
-<span class="sd">    :param registered_model_name: This argument may change or be removed in a</span>
-<span class="sd">                                  future release without warning. If given, create a model</span>
-<span class="sd">                                  version under ``registered_model_name``, also creating a</span>
-<span class="sd">                                  registered model if one with the given name does not exist.</span>
-<span class="sd">    :param signature: :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
-<span class="sd">                      describes model input and output</span>
-<span class="sd">                      :py:class:`Schema &lt;mlflow.types.Schema&gt;`.</span>
+<span class="sd">                        .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                                release without warning.</span>
+<span class="sd">        model_config: A dict of valid overrides that can be applied to a flow instance</span>
+<span class="sd">            during inference. These arguments are used exclusively for the case of loading</span>
+<span class="sd">            the model as a ``pyfunc`` Model.</span>
+<span class="sd">            These values are not applied to a returned flow from a call to</span>
+<span class="sd">            ``mlflow.promptflow.load_model()``.</span>
+<span class="sd">            To override configs for a loaded flow with promptflow flavor,</span>
+<span class="sd">            please update the ``pf_model.context`` directly.</span>
 
-<span class="sd">    :param input_example: {{ input_example }}</span>
+<span class="sd">            Configs that can be overridden includes:</span>
 
-<span class="sd">    :param await_registration_for: Number of seconds to wait for the model version</span>
-<span class="sd">                        to finish being created and is in ``READY`` status.</span>
-<span class="sd">                        By default, the function waits for five minutes.</span>
-<span class="sd">                        Specify 0 or None to skip waiting.</span>
-<span class="sd">    :param pip_requirements: {{ pip_requirements }}</span>
-<span class="sd">    :param extra_pip_requirements: {{ extra_pip_requirements }}</span>
-<span class="sd">    :param metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
+<span class="sd">            ``connection_provider`` - The connection provider to use for the flow. Reach</span>
+<span class="sd">            https://microsoft.github.io/promptflow/how-to-guides/set-global-configs.html#connection-provider</span>
+<span class="sd">            for more details on how to set connection provider.</span>
 
-<span class="sd">                     .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                                             release without warning.</span>
-<span class="sd">    :param model_config:</span>
-<span class="sd">        A dict of valid overrides that can be applied to a flow instance during inference.</span>
-<span class="sd">        These arguments are used exclusively for the case of loading the model as a ``pyfunc``</span>
-<span class="sd">        Model.</span>
-<span class="sd">        These values are not applied to a returned flow from a call to</span>
-<span class="sd">        ``mlflow.promptflow.load_model()``.</span>
-<span class="sd">        To override configs for a loaded flow with promptflow flavor,</span>
-<span class="sd">        please update the ``pf_model.context`` directly.</span>
-
-
-<span class="sd">        Configs that can be overridden includes:</span>
-<span class="sd">        ``connection.provider`` - The connection provider to use for the flow. Reach</span>
-<span class="sd">        https://microsoft.github.io/promptflow/how-to-guides/set-global-configs.html#connection-provider</span>
-<span class="sd">        for more details on how to set connection provider.</span>
+<span class="sd">            ``connection_overrides`` - The connection name overrides to use for the flow.</span>
+<span class="sd">            Example: ``{&quot;aoai_connection&quot;: &quot;azure_open_ai_connection&quot;}``.</span>
+<span class="sd">            The node with reference to connection &#39;aoai_connection&#39; will be resolved to</span>
+<span class="sd">            the actual connection &#39;azure_open_ai_connection&#39;.</span>
 
 
-<span class="sd">        An example of providing overrides for a model to use azure machine</span>
-<span class="sd">        learning workspace connection:</span>
+<span class="sd">            An example of providing overrides for a model to use azure machine</span>
+<span class="sd">            learning workspace connection:</span>
 
-<span class="sd">        .. code-block:: python</span>
+<span class="sd">            .. code-block:: python</span>
 
-<span class="sd">            flow_folder = Path(__file__).parent / &quot;basic&quot;</span>
-<span class="sd">            flow = load_flow(flow_folder)</span>
+<span class="sd">                flow_folder = Path(__file__).parent / &quot;basic&quot;</span>
+<span class="sd">                flow = load_flow(flow_folder)</span>
 
-<span class="sd">            workspace_resource_id = (</span>
-<span class="sd">                &quot;azureml://subscriptions/{your-subscription}/resourceGroups/{your-resourcegroup}&quot;</span>
-<span class="sd">                &quot;/providers/Microsoft.MachineLearningServices/workspaces/{your-workspace}&quot;</span>
-<span class="sd">            )</span>
-<span class="sd">            model_config = {&quot;connection.provider&quot;: workspace_resource_id}</span>
-
-<span class="sd">            with mlflow.start_run():</span>
-<span class="sd">                logged_model = mlflow.promptflow.log_model(</span>
-<span class="sd">                    flow, artifact_path=&quot;promptflow_model&quot;, model_config=model_config</span>
+<span class="sd">                workspace_resource_id = (</span>
+<span class="sd">                    &quot;azureml://subscriptions/{your-subscription}/resourceGroups/{your-resourcegroup}&quot;</span>
+<span class="sd">                    &quot;/providers/Microsoft.MachineLearningServices/workspaces/{your-workspace}&quot;</span>
 <span class="sd">                )</span>
-<span class="sd">    :return: A :py:class:`ModelInfo &lt;mlflow.models.model.ModelInfo&gt;` instance that contains the</span>
-<span class="sd">             metadata of the logged model.</span>
+<span class="sd">                model_config = {</span>
+<span class="sd">                    &quot;connection_provider&quot;: workspace_resource_id,</span>
+<span class="sd">                    &quot;connection_overrides&quot;: {&quot;local_conn_name&quot;: &quot;remote_conn_name&quot;},</span>
+<span class="sd">                }</span>
+
+<span class="sd">                with mlflow.start_run():</span>
+<span class="sd">                    logged_model = mlflow.promptflow.log_model(</span>
+<span class="sd">                        flow, artifact_path=&quot;promptflow_model&quot;, model_config=model_config</span>
+<span class="sd">                    )</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">        A :py:class:`ModelInfo &lt;mlflow.models.model.ModelInfo&gt;` instance that contains the</span>
+<span class="sd">        metadata of the logged model.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">return</span> <span class="n">Model</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
@@ -397,58 +405,63 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Save a Promptflow model to a path on the local file system.</span>
 
-<span class="sd">    :param model: A promptflow model loaded by `promptflow.load_flow()`.</span>
-<span class="sd">    :param path: Local path where the serialized model (as YAML) is to be saved.</span>
-<span class="sd">    :param conda_env: {{ conda_env }}</span>
-<span class="sd">    :param code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
-<span class="sd">                       containing file dependencies). These files are *prepended* to the system</span>
-<span class="sd">                       path when the model is loaded.</span>
-<span class="sd">    :param mlflow_model: :py:mod:`mlflow.models.Model` this flavor is being added to.</span>
-<span class="sd">    :param signature: :py:class:`ModelSignature &lt;mlflow.models.ModelSignature&gt;`</span>
-<span class="sd">                      describes model input and output</span>
-<span class="sd">                      :py:class:`Schema &lt;mlflow.types.Schema&gt;`.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model: A promptflow model loaded by `promptflow.load_flow()`.</span>
+<span class="sd">        path: Local path where the serialized model (as YAML) is to be saved.</span>
+<span class="sd">        conda_env: {{ conda_env }}</span>
+<span class="sd">        code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
+<span class="sd">            containing file dependencies). These files are *prepended* to the system</span>
+<span class="sd">            path when the model is loaded.</span>
+<span class="sd">        mlflow_model: :py:mod:`mlflow.models.Model` this flavor is being added to.</span>
+<span class="sd">        signature: {{ signature }}</span>
+<span class="sd">        input_example: {{ input_example }}</span>
+<span class="sd">        pip_requirements: {{ pip_requirements }}</span>
+<span class="sd">        extra_pip_requirements: {{ extra_pip_requirements }}</span>
+<span class="sd">        metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
 
-<span class="sd">    :param input_example: {{ input_example }}</span>
-<span class="sd">    :param pip_requirements: {{ pip_requirements }}</span>
-<span class="sd">    :param extra_pip_requirements: {{ extra_pip_requirements }}</span>
-<span class="sd">    :param metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
+<span class="sd">                        .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                                release without warning.</span>
+<span class="sd">        model_config: A dict of valid overrides that can be applied to a flow instance</span>
+<span class="sd">            during inference. These arguments are used exclusively for the case of loading</span>
+<span class="sd">            the model as a ``pyfunc`` Model.</span>
+<span class="sd">            These values are not applied to a returned flow from a call to</span>
+<span class="sd">            ``mlflow.promptflow.load_model()``.</span>
+<span class="sd">            To override configs for a loaded flow with promptflow flavor,</span>
+<span class="sd">            please update the ``pf_model.context`` directly.</span>
 
-<span class="sd">                     .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                                             release without warning.</span>
-<span class="sd">    :param model_config:</span>
-<span class="sd">        A dict of valid overrides that can be applied to a flow instance during inference.</span>
-<span class="sd">        These arguments are used exclusively for the case of loading the model as a ``pyfunc``</span>
-<span class="sd">        Model.</span>
-<span class="sd">        These values are not applied to a returned flow from a call to</span>
-<span class="sd">        ``mlflow.promptflow.load_model()``.</span>
-<span class="sd">        To override configs for a loaded flow with promptflow flavor,</span>
-<span class="sd">        please update the ``pf_model.context`` directly.</span>
+<span class="sd">            Configs that can be overridden includes:</span>
+
+<span class="sd">            ``connection_provider`` - The connection provider to use for the flow. Reach</span>
+<span class="sd">            https://microsoft.github.io/promptflow/how-to-guides/set-global-configs.html#connection-provider</span>
+<span class="sd">            for more details on how to set connection provider.</span>
+
+<span class="sd">            ``connection_overrides`` - The connection name overrides to use for the flow.</span>
+<span class="sd">            Example: ``{&quot;aoai_connection&quot;: &quot;azure_open_ai_connection&quot;}``.</span>
+<span class="sd">            The node with reference to connection &#39;aoai_connection&#39; will be resolved to</span>
+<span class="sd">            the actual connection &#39;azure_open_ai_connection&#39;.</span>
 
 
-<span class="sd">        Configs that can be overridden includes:</span>
-<span class="sd">        ``connection.provider`` - The connection provider to use for the flow. Reach</span>
-<span class="sd">        https://microsoft.github.io/promptflow/how-to-guides/set-global-configs.html#connection-provider</span>
-<span class="sd">        for more details on how to set connection provider.</span>
+<span class="sd">            An example of providing overrides for a model to use azure machine</span>
+<span class="sd">            learning workspace connection:</span>
 
+<span class="sd">            .. code-block:: python</span>
 
-<span class="sd">        An example of providing overrides for a model to use azure machine</span>
-<span class="sd">        learning workspace connection:</span>
+<span class="sd">                flow_folder = Path(__file__).parent / &quot;basic&quot;</span>
+<span class="sd">                flow = load_flow(flow_folder)</span>
 
-<span class="sd">        .. code-block:: python</span>
-
-<span class="sd">            flow_folder = Path(__file__).parent / &quot;basic&quot;</span>
-<span class="sd">            flow = load_flow(flow_folder)</span>
-
-<span class="sd">            workspace_resource_id = (</span>
-<span class="sd">                &quot;azureml://subscriptions/{your-subscription}/resourceGroups/{your-resourcegroup}&quot;</span>
-<span class="sd">                &quot;/providers/Microsoft.MachineLearningServices/workspaces/{your-workspace}&quot;</span>
-<span class="sd">            )</span>
-<span class="sd">            model_config = {&quot;connection.provider&quot;: workspace_resource_id}</span>
-
-<span class="sd">            with mlflow.start_run():</span>
-<span class="sd">                logged_model = mlflow.promptflow.log_model(</span>
-<span class="sd">                    flow, artifact_path=&quot;promptflow_model&quot;, model_config=model_config</span>
+<span class="sd">                workspace_resource_id = (</span>
+<span class="sd">                    &quot;azureml://subscriptions/{your-subscription}/resourceGroups/{your-resourcegroup}&quot;</span>
+<span class="sd">                    &quot;/providers/Microsoft.MachineLearningServices/workspaces/{your-workspace}&quot;</span>
 <span class="sd">                )</span>
+<span class="sd">                model_config = {</span>
+<span class="sd">                    &quot;connection_provider&quot;: workspace_resource_id,</span>
+<span class="sd">                    &quot;connection_overrides&quot;: {&quot;local_conn_name&quot;: &quot;remote_conn_name&quot;},</span>
+<span class="sd">                }</span>
+
+<span class="sd">                with mlflow.start_run():</span>
+<span class="sd">                    logged_model = mlflow.promptflow.log_model(</span>
+<span class="sd">                        flow, artifact_path=&quot;promptflow_model&quot;, model_config=model_config</span>
+<span class="sd">                    )</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">promptflow</span>
     <span class="kn">from</span> <span class="nn">promptflow._sdk._mlflow</span> <span class="kn">import</span> <span class="p">(</span>
@@ -473,14 +486,17 @@
     <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">_validate_and_prepare_target_save_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
-    <span class="n">code_dir_subpath</span> <span class="o">=</span> <span class="n">_validate_and_copy_code_paths</span><span class="p">(</span><span class="n">code_paths</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="c1"># Copy to &#39;flow&#39; directory to get files merged with flow files.</span>
+    <span class="n">code_dir_subpath</span> <span class="o">=</span> <span class="n">_validate_and_copy_code_paths</span><span class="p">(</span>
+        <span class="n">code_paths</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">default_subpath</span><span class="o">=</span><span class="n">_MODEL_FLOW_DIRECTORY</span>
+    <span class="p">)</span>
 
     <span class="n">model_flow_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">_MODEL_FLOW_DIRECTORY</span><span class="p">)</span>
 
     <span class="c1"># Resolve additional includes in flow</span>
     <span class="k">with</span> <span class="n">_merge_local_code_and_additional_includes</span><span class="p">(</span><span class="n">code_path</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">code</span><span class="p">)</span> <span class="k">as</span> <span class="n">resolved_model_dir</span><span class="p">:</span>
         <span class="n">remove_additional_includes</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">resolved_model_dir</span><span class="p">))</span>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="n">resolved_model_dir</span><span class="p">,</span> <span class="n">dst</span><span class="o">=</span><span class="n">model_flow_path</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="n">resolved_model_dir</span><span class="p">,</span> <span class="n">dst</span><span class="o">=</span><span class="n">model_flow_path</span><span class="p">,</span> <span class="n">dirs_exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="c1"># Get flow env in flow dag</span>
     <span class="n">flow_env</span> <span class="o">=</span> <span class="n">_resolve_env_from_flow</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">flow_dag_path</span><span class="p">)</span>
 
@@ -501,7 +517,6 @@
     <span class="c1"># update flavor info to mlflow_model</span>
     <span class="n">mlflow_model</span><span class="o">.</span><span class="n">add_flavor</span><span class="p">(</span>
         <span class="n">FLAVOR_NAME</span><span class="p">,</span>
-        <span class="n">code</span><span class="o">=</span><span class="n">code_dir_subpath</span><span class="p">,</span>
         <span class="n">version</span><span class="o">=</span><span class="n">promptflow</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span>
         <span class="n">entry</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_MODEL_FLOW_DIRECTORY</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">DAG_FILE_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">flow_env</span><span class="p">,</span>
@@ -569,28 +584,37 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
         <span class="c1"># TODO: Improve this if we have more configs afterwards</span>
         <span class="n">model_config</span> <span class="o">=</span> <span class="n">model_config</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">connection_provider</span> <span class="o">=</span> <span class="n">model_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;connection.provider&quot;</span><span class="p">,</span> <span class="s2">&quot;local&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model_invoker</span> <span class="o">=</span> <span class="n">FlowInvoker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">connection_provider</span><span class="o">=</span><span class="n">connection_provider</span><span class="p">)</span>
+        <span class="n">connection_provider</span> <span class="o">=</span> <span class="n">model_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_CONNECTION_PROVIDER_CONFIG_KEY</span><span class="p">,</span> <span class="s2">&quot;local&quot;</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using connection provider: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">connection_provider</span><span class="p">)</span>
+        <span class="n">connection_overrides</span> <span class="o">=</span> <span class="n">model_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_CONNECTION_OVERRIDES_CONFIG_KEY</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using connection overrides: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">connection_overrides</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_invoker</span> <span class="o">=</span> <span class="n">FlowInvoker</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">connection_provider</span><span class="o">=</span><span class="n">connection_provider</span><span class="p">,</span>
+            <span class="n">connections_name_overrides</span><span class="o">=</span><span class="n">connection_overrides</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>  <span class="c1"># pylint: disable=unused-argument</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]],</span>
         <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># pylint: disable=unused-argument</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param data: Model input data. Either a pandas DataFrame with only 1 row or a dictionary.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            data: Model input data. Either a pandas DataFrame with only 1 row or a dictionary.</span>
 
 <span class="sd">                     .. code-block:: python</span>
 <span class="sd">                        loaded_model = mlflow.pyfunc.load_model(logged_model.model_uri)</span>
 <span class="sd">                        # Predict on a flow input dictionary.</span>
 <span class="sd">                        print(loaded_model.predict({&quot;text&quot;: &quot;Python Hello World!&quot;}))</span>
 
-<span class="sd">        :param params: Additional parameters to pass to the model for inference.</span>
+<span class="sd">            params: Additional parameters to pass to the model for inference.</span>
 
 <span class="sd">                       .. Note:: Experimental: This parameter may change or be removed in a future</span>
 <span class="sd">                                               release without warning.</span>
 
-<span class="sd">        :return: Model predictions. Dict type, example ``{&quot;output&quot;: &quot;\n\nprint(&#39;Hello World!&#39;)&quot;}``</span>
+<span class="sd">        Returns</span>
+<span class="sd">            Model predictions. Dict type, example ``{&quot;output&quot;: &quot;\n\nprint(&#39;Hello World!&#39;)&quot;}``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="n">messages</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;records&quot;</span><span class="p">)</span>
@@ -599,19 +623,19 @@
                     <span class="n">_INVALID_PREDICT_INPUT_ERROR_MESSAGE</span>
                 <span class="p">)</span>
             <span class="n">messages</span> <span class="o">=</span> <span class="n">messages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model_invoker</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)]</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">messages</span> <span class="o">=</span> <span class="n">data</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
-                <span class="n">_INVALID_PREDICT_INPUT_ERROR_MESSAGE</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_invoker</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_invoker</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span><span class="n">_INVALID_PREDICT_INPUT_ERROR_MESSAGE</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_load_pyfunc</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">model_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load PyFunc implementation for Promptflow. Called by ``pyfunc.load_model``.</span>
-<span class="sd">    :param path: Local filesystem path to the MLflow Model with the ``promptflow`` flavor.</span>
+
+<span class="sd">    Args</span>
+<span class="sd">        path: Local filesystem path to the MLflow Model with the ``promptflow`` flavor.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">promptflow</span> <span class="kn">import</span> <span class="n">load_flow</span>
 
@@ -625,21 +649,25 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load a Promptflow model from a local file or a run.</span>
 
-<span class="sd">    :param model_uri: The location, in URI format, of the MLflow model. For example:</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model_uri: The location, in URI format, of the MLflow model. For example:</span>
 
-<span class="sd">                      - ``/Users/me/path/to/local/model``</span>
-<span class="sd">                      - ``relative/path/to/local/model``</span>
-<span class="sd">                      - ``s3://my_bucket/path/to/model``</span>
-<span class="sd">                      - ``runs:/&lt;mlflow_run_id&gt;/run-relative/path/to/model``</span>
+<span class="sd">            - ``/Users/me/path/to/local/model``</span>
+<span class="sd">            - ``relative/path/to/local/model``</span>
+<span class="sd">            - ``s3://my_bucket/path/to/model``</span>
+<span class="sd">            - ``runs:/&lt;mlflow_run_id&gt;/run-relative/path/to/model``</span>
+<span class="sd">            - ``models:/&lt;model_name&gt;/&lt;model_version&gt;``</span>
+<span class="sd">            - ``models:/&lt;model_name&gt;/&lt;stage&gt;``</span>
 
-<span class="sd">                      For more information about supported URI schemes, see</span>
-<span class="sd">                      `Referencing Artifacts &lt;https://www.mlflow.org/docs/latest/tracking.html#</span>
-<span class="sd">                      artifact-locations&gt;`_.</span>
-<span class="sd">    :param dst_path: The local filesystem path to which to download the model artifact.</span>
-<span class="sd">                     This directory must already exist. If unspecified, a local output</span>
-<span class="sd">                     path will be created.</span>
+<span class="sd">            For more information about supported URI schemes, see</span>
+<span class="sd">            `Referencing Artifacts &lt;https://www.mlflow.org/docs/latest/concepts.html#</span>
+<span class="sd">            artifact-locations&gt;`_.</span>
+<span class="sd">        dst_path: The local filesystem path to which to download the model artifact.</span>
+<span class="sd">            This directory must already exist. If unspecified, a local output</span>
+<span class="sd">            path will be created.</span>
 
-<span class="sd">    :return: A Promptflow model instance</span>
+<span class="sd">    Returns</span>
+<span class="sd">        A Promptflow model instance</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">promptflow</span> <span class="kn">import</span> <span class="n">load_flow</span>
 
@@ -676,7 +704,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

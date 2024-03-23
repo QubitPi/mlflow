@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/_modules/mlflow/models/python_api -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.models.python_api &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>mlflow.models.python_api &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -73,7 +74,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -192,7 +193,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">ForwardRef</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">get_args</span><span class="p">,</span> <span class="n">get_origin</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">ForwardRef</span><span class="p">,</span> <span class="n">get_args</span><span class="p">,</span> <span class="n">get_origin</span>
 
 <span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span> <span class="nn">mlflow.models.flavor_backend_registry</span> <span class="kn">import</span> <span class="n">get_flavor_backend</span>
@@ -208,6 +209,7 @@
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mlflow-pyfunc&quot;</span><span class="p">,</span>
     <span class="n">env_manager</span><span class="o">=</span><span class="n">_EnvManager</span><span class="o">.</span><span class="n">VIRTUALENV</span><span class="p">,</span>
     <span class="n">mlflow_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">install_java</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">install_mlflow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">enable_mlserver</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
@@ -216,6 +218,15 @@
 <span class="sd">    python_function flavor. The container serves the model referenced by ``model_uri``, if</span>
 <span class="sd">    specified. If ``model_uri`` is not specified, an MLflow Model directory must be mounted as a</span>
 <span class="sd">    volume into the /opt/ml/model directory in the container.</span>
+
+<span class="sd">    .. important::</span>
+
+<span class="sd">        Since MLflow 2.10.1, the Docker image built with ``--model-uri`` does **not install Java**</span>
+<span class="sd">        for improved performance, unless the model flavor is one of ``[&quot;johnsnowlabs&quot;, &quot;h2o&quot;,</span>
+<span class="sd">        &quot;mleap&quot;, &quot;spark&quot;]``. If you need to install Java for other flavors, e.g. custom Python model</span>
+<span class="sd">        that uses SparkML, please specify ``install-java=True`` to enforce Java installation.</span>
+<span class="sd">        For earlier versions, Java is always installed to the image.</span>
+
 
 <span class="sd">    .. warning::</span>
 
@@ -232,11 +243,34 @@
 
 <span class="sd">    See https://www.mlflow.org/docs/latest/python_api/mlflow.pyfunc.html for more information on the</span>
 <span class="sd">    &#39;python_function&#39; flavor.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_uri: URI to the model. A local path, a &#39;runs:/&#39; URI, or a remote storage URI (e.g.,</span>
+<span class="sd">            an &#39;s3://&#39; URI). For more information about supported remote URIs for model artifacts,</span>
+<span class="sd">            see https://mlflow.org/docs/latest/tracking.html#artifact-stores&quot;</span>
+<span class="sd">        name: Name of the Docker image to build. Defaults to &#39;mlflow-pyfunc&#39;.</span>
+<span class="sd">        install_java: If specified, install Java in the image. Default is False in order to</span>
+<span class="sd">            reduce both the image size and the build time. Model flavors requiring Java will enable</span>
+<span class="sd">            this setting automatically, such as the Spark flavor. (This argument is only available</span>
+<span class="sd">            in MLflow 2.10.1 and later. In earlier versions, Java is always installed to the image.)</span>
+
+<span class="sd">        enable_mlserver: If specified, the image will be built with the Seldon MLserver as backend.</span>
+<span class="sd">        env_manager: If specified, create an environment for MLmodel using the specified environment</span>
+<span class="sd">            manager. The following values are supported: (1) virtualenv (default): use virtualenv</span>
+<span class="sd">            and pyenv for Python version management (2) conda: use conda (3) local: use the local</span>
+<span class="sd">            environment without creating a new one.</span>
+
+<span class="sd">        install_mlflow: If specified and there is a conda or virtualenv environment to be activated</span>
+<span class="sd">            mlflow will be installed into the environment after it has been activated.</span>
+<span class="sd">            The version of installed mlflow will be the same as the one used to invoke this command.</span>
+
+<span class="sd">        mlflow_home: Path to local clone of MLflow project. Use for development only.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">get_flavor_backend</span><span class="p">(</span><span class="n">model_uri</span><span class="p">,</span> <span class="n">docker_build</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">env_manager</span><span class="o">=</span><span class="n">env_manager</span><span class="p">)</span><span class="o">.</span><span class="n">build_image</span><span class="p">(</span>
         <span class="n">model_uri</span><span class="p">,</span>
         <span class="n">name</span><span class="p">,</span>
         <span class="n">mlflow_home</span><span class="o">=</span><span class="n">mlflow_home</span><span class="p">,</span>
+        <span class="n">install_java</span><span class="o">=</span><span class="n">install_java</span><span class="p">,</span>
         <span class="n">install_mlflow</span><span class="o">=</span><span class="n">install_mlflow</span><span class="p">,</span>
         <span class="n">enable_mlserver</span><span class="o">=</span><span class="n">enable_mlserver</span><span class="p">,</span>
     <span class="p">)</span></div>
@@ -247,37 +281,39 @@
 
 
 <div class="viewcode-block" id="predict"><a class="viewcode-back" href="../../../python_api/mlflow.models.html#mlflow.models.predict">[docs]</a><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
-    <span class="n">model_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">input_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;PyFuncInput&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: F821</span>
-    <span class="n">input_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_CONTENT_TYPE_JSON</span><span class="p">,</span>
-    <span class="n">output_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">env_manager</span><span class="p">:</span> <span class="n">_EnvManager</span> <span class="o">=</span> <span class="n">_EnvManager</span><span class="o">.</span><span class="n">VIRTUALENV</span><span class="p">,</span>
-    <span class="n">install_mlflow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">pip_requirements_override</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">model_uri</span><span class="p">,</span>
+    <span class="n">input_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">input_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">content_type</span><span class="o">=</span><span class="n">_CONTENT_TYPE_JSON</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">env_manager</span><span class="o">=</span><span class="n">_EnvManager</span><span class="o">.</span><span class="n">VIRTUALENV</span><span class="p">,</span>
+    <span class="n">install_mlflow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">pip_requirements_override</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate predictions in json format using a saved MLflow model. For information about the input</span>
 <span class="sd">    data formats accepted by this function, see the following documentation:</span>
 <span class="sd">    https://www.mlflow.org/docs/latest/models.html#built-in-deployment-tools.</span>
 
-<span class="sd">    :param model_uri: URI to the model. A local path, a local or remote URI e.g. runs:/, s3://.</span>
-<span class="sd">    :param input_data: Input data for prediction. Must be valid input for the PyFunc model.</span>
-<span class="sd">    :param input_path: Path to a file containing input data. If provided, &#39;input_data&#39; must be None.</span>
-<span class="sd">    :param content_type: Content type of the input data. Can be one of {‘json’, ‘csv’}.</span>
-<span class="sd">    :param output_path: File to output results to as json. If not provided, output to stdout.</span>
-<span class="sd">    :param env_manager: Specify a way to create an environment for MLmodel inference:</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model_uri: URI to the model. A local path, a local or remote URI e.g. runs:/, s3://.</span>
+<span class="sd">        input_data: Input data for prediction. Must be valid input for the PyFunc model. Refer</span>
+<span class="sd">            to the :py:func:`mlflow.pyfunc.PyFuncModel.predict()` for the supported input types.</span>
+<span class="sd">        input_path: Path to a file containing input data. If provided, &#39;input_data&#39; must be None.</span>
+<span class="sd">        content_type: Content type of the input data. Can be one of {‘json’, ‘csv’}.</span>
+<span class="sd">        output_path: File to output results to as json. If not provided, output to stdout.</span>
+<span class="sd">        env_manager: Specify a way to create an environment for MLmodel inference:</span>
 
-<span class="sd">        - virtualenv (default): use virtualenv (and pyenv for Python version management)</span>
-<span class="sd">        - local: use the local environment</span>
-<span class="sd">        - conda: use conda</span>
+<span class="sd">            - &quot;virtualenv&quot; (default): use virtualenv (and pyenv for Python version management)</span>
+<span class="sd">            - &quot;local&quot;: use the local environment</span>
+<span class="sd">            - &quot;conda&quot;: use conda</span>
 
-<span class="sd">    :param install_mlflow: If specified and there is a conda or virtualenv environment to be</span>
-<span class="sd">        activated mlflow will be installed into the environment after it has been activated.</span>
-<span class="sd">        The version of installed mlflow will be the same as the one used to invoke this command.</span>
-<span class="sd">    :param pip_requirements_override: If specified, install the specified python dependencies to</span>
-<span class="sd">        the model inference environment. This is particularly useful when you want to add extra</span>
-<span class="sd">        dependencies or try different versions of the dependencies defined in the logged model.</span>
+<span class="sd">        install_mlflow: If specified and there is a conda or virtualenv environment to be activated</span>
+<span class="sd">            mlflow will be installed into the environment after it has been activated. The version</span>
+<span class="sd">            of installed mlflow will be the same as the one used to invoke this command.</span>
+<span class="sd">        pip_requirements_override: If specified, install the specified python dependencies to the</span>
+<span class="sd">            model inference environment. This is particularly useful when you want to add extra</span>
+<span class="sd">            dependencies or try different versions of the dependencies defined in the logged model.</span>
 
 <span class="sd">    Code example:</span>
 
@@ -287,14 +323,14 @@
 
 <span class="sd">        run_id = &quot;...&quot;</span>
 
-<span class="sd">        mlflow.pyfunc.predict(</span>
+<span class="sd">        mlflow.models.predict(</span>
 <span class="sd">            model_uri=f&quot;runs:/{run_id}/model&quot;,</span>
 <span class="sd">            input_data={&quot;x&quot;: 1, &quot;y&quot;: 2},</span>
 <span class="sd">            content_type=&quot;json&quot;,</span>
 <span class="sd">        )</span>
 
 <span class="sd">        # Run prediction with additional pip dependencies</span>
-<span class="sd">        mlflow.pyfunc.predict(</span>
+<span class="sd">        mlflow.models.predict(</span>
 <span class="sd">            model_uri=f&quot;runs:/{run_id}/model&quot;,</span>
 <span class="sd">            input_data=&#39;{&quot;x&quot;: 1, &quot;y&quot;: 2}&#39;,</span>
 <span class="sd">            content_type=&quot;json&quot;,</span>
@@ -391,10 +427,10 @@
 
 <span class="k">def</span> <span class="nf">_serialize_to_json</span><span class="p">(</span><span class="n">input_data</span><span class="p">):</span>
     <span class="c1"># imported inside function to avoid circular import</span>
-    <span class="kn">from</span> <span class="nn">mlflow.pyfunc.scoring_server</span> <span class="kn">import</span> <span class="n">SUPPORTED_FORMATS</span><span class="p">,</span> <span class="n">SUPPORTED_LLM_FORMAT</span>
+    <span class="kn">from</span> <span class="nn">mlflow.pyfunc.scoring_server</span> <span class="kn">import</span> <span class="n">SUPPORTED_FORMATS</span><span class="p">,</span> <span class="n">SUPPORTED_LLM_FORMATS</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
-        <span class="n">key</span> <span class="ow">in</span> <span class="n">input_data</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">SUPPORTED_FORMATS</span> <span class="o">|</span> <span class="p">{</span><span class="n">SUPPORTED_LLM_FORMAT</span><span class="p">}</span>
+        <span class="n">key</span> <span class="ow">in</span> <span class="n">input_data</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">SUPPORTED_FORMATS</span> <span class="o">|</span> <span class="n">SUPPORTED_LLM_FORMATS</span>
     <span class="p">):</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -460,7 +496,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

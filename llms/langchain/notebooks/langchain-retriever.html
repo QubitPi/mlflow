@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/llms/langchain/notebooks/langchain-retriever.ipynb -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction to RAG with MLflow and LangChain &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>Introduction to RAG with MLflow and LangChain &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="MLflow LangChain Flavor" href="../index.html"/>
         <link rel="next" title="LangChain within MLflow (Experimental)" href="/../guide/index.html"/>
         <link rel="prev" title="Using LangChain Agents with MLflow" href="/langchain-agent.html"/> 
@@ -76,7 +77,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -458,7 +459,7 @@ div.rendered_html tbody tr:hover {
 </style>
 <div class="section" id="Introduction-to-RAG-with-MLflow-and-LangChain">
 <h1>Introduction to RAG with MLflow and LangChain<a class="headerlink" href="#Introduction-to-RAG-with-MLflow-and-LangChain" title="Permalink to this headline"> </a></h1>
-<div class="section" id="Tutorial-Overview">
+<a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/langchain/notebooks/langchain-retriever.ipynb" class="notebook-download-btn"><i class="fas fa-download"></i>Download this Notebook</a><br><div class="section" id="Tutorial-Overview">
 <h2>Tutorial Overview<a class="headerlink" href="#Tutorial-Overview" title="Permalink to this headline"> </a></h2>
 <p>Welcome to this tutorial, where we explore the integration of Retrieval Augmented Generation (RAG) with MLflow and LangChain. Our focus is on demonstrating how to create advanced RAG systems and showcasing the unique capabilities enabled by MLflow in these applications.</p>
 <div class="section" id="Understanding-RAG-and-how-to-develop-one-with-MLflow">
@@ -468,7 +469,7 @@ div.rendered_html tbody tr:hover {
 <blockquote>
 <div><p>NOTE: In this tutorial, we’ll be using GPT-3.5 as our base language model. It’s important to note that the results obtained from a RAG system will differ from those obtained by interfacing directly with GPT models. RAG’s unique approach of combining external data retrieval with language model generation creates more nuanced and contextually rich responses.</p>
 </div></blockquote>
-<div style="text-align: center;"><p><img alt="2f38153d812f48149b51b7d337c68a54" src="https://i.imgur.com/uwo1PCj.png" /></p>
+<div style="text-align: center;"><p><img alt="ceba70d942e248cf89c0b0a6cb2512b5" src="https://i.imgur.com/uwo1PCj.png" /></p>
 </div></div>
 </div>
 <div class="section" id="Learning-Outcomes">
@@ -496,15 +497,15 @@ numerous other vector database solutions that can perform similar functionality;
 <div><p>NOTE: If you’d like to run this using your GPU, you can install <code class="docutils literal notranslate"><span class="pre">faiss-gpu</span></code> instead.</p>
 </div></blockquote>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">requests</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
 <span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">RetrievalQA</span>
 <span class="kn">from</span> <span class="nn">langchain.document_loaders</span> <span class="kn">import</span> <span class="n">TextLoader</span>
 <span class="kn">from</span> <span class="nn">langchain.embeddings.openai</span> <span class="kn">import</span> <span class="n">OpenAIEmbeddings</span>
@@ -515,6 +516,36 @@ numerous other vector database solutions that can perform similar functionality;
 <span class="kn">import</span> <span class="nn">mlflow</span>
 
 <span class="k">assert</span> <span class="s2">&quot;OPENAI_API_KEY&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">,</span> <span class="s2">&quot;Please set the OPENAI_API_KEY environment variable.&quot;</span>
+</pre></div>
+</div>
+</div>
+<blockquote>
+<div><p>NOTE: If you’d like to use Azure OpenAI with LangChain, you need to install <code class="docutils literal notranslate"><span class="pre">openai&gt;=1.10.0</span></code> and <code class="docutils literal notranslate"><span class="pre">langchain-openai&gt;=0.0.6</span></code>, specify the following credentials and parameters:</p>
+</div></blockquote>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">langchain_openai</span> <span class="kn">import</span> <span class="n">AzureOpenAI</span><span class="p">,</span> <span class="n">AzureOpenAIEmbeddings</span>
+
+<span class="c1"># Set this to `azure`</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_TYPE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;azure&quot;</span>
+<span class="c1"># The API version you want to use: set this to `2023-05-15` for the released version.</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_VERSION&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;2023-05-15&quot;</span>
+<span class="k">assert</span> <span class="p">(</span>
+    <span class="s2">&quot;AZURE_OPENAI_ENDPOINT&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
+<span class="p">),</span> <span class="s2">&quot;Please set the AZURE_OPENAI_ENDPOINT environment variable. It is the base URL for your Azure OpenAI resource. You can find this in the Azure portal under your Azure OpenAI resource.&quot;</span>
+<span class="k">assert</span> <span class="p">(</span>
+    <span class="s2">&quot;OPENAI_API_KEY&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
+<span class="p">),</span> <span class="s2">&quot;Please set the OPENAI_API_KEY environment variable. It is the API key for your Azure OpenAI resource. You can find this in the Azure portal under your Azure OpenAI resource.&quot;</span>
+
+<span class="n">azure_openai_llm</span> <span class="o">=</span> <span class="n">AzureOpenAI</span><span class="p">(</span>
+    <span class="n">deployment_name</span><span class="o">=</span><span class="s2">&quot;&lt;your-deployment-name&gt;&quot;</span><span class="p">,</span>
+    <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;gpt-35-turbo-instruct&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">azure_openai_embeddings</span> <span class="o">=</span> <span class="n">AzureOpenAIEmbeddings</span><span class="p">(</span>
+    <span class="n">azure_deployment</span><span class="o">=</span><span class="s2">&quot;&lt;your-deployment-name&gt;&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1205,7 +1236,7 @@ commerce against unlawful restraints and monopolies.
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

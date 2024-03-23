@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/python_api/mlflow.langchain.rst -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.langchain &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>mlflow.langchain &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,10 +48,10 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.lightgbm" href="/mlflow.lightgbm.html"/>
-        <link rel="prev" title="mlflow.keras_core" href="/mlflow.keras_core.html"/> 
+        <link rel="prev" title="mlflow.keras" href="/mlflow.keras.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -74,7 +75,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -135,6 +136,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.artifacts.html">mlflow.artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.catboost.html">mlflow.catboost</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.client.html">mlflow.client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.config.html">mlflow.config</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.data.html">mlflow.data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.deployments.html">mlflow.deployments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.diviner.html">mlflow.diviner</a></li>
@@ -145,7 +147,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.gluon.html">mlflow.gluon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.h2o.html">mlflow.h2o</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.johnsnowlabs.html">mlflow.johnsnowlabs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlflow.keras_core.html">mlflow.keras_core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.keras.html">mlflow.keras</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">mlflow.langchain</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.lightgbm.html">mlflow.lightgbm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.metrics.html">mlflow.metrics</a></li>
@@ -367,7 +369,7 @@ path will be created.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lc_model</strong> – A LangChain model, which could be a
 <a class="reference external" href="https://python.langchain.com/docs/modules/chains/">Chain</a>,
-<cite>Agent &lt;https://python.langchain.com/docs/modules/agents/&gt;</cite>, or
+<a class="reference external" href="https://python.langchain.com/docs/modules/agents/">Agent</a>, or
 <a class="reference external" href="https://python.langchain.com/docs/modules/data_connection/retrievers/">retriever</a>.</p></li>
 <li><p><strong>artifact_path</strong> – Run-relative artifact path.</p></li>
 <li><p><strong>conda_env</strong> – <p>Either a dictionary representation of a Conda environment or the path to a conda
@@ -491,12 +493,23 @@ serialized by LangChain. MLflow logs the content in this directory as
 artifacts in the subdirectory named <cite>persist_dir_data</cite>.</p>
 <p>Here is the code snippet for logging a RetrievalQA chain with <cite>loader_fn</cite>
 and <cite>persist_dir</cite>:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In langchain_community &gt;= 0.0.27, loading pickled data requires providing the
+<code class="docutils literal notranslate"><span class="pre">allow_dangerous_deserialization</span></code> argument.</p>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qa</span> <span class="o">=</span> <span class="n">RetrievalQA</span><span class="o">.</span><span class="n">from_llm</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">OpenAI</span><span class="p">(),</span> <span class="n">retriever</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">())</span>
 
 
 <span class="k">def</span> <span class="nf">load_retriever</span><span class="p">(</span><span class="n">persist_directory</span><span class="p">):</span>
     <span class="n">embeddings</span> <span class="o">=</span> <span class="n">OpenAIEmbeddings</span><span class="p">()</span>
-    <span class="n">vectorstore</span> <span class="o">=</span> <span class="n">FAISS</span><span class="o">.</span><span class="n">load_local</span><span class="p">(</span><span class="n">persist_directory</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
+    <span class="n">vectorstore</span> <span class="o">=</span> <span class="n">FAISS</span><span class="o">.</span><span class="n">load_local</span><span class="p">(</span>
+        <span class="n">persist_directory</span><span class="p">,</span>
+        <span class="n">embeddings</span><span class="p">,</span>
+        <span class="c1"># you may need to add the line below</span>
+        <span class="c1"># for langchain_community &gt;= 0.0.27</span>
+        <span class="n">allow_dangerous_deserialization</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">vectorstore</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">()</span>
 
 
@@ -658,12 +671,23 @@ serialized by LangChain. MLflow logs the content in this directory as
 artifacts in the subdirectory named <cite>persist_dir_data</cite>.</p>
 <p>Here is the code snippet for logging a RetrievalQA chain with <cite>loader_fn</cite>
 and <cite>persist_dir</cite>:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In langchain_community &gt;= 0.0.27, loading pickled data requires providing the
+<code class="docutils literal notranslate"><span class="pre">allow_dangerous_deserialization</span></code> argument.</p>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qa</span> <span class="o">=</span> <span class="n">RetrievalQA</span><span class="o">.</span><span class="n">from_llm</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">OpenAI</span><span class="p">(),</span> <span class="n">retriever</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">())</span>
 
 
 <span class="k">def</span> <span class="nf">load_retriever</span><span class="p">(</span><span class="n">persist_directory</span><span class="p">):</span>
     <span class="n">embeddings</span> <span class="o">=</span> <span class="n">OpenAIEmbeddings</span><span class="p">()</span>
-    <span class="n">vectorstore</span> <span class="o">=</span> <span class="n">FAISS</span><span class="o">.</span><span class="n">load_local</span><span class="p">(</span><span class="n">persist_directory</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
+    <span class="n">vectorstore</span> <span class="o">=</span> <span class="n">FAISS</span><span class="o">.</span><span class="n">load_local</span><span class="p">(</span>
+        <span class="n">persist_directory</span><span class="p">,</span>
+        <span class="n">embeddings</span><span class="p">,</span>
+        <span class="c1"># you may need to add the line below</span>
+        <span class="c1"># for langchain_community &gt;= 0.0.27</span>
+        <span class="n">allow_dangerous_deserialization</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">vectorstore</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">()</span>
 
 
@@ -696,7 +720,7 @@ compatibility.</p></li>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="mlflow.keras_core.html" class="btn btn-neutral" title="mlflow.keras_core" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
+        <a href="mlflow.keras.html" class="btn btn-neutral" title="mlflow.keras" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
       
       
         <a href="mlflow.lightgbm.html" class="btn btn-neutral" title="mlflow.lightgbm" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
@@ -727,7 +751,7 @@ compatibility.</p></li>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/_modules/mlflow/server/auth/client -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.server.auth.client &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>mlflow.server.auth.client &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../../../index.html"/>
         <link rel="up" title="mlflow.server" href="../../server.html"/> 
 
   
@@ -73,7 +74,7 @@
     <a href="../../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -205,7 +206,7 @@
     <span class="n">UPDATE_USER_ADMIN</span><span class="p">,</span>
     <span class="n">UPDATE_USER_PASSWORD</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlflow.tracking._tracking_service.utils</span> <span class="kn">import</span> <span class="n">_get_default_host_creds</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.credentials</span> <span class="kn">import</span> <span class="n">get_default_host_creds</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.rest_utils</span> <span class="kn">import</span> <span class="n">http_request_safe</span>
 
 
@@ -218,12 +219,13 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tracking_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param tracking_uri: Address of local or remote tracking server.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tracking_uri: Address of local or remote tracking server.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tracking_uri</span> <span class="o">=</span> <span class="n">tracking_uri</span>
 
     <span class="k">def</span> <span class="nf">_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">host_creds</span> <span class="o">=</span> <span class="n">_get_default_host_creds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracking_uri</span><span class="p">)</span>
+        <span class="n">host_creds</span> <span class="o">=</span> <span class="n">get_default_host_creds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracking_uri</span><span class="p">)</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="n">http_request_safe</span><span class="p">(</span><span class="n">host_creds</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
@@ -231,11 +233,15 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new user.</span>
 
-<span class="sd">        :param username: The username.</span>
-<span class="sd">        :param password: The user&#39;s password. Must not be empty string.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            username: The username.</span>
+<span class="sd">            password: The user&#39;s password. Must not be empty string.</span>
 
-<span class="sd">        :return: A single :py:class:`mlflow.server.auth.entities.User` object.</span>
-<span class="sd">                 Raises ``RestException`` if the username is already taken.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            mlflow.exceptions.RestException: if the username is already taken.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A single :py:class:`mlflow.server.auth.entities.User` object.</span>
 
 <span class="sd">        .. code-block:: python</span>
 <span class="sd">            :caption: Example</span>
@@ -268,10 +274,14 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a user with a specific username.</span>
 
-<span class="sd">        :param username: The username.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            username: The username.</span>
 
-<span class="sd">        :return: A single :py:class:`mlflow.server.auth.entities.User` object.</span>
-<span class="sd">                 Raises ``RestException`` if the user does not exist.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            mlflow.exceptions.RestException: if the user does not exist</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A single :py:class:`mlflow.server.auth.entities.User` object.</span>
 
 <span class="sd">        .. code-block:: bash</span>
 <span class="sd">            :caption: Example</span>
@@ -285,8 +295,8 @@
 
 <span class="sd">            client = AuthServiceClient(&quot;tracking_uri&quot;)</span>
 <span class="sd">            client.create_user(&quot;newuser&quot;, &quot;newpassword&quot;)</span>
-
 <span class="sd">            user = client.get_user(&quot;newuser&quot;)</span>
+
 <span class="sd">            print(f&quot;user_id: {user.id}&quot;)</span>
 <span class="sd">            print(f&quot;username: {user.username}&quot;)</span>
 <span class="sd">            print(f&quot;password_hash: {user.password_hash}&quot;)</span>
@@ -311,10 +321,12 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the password of a specific user.</span>
 
-<span class="sd">        :param username: The username.</span>
-<span class="sd">        :param password: The new password.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            username: The username.</span>
+<span class="sd">            password: The new password.</span>
 
-<span class="sd">        :return: None. Raises ``RestException`` if the user does not exist.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            mlflow.exceptions.RestException: if the user does not exist</span>
 
 <span class="sd">        .. code-block:: bash</span>
 <span class="sd">            :caption: Example</span>
@@ -341,10 +353,12 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the admin status of a specific user.</span>
 
-<span class="sd">        :param username: The username.</span>
-<span class="sd">        :param is_admin: The new admin status.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            username: The username.</span>
+<span class="sd">            is_admin: The new admin status.</span>
 
-<span class="sd">        :return: None. Raises ``RestException`` if the user does not exist.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            mlflow.exceptions.RestException: if the user does not exist</span>
 
 <span class="sd">        .. code-block:: bash</span>
 <span class="sd">            :caption: Example</span>
@@ -371,9 +385,11 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete a specific user.</span>
 
-<span class="sd">        :param username: The username.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            username: The username.</span>
 
-<span class="sd">        :return: None. Raises ``RestException`` if the user does not exist.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            mlflow.exceptions.RestException: if the user does not exist</span>
 
 <span class="sd">        .. code-block:: bash</span>
 <span class="sd">            :caption: Example</span>
@@ -400,16 +416,19 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a permission on an experiment for a user.</span>
 
-<span class="sd">        :param experiment_id: The id of the experiment.</span>
-<span class="sd">        :param username: The username.</span>
-<span class="sd">        :param permission: Permission to grant.</span>
-<span class="sd">            Must be one of &quot;READ&quot;, &quot;EDIT&quot;, &quot;MANAGE&quot; and &quot;NO_PERMISSIONS&quot;.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            experiment_id: The id of the experiment.</span>
+<span class="sd">            username: The username.</span>
+<span class="sd">            permission: Permission to grant. Must be one of &quot;READ&quot;, &quot;EDIT&quot;, &quot;MANAGE&quot; and</span>
+<span class="sd">                &quot;NO_PERMISSIONS&quot;.</span>
 
-<span class="sd">        :return: A single :py:class:`mlflow.server.auth.entities.ExperimentPermission` object.</span>
-<span class="sd">                 Raises ``RestException`` if the user does not exist,</span>
-<span class="sd">                 or a permission already exists for this experiment user pair,</span>
-<span class="sd">                 or if the permission is invalid.</span>
-<span class="sd">                 Does not require ``experiment_id`` to be an existing experiment.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            mlflow.exceptions.RestException: if the user does not exist, or a permission already</span>
+<span class="sd">                exists for this experiment user pair, or if the permission is invalid. Does not</span>
+<span class="sd">                require ``experiment_id`` to be an existing experiment.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A single :py:class:`mlflow.server.auth.entities.ExperimentPermission` object.</span>
 
 <span class="sd">        .. code-block:: bash</span>
 <span class="sd">            :caption: Example</span>
@@ -424,6 +443,7 @@
 <span class="sd">            client = AuthServiceClient(&quot;tracking_uri&quot;)</span>
 <span class="sd">            client.create_user(&quot;newuser&quot;, &quot;newpassword&quot;)</span>
 <span class="sd">            ep = client.create_experiment_permission(&quot;myexperiment&quot;, &quot;newuser&quot;, &quot;READ&quot;)</span>
+
 <span class="sd">            print(f&quot;experiment_id: {ep.experiment_id}&quot;)</span>
 <span class="sd">            print(f&quot;user_id: {ep.user_id}&quot;)</span>
 <span class="sd">            print(f&quot;permission: {ep.permission}&quot;)</span>
@@ -446,14 +466,18 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get an experiment permission for a user.</span>
 
-<span class="sd">        :param experiment_id: The id of the experiment.</span>
-<span class="sd">        :param username: The username.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            experiment_id: The id of the experiment.</span>
+<span class="sd">            username: The username.</span>
 
-<span class="sd">        :return: A single :py:class:`mlflow.server.auth.entities.ExperimentPermission` object.</span>
-<span class="sd">                 Raises ``RestException`` if the user does not exist,</span>
-<span class="sd">                 or no permission exists for this experiment user pair.</span>
-<span class="sd">                 Note that the default permission will still be effective even if</span>
-<span class="sd">                 no permission exists.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            mlflow.exceptions.RestException: if the user does not exist,</span>
+<span class="sd">                or no permission exists for this experiment user pair.</span>
+<span class="sd">                Note that the default permission will still be effective even if</span>
+<span class="sd">                no permission exists.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A single :py:class:`mlflow.server.auth.entities.ExperimentPermission` object.</span>
 
 <span class="sd">        .. code-block:: bash</span>
 <span class="sd">            :caption: Example</span>
@@ -491,14 +515,15 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update an existing experiment permission for a user.</span>
 
-<span class="sd">        :param experiment_id: The id of the experiment.</span>
-<span class="sd">        :param username: The username.</span>
-<span class="sd">        :param permission: New permission to grant.</span>
-<span class="sd">            Must be one of &quot;READ&quot;, &quot;EDIT&quot;, &quot;MANAGE&quot; and &quot;NO_PERMISSIONS&quot;.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            experiment_id: The id of the experiment.</span>
+<span class="sd">            username: The username.</span>
+<span class="sd">            permission: New permission to grant. Must be one of &quot;READ&quot;, &quot;EDIT&quot;, &quot;MANAGE&quot; and</span>
+<span class="sd">                &quot;NO_PERMISSIONS&quot;.</span>
 
-<span class="sd">        :return: None. Raises ``RestException`` if the user does not exist,</span>
-<span class="sd">                 or no permission exists for this experiment user pair,</span>
-<span class="sd">                 or if the permission is invalid.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            mlflow.exceptions.RestException: if the user does not exist, or no permission exists for</span>
+<span class="sd">                this experiment user pair, or if the permission is invalid</span>
 
 <span class="sd">        .. code-block:: bash</span>
 <span class="sd">            :caption: Example</span>
@@ -525,14 +550,16 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete an existing experiment permission for a user.</span>
 
-<span class="sd">        :param experiment_id: The id of the experiment.</span>
-<span class="sd">        :param username: The username.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            experiment_id: The id of the experiment.</span>
+<span class="sd">            username: The username.</span>
 
-<span class="sd">        :return: None. Raises ``RestException`` if the user does not exist,</span>
-<span class="sd">                 or no permission exists for this experiment user pair,</span>
-<span class="sd">                 or if the permission is invalid.</span>
-<span class="sd">                 Note that the default permission will still be effective even</span>
-<span class="sd">                 after the permission has been deleted.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            mlflow.exceptions.RestException: if the user does not exist, or no permission exists for</span>
+<span class="sd">                this experiment user pair, or if the permission is invalid.</span>
+<span class="sd">                Note that the default permission will still be effective even</span>
+<span class="sd">                after the permission has been deleted.</span>
+
 
 <span class="sd">        .. code-block:: bash</span>
 <span class="sd">            :caption: Example</span>
@@ -559,40 +586,20 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a permission on an registered model for a user.</span>
 
-<span class="sd">        :param name: The name of the registered model.</span>
-<span class="sd">        :param username: The username.</span>
-<span class="sd">        :param permission: Permission to grant.</span>
-<span class="sd">            Must be one of &quot;READ&quot;, &quot;EDIT&quot;, &quot;MANAGE&quot; and &quot;NO_PERMISSIONS&quot;.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            name: The name of the registered model.</span>
+<span class="sd">            username: The username.</span>
+<span class="sd">            permission: Permission to grant. Must be one of &quot;READ&quot;, &quot;EDIT&quot;, &quot;MANAGE&quot; and</span>
+<span class="sd">                &quot;NO_PERMISSIONS&quot;.</span>
 
-<span class="sd">        :return: A single :py:class:`mlflow.server.auth.entities.RegisteredModelPermission` object.</span>
-<span class="sd">                 Raises ``RestException`` if the user does not exist,</span>
-<span class="sd">                 or a permission already exists for this registered model user pair,</span>
-<span class="sd">                 or if the permission is invalid.</span>
-<span class="sd">                 Does not require ``name`` to be an existing registered model.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            mlflow.exceptions.RestException: if the user does not exist,</span>
+<span class="sd">                or a permission already exists for this registered model user pair,</span>
+<span class="sd">                or if the permission is invalid.</span>
+<span class="sd">                Does not require ``name`` to be an existing registered model.</span>
 
-<span class="sd">        .. code-block:: bash</span>
-<span class="sd">            :caption: Example</span>
-
-<span class="sd">            export MLFLOW_TRACKING_USERNAME=admin</span>
-<span class="sd">            export MLFLOW_TRACKING_PASSWORD=password</span>
-
-<span class="sd">        .. code-block:: python</span>
-
-<span class="sd">            from mlflow.server.auth.client import AuthServiceClient</span>
-
-<span class="sd">            client = AuthServiceClient(&quot;tracking_uri&quot;)</span>
-<span class="sd">            client.create_user(&quot;newuser&quot;, &quot;newpassword&quot;)</span>
-<span class="sd">            rmp = client.create_registered_model_permission(&quot;myregisteredmodel&quot;, &quot;newuser&quot;, &quot;READ&quot;)</span>
-<span class="sd">            print(f&quot;name: {rmp.name}&quot;)</span>
-<span class="sd">            print(f&quot;user_id: {rmp.user_id}&quot;)</span>
-<span class="sd">            print(f&quot;permission: {rmp.permission}&quot;)</span>
-
-<span class="sd">        .. code-block:: text</span>
-<span class="sd">            :caption: Output</span>
-
-<span class="sd">            name: myregisteredmodel</span>
-<span class="sd">            user_id: 3</span>
-<span class="sd">            permission: READ</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            A single :py:class:`mlflow.server.auth.entities.RegisteredModelPermission` object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
             <span class="n">CREATE_REGISTERED_MODEL_PERMISSION</span><span class="p">,</span>
@@ -605,14 +612,17 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get an registered model permission for a user.</span>
 
-<span class="sd">        :param name: The name of the registered model.</span>
-<span class="sd">        :param username: The username.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            name: The name of the registered model.</span>
+<span class="sd">            username: The username.</span>
 
-<span class="sd">        :return: A single :py:class:`mlflow.server.auth.entities.RegisteredModelPermission` object.</span>
-<span class="sd">                 Raises ``RestException`` if the user does not exist,</span>
-<span class="sd">                 or no permission exists for this registered model user pair.</span>
-<span class="sd">                 Note that the default permission will still be effective even if</span>
-<span class="sd">                 no permission exists.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            mlflow.exceptions.RestException: if the user does not</span>
+<span class="sd">                exist, or no permission exists for this registered model user pair. Note that the</span>
+<span class="sd">                default permission will still be effective even if no permission exists.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">             A single :py:class:`mlflow.server.auth.entities.RegisteredModelPermission` object.</span>
 
 <span class="sd">        .. code-block:: bash</span>
 <span class="sd">            :caption: Example</span>
@@ -628,6 +638,7 @@
 <span class="sd">            client.create_user(&quot;newuser&quot;, &quot;newpassword&quot;)</span>
 <span class="sd">            client.create_registered_model_permission(&quot;myregisteredmodel&quot;, &quot;newuser&quot;, &quot;READ&quot;)</span>
 <span class="sd">            rmp = client.get_registered_model_permission(&quot;myregisteredmodel&quot;, &quot;newuser&quot;)</span>
+
 <span class="sd">            print(f&quot;name: {rmp.name}&quot;)</span>
 <span class="sd">            print(f&quot;user_id: {rmp.user_id}&quot;)</span>
 <span class="sd">            print(f&quot;permission: {rmp.permission}&quot;)</span>
@@ -650,14 +661,15 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update an existing registered model permission for a user.</span>
 
-<span class="sd">        :param name: The name of the registered model.</span>
-<span class="sd">        :param username: The username.</span>
-<span class="sd">        :param permission: New permission to grant.</span>
-<span class="sd">            Must be one of &quot;READ&quot;, &quot;EDIT&quot;, &quot;MANAGE&quot; and &quot;NO_PERMISSIONS&quot;.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            name: The name of the registered model.</span>
+<span class="sd">            username: The username.</span>
+<span class="sd">            permission: New permission to grant. Must be one of &quot;READ&quot;, &quot;EDIT&quot;, &quot;MANAGE&quot; and</span>
+<span class="sd">                &quot;NO_PERMISSIONS&quot;.</span>
 
-<span class="sd">        :return: None. Raises ``RestException`` if the user does not exist,</span>
-<span class="sd">                 or no permission exists for this registered model user pair,</span>
-<span class="sd">                 or if the permission is invalid.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            mlflow.exceptions.RestException: if the user does not exist, or no permission exists for</span>
+<span class="sd">                this registered model user pair, or if the permission is invalid.</span>
 
 <span class="sd">        .. code-block:: bash</span>
 <span class="sd">            :caption: Example</span>
@@ -684,14 +696,16 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete an existing registered model permission for a user.</span>
 
-<span class="sd">        :param name: The name of the registered model.</span>
-<span class="sd">        :param username: The username.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            name: The name of the registered model.</span>
+<span class="sd">            username: The username.</span>
 
-<span class="sd">        :return: None. Raises ``RestException`` if the user does not exist,</span>
-<span class="sd">                 or no permission exists for this registered model user pair,</span>
-<span class="sd">                 or if the permission is invalid.</span>
-<span class="sd">                 Note that the default permission will still be effective even</span>
-<span class="sd">                 after the permission has been deleted.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            mlflow.exceptions.RestException: if the user does not exist,</span>
+<span class="sd">                or no permission exists for this registered model user pair,</span>
+<span class="sd">                or if the permission is invalid.</span>
+<span class="sd">                Note that the default permission will still be effective even</span>
+<span class="sd">                after the permission has been deleted.</span>
 
 <span class="sd">        .. code-block:: bash</span>
 <span class="sd">            :caption: Example</span>
@@ -743,7 +757,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

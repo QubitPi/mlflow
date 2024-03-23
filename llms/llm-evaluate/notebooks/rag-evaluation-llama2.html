@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/llms/llm-evaluate/notebooks/rag-evaluation-llama2.ipynb -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>LLM RAG Evaluation with MLflow using llama2-as-judge Example Notebook &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>LLM RAG Evaluation with MLflow using llama2-as-judge Example Notebook &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="LLM Evaluation Examples" href="index.html"/>
         <link rel="next" title="Evaluate a Hugging Face LLM with mlflow.evaluate()" href="/huggingface-evaluation.html"/>
         <link rel="prev" title="LLM RAG Evaluation with MLflow Example Notebook" href="/rag-evaluation.html"/> 
@@ -76,7 +77,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -130,10 +131,8 @@
 <li class="toctree-l4"><a class="reference internal" href="rag-evaluation.html">LLM RAG Evaluation with MLflow Example Notebook</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">LLM RAG Evaluation with MLflow using llama2-as-judge Example Notebook</a></li>
 <li class="toctree-l4"><a class="reference internal" href="huggingface-evaluation.html">Evaluate a Hugging Face LLM with <code class="docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="index.html#qa-evaluation-notebook">QA Evaluation Notebook</a></li>
-<li class="toctree-l4"><a class="reference internal" href="index.html#rag-evaluation-notebook-using-gpt-4-as-judge">RAG Evaluation Notebook (using gpt-4-as-judge)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="index.html#rag-evaluation-notebook-using-llama2-70b-as-judge">RAG Evaluation Notebook (using llama2-70b-as-judge)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="index.html#evaluating-a-hugging-face-llm-notebook-using-gpt-4-as-judge">Evaluating a 🤗 Hugging Face LLM Notebook (using gpt-4-as-judge)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#qa-evaluation-tutorial">QA Evaluation Tutorial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#rag-evaluation-tutorials">RAG Evaluation Tutorials</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../gateway/index.html">MLflow AI Gateway (Experimental)</a></li>
@@ -466,7 +465,7 @@ div.rendered_html tbody tr:hover {
 <div class="section" id="LLM-RAG-Evaluation-with-MLflow-using-llama2-as-judge-Example-Notebook">
 <h1>LLM RAG Evaluation with MLflow using llama2-as-judge Example Notebook<a class="headerlink" href="#LLM-RAG-Evaluation-with-MLflow-using-llama2-as-judge-Example-Notebook" title="Permalink to this headline"> </a></h1>
 <p>In this notebook, we will demonstrate how to evaluate various a RAG system with MLflow. We will use llama2-70b as the judge model, via a Databricks serving endpoint.</p>
-<div class="nbinput nblast docutils container">
+<a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/llm-evaluate/notebooks/rag-evaluation-llama2.ipynb" class="notebook-download-btn"><i class="fas fa-download"></i>Download this Notebook</a><div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
@@ -585,7 +584,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.metrics.genai</span> <span class="kn">import</span> <span class="n">faithfulness</span><span class="p">,</span> <span class="n">EvaluationExample</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.metrics.genai</span> <span class="kn">import</span> <span class="n">EvaluationExample</span><span class="p">,</span> <span class="n">faithfulness</span>
 
 <span class="c1"># Create a good and bad example for faithfulness in the context of this problem</span>
 <span class="n">faithfulness_examples</span> <span class="o">=</span> <span class="p">[</span>
@@ -700,8 +699,7 @@ justification: Your reasoning about the model&#39;s faithfulness score
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.metrics.genai</span> <span class="kn">import</span> <span class="n">relevance</span><span class="p">,</span> <span class="n">EvaluationExample</span>
-
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.metrics.genai</span> <span class="kn">import</span> <span class="n">EvaluationExample</span><span class="p">,</span> <span class="n">relevance</span>
 
 <span class="n">relevance_metric</span> <span class="o">=</span> <span class="n">relevance</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;endpoints:/databricks-llama-2-70b-chat&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">relevance_metric</span><span class="p">)</span>
@@ -1042,7 +1040,7 @@ Using default facebook/roberta-hate-speech-dynabench-r4-target checkpoint
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

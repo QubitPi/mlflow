@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/getting-started/intro-quickstart/notebooks/tracking_quickstart.ipynb -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>MLflow 5 minute Tracking Quickstart &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>MLflow 5 minute Tracking Quickstart &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="MLflow Tracking Quickstart Notebook" href="index.html"/>
         <link rel="next" title="Quickstart: Compare runs, choose a model, and deploy it to a REST API" href="/../../quickstart-2/index.html"/>
         <link rel="prev" title="MLflow Tracking Quickstart Notebook" href="/index.html"/> 
@@ -76,7 +77,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -125,6 +126,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../tracking.html#quickstart">Quickstart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tracking.html#concepts">Concepts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tracking.html#tracking-runs">Tracking Runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tracking.html#tracking-datasets">Tracking Datasets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tracking.html#explore-runs-and-results">Explore Runs and Results</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../../tracking.html#set-up-the-mlflow-tracking-environment">Set up the MLflow Tracking Environment</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../../../tracking.html#components">Components</a></li>
@@ -461,20 +463,20 @@ div.rendered_html tbody tr:hover {
 </style>
 <div class="section" id="MLflow-5-minute-Tracking-Quickstart">
 <h1>MLflow 5 minute Tracking Quickstart<a class="headerlink" href="#MLflow-5-minute-Tracking-Quickstart" title="Permalink to this headline"> </a></h1>
-<p>This notebook demonstrates using a local MLflow Tracking Server to log, register, and then load a model as a generic Python Function (pyfunc) to perform inference on a Pandas DataFrame.</p>
+<a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/getting-started/intro-quickstart/notebooks/tracking_quickstart.ipynb" class="notebook-download-btn"><i class="fas fa-download"></i>Download this Notebook</a><br/><p>This notebook demonstrates using a local MLflow Tracking Server to log, register, and then load a model as a generic Python Function (pyfunc) to perform inference on a Pandas DataFrame.</p>
 <p>Throughout this notebook, we’ll be using the MLflow fluent API to perform all interactions with the MLflow Tracking Server.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
-
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
 <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">f1_score</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
 </pre></div>
 </div>
 </div>
@@ -744,7 +746,7 @@ Created version &#39;3&#39; of model &#39;tracking-quickstart&#39;.
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

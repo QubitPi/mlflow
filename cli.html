@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/cli.rst -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Command-Line Interface &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>Command-Line Interface &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,7 +48,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="index.html"/>
         <link rel="next" title="Search Runs" href="/search-runs.html"/>
         <link rel="prev" title="MLflow Authentication REST API" href="/auth/rest-api.html"/> 
 
@@ -73,7 +74,7 @@
     <a href="index.html" class="wy-nav-top-logo"
       ><img src="_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -178,6 +179,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#mlflow-models-predict">predict</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mlflow-models-prepare-env">prepare-env</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mlflow-models-serve">serve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mlflow-models-update-pip-requirements">update-pip-requirements</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#mlflow-recipes">recipes</a><ul>
@@ -660,7 +662,7 @@ instructions at
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-explain-I">
 <code class="sig-name descname"><span class="pre">-I</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--input-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;input_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-explain-I" title="Permalink to this definition"> </a></dt>
-<dd><p><strong>Required</strong> Path to input json file for prediction</p>
+<dd><p><strong>Required</strong> Path to input prediction payload file. The file canbe a JSON (Python Dict) or CSV (pandas DataFrame). If the file is a CSV, the user must specifythe –content-type csv option.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -837,7 +839,7 @@ instructions at
 <dl class="std option">
 <dt id="cmdoption-mlflow-deployments-predict-I">
 <code class="sig-name descname"><span class="pre">-I</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--input-path</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;input_path&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-deployments-predict-I" title="Permalink to this definition"> </a></dt>
-<dd><p><strong>Required</strong> Path to input json file for prediction</p>
+<dd><p><strong>Required</strong> Path to input prediction payload file. The file canbe a JSON (Python Dict) or CSV (pandas DataFrame). If the file is a CSV, the user must specifythe –content-type csv option.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -1276,6 +1278,13 @@ mlflow<span class="w"> </span>models<span class="w"> </span>build-docker<span cl
 docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-p<span class="w"> </span><span class="m">5001</span>:8080<span class="w"> </span>-v<span class="w"> </span>/local/path/to/artifacts/model:/opt/ml/model<span class="w"> </span><span class="s2">&quot;my-image-name&quot;</span>
 </pre></div>
 </div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Since MLflow 2.10.1, the Docker image built with <code class="docutils literal notranslate"><span class="pre">--model-uri</span></code> does <strong>not install Java</strong>
+for improved performance, unless the model flavor is one of <code class="docutils literal notranslate"><span class="pre">[&quot;johnsnowlabs&quot;,</span> <span class="pre">&quot;h2o&quot;,</span>
+<span class="pre">&quot;mleap&quot;,</span> <span class="pre">&quot;spark&quot;]</span></code>. If you need to install Java for other flavors, e.g. custom Python model
+that uses SparkML, please specify the <code class="docutils literal notranslate"><span class="pre">--install-java</span></code> flag to enforce Java installation.</p>
+</div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The image built without <code class="docutils literal notranslate"><span class="pre">--model-uri</span></code> doesn’t support serving models with RFunc / Java
@@ -1322,6 +1331,12 @@ environment manager. The following values are supported:</p>
 <dt id="cmdoption-mlflow-models-build-docker-mlflow-home">
 <code class="sig-name descname"><span class="pre">--mlflow-home</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;PATH&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-build-docker-mlflow-home" title="Permalink to this definition"> </a></dt>
 <dd><p>Path to local clone of MLflow project. Use for development only.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-mlflow-models-build-docker-install-java">
+<code class="sig-name descname"><span class="pre">--install-java</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-mlflow-models-build-docker-install-java" title="Permalink to this definition"> </a></dt>
+<dd><p>Install Java in the image. Default is False in order to reduce both the image size and the build time. Model flavors requiring Java will enable this setting automatically, such as the Spark flavor.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -1376,6 +1391,12 @@ environment manager. The following values are supported:</p>
 <dt id="cmdoption-mlflow-models-generate-dockerfile-mlflow-home">
 <code class="sig-name descname"><span class="pre">--mlflow-home</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;PATH&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-generate-dockerfile-mlflow-home" title="Permalink to this definition"> </a></dt>
 <dd><p>Path to local clone of MLflow project. Use for development only.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-mlflow-models-generate-dockerfile-install-java">
+<code class="sig-name descname"><span class="pre">--install-java</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-mlflow-models-generate-dockerfile-install-java" title="Permalink to this definition"> </a></dt>
+<dd><p>Install Java in the image. Default is False in order to reduce both the image size and the build time. Model flavors requiring Java will enable this setting automatically, such as the Spark flavor.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -1633,6 +1654,58 @@ environment manager. The following values are supported:</p>
 <dd><blockquote>
 <div><p>Provide a default for <a class="reference internal" href="#cmdoption-mlflow-models-serve-w"><code class="xref std std-option docutils literal notranslate"><span class="pre">--workers</span></code></a></p>
 </div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="mlflow-models-update-pip-requirements">
+<h4>update-pip-requirements<a class="headerlink" href="#mlflow-models-update-pip-requirements" title="Permalink to this headline"> </a></h4>
+<p>Add or remove requirements from a model’s conda.yaml and requirements.txt files.
+If using a remote tracking server, please make sure to set the MLFLOW_TRACKING_URI
+environment variable to the URL of the desired server.</p>
+<p>REQUIREMENT_STRINGS is a list of pip requirements specifiers.
+See below for examples.</p>
+<p>Sample usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add requirements using the model&#39;s &quot;runs:/&quot; URI</span>
+
+<span class="n">mlflow</span> <span class="n">models</span> <span class="n">update</span><span class="o">-</span><span class="n">pip</span><span class="o">-</span><span class="n">requirements</span> <span class="o">-</span><span class="n">m</span> <span class="n">runs</span><span class="p">:</span><span class="o">/&lt;</span><span class="n">run_id</span><span class="o">&gt;/&lt;</span><span class="n">model_path</span><span class="o">&gt;</span> \
+    <span class="n">add</span> <span class="s2">&quot;pandas==1.0.0&quot;</span> <span class="s2">&quot;scikit-learn&quot;</span> <span class="s2">&quot;mlflow &gt;= 2.8, != 2.9.0&quot;</span>
+
+<span class="c1"># Remove requirements from a local model</span>
+
+<span class="n">mlflow</span> <span class="n">models</span> <span class="n">update</span><span class="o">-</span><span class="n">pip</span><span class="o">-</span><span class="n">requirements</span> <span class="o">-</span><span class="n">m</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">model</span> \
+    <span class="n">remove</span> <span class="s2">&quot;torchvision&quot;</span> <span class="s2">&quot;pydantic&quot;</span>
+</pre></div>
+</div>
+<p>Note that model registry URIs (i.e. URIs in the form <code class="docutils literal notranslate"><span class="pre">models:/</span></code>) are not
+supported, as artifacts in the model registry are intended to be read-only.
+Editing requirements is read-only artifact repositories is also not supported.</p>
+<p>If adding requirements, the function will overwrite any existing requirements
+that overlap, or else append the new requirements to the existing list.</p>
+<p>If removing requirements, the function will ignore any version specifiers,
+and remove all the specified package names. Any requirements that are not
+found in the existing files will be ignored.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mlflow<span class="w"> </span>models<span class="w"> </span>update-pip-requirements<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">{</span>add<span class="p">|</span>remove<span class="o">}</span>
+<span class="w">                                      </span><span class="o">[</span>REQUIREMENT_STRINGS<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-mlflow-models-update-pip-requirements-m">
+<code class="sig-name descname"><span class="pre">-m</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--model-uri</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;URI&gt;</span></code><a class="headerlink" href="#cmdoption-mlflow-models-update-pip-requirements-m" title="Permalink to this definition"> </a></dt>
+<dd><p><strong>Required</strong> URI to the model. A local path, a ‘runs:/’ URI, or a remote storage URI (e.g., an ‘s3://’ URI). For more information about supported remote URIs for model artifacts, see https://mlflow.org/docs/latest/tracking.html#artifact-stores</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt id="cmdoption-mlflow-models-update-pip-requirements-arg-OPERATION">
+<code class="sig-name descname"><span class="pre">OPERATION</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-mlflow-models-update-pip-requirements-arg-OPERATION" title="Permalink to this definition"> </a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-mlflow-models-update-pip-requirements-arg-REQUIREMENT_STRINGS">
+<code class="sig-name descname"><span class="pre">REQUIREMENT_STRINGS</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-mlflow-models-update-pip-requirements-arg-REQUIREMENT_STRINGS" title="Permalink to this definition"> </a></dt>
+<dd><p>Optional argument(s)</p>
 </dd></dl>
 
 </div>
@@ -2547,7 +2620,7 @@ to pass <code class="docutils literal notranslate"><span class="pre">--host</spa
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'./',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

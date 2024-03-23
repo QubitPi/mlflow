@@ -110,7 +110,7 @@ with your favorite provider!
             </a>
             <a href="https://github.com/mlflow/mlflow/blob/master/examples/deployments/deployments_server/azure_openai/README.md">
                 <div class="logo-card">
-                    <img src="../_static/images/logos/ai21labs-logo.svg" alt="Azure OpenAI Logo"/>
+                    <img src="../_static/images/logos/azure-ml-logo.png" alt="Azure OpenAI Logo"/>
                 </div>
             </a>
             <a href="https://github.com/mlflow/mlflow/blob/master/examples/deployments/deployments_server/huggingface/README.md">
@@ -339,7 +339,7 @@ Note that there are additional tutorials within the `"Explore the Native LLM Fla
                         Evaluating LLMs
                     </div>
                     <p>
-                        Learn how to evaluate LLMs with MLflow.
+                        Learn how to evaluate LLMs with various metrics including LLM-as-a-Judge using <code>mlflow.evaluate()</code> API.
                     </p>
                 </a>
             </div>
@@ -354,7 +354,7 @@ Note that there are additional tutorials within the `"Explore the Native LLM Fla
                 </a>
             </div>
             <div class="simple-card">
-                <a href="rag/index.html" >
+                <a href="rag/notebooks/index.html" >
                     <div class="header">
                         Evaluation for RAG
                     </div>

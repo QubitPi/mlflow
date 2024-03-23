@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/python_api/mlflow.sagemaker.rst -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.sagemaker &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>mlflow.sagemaker &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,7 +48,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.sentence_transformers" href="/mlflow.sentence_transformers.html"/>
         <link rel="prev" title="mlflow.recipes" href="/mlflow.recipes.html"/> 
@@ -74,7 +75,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -135,6 +136,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.artifacts.html">mlflow.artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.catboost.html">mlflow.catboost</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.client.html">mlflow.client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.config.html">mlflow.config</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.data.html">mlflow.data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.deployments.html">mlflow.deployments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.diviner.html">mlflow.diviner</a></li>
@@ -145,7 +147,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.gluon.html">mlflow.gluon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.h2o.html">mlflow.h2o</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.johnsnowlabs.html">mlflow.johnsnowlabs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlflow.keras_core.html">mlflow.keras_core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.keras.html">mlflow.keras</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.langchain.html">mlflow.langchain</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.lightgbm.html">mlflow.lightgbm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.metrics.html">mlflow.metrics</a></li>
@@ -363,12 +365,10 @@ this application.
 For more information, see
 <a class="reference external" href="https://docs.aws.amazon.com/sagemaker/latest/APIReference/API_DataCaptureConfig.html">https://docs.aws.amazon.com/sagemaker/latest/APIReference/API_DataCaptureConfig.html</a>.
 Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">variant_name</span></code>: A string specifying the desired name when creating a</dt><dd><p>production variant.  Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
-</dd>
-</dl>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">async_inference_config</span></code>: A dictionary specifying the async_inference_configuration # pylint: disable=line-too-long</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">variant_name</span></code>: A string specifying the desired name when creating a production
+variant.  Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">async_inference_config</span></code>: A dictionary specifying the
+async_inference_configuration</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">serverless_config</span></code>: A dictionary specifying the serverless_configuration</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">env</span></code>: A dictionary specifying environment variables as key-value
 pairs to be set for the deployed model. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
@@ -460,8 +460,7 @@ for additional detail on support for asynchronous creation and other configurati
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> – Unique name to use for endpoint. If another endpoint exists with the same
 name, raises a <a class="reference internal" href="exceptions/mlflow.exceptions.html#mlflow.exceptions.MlflowException" title="mlflow.exceptions.MlflowException"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlflow.exceptions.MlflowException</span></code></a>.</p></li>
-<li><p><strong>config</strong> – (optional) Dict containing target-specific configuration for the
-endpoint.</p></li>
+<li><p><strong>config</strong> – (optional) Dict containing target-specific configuration for the endpoint.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -504,8 +503,7 @@ SageMaker APIs or the AWS console. If <cite>synchronous</cite> is False, this
 parameter is ignored. Defaults to <code class="docutils literal notranslate"><span class="pre">300</span></code>.</p></li>
 </ul>
 </p></li>
-<li><p><strong>endpoint</strong> – (optional) Endpoint containing the deployment to delete. Currently
-unsupported</p></li>
+<li><p><strong>endpoint</strong> – (optional) Endpoint containing the deployment to delete. Currently unsupported</p></li>
 </ul>
 </dd>
 </dl>
@@ -548,9 +546,6 @@ should not fail if retried on a non-existent deployment).</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>endpoint</strong> – Name of endpoint to delete</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>None</p>
-</dd>
 </dl>
 </dd></dl>
 
@@ -575,8 +570,7 @@ while retrieving the deployment.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> – Name of deployment to retrieve</p></li>
-<li><p><strong>endpoint</strong> – (optional) Endpoint containing the deployment to get. Currently
-unsupported</p></li>
+<li><p><strong>endpoint</strong> – (optional) Endpoint containing the deployment to get. Currently unsupported</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -627,8 +621,7 @@ with the AWS region and the role ARN in the <code class="docutils literal notran
 <code class="docutils literal notranslate"><span class="pre">sagemaker:/us-east-1/arn:aws:1234:role/assumed_role</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>endpoint</strong> – (optional) List deployments in the specified endpoint. Currently
-unsupported</p>
+<dd class="field-odd"><p><strong>endpoint</strong> – (optional) List deployments in the specified endpoint. Currently unsupported</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A list of dictionaries corresponding to deployments.</p>
@@ -823,11 +816,8 @@ responsible for monitoring the health and status of the pending
 deployment using native SageMaker APIs or the AWS console. If
 <code class="docutils literal notranslate"><span class="pre">synchronous</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>, this parameter is ignored.
 Defaults to <code class="docutils literal notranslate"><span class="pre">300</span></code>.</p></li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">variant_name</span></code>: A string specifying the desired name when creating a</dt><dd><p>production variant.  Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
-</dd>
-</dl>
-</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">variant_name</span></code>: A string specifying the desired name when creating a
+production variant.  Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">vpc_config</span></code>: A dictionary specifying the VPC configuration to use when
 creating the new SageMaker model associated with this application.
 The acceptable values for this parameter are identical to those of the
@@ -841,24 +831,15 @@ this application.
 For more information, see
 <a class="reference external" href="https://docs.aws.amazon.com/sagemaker/latest/APIReference/API_DataCaptureConfig.html">https://docs.aws.amazon.com/sagemaker/latest/APIReference/API_DataCaptureConfig.html</a>.
 Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">variant_name</span></code>: A string specifying the desired name when creating a</dt><dd><p>production variant.  Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">async_inference_config</span></code>: A dictionary specifying the async config</dt><dd><p>configuration. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
-</dd>
-</dl>
-</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">async_inference_config</span></code>: A dictionary specifying the async config
+configuration. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">env</span></code>: A dictionary specifying environment variables as key-value pairs
 to be set for the deployed model. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">tags</span></code>: A dictionary of key-value pairs representing additional tags
 to be set for the deployed model. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 </ul>
 </p></li>
-<li><p><strong>endpoint</strong> – (optional) Endpoint containing the deployment to update. Currently
-unsupported</p></li>
+<li><p><strong>endpoint</strong> – (optional) Endpoint containing the deployment to update. Currently unsupported</p></li>
 </ul>
 </dd>
 </dl>
@@ -949,12 +930,8 @@ update and other configuration.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>endpoint</strong> – Unique name of endpoint to update</p></li>
-<li><p><strong>config</strong> – (optional) dict containing target-specific configuration for the
-endpoint</p></li>
+<li><p><strong>config</strong> – (optional) dict containing target-specific configuration for the endpoint</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1028,17 +1005,17 @@ parameter in the <a class="reference external" href="https://boto3.readthedocs.i
 <a class="reference external" href="https://docs.aws.amazon.com/sagemaker/latest/dg/API_VpcConfig.html">https://docs.aws.amazon.com/sagemaker/latest/dg/API_VpcConfig.html</a>.</p>
 <div class="literal-block-wrapper docutils container" id="id23">
 <div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id23" title="Permalink to this code"> </a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">import</span> <span class="nn">mlflow.sagemaker</span> <span class="k">as</span> <span class="nn">mfs</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.sagemaker</span> <span class="k">as</span> <span class="nn">mfs</span>
 
- <span class="n">vpc_config</span> <span class="o">=</span> <span class="p">{</span>
-     <span class="s2">&quot;SecurityGroupIds&quot;</span><span class="p">:</span> <span class="p">[</span>
-         <span class="s2">&quot;sg-123456abc&quot;</span><span class="p">,</span>
-     <span class="p">],</span>
-     <span class="s2">&quot;Subnets&quot;</span><span class="p">:</span> <span class="p">[</span>
-         <span class="s2">&quot;subnet-123456abc&quot;</span><span class="p">,</span>
-     <span class="p">],</span>
- <span class="p">}</span>
- <span class="n">mfs</span><span class="o">.</span><span class="n">deploy_transform_job</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">vpc_config</span><span class="o">=</span><span class="n">vpc_config</span><span class="p">)</span>
+<span class="n">vpc_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;SecurityGroupIds&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;sg-123456abc&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;Subnets&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;subnet-123456abc&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+<span class="n">mfs</span><span class="o">.</span><span class="n">deploy_transform_job</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">vpc_config</span><span class="o">=</span><span class="n">vpc_config</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1130,17 +1107,17 @@ create_model method</a>. For more information, see
 <a class="reference external" href="https://docs.aws.amazon.com/sagemaker/latest/dg/API_VpcConfig.html">https://docs.aws.amazon.com/sagemaker/latest/dg/API_VpcConfig.html</a>.</p>
 <div class="literal-block-wrapper docutils container" id="id24">
 <div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id24" title="Permalink to this code"> </a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">import</span> <span class="nn">mlflow.sagemaker</span> <span class="k">as</span> <span class="nn">mfs</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.sagemaker</span> <span class="k">as</span> <span class="nn">mfs</span>
 
- <span class="n">vpc_config</span> <span class="o">=</span> <span class="p">{</span>
-     <span class="s2">&quot;SecurityGroupIds&quot;</span><span class="p">:</span> <span class="p">[</span>
-         <span class="s2">&quot;sg-123456abc&quot;</span><span class="p">,</span>
-     <span class="p">],</span>
-     <span class="s2">&quot;Subnets&quot;</span><span class="p">:</span> <span class="p">[</span>
-         <span class="s2">&quot;subnet-123456abc&quot;</span><span class="p">,</span>
-     <span class="p">],</span>
- <span class="p">}</span>
- <span class="n">mfs</span><span class="o">.</span><span class="n">push_model_to_sagemaker</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">vpc_config</span><span class="o">=</span><span class="n">vpc_config</span><span class="p">)</span>
+<span class="n">vpc_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;SecurityGroupIds&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;sg-123456abc&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;Subnets&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;subnet-123456abc&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+<span class="n">mfs</span><span class="o">.</span><span class="n">push_model_to_sagemaker</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">vpc_config</span><span class="o">=</span><span class="n">vpc_config</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1314,7 +1291,7 @@ parameter is ignored.</p></li>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/getting-started/quickstart-2/index.rst -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quickstart: Compare runs, choose a model, and deploy it to a REST API &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>Quickstart: Compare runs, choose a model, and deploy it to a REST API &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Getting Started with MLflow" href="../index.html"/>
         <link rel="next" title="5 Minute Tracking Server Overview" href="/../tracking-server-overview/index.html"/>
         <link rel="prev" title="MLflow 5 minute Tracking Quickstart" href="/../intro-quickstart/notebooks/tracking_quickstart.html"/> 
@@ -74,7 +75,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -122,6 +123,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#tracking-server-quickstart">Tracking Server Quickstart</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#model-registry-quickstart">Model Registry Quickstart</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#further-learning-what-s-next">Further Learning - What’s Next?</a></li>
@@ -310,7 +312,7 @@ parameters, results, and model itself of each trial as a child run.</p>
         <span class="c1"># Log model</span>
         <span class="n">mlflow</span><span class="o">.</span><span class="n">tensorflow</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">signature</span><span class="o">=</span><span class="n">signature</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;eval_rmse&quot;</span><span class="p">:</span> <span class="n">eval_rmse</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">STATUS_OK</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">eval_rmse</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">STATUS_OK</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">objective</span></code> function takes in the hyperparameters and returns the results of the <code class="docutils literal notranslate"><span class="pre">train_model</span></code>
@@ -358,7 +360,7 @@ store the best parameters, model, and evaluation metrics in MLflow.</p>
     <span class="p">)</span>
 
     <span class="c1"># Fetch the details of the best run</span>
-    <span class="n">best_run</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">trials</span><span class="o">.</span><span class="n">results</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;eval_rmse&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">best_run</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">trials</span><span class="o">.</span><span class="n">results</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="c1"># Log the best parameters, loss, and model</span>
     <span class="n">mlflow</span><span class="o">.</span><span class="n">log_params</span><span class="p">(</span><span class="n">best</span><span class="p">)</span>
@@ -367,7 +369,7 @@ store the best parameters, model, and evaluation metrics in MLflow.</p>
 
     <span class="c1"># Print out the best parameters and corresponding loss</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best parameters: </span><span class="si">{</span><span class="n">best</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best eval rmse: </span><span class="si">{</span><span class="n">best_run</span><span class="p">[</span><span class="s1">&#39;eval_rmse&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best eval rmse: </span><span class="si">{</span><span class="n">best_run</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -677,7 +679,7 @@ platforms and versions. Again, you will need to consult your cloud provider’s 
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/_modules/mlflow/gateway/client -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.gateway.client &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>mlflow.gateway.client &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -73,7 +74,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -211,7 +212,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">BAD_REQUEST</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.entities.paged_list</span> <span class="kn">import</span> <span class="n">PagedList</span>
-<span class="kn">from</span> <span class="nn">mlflow.tracking._tracking_service.utils</span> <span class="kn">import</span> <span class="n">_get_default_host_creds</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.credentials</span> <span class="kn">import</span> <span class="n">get_default_host_creds</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.databricks_utils</span> <span class="kn">import</span> <span class="n">get_databricks_host_creds</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.rest_utils</span> <span class="kn">import</span> <span class="n">augmented_raise_for_status</span><span class="p">,</span> <span class="n">http_request</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.uri</span> <span class="kn">import</span> <span class="n">get_uri_scheme</span>
@@ -224,9 +225,10 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Client for interacting with the MLflow Gateway API.</span>
 
-<span class="sd">    :param gateway_uri: Optional URI of the gateway. If not provided, attempts to resolve from</span>
-<span class="sd">        first the stored result of `set_gateway_uri()`, then the  environment variable</span>
-<span class="sd">        `MLFLOW_GATEWAY_URI`.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        gateway_uri: Optional URI of the gateway. If not provided, attempts to resolve from</span>
+<span class="sd">            first the stored result of `set_gateway_uri()`, then the  environment variable</span>
+<span class="sd">            `MLFLOW_GATEWAY_URI`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gateway_uri</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -249,7 +251,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_databricks_host</span><span class="p">():</span>
             <span class="k">return</span> <span class="n">get_databricks_host_creds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gateway_uri</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">_get_default_host_creds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gateway_uri</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">get_default_host_creds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gateway_uri</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">gateway_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -576,9 +578,14 @@
 <span class="sd">            limits: Limits (Array of dictionary) to set on the route. Each limit is defined by a</span>
 <span class="sd">                dictionary representing the limit details to be associated with the route. This</span>
 <span class="sd">                dictionary should define:</span>
-<span class="sd">                - renewal_period: a string representing the length of the window to enforce limit on (only supports &quot;minute&quot; for now). # pylint: disable=line-too-long</span>
-<span class="sd">                - calls: a non-negative integer representing the number of calls allowed per  renewal_period (e.g., 10, 0, 55). # pylint: disable=line-too-long</span>
-<span class="sd">                - key: an optional string represents per route limit or per user limit (&quot;user&quot; for per user limit, &quot;route&quot; for per route limit, if not supplied, default to per route limit). # pylint: disable=line-too-long</span>
+
+<span class="sd">                - renewal_period: a string representing the length of the window to enforce limit</span>
+<span class="sd">                  on (only supports &quot;minute&quot; for now).</span>
+<span class="sd">                - calls: a non-negative integer representing the number of calls allowed per</span>
+<span class="sd">                  renewal_period (e.g., 10, 0, 55).</span>
+<span class="sd">                - key: an optional string represents per route limit or per user limit (&quot;user&quot; for</span>
+<span class="sd">                  per user limit, &quot;route&quot; for per route limit, if not supplied, default to per</span>
+<span class="sd">                  route limit).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The returned data structure is a serialized representation of the `Limit`</span>
@@ -667,7 +674,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

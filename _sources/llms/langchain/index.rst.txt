@@ -20,6 +20,12 @@ Supported Elements in MLflow LangChain Integration
 - `RetrievalQA <https://js.langchain.com/docs/modules/chains/popular/vector_db_qa>`_
 - `Retrievers <https://python.langchain.com/docs/modules/data_connection/retrievers/>`_
 
+
+.. warning::
+
+   The Langchain's new chat interfaces such as `ChatOpenAI <https://python.langchain.com/docs/integrations/chat/openai>`_, `AzureChatOpenAI <https://python.langchain.com/docs/integrations/chat/azure_chat_openai>`_, are not supported in MLflow due to `a limitation <https://github.com/langchain-ai/langchain/issues/18420>`_ in deserialization. Please use the legacy counterparts for these models such as `langchain.llms.OpenAI <https://python.langchain.com/docs/integrations/llms/openai>`_, `langchain.llms.AzureOpenAI <https://python.langchain.com/docs/integrations/llms/azure_openai>`_, or create `a custom Pyfunc model <../custom-pyfunc-for-llms/index.html>`_.
+
+
 Why use MLflow with LangChain?
 ------------------------------
 Aside from the benefits of using MLflow for managing and deploying machine learning models, the integration of LangChain with MLflow provides a number of 
@@ -65,6 +71,14 @@ is included with each subsequent input. Preserving conversational context in thi
 Getting Started with the MLflow LangChain Flavor - Tutorials and Guides
 -----------------------------------------------------------------------
 
+.. toctree::
+    :maxdepth: 2
+    :hidden:
+
+    notebooks/langchain-quickstart.ipynb
+    notebooks/langchain-agent.ipynb
+    notebooks/langchain-retriever.ipynb
+
 Introductory Tutorial
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -88,10 +102,6 @@ use a chain.
             </div>
         </article>
     </section>
-
-.. raw:: html
-
-    <a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/langchain/notebooks/langchain-quickstart.ipynb" class="notebook-download-btn">Download the Introductory Notebook</a><br>
 
 
 Advanced Tutorials
@@ -127,18 +137,6 @@ exploring these more advanced use cases.
         </article>
     </section>
 
-.. raw:: html
-
-    <a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/langchain/notebooks/langchain-agent.ipynb" class="notebook-download-btn">Download the LangChain Agents Notebook</a><br>
-    <a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/langchain/notebooks/langchain-retriever.ipynb" class="notebook-download-btn">Download the LangChain Retriever Notebook</a><br>
-
-.. toctree::
-    :maxdepth: 2
-    :hidden:
-
-    notebooks/langchain-quickstart.ipynb
-    notebooks/langchain-agent.ipynb
-    notebooks/langchain-retriever.ipynb
 
 `Detailed Documentation <guide/index.html>`_
 --------------------------------------------
@@ -165,7 +163,7 @@ I can't save my chain, agent, or retriever with MLflow.
 
     Some objects, especially those with intricate internal states or dependencies on external system resources, are not inherently pickleable. This limitation 
     arises because serialization essentially requires converting an object to a byte stream, which can be complex for objects tightly coupled with system states 
-    or those having external I/O operations.
+    or those having external I/O operations. Try upgrading PyDantic to 2.x version to resolve this issue.
 
 - **Verifying Native Serialization Support**: Ensure that the langchain object (chain, agent, or retriever) is serializable natively using langchain APIs if saving or logging with MLflow doesn't work. 
 
@@ -192,3 +190,17 @@ I'm getting an AttributeError when saving my model
     dependencies. The model flavor contains two options for declaring these dependencies: ``extra_pip_requirements`` and ``pip_requirements``. While specifying 
     ``pip_requirements`` is entirely valid, we recommend using ``extra_pip_requirements`` as it does not rely on defining all of the core dependent packages that 
     are required to use the langchain model for inference (the other core dependencies will be inferred automatically).
+
+I can't load the model logged by mlflow langchain autologging
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- **Model contains langchain retrievers**: LangChain retrievers are not supported by MLflow autologging. 
+
+    If your model contains a retriever, you will need to manually log the model using the ``mlflow.langchain.log_model`` API.
+    As loading those models requires specifying `loader_fn` and `persist_dir` parameters, please check examples in 
+    `retriever_chain <https://github.com/mlflow/mlflow/blob/master/examples/langchain/retriever_chain.py>`_
+
+- **Can't pickle certain objects**: Try manually log the model.
+
+    For certain models that langchain does not support native saving/loading, we pickle the object and save it, while it requires cloudpickle version to be 
+    consistent when saving/loading the model, as well as PyDantic version to be 2.x. Try manually log the model with ``mlflow.langchain.log_model`` API.

@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/_modules/mlflow/tracking/_tracking_service/utils -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.tracking._tracking_service.utils &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>mlflow.tracking._tracking_service.utils &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../../../index.html"/>
         <link rel="up" title="Module code" href="../../../index.html"/> 
 
   
@@ -73,7 +74,7 @@
     <a href="../../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -194,22 +195,13 @@
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 
-<span class="kn">from</span> <span class="nn">mlflow.environment_variables</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">MLFLOW_TRACKING_AUTH</span><span class="p">,</span>
-    <span class="n">MLFLOW_TRACKING_AWS_SIGV4</span><span class="p">,</span>
-    <span class="n">MLFLOW_TRACKING_CLIENT_CERT_PATH</span><span class="p">,</span>
-    <span class="n">MLFLOW_TRACKING_INSECURE_TLS</span><span class="p">,</span>
-    <span class="n">MLFLOW_TRACKING_SERVER_CERT_PATH</span><span class="p">,</span>
-    <span class="n">MLFLOW_TRACKING_TOKEN</span><span class="p">,</span>
-    <span class="n">MLFLOW_TRACKING_URI</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mlflow.environment_variables</span> <span class="kn">import</span> <span class="n">MLFLOW_TRACKING_URI</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.db.db_types</span> <span class="kn">import</span> <span class="n">DATABASE_ENGINES</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.tracking</span> <span class="kn">import</span> <span class="n">DEFAULT_LOCAL_FILE_AND_ARTIFACT_PATH</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.tracking.file_store</span> <span class="kn">import</span> <span class="n">FileStore</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.tracking.rest_store</span> <span class="kn">import</span> <span class="n">RestStore</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking._tracking_service.registry</span> <span class="kn">import</span> <span class="n">TrackingStoreRegistry</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils</span> <span class="kn">import</span> <span class="n">rest_utils</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.credentials</span> <span class="kn">import</span> <span class="n">read_mlflow_creds</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.credentials</span> <span class="kn">import</span> <span class="n">get_default_host_creds</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.databricks_utils</span> <span class="kn">import</span> <span class="n">get_databricks_host_creds</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.file_utils</span> <span class="kn">import</span> <span class="n">path_to_local_file_uri</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.uri</span> <span class="kn">import</span> <span class="n">_DATABRICKS_UNITY_CATALOG_SCHEME</span>
@@ -218,30 +210,31 @@
 <span class="n">_tracking_uri</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-<div class="viewcode-block" id="is_tracking_uri_set"><a class="viewcode-back" href="../../../../python_api/mlflow.html#mlflow.is_tracking_uri_set">[docs]</a><span class="k">def</span> <span class="nf">is_tracking_uri_set</span><span class="p">():</span>
+<div class="viewcode-block" id="is_tracking_uri_set"><a class="viewcode-back" href="../../../../python_api/mlflow.config.html#mlflow.is_tracking_uri_set">[docs]</a><span class="k">def</span> <span class="nf">is_tracking_uri_set</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns True if the tracking URI has been set, False otherwise.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">_tracking_uri</span> <span class="ow">or</span> <span class="n">MLFLOW_TRACKING_URI</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
         <span class="k">return</span> <span class="kc">True</span>
     <span class="k">return</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="set_tracking_uri"><a class="viewcode-back" href="../../../../python_api/mlflow.html#mlflow.set_tracking_uri">[docs]</a><span class="k">def</span> <span class="nf">set_tracking_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="set_tracking_uri"><a class="viewcode-back" href="../../../../python_api/mlflow.config.html#mlflow.set_tracking_uri">[docs]</a><span class="k">def</span> <span class="nf">set_tracking_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set the tracking server URI. This does not affect the</span>
 <span class="sd">    currently active run (if one exists), but takes effect for successive runs.</span>
 
-<span class="sd">    :param uri:</span>
+<span class="sd">    Args:</span>
+<span class="sd">        uri:</span>
 
-<span class="sd">                - An empty string, or a local file path, prefixed with ``file:/``. Data is stored</span>
-<span class="sd">                  locally at the provided file (or ``./mlruns`` if empty).</span>
-<span class="sd">                - An HTTP URI like ``https://my-tracking-server:5000``.</span>
-<span class="sd">                - A Databricks workspace, provided as the string &quot;databricks&quot; or, to use a</span>
-<span class="sd">                  Databricks CLI</span>
-<span class="sd">                  `profile &lt;https://github.com/databricks/databricks-cli#installation&gt;`_,</span>
-<span class="sd">                  &quot;databricks://&lt;profileName&gt;&quot;.</span>
-<span class="sd">                - A :py:class:`pathlib.Path` instance</span>
+<span class="sd">            - An empty string, or a local file path, prefixed with ``file:/``. Data is stored</span>
+<span class="sd">              locally at the provided file (or ``./mlruns`` if empty).</span>
+<span class="sd">            - An HTTP URI like ``https://my-tracking-server:5000``.</span>
+<span class="sd">            - A Databricks workspace, provided as the string &quot;databricks&quot; or, to use a Databricks</span>
+<span class="sd">              CLI `profile &lt;https://github.com/databricks/databricks-cli#installation&gt;`_,</span>
+<span class="sd">              &quot;databricks://&lt;profileName&gt;&quot;.</span>
+<span class="sd">            - A :py:class:`pathlib.Path` instance</span>
 
-<span class="sd">    .. testcode:: python</span>
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">        :test:</span>
 <span class="sd">        :caption: Example</span>
 
 <span class="sd">        import mlflow</span>
@@ -267,10 +260,11 @@
 
 <span class="nd">@contextmanager</span>
 <span class="k">def</span> <span class="nf">_use_tracking_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Temporarily use the specified tracking URI.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Temporarily use the specified tracking URI.</span>
 
-<span class="sd">    :param uri: The tracking URI to use.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        uri: The tracking URI to use.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">_tracking_uri</span>
     <span class="n">old_tracking_uri</span> <span class="o">=</span> <span class="n">_tracking_uri</span>
@@ -285,15 +279,14 @@
     <span class="k">return</span> <span class="n">tracking_uri</span> <span class="ow">or</span> <span class="n">get_tracking_uri</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="get_tracking_uri"><a class="viewcode-back" href="../../../../python_api/mlflow.html#mlflow.get_tracking_uri">[docs]</a><span class="k">def</span> <span class="nf">get_tracking_uri</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the current tracking URI. This may not correspond to the tracking URI of</span>
+<div class="viewcode-block" id="get_tracking_uri"><a class="viewcode-back" href="../../../../python_api/mlflow.config.html#mlflow.get_tracking_uri">[docs]</a><span class="k">def</span> <span class="nf">get_tracking_uri</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the current tracking URI. This may not correspond to the tracking URI of</span>
 <span class="sd">    the currently active run, since the tracking URI can be updated via ``set_tracking_uri``.</span>
 
-<span class="sd">    :return: The tracking URI.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        The tracking URI.</span>
 
 <span class="sd">    .. code-block:: python</span>
-<span class="sd">        :caption: Example</span>
 
 <span class="sd">        import mlflow</span>
 
@@ -302,7 +295,6 @@
 <span class="sd">        print(f&quot;Current tracking uri: {tracking_uri}&quot;)</span>
 
 <span class="sd">    .. code-block:: text</span>
-<span class="sd">        :caption: Output</span>
 
 <span class="sd">        Current tracking uri: file:///.../mlruns</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -327,23 +319,8 @@
     <span class="k">return</span> <span class="n">SqlAlchemyStore</span><span class="p">(</span><span class="n">store_uri</span><span class="p">,</span> <span class="n">artifact_uri</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_get_default_host_creds</span><span class="p">(</span><span class="n">store_uri</span><span class="p">):</span>
-    <span class="n">creds</span> <span class="o">=</span> <span class="n">read_mlflow_creds</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">rest_utils</span><span class="o">.</span><span class="n">MlflowHostCreds</span><span class="p">(</span>
-        <span class="n">host</span><span class="o">=</span><span class="n">store_uri</span><span class="p">,</span>
-        <span class="n">username</span><span class="o">=</span><span class="n">creds</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
-        <span class="n">password</span><span class="o">=</span><span class="n">creds</span><span class="o">.</span><span class="n">password</span><span class="p">,</span>
-        <span class="n">token</span><span class="o">=</span><span class="n">MLFLOW_TRACKING_TOKEN</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
-        <span class="n">aws_sigv4</span><span class="o">=</span><span class="n">MLFLOW_TRACKING_AWS_SIGV4</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
-        <span class="n">auth</span><span class="o">=</span><span class="n">MLFLOW_TRACKING_AUTH</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
-        <span class="n">ignore_tls_verification</span><span class="o">=</span><span class="n">MLFLOW_TRACKING_INSECURE_TLS</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
-        <span class="n">client_cert_path</span><span class="o">=</span><span class="n">MLFLOW_TRACKING_CLIENT_CERT_PATH</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
-        <span class="n">server_cert_path</span><span class="o">=</span><span class="n">MLFLOW_TRACKING_SERVER_CERT_PATH</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
-    <span class="p">)</span>
-
-
 <span class="k">def</span> <span class="nf">_get_rest_store</span><span class="p">(</span><span class="n">store_uri</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">RestStore</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">_get_default_host_creds</span><span class="p">,</span> <span class="n">store_uri</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">RestStore</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">get_default_host_creds</span><span class="p">,</span> <span class="n">store_uri</span><span class="p">))</span>
 
 
 <span class="k">def</span> <span class="nf">_get_databricks_rest_store</span><span class="p">(</span><span class="n">store_uri</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">):</span>
@@ -398,6 +375,10 @@
     <span class="n">_tracking_store_registry</span><span class="o">.</span><span class="n">register_entrypoints</span><span class="p">()</span>
 
 
+<span class="k">def</span> <span class="nf">_register</span><span class="p">(</span><span class="n">scheme</span><span class="p">,</span> <span class="n">builder</span><span class="p">):</span>
+    <span class="n">_tracking_store_registry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">scheme</span><span class="p">,</span> <span class="n">builder</span><span class="p">)</span>
+
+
 <span class="n">_register_tracking_stores</span><span class="p">()</span>
 
 
@@ -407,12 +388,15 @@
 
 <span class="c1"># TODO(sueann): move to a projects utils module</span>
 <span class="k">def</span> <span class="nf">_get_git_url_if_present</span><span class="p">(</span><span class="n">uri</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return the path git_uri#sub_directory if the URI passed is a local path that&#39;s part of</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the path git_uri#sub_directory if the URI passed is a local path that&#39;s part of</span>
 <span class="sd">    a Git repo, or returns the original URI otherwise.</span>
-<span class="sd">    :param uri: The expanded uri</span>
-<span class="sd">    :return: The git_uri#sub_directory if the uri is part of a Git repo,</span>
-<span class="sd">             otherwise return the original uri</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        uri: The expanded uri.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The git_uri#sub_directory if the uri is part of a Git repo, otherwise return the original</span>
+<span class="sd">        uri.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="s2">&quot;#&quot;</span> <span class="ow">in</span> <span class="n">uri</span><span class="p">:</span>
         <span class="c1"># Already a URI in git repo format</span>
@@ -474,7 +458,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

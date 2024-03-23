@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/llms/rag/notebooks/question-generation-retrieval-evaluation.ipynb -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Question Generation For Retrieval Evaluation &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>Question Generation For Retrieval Evaluation &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,9 +48,9 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="RAG Tutorials" href="index.html"/>
-        <link rel="next" title="Retriever Evaluation Tutorial" href="/retriever-evaluation-tutorial.html"/>
+        <link rel="next" title="Retriever Evaluation with MLflow" href="/retriever-evaluation-tutorial.html"/>
         <link rel="prev" title="LLM RAG Evaluation with MLflow Example Notebook" href="/mlflow-e2e-evaluation.html"/> 
 
   
@@ -76,7 +77,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -462,7 +463,7 @@ div.rendered_html tbody tr:hover {
 </style>
 <div class="section" id="Question-Generation-For-Retrieval-Evaluation">
 <h1>Question Generation For Retrieval Evaluation<a class="headerlink" href="#Question-Generation-For-Retrieval-Evaluation" title="Permalink to this headline"> </a></h1>
-<p>MLflow provides an advanced framework for constructing Retrieval-Augmented Generation (RAG) models. RAG is a cutting edge approach that combines the strengths of retrieval models (a model that chooses and ranks relevant chunks of a document based on the user’s question) and generative models. It effectively merges the capabilities of searching and generating text to provide responses that are contextually relevant and coherent, allowing the generated text to make reference to existing documents.
+<a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/rag/notebooks/question-generation-retrieval-evaluation.ipynb" class="notebook-download-btn"><i class="fas fa-download"></i>Download this Notebook</a><p>MLflow provides an advanced framework for constructing Retrieval-Augmented Generation (RAG) models. RAG is a cutting edge approach that combines the strengths of retrieval models (a model that chooses and ranks relevant chunks of a document based on the user’s question) and generative models. It effectively merges the capabilities of searching and generating text to provide responses that are contextually relevant and coherent, allowing the generated text to make reference to existing documents.
 RAG leverges the retriever to find context documents, and this novel approach has revolutionized various NLP tasks.</p>
 <p>Naturally, we want to be able to evaluate this retriever system for the RAG model to compare and judge its performance. To evaluate a retriever system, we would first need a test set of questions on the documents. These questions need to be diverse, relevant, and coherent. Manually generating questions may be challenging because it first requires you to understand the documents, and spend lots of time coming up with questions for them.</p>
 <p>We want to make this process simpler by utilizing an LLM to generate questions for this test set. This tutorial will walk through how to generate the questions and how to analyze the diversity and relevance of the questions.</p>
@@ -509,10 +510,10 @@ RAG leverges the retriever to find context documents, and this novel approach ha
 <span class="sd">        The cache_loading_fn should be a function that takes arbitrary</span>
 <span class="sd">        serializable arguments and returns a serilaizable value.</span>
 <span class="sd">          value = cache_loading_fn(**kwargs)</span>
-<span class="sd">        For example, for openai.ChatCompletion.create(...), the</span>
+<span class="sd">        For example, for openai.chat.completions.create(...), the</span>
 <span class="sd">        cache_loading_fn should be:</span>
 <span class="sd">          def cache_loading_fn(**kwargs):</span>
-<span class="sd">            result = openai.ChatCompletion.create(**kwargs)</span>
+<span class="sd">            result = openai.chat.completions.create(**kwargs)</span>
 <span class="sd">            return result.to_dict_recursive()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_cache_dict</span><span class="p">(</span><span class="n">persist_path</span><span class="p">)</span>
@@ -556,7 +557,7 @@ RAG leverges the retriever to find context documents, and this novel approach ha
 
 
 <span class="k">def</span> <span class="nf">chat_completion_create_fn</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">ChatCompletion</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">to_dict_recursive</span><span class="p">()</span>
 
 
@@ -567,8 +568,7 @@ RAG leverges the retriever to find context documents, and this novel approach ha
 
 <span class="k">def</span> <span class="nf">embeddings_embed_documents_fn</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="n">chunk</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;chunk&quot;</span><span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">embeddings</span><span class="o">.</span><span class="n">embed_documents</span><span class="p">([</span><span class="n">chunk</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">embeddings</span><span class="o">.</span><span class="n">embed_documents</span><span class="p">([</span><span class="n">chunk</span><span class="p">])</span>
 
 
 <span class="k">def</span> <span class="nf">cached_langchain_openai_embeddings</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1158,7 +1158,7 @@ Loaded from cache
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/llms_rag_notebooks_question-generation-retrieval-evaluation_32_0.png" src="../../../_images/llms_rag_notebooks_question-generation-retrieval-evaluation_32_0.png" />
+<img alt="../../../_images/llms_rag_notebooks_question-generation-retrieval-evaluation_34_0.png" src="../../../_images/llms_rag_notebooks_question-generation-retrieval-evaluation_34_0.png" />
 </div>
 </div>
 <p>In addition to visual representation, we also want to look at more concrete percentile values.</p>
@@ -1259,7 +1259,7 @@ p10-p90 range is 46
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/llms_rag_notebooks_question-generation-retrieval-evaluation_43_0.png" src="../../../_images/llms_rag_notebooks_question-generation-retrieval-evaluation_43_0.png" />
+<img alt="../../../_images/llms_rag_notebooks_question-generation-retrieval-evaluation_45_0.png" src="../../../_images/llms_rag_notebooks_question-generation-retrieval-evaluation_45_0.png" />
 </div>
 </div>
 <p>Observe that within the orange points on the scatter plot, there is one point that is further than the others. That is the unique benchmark question about RAG. This plot gives a sense of the diversity of the questions generated.</p>
@@ -1396,7 +1396,7 @@ p10-p90 range is 46
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/llms_rag_notebooks_question-generation-retrieval-evaluation_52_1.png" src="../../../_images/llms_rag_notebooks_question-generation-retrieval-evaluation_52_1.png" />
+<img alt="../../../_images/llms_rag_notebooks_question-generation-retrieval-evaluation_54_1.png" src="../../../_images/llms_rag_notebooks_question-generation-retrieval-evaluation_54_1.png" />
 </div>
 </div>
 <p>There are a couple lower scores. Let’s take a look at them.</p>
@@ -1445,7 +1445,7 @@ cossim:
         <a href="mlflow-e2e-evaluation.html" class="btn btn-neutral" title="LLM RAG Evaluation with MLflow Example Notebook" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
       
       
-        <a href="retriever-evaluation-tutorial.html" class="btn btn-neutral" title="Retriever Evaluation Tutorial" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
+        <a href="retriever-evaluation-tutorial.html" class="btn btn-neutral" title="Retriever Evaluation with MLflow" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
       
     </div>
   
@@ -1473,7 +1473,7 @@ cossim:
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

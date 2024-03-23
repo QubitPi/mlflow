@@ -2,6 +2,7 @@
   
 
 <!DOCTYPE html>
+<!-- source: docs/source/llms/langchain/index.rst -->
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
@@ -9,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>MLflow LangChain Flavor &mdash; MLflow 2.9.3.dev0 documentation</title>
+  <title>MLflow LangChain Flavor &mdash; MLflow 2.11.4.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -47,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.9.3.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="LLMs" href="../index.html"/>
         <link rel="next" title="Introduction to Using LangChain with MLflow" href="/notebooks/langchain-quickstart.html"/>
         <link rel="prev" title="Sentence Transformers within MLflow" href="/../sentence-transformers/guide/index.html"/> 
@@ -74,7 +75,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.9.3.dev0</span>
+    <span class="version">2.11.4.dev0</span>
   </li>
 </ul>
   </nav>
@@ -226,6 +227,10 @@ that utilize language models for reasoning and generating responses, enabling th
 <li><p><a class="reference external" href="https://js.langchain.com/docs/modules/chains/popular/vector_db_qa">RetrievalQA</a></p></li>
 <li><p><a class="reference external" href="https://python.langchain.com/docs/modules/data_connection/retrievers/">Retrievers</a></p></li>
 </ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The Langchain’s new chat interfaces such as <a class="reference external" href="https://python.langchain.com/docs/integrations/chat/openai">ChatOpenAI</a>, <a class="reference external" href="https://python.langchain.com/docs/integrations/chat/azure_chat_openai">AzureChatOpenAI</a>, are not supported in MLflow due to <a class="reference external" href="https://github.com/langchain-ai/langchain/issues/18420">a limitation</a> in deserialization. Please use the legacy counterparts for these models such as <a class="reference external" href="https://python.langchain.com/docs/integrations/llms/openai">langchain.llms.OpenAI</a>, <a class="reference external" href="https://python.langchain.com/docs/integrations/llms/azure_openai">langchain.llms.AzureOpenAI</a>, or create <a class="reference external" href="../custom-pyfunc-for-llms/index.html">a custom Pyfunc model</a>.</p>
+</div>
 </div>
 <div class="section" id="why-use-mlflow-with-langchain">
 <h2>Why use MLflow with LangChain?<a class="headerlink" href="#why-use-mlflow-with-langchain" title="Permalink to this headline"> </a></h2>
@@ -271,6 +276,8 @@ is included with each subsequent input. Preserving conversational context in thi
 </div>
 <div class="section" id="getting-started-with-the-mlflow-langchain-flavor-tutorials-and-guides">
 <h2>Getting Started with the MLflow LangChain Flavor - Tutorials and Guides<a class="headerlink" href="#getting-started-with-the-mlflow-langchain-flavor-tutorials-and-guides" title="Permalink to this headline"> </a></h2>
+<div class="toctree-wrapper compound">
+</div>
 <div class="section" id="introductory-tutorial">
 <h3>Introductory Tutorial<a class="headerlink" href="#introductory-tutorial" title="Permalink to this headline"> </a></h3>
 <p>In this introductory tutorial, you will learn the most fundamental components of LangChain and how to leverage the integration with MLflow to store, retrieve, and
@@ -289,7 +296,7 @@ use a chain.</p>
             </a>
         </div>
     </article>
-</section><a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/langchain/notebooks/langchain-quickstart.ipynb" class="notebook-download-btn">Download the Introductory Notebook</a><br></div>
+</section></div>
 <div class="section" id="advanced-tutorials">
 <h3>Advanced Tutorials<a class="headerlink" href="#advanced-tutorials" title="Permalink to this headline"> </a></h3>
 <p>In these tutorials, you can learn about more complex usages of LangChain with MLflow. It is highly advised to read through the introductory tutorial prior to
@@ -317,10 +324,7 @@ exploring these more advanced use cases.</p>
             </a>
         </div>
     </article>
-</section><a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/langchain/notebooks/langchain-agent.ipynb" class="notebook-download-btn">Download the LangChain Agents Notebook</a><br>
-<a href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/llms/langchain/notebooks/langchain-retriever.ipynb" class="notebook-download-btn">Download the LangChain Retriever Notebook</a><br><div class="toctree-wrapper compound">
-</div>
-</div>
+</section></div>
 </div>
 <div class="section" id="id1">
 <h2><a class="reference external" href="guide/index.html">Detailed Documentation</a><a class="headerlink" href="#id1" title="Permalink to this headline"> </a></h2>
@@ -337,7 +341,7 @@ exploring these more advanced use cases.</p>
 <blockquote>
 <div><p>Some objects, especially those with intricate internal states or dependencies on external system resources, are not inherently pickleable. This limitation
 arises because serialization essentially requires converting an object to a byte stream, which can be complex for objects tightly coupled with system states
-or those having external I/O operations.</p>
+or those having external I/O operations. Try upgrading PyDantic to 2.x version to resolve this issue.</p>
 </div></blockquote>
 </li>
 <li><p><strong>Verifying Native Serialization Support</strong>: Ensure that the langchain object (chain, agent, or retriever) is serializable natively using langchain APIs if saving or logging with MLflow doesn’t work.</p>
@@ -370,6 +374,24 @@ will not be automatically logged as part of the model at all times (see below fo
 dependencies. The model flavor contains two options for declaring these dependencies: <code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code> and <code class="docutils literal notranslate"><span class="pre">pip_requirements</span></code>. While specifying
 <code class="docutils literal notranslate"><span class="pre">pip_requirements</span></code> is entirely valid, we recommend using <code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code> as it does not rely on defining all of the core dependent packages that
 are required to use the langchain model for inference (the other core dependencies will be inferred automatically).</p>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="i-can-t-load-the-model-logged-by-mlflow-langchain-autologging">
+<h3>I can’t load the model logged by mlflow langchain autologging<a class="headerlink" href="#i-can-t-load-the-model-logged-by-mlflow-langchain-autologging" title="Permalink to this headline"> </a></h3>
+<ul>
+<li><p><strong>Model contains langchain retrievers</strong>: LangChain retrievers are not supported by MLflow autologging.</p>
+<blockquote>
+<div><p>If your model contains a retriever, you will need to manually log the model using the <code class="docutils literal notranslate"><span class="pre">mlflow.langchain.log_model</span></code> API.
+As loading those models requires specifying <cite>loader_fn</cite> and <cite>persist_dir</cite> parameters, please check examples in
+<a class="reference external" href="https://github.com/mlflow/mlflow/blob/master/examples/langchain/retriever_chain.py">retriever_chain</a></p>
+</div></blockquote>
+</li>
+<li><p><strong>Can’t pickle certain objects</strong>: Try manually log the model.</p>
+<blockquote>
+<div><p>For certain models that langchain does not support native saving/loading, we pickle the object and save it, while it requires cloudpickle version to be
+consistent when saving/loading the model, as well as PyDantic version to be 2.x. Try manually log the model with <code class="docutils literal notranslate"><span class="pre">mlflow.langchain.log_model</span></code> API.</p>
 </div></blockquote>
 </li>
 </ul>
@@ -415,7 +437,7 @@ are required to use the langchain model for inference (the other core dependenci
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.9.3.dev0',
+      VERSION:'2.11.4.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

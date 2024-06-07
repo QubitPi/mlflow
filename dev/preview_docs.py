@@ -54,7 +54,7 @@ def main():
     session.headers.update(headers)
 
     # Get the ID of the build_doc job
-    repo = "mlflow/mlflow"
+    repo = "QubitPi/mlflow"
     build_doc_job_name = "build_doc"
     job_id = None
     workflow_run_link = f"https://github.com/{repo}/actions/runs/{args.workflow_run_id}"

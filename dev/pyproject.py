@@ -137,9 +137,9 @@ def build(skinny: bool) -> None:
             },
             "urls": {
                 "homepage": "https://mlflow.org",
-                "issues": "https://github.com/mlflow/mlflow/issues",
+                "issues": "https://github.com/QubitPi/mlflow/issues",
                 "documentation": "https://mlflow.org/docs/latest/index.html",
-                "repository": "https://github.com/mlflow/mlflow",
+                "repository": "https://github.com/QubitPi/mlflow",
             },
             "scripts": {
                 "mlflow": "mlflow.cli:cli",

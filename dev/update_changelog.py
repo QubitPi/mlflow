@@ -36,7 +36,7 @@ class PullRequest(NamedTuple):
 
     @property
     def url(self):
-        return f"https://github.com/mlflow/mlflow/pull/{self.number}"
+        return f"https://github.com/QubitPi/mlflow/pull/{self.number}"
 
     @property
     def release_note_labels(self):
@@ -125,7 +125,7 @@ def main(prev_version, release_version, remote):
             continue
         print(f"Fetching PR #{pr_num}...")
         resp = requests.get(
-            f"https://api.github.com/repos/mlflow/mlflow/pulls/{pr_num}",
+            f"https://api.github.com/repos/QubitPi/mlflow/pulls/{pr_num}",
             auth=("mlflow-automation", os.getenv("GITHUB_TOKEN")),
         )
         resp.raise_for_status()

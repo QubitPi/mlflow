@@ -177,7 +177,7 @@ check_and_install_pyenv() {
           echo "PYENV_ROOT=$PYENV_ROOT" >>"$GITHUB_ENV"
         fi
       else
-        echo "Unsupported operating system environment: $machine. This setup script only supports MacOS and Linux. For other operating systems, please follow the manual setup instruction here: https://github.com/mlflow/mlflow/blob/master/CONTRIBUTING.md#manual-python-development-environment-configuration "
+        echo "Unsupported operating system environment: $machine. This setup script only supports MacOS and Linux. For other operating systems, please follow the manual setup instruction here: https://github.com/QubitPi/mlflow/blob/master/CONTRIBUTING.md#manual-python-development-environment-configuration "
         exit 1
       fi
     else
@@ -302,7 +302,7 @@ check_and_install_pandoc() {
           sudo dpkg --install $(find $TEMP_DEB -name '*.deb') &&
           rm -rf $TEMP_DEB
       else
-        echo "Unsupported operating system environment: $machine. This setup script only supports MacOS and Linux. For other operating systems, please follow the manual setup instruction here: https://github.com/mlflow/mlflow/blob/master/CONTRIBUTING.md#manual-python-development-environment-configuration "
+        echo "Unsupported operating system environment: $machine. This setup script only supports MacOS and Linux. For other operating systems, please follow the manual setup instruction here: https://github.com/QubitPi/mlflow/blob/master/CONTRIBUTING.md#manual-python-development-environment-configuration "
         exit 1
       fi
     fi

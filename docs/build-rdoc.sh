@@ -18,7 +18,7 @@ done
 
 docker run \
   --rm \
-  -v $(pwd):/mlflow/mlflow/R/mlflow \
+  -v $(pwd):/QubitPi/mlflow/R/mlflow \
   -v $(pwd)/../../../docs/source:/mlflow/docs/source \
   $image_name \
   Rscript -e 'source(".build-doc.R", echo = TRUE)'

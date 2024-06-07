@@ -12,7 +12,7 @@ on:
     inputs:
       repository:
         description: >
-          [Optional] Repository name with owner. For example, mlflow/mlflow.
+          [Optional] Repository name with owner. For example, QubitPi/mlflow.
            Defaults to the repository that triggered a workflow.
         required: false
         default: ""
@@ -44,12 +44,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-          repository: ${{ github.event_name == 'schedule' && 'mlflow/mlflow' || github.event.inputs.repository }}
+          repository: ${{ github.event_name == 'schedule' && 'QubitPi/mlflow' || github.event.inputs.repository }}
           ref: ${{ github.event.inputs.ref }}
       - name: Setup environment
         run: |
-          git config --global user.name "test"
-          git config --global user.email "test@mlflow.org"
+          git config --global user.name "QubitPi"
+          git config --global user.email "jack20220723@gmail.com"
       - name: Run Environment tests
         run: |
           TERM=xterm bash ./dev/test-dev-env-setup.sh

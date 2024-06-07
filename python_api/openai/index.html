@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.openai &mdash; MLflow 2.11.4.dev0 documentation</title>
+  <title>mlflow.openai &mdash; MLflow 2.13.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Python API" href="../index.html"/>
         <link rel="next" title="R API" href="/../../R-api.html"/>
         <link rel="prev" title="mlflow.xgboost" href="/../mlflow.xgboost.html"/> 
@@ -75,7 +75,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.11.4.dev0</span>
+    <span class="version">2.13.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -133,6 +133,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../search-experiments.html">Search Experiments</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Python API</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.html">mlflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mlflow.html#mlflow-tracing-apis">MLflow Tracing APIs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.artifacts.html">mlflow.artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.catboost.html">mlflow.catboost</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.client.html">mlflow.client</a></li>
@@ -173,6 +174,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.statsmodels.html">mlflow.statsmodels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.system_metrics.html">mlflow.system_metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.tensorflow.html">mlflow.tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mlflow.tracing.html">mlflow.tracing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.transformers.html">mlflow.transformers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.types.html">mlflow.types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mlflow.utils.html">mlflow.utils</a></li>
@@ -270,6 +272,57 @@ variables.</p></li>
 <p>When the logged model is served on Databricks, each secret will be resolved and set as the
 corresponding environment variable. See <a class="reference external" href="https://docs.databricks.com/security/secrets/index.html">https://docs.databricks.com/security/secrets/index.html</a>
 for how to set up secrets on Databricks.</p>
+<dl class="py function">
+<dt id="mlflow.openai.autolog">
+<code class="sig-prename descclassname"><span class="pre">mlflow.openai.</span></code><code class="sig-name descname"><span class="pre">autolog</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_input_examples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_model_signatures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_for_unsupported_versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registered_model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mlflow/openai.html#autolog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.openai.autolog" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This function may change or be removed in a future release without warning.</p>
+</div>
+<p>Enables (or disables) and configures autologging from OpenAI to MLflow.
+Raises <a class="reference internal" href="../exceptions/mlflow.exceptions.html#mlflow.exceptions.MlflowException" title="mlflow.exceptions.MlflowException"><code class="xref py py-class docutils literal notranslate"><span class="pre">MlflowException</span></code></a>
+if the OpenAI version &lt; 1.0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>log_input_examples</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, input examples from inference data are collected and
+logged along with Langchain model artifacts during inference. If
+<code class="docutils literal notranslate"><span class="pre">False</span></code>, input examples are not logged.
+Note: Input examples are MLflow model attributes
+and are only collected if <code class="docutils literal notranslate"><span class="pre">log_models</span></code> is also <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>log_model_signatures</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>,
+<a class="reference internal" href="../mlflow.models.html#mlflow.models.ModelSignature" title="mlflow.models.ModelSignature"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSignatures</span></code></a>
+describing model inputs and outputs are collected and logged along
+with OpenAI model artifacts during inference. If <code class="docutils literal notranslate"><span class="pre">False</span></code>,
+signatures are not logged.
+Note: Model signatures are MLflow model attributes
+and are only collected if <code class="docutils literal notranslate"><span class="pre">log_models</span></code> is also <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>log_models</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, OpenAI models are logged as MLflow model artifacts.
+If <code class="docutils literal notranslate"><span class="pre">False</span></code>, OpenAI models are not logged.
+Input examples and model signatures, which are attributes of MLflow models,
+are also omitted when <code class="docutils literal notranslate"><span class="pre">log_models</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>log_datasets</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, dataset information is logged to MLflow Tracking
+if applicable. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, dataset information is not logged.</p></li>
+<li><p><strong>disable</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, disables the OpenAI autologging integration. If <code class="docutils literal notranslate"><span class="pre">False</span></code>,
+enables the OpenAI autologging integration.</p></li>
+<li><p><strong>exclusive</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, autologged content is not logged to user-created fluent runs.
+If <code class="docutils literal notranslate"><span class="pre">False</span></code>, autologged content is logged to the active fluent run,
+which may be user-created.</p></li>
+<li><p><strong>disable_for_unsupported_versions</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, disable autologging for versions of
+OpenAI that have not been tested against this version of the MLflow
+client or are incompatible.</p></li>
+<li><p><strong>silent</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, suppress all event logs and warnings from MLflow during OpenAI
+autologging. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, show all events and warnings during OpenAI
+autologging.</p></li>
+<li><p><strong>registered_model_name</strong> – If given, each time a model is trained, it is registered as a
+new model version of the registered model with this name.
+The registered model is created if it does not already exist.</p></li>
+<li><p><strong>extra_tags</strong> – A dictionary of extra tags to set on each managed run created by autologging.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt id="mlflow.openai.get_default_conda_env">
 <code class="sig-prename descclassname"><span class="pre">mlflow.openai.</span></code><code class="sig-name descname"><span class="pre">get_default_conda_env</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mlflow/openai.html#get_default_conda_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.openai.get_default_conda_env" title="Permalink to this definition"> </a></dt>
@@ -373,9 +426,17 @@ The following is an <em>example</em> dictionary representation of a conda enviro
 </pre></div>
 </div>
 </p></li>
-<li><p><strong>code_paths</strong> – A list of local filesystem paths to Python file dependencies (or directories
-containing file dependencies). These files are <em>prepended</em> to the system
-path when the model is loaded.</p></li>
+<li><p><strong>code_paths</strong> – <p>A list of local filesystem paths to Python file dependencies (or directories
+containing file dependencies). These files are <em>prepended</em> to the system path when the model
+is loaded. Files declared as dependencies for a given model should have relative
+imports declared from a common root path if multiple files are defined with import dependencies
+between them to avoid import errors when loading the model.</p>
+<p>You can leave <code class="docutils literal notranslate"><span class="pre">code_paths</span></code> argument unset but set <code class="docutils literal notranslate"><span class="pre">infer_code_paths</span></code> to <code class="docutils literal notranslate"><span class="pre">True</span></code> to let MLflow
+infer the model code paths. See <code class="docutils literal notranslate"><span class="pre">infer_code_paths</span></code> argument doc for details.</p>
+<p>For a detailed explanation of <code class="docutils literal notranslate"><span class="pre">code_paths</span></code> functionality, recommended usage patterns and
+limitations, see the
+<a class="reference external" href="https://mlflow.org/docs/latest/model/dependencies.html?highlight=code_paths#saving-extra-code-with-an-mlflow-model">code_paths usage guide</a>.</p>
+</p></li>
 <li><p><strong>registered_model_name</strong> – If given, create a model version under
 <code class="docutils literal notranslate"><span class="pre">registered_model_name</span></code>, also creating a registered model if one
 with the given name does not exist.</p></li>
@@ -432,13 +493,7 @@ section of the model’s conda environment (<code class="docutils literal notran
 <p><a class="reference external" href="https://github.com/mlflow/mlflow/blob/master/examples/pip_requirements/pip_requirements.py">This example</a> demonstrates how to specify pip requirements using
 <code class="docutils literal notranslate"><span class="pre">pip_requirements</span></code> and <code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code>.</p>
 </p></li>
-<li><p><strong>metadata</strong> – <p>Custom metadata dictionary passed to the model and stored in the MLmodel file.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Experimental: This parameter may change or be removed in a future
-release without warning.</p>
-</div>
-</p></li>
+<li><p><strong>metadata</strong> – Custom metadata dictionary passed to the model and stored in the MLmodel file.</p></li>
 <li><p><strong>example_no_conversion</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the input example will not be converted to a Pandas DataFrame
 format when saving. This is useful when the model expects a non-DataFrame input and the
 input example could be passed directly to the model. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> for backwards
@@ -520,9 +575,17 @@ The following is an <em>example</em> dictionary representation of a conda enviro
 </pre></div>
 </div>
 </p></li>
-<li><p><strong>code_paths</strong> – A list of local filesystem paths to Python file dependencies (or directories
-containing file dependencies). These files are <em>prepended</em> to the system
-path when the model is loaded.</p></li>
+<li><p><strong>code_paths</strong> – <p>A list of local filesystem paths to Python file dependencies (or directories
+containing file dependencies). These files are <em>prepended</em> to the system path when the model
+is loaded. Files declared as dependencies for a given model should have relative
+imports declared from a common root path if multiple files are defined with import dependencies
+between them to avoid import errors when loading the model.</p>
+<p>You can leave <code class="docutils literal notranslate"><span class="pre">code_paths</span></code> argument unset but set <code class="docutils literal notranslate"><span class="pre">infer_code_paths</span></code> to <code class="docutils literal notranslate"><span class="pre">True</span></code> to let MLflow
+infer the model code paths. See <code class="docutils literal notranslate"><span class="pre">infer_code_paths</span></code> argument doc for details.</p>
+<p>For a detailed explanation of <code class="docutils literal notranslate"><span class="pre">code_paths</span></code> functionality, recommended usage patterns and
+limitations, see the
+<a class="reference external" href="https://mlflow.org/docs/latest/model/dependencies.html?highlight=code_paths#saving-extra-code-with-an-mlflow-model">code_paths usage guide</a>.</p>
+</p></li>
 <li><p><strong>mlflow_model</strong> – <a class="reference internal" href="../mlflow.models.html#mlflow.models.Model" title="mlflow.models.Model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mlflow.models.Model</span></code></a> this flavor is being added to.</p></li>
 <li><p><strong>signature</strong> – <p><a class="reference internal" href="../mlflow.models.html#mlflow.models.ModelSignature" title="mlflow.models.ModelSignature"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSignature</span></code></a>
 describes model input and output <a class="reference internal" href="../mlflow.types.html#mlflow.types.Schema" title="mlflow.types.Schema"><code class="xref py py-class docutils literal notranslate"><span class="pre">Schema</span></code></a>.
@@ -574,13 +637,7 @@ section of the model’s conda environment (<code class="docutils literal notran
 <p><a class="reference external" href="https://github.com/mlflow/mlflow/blob/master/examples/pip_requirements/pip_requirements.py">This example</a> demonstrates how to specify pip requirements using
 <code class="docutils literal notranslate"><span class="pre">pip_requirements</span></code> and <code class="docutils literal notranslate"><span class="pre">extra_pip_requirements</span></code>.</p>
 </p></li>
-<li><p><strong>metadata</strong> – <p>Custom metadata dictionary passed to the model and stored in the MLmodel file.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Experimental: This parameter may change or be removed in a future
-release without warning.</p>
-</div>
-</p></li>
+<li><p><strong>metadata</strong> – Custom metadata dictionary passed to the model and stored in the MLmodel file.</p></li>
 <li><p><strong>example_no_conversion</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the input example will not be converted to a Pandas DataFrame
 format when saving. This is useful when the model expects a non-DataFrame input and the
 input example could be passed directly to the model. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> for backwards
@@ -661,7 +718,7 @@ or <code class="docutils literal notranslate"><span class="pre">top_p</span></co
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.11.4.dev0',
+      VERSION:'2.13.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.keras &mdash; MLflow 2.11.4.dev0 documentation</title>
+  <title>mlflow.keras &mdash; MLflow 2.13.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +48,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.langchain" href="/mlflow.langchain.html"/>
         <link rel="prev" title="mlflow.johnsnowlabs" href="/mlflow.johnsnowlabs.html"/> 
@@ -75,7 +75,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.11.4.dev0</span>
+    <span class="version">2.13.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -133,6 +133,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../search-experiments.html">Search Experiments</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Python API</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="mlflow.html">mlflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.html#mlflow-tracing-apis">MLflow Tracing APIs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.artifacts.html">mlflow.artifacts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.catboost.html">mlflow.catboost</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.client.html">mlflow.client</a></li>
@@ -173,6 +174,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.statsmodels.html">mlflow.statsmodels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.system_metrics.html">mlflow.system_metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.tensorflow.html">mlflow.tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.tracing.html">mlflow.tracing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.transformers.html">mlflow.transformers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.types.html">mlflow.types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.utils.html">mlflow.utils</a></li>
@@ -241,7 +243,7 @@
 <span id="mlflow-keras"></span><h1>mlflow.keras<a class="headerlink" href="#module-mlflow.keras.autolog" title="Permalink to this headline"> </a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Autologging is known to be compatible with the following package versions: <code class="docutils literal notranslate"><span class="pre">2.6.5</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">tensorflow</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">2.15.0.post1</span></code>. Autologging may not succeed when used with package versions outside of this range.</p>
+<p>Autologging is known to be compatible with the following package versions: <code class="docutils literal notranslate"><span class="pre">2.7.4</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">tensorflow</span></code> &lt;= <code class="docutils literal notranslate"><span class="pre">2.16.1</span></code>. Autologging may not succeed when used with package versions outside of this range.</p>
 </div>
 <p>Enables autologging for <code class="docutils literal notranslate"><span class="pre">tf.keras</span></code>.
 Note that only <code class="docutils literal notranslate"><span class="pre">tensorflow&gt;=2.3</span></code> are supported.
@@ -287,8 +289,8 @@ As an example, try running the
 <p>Refer to the autologging tracking documentation for more
 information on <a class="reference external" href="https://www.mlflow.org/docs/latest/tracking.html#tensorflow-and-keras-experimental">TensorFlow workflows</a>.</p>
 <p>Note that autologging cannot be used together with explicit MLflow callback, i.e.,
-<cite>mlflow.tensorflow.MLflowCallback</cite>, because it will cause the same metrics to be logged twice.
-If you want to include <cite>mlflow.tensorflow.MLflowCallback</cite> in the callback list, please turn off
+<cite>mlflow.tensorflow.MlflowCallback</cite>, because it will cause the same metrics to be logged twice.
+If you want to include <cite>mlflow.tensorflow.MlflowCallback</cite> in the callback list, please turn off
 autologging by calling <cite>mlflow.tensorflow.autolog(disable=True)</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">param every_n_iter</dt>
@@ -394,8 +396,8 @@ every epoch). Defaults to <cite>“epoch”</cite>.</p>
 </dl>
 <span class="target" id="module-mlflow.keras.callback"></span><p>Keras 3 callback to log information to MLflow.</p>
 <dl class="py class">
-<dt id="mlflow.keras.callback.MLflowCallback">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">mlflow.keras.callback.</span></code><code class="sig-name descname"><span class="pre">MLflowCallback</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_every_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_every_n_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/keras/callback.html#MLflowCallback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.keras.callback.MLflowCallback" title="Permalink to this definition"> </a></dt>
+<dt id="mlflow.keras.callback.MlflowCallback">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">mlflow.keras.callback.</span></code><code class="sig-name descname"><span class="pre">MlflowCallback</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_every_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_every_n_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/keras/callback.html#MlflowCallback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.keras.callback.MlflowCallback" title="Permalink to this definition"> </a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">keras.callbacks.Callback</span></code></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -441,33 +443,33 @@ every n steps (defined by the user) to MLflow.</p>
         <span class="n">label</span><span class="p">,</span>
         <span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
         <span class="n">epochs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">mlflow</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">MLflowCallback</span><span class="p">()],</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">mlflow</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">MlflowCallback</span><span class="p">()],</span>
     <span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div></blockquote>
 <dl class="py method">
-<dt id="mlflow.keras.callback.MLflowCallback.on_batch_end">
-<code class="sig-name descname"><span class="pre">on_batch_end</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/keras/callback.html#MLflowCallback.on_batch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.keras.callback.MLflowCallback.on_batch_end" title="Permalink to this definition"> </a></dt>
+<dt id="mlflow.keras.callback.MlflowCallback.on_batch_end">
+<code class="sig-name descname"><span class="pre">on_batch_end</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/keras/callback.html#MlflowCallback.on_batch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.keras.callback.MlflowCallback.on_batch_end" title="Permalink to this definition"> </a></dt>
 <dd><p>Log metrics at the end of each batch with user specified frequency.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="mlflow.keras.callback.MLflowCallback.on_epoch_end">
-<code class="sig-name descname"><span class="pre">on_epoch_end</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/keras/callback.html#MLflowCallback.on_epoch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.keras.callback.MLflowCallback.on_epoch_end" title="Permalink to this definition"> </a></dt>
+<dt id="mlflow.keras.callback.MlflowCallback.on_epoch_end">
+<code class="sig-name descname"><span class="pre">on_epoch_end</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/keras/callback.html#MlflowCallback.on_epoch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.keras.callback.MlflowCallback.on_epoch_end" title="Permalink to this definition"> </a></dt>
 <dd><p>Log metrics at the end of each epoch.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="mlflow.keras.callback.MLflowCallback.on_test_end">
-<code class="sig-name descname"><span class="pre">on_test_end</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/keras/callback.html#MLflowCallback.on_test_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.keras.callback.MLflowCallback.on_test_end" title="Permalink to this definition"> </a></dt>
+<dt id="mlflow.keras.callback.MlflowCallback.on_test_end">
+<code class="sig-name descname"><span class="pre">on_test_end</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/keras/callback.html#MlflowCallback.on_test_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.keras.callback.MlflowCallback.on_test_end" title="Permalink to this definition"> </a></dt>
 <dd><p>Log validation metrics at validation end.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="mlflow.keras.callback.MLflowCallback.on_train_begin">
-<code class="sig-name descname"><span class="pre">on_train_begin</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/keras/callback.html#MLflowCallback.on_train_begin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.keras.callback.MLflowCallback.on_train_begin" title="Permalink to this definition"> </a></dt>
+<dt id="mlflow.keras.callback.MlflowCallback.on_train_begin">
+<code class="sig-name descname"><span class="pre">on_train_begin</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/keras/callback.html#MlflowCallback.on_train_begin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.keras.callback.MlflowCallback.on_train_begin" title="Permalink to this definition"> </a></dt>
 <dd><p>Log model architecture and optimizer configuration when training begins.</p>
 </dd></dl>
 
@@ -875,7 +877,7 @@ method.</p></li>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.11.4.dev0',
+      VERSION:'2.13.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

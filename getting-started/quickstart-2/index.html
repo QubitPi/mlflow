@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quickstart: Compare runs, choose a model, and deploy it to a REST API &mdash; MLflow 2.11.4.dev0 documentation</title>
+  <title>Quickstart: Compare runs, choose a model, and deploy it to a REST API &mdash; MLflow 2.13.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Getting Started with MLflow" href="../index.html"/>
         <link rel="next" title="5 Minute Tracking Server Overview" href="/../tracking-server-overview/index.html"/>
         <link rel="prev" title="MLflow 5 minute Tracking Quickstart" href="/../intro-quickstart/notebooks/tracking_quickstart.html"/> 
@@ -75,7 +75,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.11.4.dev0</span>
+    <span class="version">2.13.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -274,10 +274,12 @@ free-of-charge solution with Databricks Community Edition, please see <a class="
 parameters, results, and model itself of each trial as a child run.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="n">valid_x</span><span class="p">,</span> <span class="n">valid_y</span><span class="p">,</span> <span class="n">test_x</span><span class="p">,</span> <span class="n">test_y</span><span class="p">):</span>
     <span class="c1"># Define model architecture</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">([</span><span class="n">train_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]]),</span>
-            <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Normalization</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">train_x</span><span class="p">),</span> <span class="n">variance</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">train_x</span><span class="p">)),</span>
+            <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Normalization</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="n">mean</span><span class="p">,</span> <span class="n">variance</span><span class="o">=</span><span class="n">var</span><span class="p">),</span>
             <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">),</span>
             <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
         <span class="p">]</span>
@@ -679,7 +681,7 @@ platforms and versions. Again, you will need to consult your cloud provider’s 
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.11.4.dev0',
+      VERSION:'2.13.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

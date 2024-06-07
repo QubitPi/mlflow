@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.diviner &mdash; MLflow 2.11.4.dev0 documentation</title>
+  <title>mlflow.diviner &mdash; MLflow 2.13.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -74,7 +74,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.11.4.dev0</span>
+    <span class="version">2.13.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -258,8 +258,6 @@
 <span class="n">_FLAVOR_KEY</span> <span class="o">=</span> <span class="s2">&quot;flavors&quot;</span>
 <span class="n">_SPARK_MODEL_INDICATOR</span> <span class="o">=</span> <span class="s2">&quot;fit_with_spark&quot;</span>
 
-<span class="n">model_data_artifact_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">_MODEL_BINARY_FILE_NAME</span><span class="p">]</span>
-
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
@@ -303,9 +301,7 @@
 <span class="sd">            ``DataFrame``.</span>
 <span class="sd">        path: Local path destination for the serialized model is to be saved.</span>
 <span class="sd">        conda_env: {{ conda_env }}</span>
-<span class="sd">        code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
-<span class="sd">            containing file dependencies). These files are *prepended* to the system</span>
-<span class="sd">            path when the model is loaded.</span>
+<span class="sd">        code_paths: {{ code_paths }}</span>
 <span class="sd">        mlflow_model: :py:mod:`mlflow.models.Model` the flavor that this model is being added to.</span>
 <span class="sd">        signature: :py:class:`Model Signature &lt;mlflow.models.ModelSignature&gt;` describes model</span>
 <span class="sd">            input and output :py:class:`Schema &lt;mlflow.types.Schema&gt;`. The model</span>
@@ -325,11 +321,7 @@
 <span class="sd">        input_example: {{ input_example }}</span>
 <span class="sd">        pip_requirements: {{ pip_requirements }}</span>
 <span class="sd">        extra_pip_requirements: {{ extra_pip_requirements }}</span>
-<span class="sd">        metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
-
-<span class="sd">            .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                release without warning.</span>
-
+<span class="sd">        metadata: {{ metadata }}</span>
 <span class="sd">        kwargs: Optional configurations for Spark DataFrame storage iff the model has</span>
 <span class="sd">            been fit in Spark.</span>
 <span class="sd">            Current supported options:</span>
@@ -564,9 +556,7 @@
 <span class="sd">        diviner_model: ``Diviner`` model that has been ``fit`` on a grouped temporal ``DataFrame``.</span>
 <span class="sd">        artifact_path: Run-relative artifact path to save the model instance to.</span>
 <span class="sd">        conda_env: {{ conda_env }}</span>
-<span class="sd">        code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
-<span class="sd">            containing file dependencies). These files are *prepended* to the system</span>
-<span class="sd">            path when the model is loaded.</span>
+<span class="sd">        code_paths: {{ code_paths }}</span>
 <span class="sd">        registered_model_name: This argument may change or be removed in a</span>
 <span class="sd">            future release without warning. If given, create a model</span>
 <span class="sd">            version under ``registered_model_name``, also creating a</span>
@@ -601,11 +591,7 @@
 <span class="sd">            Specify 0 or None to skip waiting.</span>
 <span class="sd">        pip_requirements: {{ pip_requirements }}</span>
 <span class="sd">        extra_pip_requirements: {{ extra_pip_requirements }}</span>
-<span class="sd">        metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
-
-<span class="sd">            .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                release without warning.</span>
-
+<span class="sd">        metadata: {{ metadata }}</span>
 <span class="sd">        kwargs: Additional arguments for :py:class:`mlflow.models.model.Model`</span>
 <span class="sd">            Additionally, for models that have been fit in Spark, the following supported</span>
 <span class="sd">            configuration options are available to set.</span>
@@ -677,9 +663,6 @@
 <span class="sd">                Will generate 30 days of forecasted values for each group that the model</span>
 <span class="sd">                was trained on.</span>
 <span class="sd">            params: Additional parameters to pass to the model for inference.</span>
-
-<span class="sd">                .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                    release without warning.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A Pandas DataFrame containing the forecasted values for each group key that was</span>
@@ -818,7 +801,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.11.4.dev0',
+      VERSION:'2.13.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

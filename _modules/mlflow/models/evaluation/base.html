@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.models.evaluation.base &mdash; MLflow 2.11.4.dev0 documentation</title>
+  <title>mlflow.models.evaluation.base &mdash; MLflow 2.13.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../../search.html"/>
-    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../../../index.html"/>
+    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../../../../index.html"/>
         <link rel="up" title="Module code" href="../../../index.html"/> 
 
   
@@ -74,7 +74,7 @@
     <a href="../../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.11.4.dev0</span>
+    <span class="version">2.13.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -207,6 +207,8 @@
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">FunctionType</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
+<span class="kn">from</span> <span class="nn">packaging.version</span> <span class="kn">import</span> <span class="n">Version</span>
+
 <span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">from</span> <span class="nn">mlflow.data.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 <span class="kn">from</span> <span class="nn">mlflow.entities</span> <span class="kn">import</span> <span class="n">RunTag</span>
@@ -305,6 +307,7 @@
 <span class="sd">            ``&quot;root_mean_squared_error&quot;`` for ``&quot;mse&quot;``.</span>
 <span class="sd">        version: (Optional) The metric version. For example ``v1``.</span>
 <span class="sd">        metric_details: (Optional) A description of the metric and how it is calculated.</span>
+<span class="sd">        metric_metadata: (Optional) A dictionary containing metadata for the metric.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -315,6 +318,7 @@
         <span class="n">long_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">metric_details</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">metric_metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eval_fn</span> <span class="o">=</span> <span class="n">eval_fn</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
@@ -322,6 +326,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="n">long_name</span> <span class="ow">or</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metric_details</span> <span class="o">=</span> <span class="n">metric_details</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric_metadata</span> <span class="o">=</span> <span class="n">metric_metadata</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, greater_is_better=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">greater_is_better</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
@@ -332,6 +337,8 @@
             <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;version=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_details</span><span class="p">:</span>
             <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;metric_details=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_details</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_metadata</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;metric_metadata=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_metadata</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="s2">&quot;EvaluationMetric(&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span></div>
 
@@ -344,6 +351,7 @@
     <span class="n">long_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">metric_details</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">metric_metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    A factory function to create an :py:class:`EvaluationMetric` object.</span>
@@ -391,6 +399,7 @@
 <span class="sd">            for ``&quot;mse&quot;``.</span>
 <span class="sd">        version: (Optional) The metric version. For example ``v1``.</span>
 <span class="sd">        metric_details: (Optional) A description of the metric and how it is calculated.</span>
+<span class="sd">        metric_metadata: (Optional) A dictionary containing metadata for the metric.</span>
 
 <span class="sd">    .. seealso::</span>
 
@@ -437,7 +446,15 @@
             <span class="s2">&quot;name to enable creation of derived metrics that use the given metric.&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">EvaluationMetric</span><span class="p">(</span><span class="n">eval_fn</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">greater_is_better</span><span class="p">,</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">metric_details</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">EvaluationMetric</span><span class="p">(</span>
+        <span class="n">eval_fn</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">greater_is_better</span><span class="p">,</span>
+        <span class="n">long_name</span><span class="p">,</span>
+        <span class="n">version</span><span class="p">,</span>
+        <span class="n">metric_details</span><span class="p">,</span>
+        <span class="n">metric_metadata</span><span class="p">,</span>
+    <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="EvaluationArtifact"><a class="viewcode-back" href="../../../../python_api/mlflow.models.html#mlflow.EvaluationArtifact">[docs]</a><span class="nd">@developer_stable</span>
@@ -456,7 +473,6 @@
 <span class="sd">        Abstract interface to load the content from local artifact file path,</span>
 <span class="sd">        and return the loaded content.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local_artifact_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -477,7 +493,6 @@
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_artifact_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save artifact content into specified path.&quot;&quot;&quot;</span>
-        <span class="k">pass</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">content</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -667,13 +682,15 @@
 
 
 <span class="k">def</span> <span class="nf">_hash_data_as_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
-        <span class="k">return</span> <span class="n">_hash_ndarray_as_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">_hash_dict_as_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">_hash_uint64_ndarray_as_bytes</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">hash_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">data</span><span class="p">])))</span>
-    <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported data type for hashing: `</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">_hash_ndarray_as_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">_hash_dict_as_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">_hash_uint64_ndarray_as_bytes</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">hash_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">data</span><span class="p">])))</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>  <span class="c1"># Skip unsupported types by returning an empty byte string</span>
 
 
 <span class="k">def</span> <span class="nf">_hash_dict_as_bytes</span><span class="p">(</span><span class="n">data_dict</span><span class="p">):</span>
@@ -706,9 +723,18 @@
                     <span class="k">return</span> <span class="n">_hash_ndarray_as_bytes</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">toArray</span><span class="p">())</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
                 <span class="k">return</span> <span class="n">_hash_data_as_bytes</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">v</span>
 
-        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="n">_hash_array_like_element_as_bytes</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Attempt to hash the value, if it fails, return an empty byte string</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">hash_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span><span class="p">]))</span>
+                <span class="k">return</span> <span class="n">v</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>  <span class="c1"># Skip unhashable types by returning an empty byte string</span>
+
+        <span class="k">if</span> <span class="n">Version</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">Version</span><span class="p">(</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_hash_array_like_element_as_bytes</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="n">_hash_array_like_element_as_bytes</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_hash_uint64_ndarray_as_bytes</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">hash_pandas_object</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
         <span class="c1"># convert numpy array of lists into numpy array of the string representation of the lists</span>
@@ -790,7 +816,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_targets</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_predictions_data</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_predictions_name</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_has_predictions</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_has_predictions</span> <span class="o">=</span> <span class="n">predictions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># add checking `&#39;pyspark&#39; in sys.modules` to avoid importing pyspark when user</span>
@@ -807,6 +833,12 @@
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
                 <span class="n">message</span><span class="o">=</span><span class="s2">&quot;`feature_names` argument must be a list containing unique feature names.&quot;</span><span class="p">,</span>
                 <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_predictions</span><span class="p">:</span>
+            <span class="n">_validate_dataset_type_supports_predictions</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                <span class="n">supported_predictions_dataset_types</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_supported_dataframe_types</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="n">has_targets</span> <span class="o">=</span> <span class="n">targets</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -891,7 +923,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_labels_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">targets</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_targets_name</span> <span class="o">=</span> <span class="n">targets</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_has_predictions</span> <span class="o">=</span> <span class="n">predictions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_predictions</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_predictions_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">predictions</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_predictions_name</span> <span class="o">=</span> <span class="n">predictions</span>
@@ -1076,6 +1107,7 @@
 <span class="sd">                the evaluator.</span>
 <span class="sd">            kwargs: For forwards compatibility, a placeholder for additional arguments</span>
 <span class="sd">                that may be added to the evaluation interface in the future.</span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            True if the evaluator can evaluate the specified model on the</span>
 <span class="sd">            specified dataset. False otherwise.</span>
@@ -1175,11 +1207,13 @@
     <span class="k">if</span> <span class="n">evaluators</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">evaluator_name_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_model_evaluation_registry</span><span class="o">.</span><span class="n">_registry</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">evaluator_name_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Multiple registered evaluators are found </span><span class="si">{</span><span class="n">evaluator_name_list</span><span class="si">}</span><span class="s2"> and &quot;</span>
-                <span class="s2">&quot;they will all be used in evaluation if they support the specified model type. &quot;</span>
-                <span class="s2">&quot;If you want to evaluate with one evaluator, specify the `evaluator` argument &quot;</span>
-                <span class="s2">&quot;and optionally specify the `evaluator_config` argument.&quot;</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Multiple registered evaluators have been configured: </span><span class="si">{</span><span class="n">evaluator_name_list</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Each evaluator will be used for evaluation if the specified model type is &quot;</span>
+                <span class="s2">&quot;compatible with the evaluator definition. If you are intending to override &quot;</span>
+                <span class="s2">&quot;the default evaluator, define your custom evaluator by declaring it via the &quot;</span>
+                <span class="s2">&quot;`evaluator` argument. If your evaluator requires additional configuration, &quot;</span>
+                <span class="s2">&quot;ensure that it is provided by specifying the `evaluator_config` argument.&quot;</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">evaluator_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">conf_dict_value_error</span> <span class="o">=</span> <span class="n">MlflowException</span><span class="p">(</span>
@@ -1369,8 +1403,16 @@
 
 <span class="k">def</span> <span class="nf">_convert_data_to_mlflow_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert input data to mlflow dataset.&quot;&quot;&quot;</span>
+    <span class="n">supported_dataframe_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
     <span class="k">if</span> <span class="s2">&quot;pyspark&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">DataFrame</span> <span class="k">as</span> <span class="n">SparkDataFrame</span>
+
+        <span class="n">supported_dataframe_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SparkDataFrame</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">predictions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_validate_dataset_type_supports_predictions</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">supported_predictions_dataset_types</span><span class="o">=</span><span class="n">supported_dataframe_types</span>
+        <span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="c1"># If the list is flat, we assume each element is an independent sample.</span>
@@ -1385,7 +1427,7 @@
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">)</span>
     <span class="k">elif</span> <span class="s2">&quot;pyspark&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">SparkDataFrame</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">from_spark</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">from_spark</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Cannot convert to mlflow dataset, return original data.</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -1393,6 +1435,21 @@
             <span class="sa">f</span><span class="s2">&quot;a numpy array, a panda Dataframe or a spark Dataframe, but received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_dataset_type_supports_predictions</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">supported_predictions_dataset_types</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate that the dataset type supports a user-specified &quot;predictions&quot; column.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sdt</span><span class="p">)</span> <span class="k">for</span> <span class="n">sdt</span> <span class="ow">in</span> <span class="n">supported_predictions_dataset_types</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+            <span class="n">message</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;If predictions is specified, data must be one of the following types, or an&quot;</span>
+                <span class="s2">&quot; MLflow Dataset that represents one of the following types:&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">supported_predictions_dataset_types</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">),</span>
+            <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
+        <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span>
@@ -1438,7 +1495,7 @@
 
         <span class="n">_last_failed_evaluator</span> <span class="o">=</span> <span class="n">evaluator_name</span>
         <span class="k">if</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">can_evaluate</span><span class="p">(</span><span class="n">model_type</span><span class="o">=</span><span class="n">model_type</span><span class="p">,</span> <span class="n">evaluator_config</span><span class="o">=</span><span class="n">config</span><span class="p">):</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Evaluating the model with the </span><span class="si">{</span><span class="n">evaluator_name</span><span class="si">}</span><span class="s2"> evaluator.&quot;</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Evaluating the model with the </span><span class="si">{</span><span class="n">evaluator_name</span><span class="si">}</span><span class="s2"> evaluator.&quot;</span><span class="p">)</span>
             <span class="n">eval_result</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
                 <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
                 <span class="n">model_type</span><span class="o">=</span><span class="n">model_type</span><span class="p">,</span>
@@ -1841,14 +1898,13 @@
 <span class="sd">            ``data`` is a :py:class:`mlflow.data.dataset.Dataset` that defines targets,</span>
 <span class="sd">            then ``targets`` is optional.</span>
 
-<span class="sd">        predictions: Optional. The name of the column that contains model outputs. There are two</span>
-<span class="sd">            cases where this argument is required:</span>
+<span class="sd">        predictions: Optional. The name of the column that contains model outputs.</span>
 
-<span class="sd">            - When ``model`` is specified and outputs multiple columns. The</span>
-<span class="sd">              ``predictions`` should be the name of the column that is used for</span>
+<span class="sd">            - When ``model`` is specified and outputs multiple columns, ``predictions`` can be used</span>
+<span class="sd">              to specify the name of the column that will be used to store model outputs for</span>
 <span class="sd">              evaluation.</span>
-<span class="sd">            - When ``model`` is not specified and ``data`` is a pandas dataframe. The</span>
-<span class="sd">              ``predictions`` should be the name of the column in ``data`` that</span>
+<span class="sd">            - When ``model`` is not specified and ``data`` is a pandas dataframe,</span>
+<span class="sd">              ``predictions`` can be used to specify the name of the column in ``data`` that</span>
 <span class="sd">              contains model outputs.</span>
 
 <span class="sd">            .. code-block:: python</span>
@@ -2182,37 +2238,9 @@
                 <span class="s2">&quot;the desired configuration there.&quot;</span><span class="p">,</span>
                 <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="k">pass</span>
-    <span class="k">elif</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># Evaluating a static dataset</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="c1"># If data is a pandas dataframe, predictions must be specified</span>
-            <span class="k">if</span> <span class="n">predictions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-                    <span class="n">message</span><span class="o">=</span><span class="s2">&quot;The model output must be specified in the predictions &quot;</span>
-                    <span class="s2">&quot;parameter when model=None.&quot;</span><span class="p">,</span>
-                    <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
-                <span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pandas_dataset</span><span class="o">.</span><span class="n">PandasDataset</span><span class="p">):</span>
-            <span class="c1"># If data is a mlflow PandasDataset, data.predictions must be specified</span>
-            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">predictions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-                    <span class="n">message</span><span class="o">=</span><span class="s2">&quot;The predictions parameter must be specified with the provided &quot;</span>
-                    <span class="s2">&quot;PandasDataset when model=None. For example: &quot;</span>
-                    <span class="s2">&quot;`data = mlflow.data.from_pandas(df=X.assign(y=y), predictions=&#39;y&#39;)`&quot;</span><span class="p">,</span>
-                    <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
-                <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Other data formats are not supported</span>
-            <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;The data must be a pandas dataframe or mlflow.data.pandas_dataset.&quot;</span>
-                <span class="s2">&quot;PandasDataset when model=None.&quot;</span><span class="p">,</span>
-                <span class="n">error_code</span><span class="o">=</span><span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
-            <span class="p">)</span>
-
     <span class="k">elif</span> <span class="nb">callable</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">_get_model_from_function</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
             <span class="n">message</span><span class="o">=</span><span class="s2">&quot;The model argument must be a string URI referring to an MLflow model, &quot;</span>
             <span class="s2">&quot;an MLflow Deployments endpoint URI, an instance of `mlflow.pyfunc.PyFuncModel`, &quot;</span>
@@ -2285,6 +2313,7 @@
                 <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span>
                 <span class="n">path</span><span class="o">=</span><span class="n">dataset_path</span><span class="p">,</span>
                 <span class="n">feature_names</span><span class="o">=</span><span class="n">feature_names</span><span class="p">,</span>
+                <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="n">predictions_expected_in_model_output</span> <span class="o">=</span> <span class="n">predictions</span> <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
@@ -2350,7 +2379,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../../',
-      VERSION:'2.11.4.dev0',
+      VERSION:'2.13.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

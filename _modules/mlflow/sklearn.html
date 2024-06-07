@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.sklearn &mdash; MLflow 2.11.4.dev0 documentation</title>
+  <title>mlflow.sklearn &mdash; MLflow 2.13.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -74,7 +74,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.11.4.dev0</span>
+    <span class="version">2.13.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -279,7 +279,6 @@
 <span class="n">_SklearnTrainingSession</span> <span class="o">=</span> <span class="n">_get_new_training_session_class</span><span class="p">()</span>
 
 <span class="n">_MODEL_DATA_SUBPATH</span> <span class="o">=</span> <span class="s2">&quot;model.pkl&quot;</span>
-<span class="n">model_data_artifact_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">_MODEL_DATA_SUBPATH</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">_gen_estimators_to_patch</span><span class="p">():</span>
@@ -371,9 +370,7 @@
 <span class="sd">        sk_model: scikit-learn model to be saved.</span>
 <span class="sd">        path: Local path where the model is to be saved.</span>
 <span class="sd">        conda_env: {{ conda_env }}</span>
-<span class="sd">        code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
-<span class="sd">            containing file dependencies). These files are *prepended* to the system</span>
-<span class="sd">            path when the model is loaded.</span>
+<span class="sd">        code_paths: {{ code_paths }}</span>
 <span class="sd">        mlflow_model: :py:mod:`mlflow.models.Model` this flavor is being added to.</span>
 <span class="sd">        serialization_format: The format in which to serialize the model. This should be one of</span>
 <span class="sd">            the formats listed in</span>
@@ -387,11 +384,10 @@
 <span class="sd">        pip_requirements: {{ pip_requirements }}</span>
 <span class="sd">        extra_pip_requirements: {{ extra_pip_requirements }}</span>
 <span class="sd">        pyfunc_predict_fn: The name of the prediction function to use for inference with the</span>
-<span class="sd">            pyfunc representation of the resulting MLflow Model; e.g. ``&quot;predict_proba&quot;``.</span>
-<span class="sd">        metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
-
-<span class="sd">            .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                                    release without warning.</span>
+<span class="sd">            pyfunc representation of the resulting MLflow Model. Current supported functions</span>
+<span class="sd">            are: ``&quot;predict&quot;``, ``&quot;predict_proba&quot;``, ``&quot;predict_log_proba&quot;``,</span>
+<span class="sd">            ``&quot;predict_joint_log_proba&quot;``, and ``&quot;score&quot;``.</span>
+<span class="sd">        metadata: {{ metadata }}</span>
 
 <span class="sd">    .. code-block:: python</span>
 <span class="sd">        :caption: Example</span>
@@ -552,9 +548,7 @@
 <span class="sd">        sk_model: scikit-learn model to be saved.</span>
 <span class="sd">        artifact_path: Run-relative artifact path.</span>
 <span class="sd">        conda_env: {{ conda_env }}</span>
-<span class="sd">        code_paths: A list of local filesystem paths to Python file dependencies (or directories</span>
-<span class="sd">            containing file dependencies). These files are *prepended* to the system</span>
-<span class="sd">            path when the model is loaded.</span>
+<span class="sd">        code_paths: {{ code_paths }}</span>
 <span class="sd">        serialization_format: The format in which to serialize the model. This should be one of</span>
 <span class="sd">            the formats listed in</span>
 <span class="sd">            ``mlflow.sklearn.SUPPORTED_SERIALIZATION_FORMATS``. The Cloudpickle</span>
@@ -572,11 +566,10 @@
 <span class="sd">        pip_requirements: {{ pip_requirements }}</span>
 <span class="sd">        extra_pip_requirements: {{ extra_pip_requirements }}</span>
 <span class="sd">        pyfunc_predict_fn: The name of the prediction function to use for inference with the</span>
-<span class="sd">            pyfunc representation of the resulting MLflow Model; e.g. ``&quot;predict_proba&quot;``.</span>
-<span class="sd">        metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
-
-<span class="sd">            .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                                    release without warning.</span>
+<span class="sd">            pyfunc representation of the resulting MLflow Model. Current supported functions</span>
+<span class="sd">            are: ``&quot;predict&quot;``, ``&quot;predict_proba&quot;``, ``&quot;predict_log_proba&quot;``,</span>
+<span class="sd">            ``&quot;predict_joint_log_proba&quot;``, and ``&quot;score&quot;``.</span>
+<span class="sd">        metadata: {{ metadata }}</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :py:class:`ModelInfo &lt;mlflow.models.model.ModelInfo&gt;` instance that contains the</span>
@@ -699,8 +692,21 @@
 
 
 <span class="k">class</span> <span class="nc">_SklearnModelWrapper</span><span class="p">:</span>
+    <span class="n">_SUPPORTED_CUSTOM_PREDICT_FN</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;predict_proba&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;predict_log_proba&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;predict_joint_log_proba&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;score&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sklearn_model</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sklearn_model</span> <span class="o">=</span> <span class="n">sklearn_model</span>
+
+        <span class="c1"># Patch the model with custom predict functions that can be specified</span>
+        <span class="c1"># via `pyfunc_predict_fn` argument when saving or logging.</span>
+        <span class="k">for</span> <span class="n">predict_fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_SUPPORTED_CUSTOM_PREDICT_FN</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fn</span> <span class="o">:=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sklearn_model</span><span class="p">,</span> <span class="n">predict_fn</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predict_fn</span><span class="p">,</span> <span class="n">fn</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -712,21 +718,10 @@
 <span class="sd">            data: Model input data.</span>
 <span class="sd">            params: Additional parameters to pass to the model for inference.</span>
 
-<span class="sd">                .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                                        release without warning.</span>
-
 <span class="sd">        Returns:</span>
 <span class="sd">            Model predictions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sklearn_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sklearn_model</span><span class="p">,</span> <span class="s2">&quot;predict_proba&quot;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sklearn_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sklearn_model</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sklearn_model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">_SklearnCustomModelPicklingError</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">PicklingError</span><span class="p">):</span>
@@ -2146,7 +2141,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.11.4.dev0',
+      VERSION:'2.13.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

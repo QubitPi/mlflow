@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.tracking._tracking_service.utils &mdash; MLflow 2.11.4.dev0 documentation</title>
+  <title>mlflow.tracking._tracking_service.utils &mdash; MLflow 2.13.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../../search.html"/>
-    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../../../index.html"/>
+    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../../../../index.html"/>
         <link rel="up" title="Module code" href="../../../index.html"/> 
 
   
@@ -74,7 +74,7 @@
     <a href="../../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.11.4.dev0</span>
+    <span class="version">2.13.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -190,16 +190,18 @@
   <h1>Source code for mlflow.tracking._tracking_service.utils</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">mlflow.environment_variables</span> <span class="kn">import</span> <span class="n">MLFLOW_TRACKING_URI</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.db.db_types</span> <span class="kn">import</span> <span class="n">DATABASE_ENGINES</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.tracking</span> <span class="kn">import</span> <span class="n">DEFAULT_LOCAL_FILE_AND_ARTIFACT_PATH</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.tracking.file_store</span> <span class="kn">import</span> <span class="n">FileStore</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.tracking.rest_store</span> <span class="kn">import</span> <span class="n">RestStore</span>
+<span class="kn">from</span> <span class="nn">mlflow.tracing.provider</span> <span class="kn">import</span> <span class="n">reset_tracer_setup</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking._tracking_service.registry</span> <span class="kn">import</span> <span class="n">TrackingStoreRegistry</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.credentials</span> <span class="kn">import</span> <span class="n">get_default_host_creds</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.databricks_utils</span> <span class="kn">import</span> <span class="n">get_databricks_host_creds</span>
@@ -255,11 +257,18 @@
         <span class="c1"># then .resolve() to clean the path</span>
         <span class="n">uri</span> <span class="o">=</span> <span class="n">uri</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">as_uri</span><span class="p">()</span>
     <span class="k">global</span> <span class="n">_tracking_uri</span>
-    <span class="n">_tracking_uri</span> <span class="o">=</span> <span class="n">uri</span></div>
+
+    <span class="k">if</span> <span class="n">_tracking_uri</span> <span class="o">!=</span> <span class="n">uri</span><span class="p">:</span>
+        <span class="n">_tracking_uri</span> <span class="o">=</span> <span class="n">uri</span>
+
+        <span class="c1"># Tracer provider uses tracking URI to determine where to export traces.</span>
+        <span class="c1"># Tracer provider stores the URI as its state so we need to reset</span>
+        <span class="c1"># it explicitly when the global tracking URI changes.</span>
+        <span class="n">reset_tracer_setup</span><span class="p">()</span></div>
 
 
 <span class="nd">@contextmanager</span>
-<span class="k">def</span> <span class="nf">_use_tracking_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_use_tracking_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Temporarily use the specified tracking URI.</span>
 
 <span class="sd">    Args:</span>
@@ -269,10 +278,10 @@
     <span class="k">global</span> <span class="n">_tracking_uri</span>
     <span class="n">old_tracking_uri</span> <span class="o">=</span> <span class="n">_tracking_uri</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">_tracking_uri</span> <span class="o">=</span> <span class="n">uri</span>
+        <span class="n">set_tracking_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
         <span class="k">yield</span>
     <span class="k">finally</span><span class="p">:</span>
-        <span class="n">_tracking_uri</span> <span class="o">=</span> <span class="n">old_tracking_uri</span>
+        <span class="n">set_tracking_uri</span><span class="p">(</span><span class="n">old_tracking_uri</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_resolve_tracking_uri</span><span class="p">(</span><span class="n">tracking_uri</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -386,6 +395,13 @@
     <span class="k">return</span> <span class="n">_tracking_store_registry</span><span class="o">.</span><span class="n">get_store</span><span class="p">(</span><span class="n">store_uri</span><span class="p">,</span> <span class="n">artifact_uri</span><span class="p">)</span>
 
 
+<span class="n">_artifact_repos_cache</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_get_artifact_repo</span><span class="p">(</span><span class="n">run_id</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_artifact_repos_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
+
+
 <span class="c1"># TODO(sueann): move to a projects utils module</span>
 <span class="k">def</span> <span class="nf">_get_git_url_if_present</span><span class="p">(</span><span class="n">uri</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the path git_uri#sub_directory if the URI passed is a local path that&#39;s part of</span>
@@ -458,7 +474,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../../',
-      VERSION:'2.11.4.dev0',
+      VERSION:'2.13.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>MLflow Tracking Server &mdash; MLflow 2.11.4.dev0 documentation</title>
+  <title>MLflow Tracking Server &mdash; MLflow 2.13.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +48,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../index.html"/>
         <link rel="up" title="MLflow Tracking" href="../tracking.html"/>
         <link rel="next" title="Tracking Experiments with a Local Database" href="/tutorials/local-database.html"/>
         <link rel="prev" title="Artifact Stores" href="/artifacts-stores.html"/> 
@@ -75,7 +75,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.11.4.dev0</span>
+    <span class="version">2.13.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -304,11 +304,6 @@ You can configure the different backend store by adding <code class="docutils li
 </pre></div>
 </div>
 <p>This will create a SQLite database <code class="docutils literal notranslate"><span class="pre">my.db</span></code> in the current directory, and logging requests from clients will be pointed to this database.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If you are using a SQL-based backend store, the artifact store URI has to be specified, otherwise the server will fail to start (because we can’t store artifacts to a SQL database).
-Refer to the section below for details on how to configure the artifact store URI when using a SQL-based backend store.</p>
-</div>
 </div>
 <div class="section" id="remote-artifacts-store">
 <span id="tracking-server-artifact-store"></span><h3>Remote artifacts store<a class="headerlink" href="#remote-artifacts-store" title="Permalink to this headline"> </a></h3>
@@ -383,8 +378,13 @@ from all other tracking server event handling.</p>
 handling (i.e., model logging, loading models, logging artifacts, listing artifacts, etc.) will return an HTTPError.
 See the following example of a client REST call in Python attempting to list experiments from a server that is configured in
 <code class="docutils literal notranslate"><span class="pre">--artifacts-only</span></code> mode:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Lauch the artifact-only server</span>
+mlflow<span class="w"> </span>server<span class="w"> </span>--artifacts-only<span class="w"> </span>...
+</pre></div>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
 
+<span class="c1"># Attempt to list experiments from the server</span>
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://0.0.0.0:8885/api/2.0/mlflow/experiments/list&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -482,7 +482,7 @@ For example:</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.11.4.dev0',
+      VERSION:'2.13.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

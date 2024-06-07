@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.spark &mdash; MLflow 2.11.4.dev0 documentation</title>
+  <title>mlflow.spark &mdash; MLflow 2.13.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -74,7 +74,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.11.4.dev0</span>
+    <span class="version">2.13.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -276,8 +276,6 @@
 <span class="n">_SPARK_MODEL_PATH_SUB</span> <span class="o">=</span> <span class="s2">&quot;sparkml&quot;</span>
 <span class="n">_MLFLOWDBFS_SCHEME</span> <span class="o">=</span> <span class="s2">&quot;mlflowdbfs&quot;</span>
 
-<span class="n">model_data_artifact_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">_SPARK_MODEL_PATH_SUB</span><span class="p">]</span>
-
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -360,6 +358,7 @@
 <span class="sd">            MLReadable and MLWritable.</span>
 <span class="sd">        artifact_path: Run relative artifact path.</span>
 <span class="sd">        conda_env: {{ conda_env }}</span>
+<span class="sd">        code_paths: {{ code_paths }}</span>
 <span class="sd">        dfs_tmpdir: Temporary directory path on Distributed (Hadoop) File System (DFS) or local</span>
 <span class="sd">                        filesystem if running in local mode. The model is written in this</span>
 <span class="sd">                        destination and then copied into the model&#39;s artifact directory. This is</span>
@@ -380,10 +379,7 @@
 <span class="sd">            waits for five minutes. Specify 0 or None to skip waiting.</span>
 <span class="sd">        pip_requirements: {{ pip_requirements }}</span>
 <span class="sd">        extra_pip_requirements: {{ extra_pip_requirements }}</span>
-<span class="sd">        metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
-
-<span class="sd">            .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                                    release without warning.</span>
+<span class="sd">        metadata: {{ metadata }}</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :py:class:`ModelInfo &lt;mlflow.models.model.ModelInfo&gt;` instance that contains the</span>
@@ -847,6 +843,7 @@
 <span class="sd">        path: Local path where the model is to be saved.</span>
 <span class="sd">        mlflow_model: MLflow model config this flavor is being added to.</span>
 <span class="sd">        conda_env: {{ conda_env }}</span>
+<span class="sd">        code_paths: {{ code_paths }}</span>
 <span class="sd">        dfs_tmpdir: Temporary directory path on Distributed (Hadoop) File System (DFS) or local</span>
 <span class="sd">            filesystem if running in local mode. The model is be written in this</span>
 <span class="sd">            destination and then copied to the requested local path. This is necessary</span>
@@ -860,10 +857,7 @@
 <span class="sd">        input_example: {{ input_example }}</span>
 <span class="sd">        pip_requirements: {{ pip_requirements }}</span>
 <span class="sd">        extra_pip_requirements: {{ extra_pip_requirements }}</span>
-<span class="sd">        metadata: Custom metadata dictionary passed to the model and stored in the MLmodel file.</span>
-
-<span class="sd">            .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                                    release without warning.</span>
+<span class="sd">        metadata: {{ metadata }}</span>
 
 <span class="sd">    .. code-block:: python</span>
 <span class="sd">        :caption: Example</span>
@@ -1172,9 +1166,6 @@
 <span class="sd">            pandas_df: pandas DataFrame containing input data.</span>
 <span class="sd">            params: Additional parameters to pass to the model for inference.</span>
 
-<span class="sd">                .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                                        release without warning.</span>
-
 <span class="sd">        Returns:</span>
 <span class="sd">            List with model predictions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1358,7 +1349,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.11.4.dev0',
+      VERSION:'2.13.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

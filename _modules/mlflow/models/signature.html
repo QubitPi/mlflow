@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.models.signature &mdash; MLflow 2.11.4.dev0 documentation</title>
+  <title>mlflow.models.signature &mdash; MLflow 2.13.3.dev0 documentation</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +48,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.11.4.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -74,7 +74,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.11.4.dev0</span>
+    <span class="version">2.13.3.dev0</span>
   </li>
 </ul>
   </nav>
@@ -198,6 +198,7 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">is_dataclass</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">get_type_hints</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -212,7 +213,7 @@
 <span class="kn">from</span> <span class="nn">mlflow.store.artifact.models_artifact_repo</span> <span class="kn">import</span> <span class="n">ModelsArtifactRepository</span>
 <span class="kn">from</span> <span class="nn">mlflow.store.artifact.runs_artifact_repo</span> <span class="kn">import</span> <span class="n">RunsArtifactRepository</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="n">_download_artifact_from_uri</span><span class="p">,</span> <span class="n">_upload_artifact_to_uri</span>
-<span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">ParamSchema</span><span class="p">,</span> <span class="n">Schema</span>
+<span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">ParamSchema</span><span class="p">,</span> <span class="n">Schema</span><span class="p">,</span> <span class="n">convert_dataclass_to_schema</span>
 <span class="kn">from</span> <span class="nn">mlflow.types.utils</span> <span class="kn">import</span> <span class="n">_infer_param_schema</span><span class="p">,</span> <span class="n">_infer_schema</span><span class="p">,</span> <span class="n">_infer_schema_from_type_hint</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.uri</span> <span class="kn">import</span> <span class="n">append_to_uri_path</span>
 
@@ -247,15 +248,20 @@
 <span class="sd">    :py:class:`ParamSchema &lt;mlflow.types.ParamSchema&gt;`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Schema</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">outputs</span><span class="p">:</span> <span class="n">Schema</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamSchema</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">inputs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">Schema</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Schema</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">outputs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Schema</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">params</span><span class="p">:</span> <span class="n">ParamSchema</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">inputs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">Schema</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_dataclass</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s2">&quot;inputs must be either None or mlflow.models.signature.Schema, &quot;</span>
+                <span class="s2">&quot;inputs must be either None, mlflow.models.signature.Schema, or a dataclass,&quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;got &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="n">outputs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">Schema</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">outputs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">Schema</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_dataclass</span><span class="p">(</span><span class="n">outputs</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s2">&quot;outputs must be either None or mlflow.models.signature.Schema, &quot;</span>
+                <span class="s2">&quot;outputs must be either None, mlflow.models.signature.Schema, or a dataclass,&quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;got &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">params</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">ParamSchema</span><span class="p">):</span>
@@ -265,8 +271,14 @@
             <span class="p">)</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">params</span><span class="p">]):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;At least one of inputs, outputs or params must be provided&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span>
+        <span class="k">if</span> <span class="n">is_dataclass</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">convert_dataclass_to_schema</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span>
+        <span class="k">if</span> <span class="n">is_dataclass</span><span class="p">(</span><span class="n">outputs</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="n">convert_dataclass_to_schema</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
 
 <div class="viewcode-block" id="ModelSignature.to_dict"><a class="viewcode-back" href="../../../python_api/mlflow.models.html#mlflow.models.ModelSignature.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -399,9 +411,6 @@
 <span class="sd">                    # Passing params to `predict` function directly</span>
 <span class="sd">                    result = pyfunc_loaded.predict(data, params=params)</span>
 
-<span class="sd">              .. Note:: Experimental: This parameter may change or be removed in a future</span>
-<span class="sd">                                     release without warning.</span>
-
 <span class="sd">    Returns:</span>
 <span class="sd">      ModelSignature</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -532,7 +541,7 @@
 
 
 <span class="k">def</span> <span class="nf">_infer_signature_from_input_example</span><span class="p">(</span>
-    <span class="n">input_example</span><span class="p">:</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">wrapped_model</span>
+    <span class="n">input_example</span><span class="p">:</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">wrapped_model</span><span class="p">,</span> <span class="n">return_prediction</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">no_conversion</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelSignature</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Infer the signature from an example input and a PyFunc wrapped model. Catches all exceptions.</span>
@@ -551,9 +560,10 @@
             <span class="n">input_example</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">input_example</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">params</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">example</span> <span class="o">=</span> <span class="n">_Example</span><span class="p">(</span><span class="n">input_example</span><span class="p">)</span>
-        <span class="c1"># Copy the input example so that it is not mutated by predict()</span>
-        <span class="n">input_example</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">example</span><span class="o">.</span><span class="n">inference_data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">no_conversion</span><span class="p">:</span>
+            <span class="n">example</span> <span class="o">=</span> <span class="n">_Example</span><span class="p">(</span><span class="n">input_example</span><span class="p">)</span>
+            <span class="c1"># Copy the input example so that it is not mutated by predict()</span>
+            <span class="n">input_example</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">example</span><span class="o">.</span><span class="n">inference_data</span><span class="p">)</span>
         <span class="n">input_schema</span> <span class="o">=</span> <span class="n">_infer_schema</span><span class="p">(</span><span class="n">input_example</span><span class="p">)</span>
         <span class="n">params_schema</span> <span class="o">=</span> <span class="n">_infer_param_schema</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="k">if</span> <span class="n">params</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">prediction</span> <span class="o">=</span> <span class="n">wrapped_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">input_example</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
@@ -565,8 +575,19 @@
             <span class="ow">and</span> <span class="n">prediction</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span>
         <span class="p">):</span>
             <span class="n">prediction</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
-        <span class="n">output_schema</span> <span class="o">=</span> <span class="n">_infer_schema</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ModelSignature</span><span class="p">(</span><span class="n">input_schema</span><span class="p">,</span> <span class="n">output_schema</span><span class="p">,</span> <span class="n">params_schema</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">output_schema</span> <span class="o">=</span> <span class="n">_infer_schema</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Failed to infer model output schema from prediction &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;result </span><span class="si">{</span><span class="n">prediction</span><span class="si">}</span><span class="s2">. Detailed exception: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">signature</span> <span class="o">=</span> <span class="n">ModelSignature</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">input_schema</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params_schema</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">signature</span> <span class="o">=</span> <span class="n">ModelSignature</span><span class="p">(</span><span class="n">input_schema</span><span class="p">,</span> <span class="n">output_schema</span><span class="p">,</span> <span class="n">params_schema</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_prediction</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">signature</span><span class="p">,</span> <span class="n">prediction</span>
+        <span class="k">return</span> <span class="n">signature</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">environment_variables</span><span class="o">.</span><span class="n">_MLFLOW_TESTING</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
             <span class="k">raise</span>
@@ -686,7 +707,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.11.4.dev0',
+      VERSION:'2.13.3.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

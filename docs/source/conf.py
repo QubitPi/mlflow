@@ -28,7 +28,7 @@ import mlflow
 
 # -- General configuration ------------------------------------------------
 
-html_baseurl = "https://QubitPi.github.io/mlflow/"
+html_baseurl = "https://mlflow.qubitpi.org/"
 
 # If your documentation needs a minimal Sphinx version, state it here.
 # needs_sphinx = '1.0'

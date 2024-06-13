@@ -212,6 +212,7 @@
     <span class="n">install_java</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">install_mlflow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">enable_mlserver</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">base_image</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Builds a Docker image whose default entrypoint serves an MLflow model at port 8080, using the</span>
@@ -265,6 +266,12 @@
 <span class="sd">            The version of installed mlflow will be the same as the one used to invoke this command.</span>
 
 <span class="sd">        mlflow_home: Path to local clone of MLflow project. Use for development only.</span>
+
+<span class="sd">        base_image: Base image for the Docker image. If not specified, the default image is either</span>
+<span class="sd">            UBUNTU_BASE_IMAGE = &quot;ubuntu:20.04&quot; or PYTHON_SLIM_BASE_IMAGE = &quot;python:{version}-slim&quot;</span>
+<span class="sd">            Note: If custom image is used, there are no guarantees that the image will work. You</span>
+<span class="sd">            may find greater compatibility by building your image on top of the ubuntu images. In</span>
+<span class="sd">            addition, you must install Java and virtualenv to have the image work properly.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">get_flavor_backend</span><span class="p">(</span><span class="n">model_uri</span><span class="p">,</span> <span class="n">docker_build</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">env_manager</span><span class="o">=</span><span class="n">env_manager</span><span class="p">)</span><span class="o">.</span><span class="n">build_image</span><span class="p">(</span>
         <span class="n">model_uri</span><span class="p">,</span>
@@ -273,6 +280,7 @@
         <span class="n">install_java</span><span class="o">=</span><span class="n">install_java</span><span class="p">,</span>
         <span class="n">install_mlflow</span><span class="o">=</span><span class="n">install_mlflow</span><span class="p">,</span>
         <span class="n">enable_mlserver</span><span class="o">=</span><span class="n">enable_mlserver</span><span class="p">,</span>
+        <span class="n">base_image</span><span class="o">=</span><span class="n">base_image</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 

@@ -248,8 +248,6 @@
 <span class="kn">from</span> <span class="nn">mlflow.store.tracking</span> <span class="kn">import</span> <span class="n">SEARCH_MAX_RESULTS_DEFAULT</span><span class="p">,</span> <span class="n">SEARCH_TRACES_DEFAULT_MAX_RESULTS</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracing.constant</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TRACE_REQUEST_ID_PREFIX</span><span class="p">,</span>
-    <span class="n">TRACE_SCHEMA_VERSION</span><span class="p">,</span>
-    <span class="n">TRACE_SCHEMA_VERSION_KEY</span><span class="p">,</span>
     <span class="n">SpanAttributeKey</span><span class="p">,</span>
     <span class="n">TraceTagKey</span><span class="p">,</span>
 <span class="p">)</span>
@@ -807,7 +805,6 @@
                 <span class="n">mlflow_span</span><span class="o">.</span><span class="n">set_attributes</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span>
             <span class="n">trace_manager</span> <span class="o">=</span> <span class="n">InMemoryTraceManager</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
             <span class="n">tags</span> <span class="o">=</span> <span class="n">exclude_immutable_tags</span><span class="p">(</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">{})</span>
-            <span class="n">tags</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">TRACE_SCHEMA_VERSION_KEY</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">TRACE_SCHEMA_VERSION</span><span class="p">)})</span>
             <span class="k">if</span> <span class="n">is_in_databricks_model_serving_environment</span><span class="p">():</span>
                 <span class="c1"># Update trace tags for trace in in-memory trace manager</span>
                 <span class="k">with</span> <span class="n">trace_manager</span><span class="o">.</span><span class="n">get_trace</span><span class="p">(</span><span class="n">request_id</span><span class="p">)</span> <span class="k">as</span> <span class="n">trace</span><span class="p">:</span>

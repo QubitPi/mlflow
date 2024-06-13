@@ -222,6 +222,22 @@
 <li><p><strong>Low-level client APIs for tracing</strong>: The MLflow client API provides a thread-safe way to handle trace implementations, even in aysnchronous modes of operation.</p></li>
 </ul>
 <p>To learn more about what tracing is, see our <a class="reference external" href="./overview.html">Tracing Concepts Overview</a> guide.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>MLflow Tracing support is available for <strong>early access</strong> with the <strong>MLflow 2.14.0rc0</strong> release candidate build. Versions of MLflow prior to this release
+do not contain the full set of features that are required for trace logging support.</p>
+<p>Release candidates can be installed via PyPI via the following syntax, which will fetch the latest release candidate build
+for a given release version:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--pre<span class="w"> </span><span class="nv">mlflow</span><span class="o">==</span><span class="m">2</span>.14.0rc*
+</pre></div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you are using MLflow tracing from within Databricks, MLflow <strong>2.13.2 and above</strong> contain the required dependencies to utilize tracing functionality
+within Databricks. Additionally, it is not recommended to install release candidates of MLflow on Databricks except for compatibility testing.
+Other Databricks service integrations with MLflow may not function correctly if you do install an RC build of MLflow.</p>
+</div>
 <div class="section" id="langchain-automatic-tracing">
 <h2>LangChain Automatic Tracing<a class="headerlink" href="#langchain-automatic-tracing" title="Permalink to this headline"> </a></h2>
 <p>The easiest way to get started with MLflow Tracing is to leverage the built-in capabilities with MLflow’s LangChain integration. As part of the
@@ -486,7 +502,7 @@ capture its inputs, outputs, and execution context.</p>
         <span class="c1"># Wrap another external function</span>
         <span class="n">traced_factorial</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">factorial</span><span class="p">)</span>
 
-        <span class="n">factorial</span> <span class="o">=</span> <span class="n">traced_factorial</span><span class="p">(</span><span class="n">raised</span><span class="p">)</span>
+        <span class="n">factorial</span> <span class="o">=</span> <span class="n">traced_factorial</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">raised</span><span class="p">))</span>
 
         <span class="c1"># Wrap another and call it directly</span>
         <span class="n">response</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">)(</span><span class="n">factorial</span><span class="p">)</span>
@@ -593,8 +609,33 @@ spans are properly ended.</p>
 filter strings, and other parameters.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Search for traces in specific experiments</span>
 <span class="n">traces</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">search_traces</span><span class="p">(</span>
-    <span class="n">experiment_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">],</span> <span class="n">filter_string</span><span class="o">=</span><span class="s2">&quot;attributes.status = &#39;OK&#39;&quot;</span><span class="p">,</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">5</span>
+    <span class="n">experiment_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">],</span>
+    <span class="n">filter_string</span><span class="o">=</span><span class="s2">&quot;attributes.status = &#39;OK&#39;&quot;</span><span class="p">,</span>
+    <span class="n">max_results</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
 <span class="p">)</span>
+</pre></div>
+</div>
+<p>Alternatively, you can use fluent API <a class="reference internal" href="../../python_api/mlflow.html#mlflow.search_traces" title="mlflow.search_traces"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.search_traces()</span></code></a> to search for traces, which returns a pandas DataFrame with each row containing a trace.
+This method allows you to specify fields to extract from traces using the format <code class="docutils literal notranslate"><span class="pre">&quot;span_name.[inputs|outputs]&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;span_name.[inputs|outputs].field_name&quot;</span></code>.
+The extracted fields are included as extra columns in the pandas DataFrame. This feature can be used to build evaluation datasets to further improve model and agent performance.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_span</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;span1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">span</span><span class="p">:</span>
+    <span class="n">span</span><span class="o">.</span><span class="n">set_inputs</span><span class="p">({</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+    <span class="n">span</span><span class="o">.</span><span class="n">set_outputs</span><span class="p">({</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">})</span>
+
+<span class="c1"># Search for traces with specific fields extracted</span>
+<span class="n">traces</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_traces</span><span class="p">(</span>
+    <span class="n">extract_fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;span1.inputs&quot;</span><span class="p">,</span> <span class="s2">&quot;span1.outputs.c&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">traces</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This outputs:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>    request_id                              ...     span1.inputs        span1.outputs.c
+0   tr-97c4ef97c21f4348a5698f069c1320f1     ...     {&#39;a&#39;: 1, &#39;b&#39;: 2}    3.0
+1   tr-4dc3cd5567764499b5532e3af61b9f78     ...     {&#39;a&#39;: 1, &#39;b&#39;: 2}    3.0
 </pre></div>
 </div>
 </div>
@@ -644,6 +685,17 @@ and the <a class="reference internal" href="../../python_api/mlflow.client.html#
 </div>
 <div class="section" id="faq">
 <h2>FAQ<a class="headerlink" href="#faq" title="Permalink to this headline"> </a></h2>
+<div class="section" id="q-can-i-disable-and-re-enable-tracing-globally">
+<h3>Q: Can I disable and re-enable tracing globally?<a class="headerlink" href="#q-can-i-disable-and-re-enable-tracing-globally" title="Permalink to this headline"> </a></h3>
+<p>Yes.</p>
+<p>There are two fluent APIs that are used for blanket enablement or disablement of the MLflow Tracing feature in order to support
+users who may not wish to record interactions with their trace-enabled models for a brief period, or if they have concerns about long-term storage
+of data that was sent along with a request payload to a model in interactive mode.</p>
+<p>To <strong>disable</strong> tracing, the <a class="reference internal" href="../../python_api/mlflow.tracing.html#mlflow.tracing.disable" title="mlflow.tracing.disable"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.tracing.disable()</span></code></a> API will cease the collection of trace data from within MLflow and will not log
+any data to the MLflow Tracking service regarding traces.</p>
+<p>To <strong>enable</strong> tracing (if it had been temporarily disabled), the <a class="reference internal" href="../../python_api/mlflow.tracing.html#mlflow.tracing.enable" title="mlflow.tracing.enable"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.tracing.enable()</span></code></a> API will re-enable tracing functionality for instrumented models
+that are invoked.</p>
+</div>
 <div class="section" id="q-how-can-i-associate-a-trace-with-an-mlflow-run">
 <h3>Q: How can I associate a trace with an MLflow Run?<a class="headerlink" href="#q-how-can-i-associate-a-trace-with-an-mlflow-run" title="Permalink to this headline"> </a></h3>
 <p>If a trace is generated within a run context, the recorded traces to an active Experiment will be associated with the active Run.</p>

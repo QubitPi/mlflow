@@ -872,6 +872,10 @@
                 <span class="n">artifact_path</span><span class="o">=</span><span class="n">artifact_path</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span> <span class="n">resources</span><span class="o">=</span><span class="n">resources</span>
             <span class="p">)</span>
             <span class="n">flavor</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">local_path</span><span class="p">,</span> <span class="n">mlflow_model</span><span class="o">=</span><span class="n">mlflow_model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="c1"># `save_model` calls `load_model` to infer the model requirements, which may result in</span>
+            <span class="c1"># __pycache__ directories being created in the model directory.</span>
+            <span class="k">for</span> <span class="n">pycache</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;__pycache__&quot;</span><span class="p">):</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">pycache</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="c1"># Copy model metadata files to a sub-directory &#39;metadata&#39;,</span>
             <span class="c1"># For UC sharing use-cases.</span>

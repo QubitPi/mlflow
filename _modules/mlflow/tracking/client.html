@@ -644,7 +644,7 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="MlflowClient.get_trace"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.get_trace">[docs]</a>    <span class="nd">@experimental</span>
-    <span class="k">def</span> <span class="nf">get_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Trace</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">display</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Trace</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the trace matching the specified ``request_id``.</span>
 
@@ -664,7 +664,8 @@
 <span class="sd">            trace = client.get_trace(request_id)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">trace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">get_trace</span><span class="p">(</span><span class="n">request_id</span><span class="p">)</span>
-        <span class="n">get_display_handler</span><span class="p">()</span><span class="o">.</span><span class="n">display_traces</span><span class="p">([</span><span class="n">trace</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">display</span><span class="p">:</span>
+            <span class="n">get_display_handler</span><span class="p">()</span><span class="o">.</span><span class="n">display_traces</span><span class="p">([</span><span class="n">trace</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">trace</span></div>
 
 <div class="viewcode-block" id="MlflowClient.search_traces"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.search_traces">[docs]</a>    <span class="nd">@experimental</span>

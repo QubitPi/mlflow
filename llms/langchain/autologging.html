@@ -222,6 +222,13 @@
 <p class="admonition-title">Attention</p>
 <p>MLflow’s LangChain Autologging feature has been overhauled in the <code class="docutils literal notranslate"><span class="pre">MLflow</span> <span class="pre">2.14.0</span></code> release. If you are using the earlier version of MLflow, please refer to the legacy documentation <a class="reference external" href="#documentation-for-old-versions">here</a> for applicable autologging documentation.</p>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>MLflow LangChain Autologging is verified to be compatible with LangChain versions between 0.1.0 and 0.2.3. Outside of this range, the feature may not work as expected. To install the compatible version of LangChain, please run the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">mlflow</span><span class="p">[</span><span class="n">langchain</span><span class="p">]</span> <span class="o">--</span><span class="n">upgrade</span>
+</pre></div>
+</div>
+</div>
 <div class="contents local topic" id="table-of-contents">
 <p class="topic-title">Table of Contents</p>
 <ul class="simple">
@@ -235,13 +242,13 @@
 </div>
 <div class="section" id="quickstart">
 <h2><a class="toc-backref" href="#id4">Quickstart</a><a class="headerlink" href="#quickstart" title="Permalink to this headline"> </a></h2>
-<p>To enable autologging for LangChain models, call <a class="reference internal" href="../../python_api/mlflow.langchain.html#mlflow.langchain.autolog" title="mlflow.langchain.autolog"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.langchain.autolog()</span></code></a> at the beginning of your script or notebook. This will automatically log the traces by default as well as other artifacts such as models, datasets, and model signatures if you explicitly enable them. For more information about the configuration, please refer to the <a class="reference external" href="#configure-autologging">Configure Autologging</a> section.</p>
+<p>To enable autologging for LangChain models, call <a class="reference internal" href="../../python_api/mlflow.langchain.html#mlflow.langchain.autolog" title="mlflow.langchain.autolog"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.langchain.autolog()</span></code></a> at the beginning of your script or notebook. This will automatically log the traces by default as well as other artifacts such as models, input examples, and model signatures if you explicitly enable them. For more information about the configuration, please refer to the <a class="reference external" href="#configure-autologging">Configure Autologging</a> section.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">langchain</span><span class="o">.</span><span class="n">autolog</span><span class="p">()</span>
 
 <span class="c1"># Enable other optional logging</span>
-<span class="c1"># mlflow.langchain.autolog(log_models=True, log_datasets=True)</span>
+<span class="c1"># mlflow.langchain.autolog(log_models=True, log_input_examples=True)</span>
 
 <span class="c1"># Your LangChain model code here</span>
 <span class="o">...</span>
@@ -436,7 +443,7 @@
 </div>
 <div class="section" id="patch-functions-for-logging-artifacts">
 <h3>Patch Functions for Logging Artifacts<a class="headerlink" href="#patch-functions-for-logging-artifacts" title="Permalink to this headline"> </a></h3>
-<p>Other artifacts such as models, datasets, are logged by patching the invocation functions of the supported models to insert the logging call. MLflow patches the following functions:</p>
+<p>Other artifacts such as models are logged by patching the invocation functions of the supported models to insert the logging call. MLflow patches the following functions:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">invoke</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">batch</span></code></p></li>

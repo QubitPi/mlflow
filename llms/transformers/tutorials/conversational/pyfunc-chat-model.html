@@ -1,5 +1,4 @@
 
-  
 
 <!DOCTYPE html>
 <!-- source: docs/source/llms/transformers/tutorials/conversational/pyfunc-chat-model.ipynb -->
@@ -10,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Building and Serving an OpenAI-compatible Chatbot &mdash; MLflow 2.13.3.dev0 documentation</title>
+  <title>Building and Serving an OpenAI-compatible Chatbot</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../../search.html"/>
-    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../../../../index.html"/>
+    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../../../index.html"/>
         <link rel="up" title="MLflow Transformers Flavor" href="../../index.html"/>
         <link rel="next" title="Fine-Tuning Transformers with MLflow for Enhanced Model Management" href="/../fine-tuning/transformers-fine-tuning.html"/>
         <link rel="prev" title="Introduction to Conversational AI with MLflow and DialoGPT" href="/conversational-model.html"/> 
@@ -77,7 +76,7 @@
     <a href="../../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.13.3.dev0</span>
+    <span class="version">2.15.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -127,6 +126,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../index.html#introduction">Introduction</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="../../index.html#getting-started-with-the-mlflow-transformers-flavor-tutorials-and-guides">Getting Started with the MLflow Transformers Flavor - Tutorials and Guides</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../index.html#important-details-to-be-aware-of-with-the-transformers-flavor">Important Details to be aware of with the transformers flavor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../index.html#working-with-tasks-for-transformer-pipelines">Working with <code class="docutils literal notranslate"><span class="pre">tasks</span></code> for Transformer Pipelines</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../index.html#id1">Detailed Documentation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../index.html#learn-more-about-transformers">Learn more about Transformers</a></li>
 </ul>
@@ -134,6 +134,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../openai/index.html">MLflow OpenAI Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../sentence-transformers/index.html">MLflow Sentence-Transformers Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../langchain/index.html">MLflow LangChain Flavor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../llama-index/index.html">MLflow LlamaIndex Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../index.html#explore-the-native-llm-flavors">Explore the Native LLM Flavors</a></li>
 </ul>
 </li>
@@ -465,7 +466,7 @@ div.rendered_html tbody tr:hover {
 </style>
 <div class="section" id="Building-and-Serving-an-OpenAI-compatible-Chatbot">
 <h1>Building and Serving an OpenAI-compatible Chatbot<a class="headerlink" href="#Building-and-Serving-an-OpenAI-compatible-Chatbot" title="Permalink to this headline"> </a></h1>
-<p>Welcome to our tutorial on using Transformers and MLflow to create an OpenAI-compatible chat model. In MLflow 2.11 and up, the <a class="reference external" href="https://mlflow.org/docs/latest/python_api/mlflow.types.html#">ChatModel</a> class has been added, allowing for convenient creation of served models that conform to the OpenAI API spec. This enables you to seamlessly swap out your chat app’s backing LLM, or to easily evaluate different models without having to edit your client-side code.</p>
+<p>Welcome to our tutorial on using Transformers and MLflow to create an OpenAI-compatible chat model. In MLflow 2.11 and up, the <a class="reference external" href="https://mlflow.org/docs/latest/python_api/mlflow.pyfunc.html#mlflow.pyfunc.ChatModel">ChatModel</a> class has been added, allowing for convenient creation of served models that conform to the OpenAI API spec. This enables you to seamlessly swap out your chat app’s backing LLM, or to easily evaluate different models without having to edit your client-side code.</p>
 <p>If you haven’t already seen it, you may find it helpful to go through our <a class="reference external" href="https://mlflow.org/docs/latest/llms/transformers/tutorials/conversational/conversational-model.html">introductory notebook on chat and Transformers</a> before proceeding with this one, as this notebook is slightly higher-level and does not delve too deeply into the inner workings of Transformers or MLflow Tracking.</p>
 <div class="section" id="Learning-objectives">
 <h2>Learning objectives<a class="headerlink" href="#Learning-objectives" title="Permalink to this headline"> </a></h2>
@@ -1024,7 +1025,7 @@ curl<span class="w"> </span>http://127.0.0.1:5000/invocations<span class="w"> </
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../../',
-      VERSION:'2.13.3.dev0',
+      VERSION:'2.15.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

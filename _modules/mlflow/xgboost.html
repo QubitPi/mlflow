@@ -1,5 +1,4 @@
 
-  
 
 <!DOCTYPE html>
 <!-- source: docs/source/_modules/mlflow/xgboost -->
@@ -10,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.xgboost &mdash; MLflow 2.13.3.dev0 documentation</title>
+  <title>mlflow.xgboost</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -74,7 +73,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.13.3.dev0</span>
+    <span class="version">2.15.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -207,11 +206,13 @@
 <span class="sd">    https://xgboost.readthedocs.io/en/latest/python/python_api.html#module-xgboost.sklearn</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">yaml</span>
@@ -334,18 +335,18 @@
     <span class="n">_validate_and_prepare_target_save_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">code_dir_subpath</span> <span class="o">=</span> <span class="n">_validate_and_copy_code_paths</span><span class="p">(</span><span class="n">code_paths</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">input_example</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">mlflow_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mlflow_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
+    <span class="n">saved_example</span> <span class="o">=</span> <span class="n">_save_example</span><span class="p">(</span><span class="n">mlflow_model</span><span class="p">,</span> <span class="n">input_example</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">saved_example</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">wrapped_model</span> <span class="o">=</span> <span class="n">_XGBModelWrapper</span><span class="p">(</span><span class="n">xgb_model</span><span class="p">)</span>
-        <span class="n">signature</span> <span class="o">=</span> <span class="n">_infer_signature_from_input_example</span><span class="p">(</span><span class="n">input_example</span><span class="p">,</span> <span class="n">wrapped_model</span><span class="p">)</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="n">_infer_signature_from_input_example</span><span class="p">(</span><span class="n">saved_example</span><span class="p">,</span> <span class="n">wrapped_model</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">signature</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
         <span class="n">signature</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">if</span> <span class="n">mlflow_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">mlflow_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">signature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mlflow_model</span><span class="o">.</span><span class="n">signature</span> <span class="o">=</span> <span class="n">signature</span>
-    <span class="k">if</span> <span class="n">input_example</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">_save_example</span><span class="p">(</span><span class="n">mlflow_model</span><span class="p">,</span> <span class="n">input_example</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mlflow_model</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
     <span class="n">model_data_subpath</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;model.</span><span class="si">{</span><span class="n">model_format</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -531,6 +532,12 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xgb_model</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xgb_model</span> <span class="o">=</span> <span class="n">xgb_model</span>
 
+    <span class="k">def</span> <span class="nf">get_raw_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the underlying XGBoost model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgb_model</span>
+
     <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">dataframe</span><span class="p">,</span>
@@ -546,10 +553,65 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">xgboost</span> <span class="k">as</span> <span class="nn">xgb</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xgb_model</span><span class="p">,</span> <span class="n">xgb</span><span class="o">.</span><span class="n">Booster</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgb_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">dataframe</span><span class="p">))</span>
+        <span class="n">predict_fn</span> <span class="o">=</span> <span class="n">_wrapped_xgboost_model_predict_fn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xgb_model</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">params</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="c1"># filter is applied inside predict_fn wrapper for xgb.Booster</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xgb_model</span><span class="p">,</span> <span class="n">xgb</span><span class="o">.</span><span class="n">Booster</span><span class="p">):</span>
+            <span class="c1"># Exclude unrecognized parameters as feature store team has</span>
+            <span class="c1"># dependency on this behavior. They might pass additional parameters</span>
+            <span class="c1"># that cannot be passed to the model.</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">_exclude_unrecognized_kwargs</span><span class="p">(</span><span class="n">predict_fn</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">predict_fn</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_exclude_unrecognized_kwargs</span><span class="p">(</span><span class="n">predict_fn</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">filtered_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">allowed_params</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">predict_fn</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
+    <span class="c1"># avoid excluding kwargs when predict function uses args or kwargs</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span> <span class="ow">or</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">VAR_KEYWORD</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">allowed_params</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+        <span class="k">return</span> <span class="n">kwargs</span>
+    <span class="n">invalid_params</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">allowed_params</span><span class="p">:</span>
+            <span class="n">filtered_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xgb_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span>
+            <span class="n">invalid_params</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">invalid_params</span><span class="p">:</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Params </span><span class="si">{</span><span class="n">invalid_params</span><span class="si">}</span><span class="s2"> are not accepted by the xgboost model, &quot;</span>
+            <span class="s2">&quot;ignoring them during predict.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">filtered_kwargs</span>
+
+
+<span class="k">def</span> <span class="nf">_wrapped_xgboost_model_predict_fn</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">validate_features</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wraps the predict method of the raw model to accept a DataFrame as input.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">xgboost</span> <span class="k">as</span> <span class="nn">xgb</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">xgb</span><span class="o">.</span><span class="n">Booster</span><span class="p">):</span>
+        <span class="c1"># we need to wrap the predict function to accept data in pandas format</span>
+        <span class="k">def</span> <span class="nf">wrapped_predict_fn</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">filtered_kwargs</span> <span class="o">=</span> <span class="n">_exclude_unrecognized_kwargs</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+                <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">validate_features</span><span class="o">=</span><span class="n">validate_features</span><span class="p">,</span> <span class="o">**</span><span class="n">filtered_kwargs</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">wrapped_predict_fn</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">xgb</span><span class="o">.</span><span class="n">XGBModel</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">,</span> <span class="n">validate_features</span><span class="o">=</span><span class="n">validate_features</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span>
+
+
+<span class="k">def</span> <span class="nf">_wrapped_xgboost_model_predict_proba_fn</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">validate_features</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">xgboost</span> <span class="k">as</span> <span class="nn">xgb</span>
+
+    <span class="n">predict_proba_fn</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;predict_proba&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">xgb</span><span class="o">.</span><span class="n">XGBModel</span><span class="p">)</span> <span class="ow">and</span> <span class="n">predict_proba_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">predict_proba_fn</span><span class="p">,</span> <span class="n">validate_features</span><span class="o">=</span><span class="n">validate_features</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">predict_proba_fn</span>
 
 
 <div class="viewcode-block" id="autolog"><a class="viewcode-back" href="../../python_api/mlflow.xgboost.html#mlflow.xgboost.autolog">[docs]</a><span class="nd">@autologging_integration</span><span class="p">(</span><span class="n">FLAVOR_NAME</span><span class="p">)</span>
@@ -1030,7 +1092,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.13.3.dev0',
+      VERSION:'2.15.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

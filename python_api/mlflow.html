@@ -1,5 +1,4 @@
 
-  
 
 <!DOCTYPE html>
 <!-- source: docs/source/python_api/mlflow.rst -->
@@ -10,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow &mdash; MLflow 2.13.3.dev0 documentation</title>
+  <title>mlflow</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +47,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../index.html"/>
         <link rel="up" title="Python API" href="index.html"/>
         <link rel="next" title="mlflow.artifacts" href="/mlflow.artifacts.html"/>
         <link rel="prev" title="Python API" href="/index.html"/> 
@@ -75,7 +74,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.13.3.dev0</span>
+    <span class="version">2.15.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -151,6 +150,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mlflow.keras.html">mlflow.keras</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.langchain.html">mlflow.langchain</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.lightgbm.html">mlflow.lightgbm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlflow.llama_index.html">mlflow.llama_index</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.metrics.html">mlflow.metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.mleap.html">mlflow.mleap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlflow.models.html">mlflow.models</a></li>
@@ -543,7 +543,7 @@ tags: {&#39;estimator_class&#39;: &#39;sklearn.linear_model._base.LinearRegressi
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – The experiment name, which must be unique and is case sensitive.</p></li>
+<li><p><strong>name</strong> – The experiment name, which must be a unique string.</p></li>
 <li><p><strong>artifact_location</strong> – The location to store run artifacts. If not provided, the server picks
 an appropriate default.</p></li>
 <li><p><strong>tags</strong> – An optional dictionary of string keys and values to set as tags on the experiment.</p></li>
@@ -1322,6 +1322,17 @@ metrics of candidate model and baseline model, and artifacts of candidate model.
 </dd></dl>
 
 <dl class="py function">
+<dt id="mlflow.flush_trace_async_logging">
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">flush_trace_async_logging</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">terminate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#flush_trace_async_logging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.flush_trace_async_logging" title="Permalink to this definition"> </a></dt>
+<dd><p>Flush all pending trace async logging.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>terminate</strong> – If True, shut down the logging threads after flushing.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt id="mlflow.get_artifact_uri">
 <code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">get_artifact_uri</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifact_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#get_artifact_uri"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.get_artifact_uri" title="Permalink to this definition"> </a></dt>
 <dd><p>Get the absolute URI of the specified artifact in the currently active run.</p>
@@ -1916,7 +1927,7 @@ artifact.</p>
 <p class="admonition-title">Warning</p>
 <ul class="simple">
 <li><p>Out-of-range integer values will raise ValueError.</p></li>
-<li><p>Out-of-range float values will raise ValueError.</p></li>
+<li><p>Out-of-range float values will auto-scale with min/max and warn.</p></li>
 </ul>
 </div>
 </div></blockquote>
@@ -2096,7 +2107,7 @@ logging operation.</p>
 
 <dl class="py function">
 <dt id="mlflow.log_metrics">
-<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synchronous</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlflow.utils.html#mlflow.utils.async_logging.run_operations.RunOperations" title="mlflow.utils.async_logging.run_operations.RunOperations"><span class="pre">mlflow.utils.async_logging.run_operations.RunOperations</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_metrics" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">log_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synchronous</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlflow.utils.html#mlflow.utils.async_logging.run_operations.RunOperations" title="mlflow.utils.async_logging.run_operations.RunOperations"><span class="pre">mlflow.utils.async_logging.run_operations.RunOperations</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#log_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.log_metrics" title="Permalink to this definition"> </a></dt>
 <dd><p>Log multiple metrics for the current run. If no run is active, this method will create a new
 active run.</p>
 <dl class="field-list simple">
@@ -2112,6 +2123,7 @@ Metrics. If unspecified, each metric is logged at step zero.</p></li>
 successfully. If False, logs the metrics asynchronously and
 returns a future representing the logging operation. If None, read from environment
 variable <cite>MLFLOW_ENABLE_ASYNC_LOGGING</cite>, which defaults to False if not set.</p></li>
+<li><p><strong>timestamp</strong> – Time when these metrics were calculated. Defaults to the current system time.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -3192,7 +3204,7 @@ CLI <a class="reference external" href="https://github.com/databricks/databricks
 
 <dl class="py function">
 <dt id="mlflow.start_run">
-<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">start_run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nested</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_system_metrics</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#mlflow.ActiveRun" title="mlflow.ActiveRun"><span class="pre">ActiveRun</span></a><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#start_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.start_run" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">start_run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nested</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_system_metrics</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#mlflow.ActiveRun" title="mlflow.ActiveRun"><span class="pre">ActiveRun</span></a><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#start_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.start_run" title="Permalink to this definition"> </a></dt>
 <dd><p>Start a new MLflow run, setting it as the active run under which metrics and parameters
 will be logged. The return value can be used as a context manager within a <code class="docutils literal notranslate"><span class="pre">with</span></code> block;
 otherwise, you must call <code class="docutils literal notranslate"><span class="pre">end_run()</span></code> to terminate the current run.</p>
@@ -3218,6 +3230,8 @@ or the default experiment as defined by the tracking server.</p></li>
 <li><p><strong>run_name</strong> – Name of new run. Used only when <code class="docutils literal notranslate"><span class="pre">run_id</span></code> is unspecified. If a new run is
 created and <code class="docutils literal notranslate"><span class="pre">run_name</span></code> is not specified, a random name will be generated for the run.</p></li>
 <li><p><strong>nested</strong> – Controls whether run is nested in parent run. <code class="docutils literal notranslate"><span class="pre">True</span></code> creates a nested run.</p></li>
+<li><p><strong>parent_run_id</strong> – If specified, the current run will be nested under the the run with
+the specified UUID. The parent run must be in the ACTIVE state.</p></li>
 <li><p><strong>tags</strong> – An optional dictionary of string keys and values to set as tags on the run.
 If a run is being resumed, these tags are set on the resumed run. If a new run is
 being created, these tags are set on the new run.</p></li>
@@ -3261,11 +3275,21 @@ run’s state.</p>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;version tag value: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parent_run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">)))</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;priority tag value: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parent_run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;priority&quot;</span><span class="p">)))</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+
 <span class="c1"># Search all child runs with a parent id</span>
 <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;tags.mlflow.parentRunId = &#39;</span><span class="si">{</span><span class="n">parent_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_runs</span><span class="p">(</span><span class="n">experiment_ids</span><span class="o">=</span><span class="p">[</span><span class="n">experiment_id</span><span class="p">],</span> <span class="n">filter_string</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;child runs:&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">[[</span><span class="s2">&quot;run_id&quot;</span><span class="p">,</span> <span class="s2">&quot;params.child&quot;</span><span class="p">,</span> <span class="s2">&quot;tags.mlflow.runName&quot;</span><span class="p">]])</span>
+
+<span class="c1"># Create a nested run under the existing parent run</span>
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">(</span>
+    <span class="n">run_name</span><span class="o">=</span><span class="s2">&quot;NEW_CHILD_RUN&quot;</span><span class="p">,</span>
+    <span class="n">experiment_id</span><span class="o">=</span><span class="n">experiment_id</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;new child&quot;</span><span class="p">,</span>
+    <span class="n">parent_run_id</span><span class="o">=</span><span class="n">parent_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span>
+<span class="p">)</span> <span class="k">as</span> <span class="n">child_run</span><span class="p">:</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">log_param</span><span class="p">(</span><span class="s2">&quot;new-child&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -3288,10 +3312,6 @@ child runs:
 </div>
 <div class="section" id="mlflow-tracing-apis">
 <span id="mlflow-tracing-fluent-python-apis"></span><h1>MLflow Tracing APIs<a class="headerlink" href="#mlflow-tracing-apis" title="Permalink to this headline"> </a></h1>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The tracing functionality is experimental and currently only available in Databricks. The feature will be fully supported in open-source MLflow in 2.14.0.</p>
-</div>
 <p>The <code class="docutils literal notranslate"><span class="pre">mlflow</span></code> module provides a set of high-level APIs for <a class="reference external" href="../llms/tracing/index.html">MLflow Tracing</a>. For the detailed
 guidance on how to use these tracing APIs, please refer to the <a class="reference external" href="../llms/tracing/index.html#tracing-fluent-apis">Tracing Fluent APIs Guide</a>.</p>
 <p>For some advanced use cases such as multi-threaded application, instrumentation via callbacks, you may need to use
@@ -3733,7 +3753,7 @@ and effectively disables all tracing operations.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.13.3.dev0',
+      VERSION:'2.15.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

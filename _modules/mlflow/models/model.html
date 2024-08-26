@@ -1,5 +1,4 @@
 
-  
 
 <!DOCTYPE html>
 <!-- source: docs/source/_modules/mlflow/models/model -->
@@ -10,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.models.model &mdash; MLflow 2.13.3.dev0 documentation</title>
+  <title>mlflow.models.model</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -74,7 +73,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.13.3.dev0</span>
+    <span class="version">2.15.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -213,7 +212,7 @@
 <span class="kn">from</span> <span class="nn">mlflow.tracking._tracking_service.utils</span> <span class="kn">import</span> <span class="n">_resolve_tracking_uri</span>
 <span class="kn">from</span> <span class="nn">mlflow.tracking.artifact_utils</span> <span class="kn">import</span> <span class="n">_download_artifact_from_uri</span><span class="p">,</span> <span class="n">_upload_artifact_to_uri</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.annotations</span> <span class="kn">import</span> <span class="n">experimental</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.databricks_utils</span> <span class="kn">import</span> <span class="n">get_databricks_runtime_version</span>
+<span class="kn">from</span> <span class="nn">mlflow.utils.databricks_utils</span> <span class="kn">import</span> <span class="n">get_databricks_runtime_version</span><span class="p">,</span> <span class="n">is_in_databricks_runtime</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.docstring_utils</span> <span class="kn">import</span> <span class="n">LOG_MODEL_PARAM_DOCS</span><span class="p">,</span> <span class="n">format_docstring</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.environment</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">_CONDA_ENV_FILE_NAME</span><span class="p">,</span>
@@ -241,11 +240,15 @@
     <span class="s1">&#39;`logging.getLogger(&quot;mlflow&quot;).setLevel(logging.DEBUG)` to see the full traceback.&#39;</span>
 <span class="p">)</span>
 <span class="n">_LOG_MODEL_MISSING_SIGNATURE_WARNING</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;Model logged without a signature. Signatures will be required for upcoming model registry &quot;</span>
-    <span class="s2">&quot;features as they validate model inputs and denote the expected schema of model outputs. &quot;</span>
+    <span class="s2">&quot;Model logged without a signature. Signatures are required for Databricks UC model registry &quot;</span>
+    <span class="s2">&quot;as they validate model inputs and denote the expected schema of model outputs. &quot;</span>
     <span class="sa">f</span><span class="s2">&quot;Please visit https://www.mlflow.org/docs/</span><span class="si">{</span><span class="n">mlflow</span><span class="o">.</span><span class="n">__version__</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.dev0&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/&quot;</span>
-    <span class="s2">&quot;models.html#set-signature-on-logged-model for instructions on setting a model signature on &quot;</span>
-    <span class="s2">&quot;your logged model.&quot;</span>
+    <span class="s2">&quot;model/signatures.html#how-to-set-signatures-on-models for instructions on setting &quot;</span>
+    <span class="s2">&quot;signature on models.&quot;</span>
+<span class="p">)</span>
+<span class="n">_LOG_MODEL_MISSING_INPUT_EXAMPLE_WARNING</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;Model logged without a signature and input example. Please set `input_example` parameter &quot;</span>
+    <span class="s2">&quot;when logging the model to auto infer the model signature.&quot;</span>
 <span class="p">)</span>
 <span class="c1"># NOTE: The _MLFLOW_VERSION_KEY constant is considered @developer_stable</span>
 <span class="n">_MLFLOW_VERSION_KEY</span> <span class="o">=</span> <span class="s2">&quot;mlflow_version&quot;</span>
@@ -257,6 +260,9 @@
 <span class="p">]</span>
 <span class="n">MODEL_CONFIG</span> <span class="o">=</span> <span class="s2">&quot;config&quot;</span>
 <span class="n">MODEL_CODE_PATH</span> <span class="o">=</span> <span class="s2">&quot;model_code_path&quot;</span>
+<span class="n">SET_MODEL_ERROR</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;Model should either be an instance of PyFuncModel, Langchain type, or LlamaIndex index.&quot;</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="ModelInfo"><a class="viewcode-back" href="../../../python_api/mlflow.models.html#mlflow.models.ModelInfo">[docs]</a><span class="k">class</span> <span class="nc">ModelInfo</span><span class="p">:</span>
@@ -542,6 +548,21 @@
 <span class="sd">        definition.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">signature</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.get_serving_input"><a class="viewcode-back" href="../../../python_api/mlflow.models.html#mlflow.models.Model.get_serving_input">[docs]</a>    <span class="k">def</span> <span class="nf">get_serving_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load serving input example from a model directory. Returns None if there is no serving input</span>
+<span class="sd">        example.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: Path to the model directory.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Serving input example or None if the model has no serving input example.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">mlflow.models.utils</span> <span class="kn">import</span> <span class="n">_load_serving_input_example</span>
+
+        <span class="k">return</span> <span class="n">_load_serving_input_example</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.load_input_example"><a class="viewcode-back" href="../../../python_api/mlflow.models.html#mlflow.models.Model.load_input_example">[docs]</a>    <span class="k">def</span> <span class="nf">load_input_example</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -860,7 +881,6 @@
 <span class="sd">            A :py:class:`ModelInfo &lt;mlflow.models.model.ModelInfo&gt;` instance that contains the</span>
 <span class="sd">            metadata of the logged model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">mlflow.models.wheeled_model</span> <span class="kn">import</span> <span class="n">_ORIGINAL_REQ_FILE_NAME</span><span class="p">,</span> <span class="n">WheeledModel</span>
         <span class="kn">from</span> <span class="nn">mlflow.utils.model_utils</span> <span class="kn">import</span> <span class="n">_validate_and_get_model_config_from_file</span>
 
         <span class="n">registered_model</span> <span class="o">=</span> <span class="kc">None</span>
@@ -877,35 +897,18 @@
             <span class="k">for</span> <span class="n">pycache</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;__pycache__&quot;</span><span class="p">):</span>
                 <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">pycache</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-            <span class="c1"># Copy model metadata files to a sub-directory &#39;metadata&#39;,</span>
-            <span class="c1"># For UC sharing use-cases.</span>
-            <span class="n">metadata_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="s2">&quot;metadata&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">flavor</span><span class="p">,</span> <span class="n">WheeledModel</span><span class="p">):</span>
-                <span class="c1"># wheeled model updates several metadata files in original model directory</span>
-                <span class="c1"># copy these updated metadata files to the &#39;metadata&#39; subdirectory</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">metadata_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">METADATA_FILES</span> <span class="o">+</span> <span class="p">[</span>
-                    <span class="n">_ORIGINAL_REQ_FILE_NAME</span><span class="p">,</span>
-                <span class="p">]:</span>
-                    <span class="n">src_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">src_file_path</span><span class="p">):</span>
-                        <span class="n">dest_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">metadata_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
-                        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">src_file_path</span><span class="p">,</span> <span class="n">dest_file_path</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">metadata_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">METADATA_FILES</span><span class="p">:</span>
-                    <span class="n">src_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">src_file_path</span><span class="p">):</span>
-                        <span class="n">dest_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">metadata_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
-                        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">src_file_path</span><span class="p">,</span> <span class="n">dest_file_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_in_databricks_runtime</span><span class="p">():</span>
+                <span class="n">_copy_model_metadata_for_uc_sharing</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">flavor</span><span class="p">)</span>
 
             <span class="n">tracking_uri</span> <span class="o">=</span> <span class="n">_resolve_tracking_uri</span><span class="p">()</span>
+            <span class="n">serving_input</span> <span class="o">=</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">get_serving_input</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
             <span class="c1"># We check signature presence here as some flavors have a default signature as a</span>
             <span class="c1"># fallback when not provided by user, which is set during flavor&#39;s save_model() call.</span>
-            <span class="k">if</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span>
-                <span class="n">tracking_uri</span> <span class="o">==</span> <span class="s2">&quot;databricks&quot;</span> <span class="ow">or</span> <span class="n">get_uri_scheme</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;databricks&quot;</span>
-            <span class="p">):</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_LOG_MODEL_MISSING_SIGNATURE_WARNING</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">serving_input</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_LOG_MODEL_MISSING_INPUT_EXAMPLE_WARNING</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">tracking_uri</span> <span class="o">==</span> <span class="s2">&quot;databricks&quot;</span> <span class="ow">or</span> <span class="n">get_uri_scheme</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;databricks&quot;</span><span class="p">:</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_LOG_MODEL_MISSING_SIGNATURE_WARNING</span><span class="p">)</span>
             <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">log_artifacts</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">artifact_path</span><span class="p">,</span> <span class="n">run_id</span><span class="p">)</span>
 
             <span class="c1"># if the model_config kwarg is passed in, then log the model config as an params</span>
@@ -957,10 +960,63 @@
                     <span class="n">await_registration_for</span><span class="o">=</span><span class="n">await_registration_for</span><span class="p">,</span>
                     <span class="n">local_model_path</span><span class="o">=</span><span class="n">local_path</span><span class="p">,</span>
                 <span class="p">)</span>
-        <span class="n">model_info</span> <span class="o">=</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">get_model_info</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">registered_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">model_info</span><span class="o">.</span><span class="n">registered_model_version</span> <span class="o">=</span> <span class="n">registered_model</span><span class="o">.</span><span class="n">version</span>
+            <span class="n">model_info</span> <span class="o">=</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">get_model_info</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">registered_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">model_info</span><span class="o">.</span><span class="n">registered_model_version</span> <span class="o">=</span> <span class="n">registered_model</span><span class="o">.</span><span class="n">version</span>
+
+            <span class="c1"># validate input example works for serving when logging the model</span>
+            <span class="k">if</span> <span class="n">serving_input</span><span class="p">:</span>
+                <span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">validate_serving_input</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">validate_serving_input</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_uri</span><span class="p">,</span> <span class="n">serving_input</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Failed to validate serving input example </span><span class="si">{</span><span class="n">serving_input</span><span class="si">}</span><span class="s2">. &quot;</span>
+                        <span class="s2">&quot;Alternatively, you can avoid passing input example and pass model &quot;</span>
+                        <span class="s2">&quot;signature instead when logging the model. To ensure the input example &quot;</span>
+                        <span class="s2">&quot;is valid prior to serving, please try calling &quot;</span>
+                        <span class="s2">&quot;`mlflow.models.validate_serving_input` on the model uri and serving &quot;</span>
+                        <span class="s2">&quot;input example. A serving input example can be generated from model &quot;</span>
+                        <span class="s2">&quot;input example using &quot;</span>
+                        <span class="s2">&quot;`mlflow.models.convert_input_example_to_serving_input` function.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Got error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">exc_info</span><span class="o">=</span><span class="n">_logger</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">),</span>
+                    <span class="p">)</span>
+
         <span class="k">return</span> <span class="n">model_info</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_copy_model_metadata_for_uc_sharing</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">flavor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Copy model metadata files to a sub-directory &#39;metadata&#39;,</span>
+<span class="sd">    For Databricks Unity Catalog sharing use-cases.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        local_path: Local path to the model directory.</span>
+<span class="sd">        flavor: Flavor module to save the model with.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">mlflow.models.wheeled_model</span> <span class="kn">import</span> <span class="n">_ORIGINAL_REQ_FILE_NAME</span><span class="p">,</span> <span class="n">WheeledModel</span>
+
+    <span class="n">metadata_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="s2">&quot;metadata&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">flavor</span><span class="p">,</span> <span class="n">WheeledModel</span><span class="p">):</span>
+        <span class="c1"># wheeled model updates several metadata files in original model directory</span>
+        <span class="c1"># copy these updated metadata files to the &#39;metadata&#39; subdirectory</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">metadata_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">METADATA_FILES</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="n">_ORIGINAL_REQ_FILE_NAME</span><span class="p">,</span>
+        <span class="p">]:</span>
+            <span class="n">src_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">src_file_path</span><span class="p">):</span>
+                <span class="n">dest_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">metadata_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">src_file_path</span><span class="p">,</span> <span class="n">dest_file_path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">metadata_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">METADATA_FILES</span><span class="p">:</span>
+            <span class="n">src_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">src_file_path</span><span class="p">):</span>
+                <span class="n">dest_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">metadata_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">src_file_path</span><span class="p">,</span> <span class="n">dest_file_path</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="get_model_info"><a class="viewcode-back" href="../../../python_api/mlflow.models.html#mlflow.models.get_model_info">[docs]</a><span class="k">def</span> <span class="nf">get_model_info</span><span class="p">(</span><span class="n">model_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelInfo</span><span class="p">:</span>
@@ -1010,8 +1066,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">mlflow.pyfunc</span> <span class="kn">import</span> <span class="n">_download_artifact_from_uri</span>
 
-    <span class="n">local_path</span> <span class="o">=</span> <span class="n">_download_artifact_from_uri</span><span class="p">(</span><span class="n">artifact_uri</span><span class="o">=</span><span class="n">model_uri</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">model_meta</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">MLMODEL_FILE_NAME</span><span class="p">))</span>
+    <span class="n">meta_file_uri</span> <span class="o">=</span> <span class="n">model_uri</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">MLMODEL_FILE_NAME</span>
+    <span class="n">meta_local_path</span> <span class="o">=</span> <span class="n">_download_artifact_from_uri</span><span class="p">(</span><span class="n">artifact_uri</span><span class="o">=</span><span class="n">meta_file_uri</span><span class="p">)</span>
+    <span class="n">model_meta</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">meta_local_path</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ModelInfo</span><span class="p">(</span>
         <span class="n">artifact_path</span><span class="o">=</span><span class="n">model_meta</span><span class="o">.</span><span class="n">artifact_path</span><span class="p">,</span>
         <span class="n">flavors</span><span class="o">=</span><span class="n">model_meta</span><span class="o">.</span><span class="n">flavors</span><span class="p">,</span>
@@ -1136,6 +1193,18 @@
 <span class="n">__mlflow_model__</span> <span class="o">=</span> <span class="kc">None</span>
 
 
+<span class="k">def</span> <span class="nf">_validate_langchain_model</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">mlflow.langchain</span> <span class="kn">import</span> <span class="n">_validate_and_prepare_lc_model_or_path</span>
+
+    <span class="k">return</span> <span class="n">_validate_and_prepare_lc_model_or_path</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_llama_index_model</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">mlflow.llama_index</span> <span class="kn">import</span> <span class="n">_validate_and_prepare_llama_index_model_or_path</span>
+
+    <span class="k">return</span> <span class="n">_validate_and_prepare_llama_index_model_or_path</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="set_model"><a class="viewcode-back" href="../../../python_api/mlflow.models.html#mlflow.models.set_model">[docs]</a><span class="nd">@experimental</span>
 <span class="k">def</span> <span class="nf">set_model</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1143,27 +1212,29 @@
 <span class="sd">    to be logged.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        model: The model object to be logged.</span>
+<span class="sd">        model: The model object to be logged. Supported model types are:</span>
+
+<span class="sd">                - A Python function or callable object.</span>
+<span class="sd">                - A Langchain model or path to a Langchain model.</span>
+<span class="sd">                - A Llama Index model or path to a Llama Index model.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">mlflow.pyfunc</span> <span class="kn">import</span> <span class="n">PythonModel</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">PythonModel</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">callable</span><span class="p">(</span><span class="n">model</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="p">(</span><span class="n">SET_MODEL_ERROR</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">PythonModel</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">callable</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+        <span class="nb">globals</span><span class="p">()[</span><span class="s2">&quot;__mlflow_model__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="k">return</span>
+
+    <span class="k">for</span> <span class="n">validate_function</span> <span class="ow">in</span> <span class="p">[</span><span class="n">_validate_langchain_model</span><span class="p">,</span> <span class="n">_validate_llama_index_model</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">mlflow.langchain</span> <span class="kn">import</span> <span class="n">_validate_and_prepare_lc_model_or_path</span>
+            <span class="nb">globals</span><span class="p">()[</span><span class="s2">&quot;__mlflow_model__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">validate_function</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span>
 
-            <span class="c1"># If its not a PyFuncModel, then it should be a Langchain model (not a path)</span>
-            <span class="c1"># Check this since the validation function does not</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="p">(</span>
-                    <span class="s2">&quot;Model should either be an instance of PyFuncModel or Langchain type.&quot;</span>
-                <span class="p">)</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">_validate_and_prepare_lc_model_or_path</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="p">(</span>
-                <span class="s2">&quot;Model should either be an instance of PyFuncModel or Langchain type.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
-
-    <span class="nb">globals</span><span class="p">()[</span><span class="s2">&quot;__mlflow_model__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span></div>
+    <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="p">(</span><span class="n">SET_MODEL_ERROR</span><span class="p">)</span></div>
 </pre></div>
 
               </div>
@@ -1194,7 +1265,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.13.3.dev0',
+      VERSION:'2.15.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

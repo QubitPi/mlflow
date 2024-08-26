@@ -1,5 +1,4 @@
 
-  
 
 <!DOCTYPE html>
 <!-- source: docs/source/_modules/mlflow/tracking/client -->
@@ -10,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mlflow.tracking.client &mdash; MLflow 2.13.3.dev0 documentation</title>
+  <title>mlflow.tracking.client</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -74,7 +73,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.13.3.dev0</span>
+    <span class="version">2.15.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -266,7 +265,6 @@
 <span class="kn">from</span> <span class="nn">mlflow.utils.async_logging.run_operations</span> <span class="kn">import</span> <span class="n">RunOperations</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.databricks_utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_databricks_run_url</span><span class="p">,</span>
-    <span class="n">is_in_databricks_model_serving_environment</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.logging_utils</span> <span class="kn">import</span> <span class="n">eprint</span>
 <span class="kn">from</span> <span class="nn">mlflow.utils.mlflow_tags</span> <span class="kn">import</span> <span class="p">(</span>
@@ -296,7 +294,7 @@
 <span class="n">_STAGES_DEPRECATION_WARNING</span> <span class="o">=</span> <span class="p">(</span>
     <span class="s2">&quot;Model registry stages will be removed in a future major release. To learn more about the &quot;</span>
     <span class="s2">&quot;deprecation of model registry stages, see our migration guide here: https://mlflow.org/docs/&quot;</span>
-    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mlflow</span><span class="o">.</span><span class="n">__version__</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.dev0&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/model-registry.html#migrating-from-stages&quot;</span>
+    <span class="s2">&quot;latest/model-registry.html#migrating-from-stages&quot;</span>
 <span class="p">)</span>
 
 
@@ -800,21 +798,15 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mlflow_span</span><span class="p">,</span> <span class="n">NoOpSpan</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">mlflow_span</span>
 
-            <span class="k">if</span> <span class="n">inputs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">mlflow_span</span><span class="o">.</span><span class="n">set_inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">attributes</span><span class="p">:</span>
-                <span class="n">mlflow_span</span><span class="o">.</span><span class="n">set_attributes</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span>
+            <span class="n">mlflow_span</span><span class="o">.</span><span class="n">set_attributes</span><span class="p">(</span><span class="n">attributes</span> <span class="ow">or</span> <span class="p">{})</span>
+
             <span class="n">trace_manager</span> <span class="o">=</span> <span class="n">InMemoryTraceManager</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
             <span class="n">tags</span> <span class="o">=</span> <span class="n">exclude_immutable_tags</span><span class="p">(</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">{})</span>
-            <span class="k">if</span> <span class="n">is_in_databricks_model_serving_environment</span><span class="p">():</span>
-                <span class="c1"># Update trace tags for trace in in-memory trace manager</span>
-                <span class="k">with</span> <span class="n">trace_manager</span><span class="o">.</span><span class="n">get_trace</span><span class="p">(</span><span class="n">request_id</span><span class="p">)</span> <span class="k">as</span> <span class="n">trace</span><span class="p">:</span>
-                    <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Update trace tags in store and in-memory if tracking client is available</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">set_trace_tags</span><span class="p">(</span><span class="n">request_id</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span>
-                <span class="n">trace_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">get_trace_info</span><span class="p">(</span><span class="n">request_id</span><span class="p">)</span>
-                <span class="n">trace_manager</span><span class="o">.</span><span class="n">update_trace_info</span><span class="p">(</span><span class="n">trace_info</span><span class="p">)</span>
+            <span class="c1"># Update trace tags for trace in in-memory trace manager</span>
+            <span class="k">with</span> <span class="n">trace_manager</span><span class="o">.</span><span class="n">get_trace</span><span class="p">(</span><span class="n">request_id</span><span class="p">)</span> <span class="k">as</span> <span class="n">trace</span><span class="p">:</span>
+                <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span>
             <span class="c1"># Register new span in the in-memory trace manager</span>
             <span class="n">trace_manager</span><span class="o">.</span><span class="n">register_span</span><span class="p">(</span><span class="n">mlflow_span</span><span class="p">)</span>
 
@@ -887,11 +879,11 @@
             <span class="n">parsed_span</span> <span class="o">=</span> <span class="p">{}</span>
 
             <span class="n">parsed_span</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">span</span><span class="o">.</span><span class="n">name</span>
-            <span class="n">parsed_span</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">span</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="n">SpanAttributeKey</span><span class="o">.</span><span class="n">SPAN_TYPE</span><span class="p">)</span>
-            <span class="n">span_inputs</span> <span class="o">=</span> <span class="n">span</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="n">SpanAttributeKey</span><span class="o">.</span><span class="n">INPUTS</span><span class="p">)</span>
+            <span class="n">parsed_span</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">span</span><span class="o">.</span><span class="n">span_type</span>
+            <span class="n">span_inputs</span> <span class="o">=</span> <span class="n">span</span><span class="o">.</span><span class="n">inputs</span>
             <span class="k">if</span> <span class="n">span_inputs</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">span_inputs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="n">parsed_span</span><span class="p">[</span><span class="s2">&quot;inputs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">span_inputs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-            <span class="n">span_outputs</span> <span class="o">=</span> <span class="n">span</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="n">SpanAttributeKey</span><span class="o">.</span><span class="n">OUTPUTS</span><span class="p">)</span>
+            <span class="n">span_outputs</span> <span class="o">=</span> <span class="n">span</span><span class="o">.</span><span class="n">outputs</span>
             <span class="k">if</span> <span class="n">span_outputs</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">span_outputs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="n">parsed_span</span><span class="p">[</span><span class="s2">&quot;outputs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">span_outputs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
@@ -899,7 +891,9 @@
 
         <span class="c1"># Directly set the tag on the trace in the backend</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">set_trace_tag</span><span class="p">(</span>
-            <span class="n">trace_info</span><span class="o">.</span><span class="n">request_id</span><span class="p">,</span> <span class="n">TraceTagKey</span><span class="o">.</span><span class="n">TRACE_SPANS</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">parsed_spans</span><span class="p">)</span>
+            <span class="n">trace_info</span><span class="o">.</span><span class="n">request_id</span><span class="p">,</span>
+            <span class="n">TraceTagKey</span><span class="o">.</span><span class="n">TRACE_SPANS</span><span class="p">,</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">parsed_spans</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
         <span class="p">)</span>
 
 <div class="viewcode-block" id="MlflowClient.start_span"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.start_span">[docs]</a>    <span class="nd">@experimental</span>
@@ -911,6 +905,7 @@
         <span class="n">span_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SpanType</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">,</span>
         <span class="n">inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">attributes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">start_time_ns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Span</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new span and start it without attaching it to the global trace context.</span>
@@ -984,6 +979,8 @@
 <span class="sd">                both fluent APIs like `with mlflow.start_span()`, and imperative APIs like this.</span>
 <span class="sd">            inputs: Inputs to set on the span.</span>
 <span class="sd">            attributes: A dictionary of attributes to set on the span.</span>
+<span class="sd">            start_time_ns: The start time of the span in nano seconds since the UNIX epoch.</span>
+<span class="sd">                If not provided, the current time will be used.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An :py:class:`mlflow.entities.Span` object representing the span.</span>
@@ -1045,11 +1042,18 @@
             <span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">otel_span</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">tracing</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">start_detached_span</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">parent_span</span><span class="o">.</span><span class="n">_span</span><span class="p">)</span>
+            <span class="n">otel_span</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">tracing</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">start_detached_span</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">parent_span</span><span class="o">.</span><span class="n">_span</span>
+            <span class="p">)</span>
+
+            <span class="c1"># We have to set the custom start time here after the span is created,</span>
+            <span class="c1"># because span processor may override the start time in the on_start() method.</span>
+            <span class="k">if</span> <span class="n">start_time_ns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">otel_span</span><span class="o">.</span><span class="n">_start_time</span> <span class="o">=</span> <span class="n">start_time_ns</span>
+
             <span class="n">span</span> <span class="o">=</span> <span class="n">create_mlflow_span</span><span class="p">(</span><span class="n">otel_span</span><span class="p">,</span> <span class="n">request_id</span><span class="p">,</span> <span class="n">span_type</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">attributes</span><span class="p">:</span>
-                <span class="n">span</span><span class="o">.</span><span class="n">set_attributes</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">inputs</span><span class="p">:</span>
+            <span class="n">span</span><span class="o">.</span><span class="n">set_attributes</span><span class="p">(</span><span class="n">attributes</span> <span class="ow">or</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">span</span><span class="o">.</span><span class="n">set_inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
 
             <span class="n">trace_manager</span><span class="o">.</span><span class="n">register_span</span><span class="p">(</span><span class="n">span</span><span class="p">)</span>
@@ -1068,8 +1072,9 @@
         <span class="n">request_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">span_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">outputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">attributes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">attributes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">status</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">SpanStatus</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;OK&quot;</span><span class="p">,</span>
+        <span class="n">end_time_ns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        End the span with the given trace ID and span ID.</span>
@@ -1086,6 +1091,8 @@
 <span class="sd">                representing the status code defined in</span>
 <span class="sd">                :py:class:`SpanStatusCode &lt;mlflow.entities.SpanStatusCode&gt;`</span>
 <span class="sd">                e.g. ``&quot;OK&quot;``, ``&quot;ERROR&quot;``. The default status is OK.</span>
+<span class="sd">            end_time_ns: The end time of the span in nano seconds since the UNIX epoch.</span>
+<span class="sd">                If not provided, the current time will be used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">request_id</span> <span class="o">==</span> <span class="n">NO_OP_SPAN_REQUEST_ID</span><span class="p">:</span>
             <span class="k">return</span>
@@ -1099,14 +1106,13 @@
                 <span class="n">error_code</span><span class="o">=</span><span class="n">RESOURCE_DOES_NOT_EXIST</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">attributes</span><span class="p">:</span>
-            <span class="n">span</span><span class="o">.</span><span class="n">set_attributes</span><span class="p">(</span><span class="n">attributes</span> <span class="ow">or</span> <span class="p">{})</span>
-        <span class="k">if</span> <span class="n">outputs</span><span class="p">:</span>
+        <span class="n">span</span><span class="o">.</span><span class="n">set_attributes</span><span class="p">(</span><span class="n">attributes</span> <span class="ow">or</span> <span class="p">{})</span>
+        <span class="k">if</span> <span class="n">outputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">span</span><span class="o">.</span><span class="n">set_outputs</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
         <span class="n">span</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">span</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+            <span class="n">span</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="n">end_time</span><span class="o">=</span><span class="n">end_time_ns</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Failed to end span </span><span class="si">{</span><span class="n">span_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. &quot;</span>
@@ -1440,7 +1446,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an experiment.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            name: The experiment name. Must be unique.</span>
+<span class="sd">            name: The experiment name, which must be a unique string.</span>
 <span class="sd">            artifact_location: The location to store run artifacts. If not provided, the server</span>
 <span class="sd">                picks anappropriate default.</span>
 <span class="sd">            tags: A dictionary of key-value pairs that are converted into</span>
@@ -2400,7 +2406,7 @@
 <span class="sd">                .. warning::</span>
 
 <span class="sd">                    - Out-of-range integer values will raise ValueError.</span>
-<span class="sd">                    - Out-of-range float values will raise ValueError.</span>
+<span class="sd">                    - Out-of-range float values will auto-scale with min/max and warn.</span>
 
 <span class="sd">            - shape (H: height, W: width):</span>
 
@@ -2740,7 +2746,7 @@
                 <span class="p">)</span>
                 <span class="n">existing_predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_from_file</span><span class="p">(</span><span class="n">downloaded_artifact_path</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">existing_predictions</span><span class="p">,</span> <span class="n">data</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                 <span class="s2">&quot;Appending new table to already existing artifact &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">artifact_file</span><span class="si">}</span><span class="s2"> for run </span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
@@ -4917,7 +4923,6 @@
 <span class="sd">            Aliases: [&quot;test-alias&quot;]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_validate_model_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">_validate_model_alias_name</span><span class="p">(</span><span class="n">alias</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span><span class="o">.</span><span class="n">get_model_version_by_alias</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">alias</span><span class="p">)</span></div></div>
 </pre></div>
 
@@ -4949,7 +4954,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.13.3.dev0',
+      VERSION:'2.15.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

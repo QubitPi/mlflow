@@ -1,5 +1,4 @@
 
-  
 
 <!DOCTYPE html>
 <!-- source: docs/source/tracking/artifacts-stores.rst -->
@@ -10,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Artifact Stores &mdash; MLflow 2.13.3.dev0 documentation</title>
+  <title>Artifact Stores</title>
   
    
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -48,7 +47,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.13.3.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../index.html"/>
         <link rel="up" title="MLflow Tracking" href="../tracking.html"/>
         <link rel="next" title="MLflow Tracking Server" href="/server.html"/>
         <link rel="prev" title="Backend Stores" href="/backend-stores.html"/> 
@@ -75,7 +74,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.13.3.dev0</span>
+    <span class="version">2.15.2.dev0</span>
   </li>
 </ul>
   </nav>
@@ -377,9 +376,8 @@ the client in order to enforce this property.</p>
 <span class="nb">export</span><span class="w"> </span><span class="nv">MLFLOW_KERBEROS_USER</span><span class="o">=</span>user_name_to_use
 </pre></div>
 </div>
-<p>Most of the cluster contest settings are read from <code class="docutils literal notranslate"><span class="pre">hdfs-site.xml</span></code> accessed by the HDFS native
-driver using the <code class="docutils literal notranslate"><span class="pre">CLASSPATH</span></code> environment variable.</p>
-<p>The HDFS driver that is used is <code class="docutils literal notranslate"><span class="pre">libhdfs</span></code>.</p>
+<p>The HDFS artifact store is accessed using the <code class="docutils literal notranslate"><span class="pre">pyarrow.fs</span></code> module, refer to the
+<a class="reference external" href="https://arrow.apache.org/docs/python/filesystems.html#filesystem-hdfs">PyArrow Documentation</a> for configuration and environment variables needed.</p>
 </div>
 </div>
 <div class="section" id="deletion-behavior">
@@ -387,6 +385,36 @@ driver using the <code class="docutils literal notranslate"><span class="pre">CL
 <p>In order to allow MLflow Runs to be restored, Run metadata and artifacts are not automatically removed
 from the backend store or artifact store when a Run is deleted. The <a class="reference internal" href="../cli.html#cli"><span class="std std-ref">mlflow gc</span></a> CLI is provided
 for permanently removing Run metadata and artifacts for deleted runs.</p>
+</div>
+<div class="section" id="multipart-upload-for-proxied-artifact-access">
+<h2>Multipart upload for proxied artifact access<a class="headerlink" href="#multipart-upload-for-proxied-artifact-access" title="Permalink to this headline"> </a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This feature is experimental and may be changed or removed in a future release without notice.</p>
+</div>
+<p>Tracking Server supports uploading large artifacts using multipart upload for proxied artifact access.
+To enable this feature, set <code class="docutils literal notranslate"><span class="pre">MLFLOW_ENABLE_PROXY_MULTIPART_UPLOAD</span></code> to <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">MLFLOW_ENABLE_PROXY_MULTIPART_UPLOAD</span><span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>Under the hood, the Tracking Server will create a multipart upload request with the underlying storage,
+generate presigned urls for each part, and let the client upload the parts directly to the storage.
+Once all parts are uploaded, the Tracking Server will complete the multipart upload.
+None of the data will pass through the Tracking Server.</p>
+<p>If the underlying storage does not support multipart upload, the Tracking Server will fallback to a single part upload.
+If multipart upload is supported but fails for any reason, an exception will be thrown.</p>
+<p>MLflow supports multipart upload for the following storage for proxied artifact access:</p>
+<ul class="simple">
+<li><p>Amazon S3</p></li>
+<li><p>Google Cloud Storage</p></li>
+</ul>
+<p>You can configure the following environment variables:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MLFLOW_MULTIPART_UPLOAD_MINIMUM_FILE_SIZE</span></code> - Specifies the minimum file size in bytes to use multipart upload
+when logging artifacts (Default: 500 MB)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MLFLOW_MULTIPART_UPLOAD_CHUNK_SIZE</span></code> - Specifies the chunk size in bytes to use when performing multipart upload
+(Default: 100 MB)</p></li>
+</ul>
 </div>
 </div>
 
@@ -428,7 +456,7 @@ for permanently removing Run metadata and artifacts for deleted runs.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.13.3.dev0',
+      VERSION:'2.15.2.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../index.html"/>
         <link rel="up" title="MLflow Tracking" href="../tracking.html"/>
         <link rel="next" title="Tracking Experiments with a Local Database" href="/tutorials/local-database.html"/>
         <link rel="prev" title="Artifact Stores" href="/artifacts-stores.html"/> 
@@ -62,6 +62,7 @@
 <script type="text/javascript" src="../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -74,7 +75,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -111,10 +112,11 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../new-features/index.html">New Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llms/tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../traditional-ml/index.html">Traditional ML</a></li>
@@ -255,7 +257,7 @@ server’s URI, along with its scheme and port (for example, <code class="docuti
 <p>The <a class="reference internal" href="../python_api/mlflow.html#mlflow.start_run" title="mlflow.start_run"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.start_run()</span></code></a>, <a class="reference internal" href="../python_api/mlflow.html#mlflow.log_param" title="mlflow.log_param"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.log_param()</span></code></a>, and <a class="reference internal" href="../python_api/mlflow.html#mlflow.log_metric" title="mlflow.log_metric"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.log_metric()</span></code></a> calls
 then make API requests to your remote tracking server.</p>
 <div class="code-section docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">remote_server_uri</span> <span class="o">=</span> <span class="s2">&quot;...&quot;</span>  <span class="c1"># set to your server URI</span>
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="n">remote_server_uri</span><span class="p">)</span>
@@ -309,7 +311,7 @@ You can configure the different backend store by adding <code class="docutils li
 <div class="section" id="using-the-tracking-server-for-proxied-artifact-access">
 <h4>Using the Tracking Server for proxied artifact access<a class="headerlink" href="#using-the-tracking-server-for-proxied-artifact-access" title="Permalink to this headline"> </a></h4>
 <p>By default, the tracking server stores artifacts in its local filesystem under <code class="docutils literal notranslate"><span class="pre">./mlartifacts</span></code> directory. To configure
-the tracking server to connect to remote storgate and serve artifacts, start the server with <code class="docutils literal notranslate"><span class="pre">--artifacts-destination</span></code> flag.</p>
+the tracking server to connect to remote storage and serve artifacts, start the server with <code class="docutils literal notranslate"><span class="pre">--artifacts-destination</span></code> flag.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mlflow<span class="w"> </span>server<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--port<span class="w"> </span><span class="m">8885</span><span class="w"> </span><span class="se">\</span>
@@ -381,7 +383,7 @@ See the following example of a client REST call in Python attempting to list exp
 mlflow<span class="w"> </span>server<span class="w"> </span>--artifacts-only<span class="w"> </span>...
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 
 <span class="c1"># Attempt to list experiments from the server</span>
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://0.0.0.0:8885/api/2.0/mlflow/experiments/list&quot;</span><span class="p">)</span>
@@ -433,8 +435,8 @@ This can be used to use a (self-signed) client certificate.</p></li>
 <p>The version of MLflow running on the server can be found by querying the <code class="docutils literal notranslate"><span class="pre">/version</span></code> endpoint.
 This can be used to check that the client-side version of MLflow is up-to-date with a remote tracking server prior to running experiments.
 For example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
-<span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://&lt;mlflow-host&gt;:&lt;mlflow-port&gt;/version&quot;</span><span class="p">)</span>
 <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="o">==</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">__version__</span>  <span class="c1"># Checking for a strict version match</span>
@@ -481,7 +483,7 @@ For example:</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

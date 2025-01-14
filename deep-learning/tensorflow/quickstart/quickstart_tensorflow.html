@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="MLflow Tensorflow Integration" href="../index.html"/>
         <link rel="next" title="Tensorflow within MLflow" href="/../guide/index.html"/>
         <link rel="prev" title="MLflow Tensorflow Integration" href="/../index.html"/> 
@@ -64,6 +64,7 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script type="text/javascript" src="../../../None"></script>
+<script type="text/javascript" src="../../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -76,7 +77,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,10 +114,11 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../llms/tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Deep Learning</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#why-mlflow-for-deep-learning">Why MLflow for Deep Learning?</a></li>
@@ -469,9 +471,9 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="kn">import</span> <span class="nn">tensorflow_datasets</span> <span class="k">as</span> <span class="nn">tfds</span>
-<span class="kn">from</span> <span class="nn">tensorflow</span> <span class="kn">import</span> <span class="n">keras</span>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow_datasets</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tfds</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">keras</span>
 </pre></div>
 </div>
 </div>
@@ -520,7 +522,7 @@ Dataset mnist downloaded and prepared to /root/tensorflow_datasets/mnist/3.0.1. 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">preprocess_fn</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">preprocess_fn</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
     <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">/</span> <span class="mi">255</span>
     <span class="n">label</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
@@ -580,7 +582,7 @@ Dataset mnist downloaded and prepared to /root/tensorflow_datasets/mnist/3.0.1. 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
 </pre></div>
@@ -702,7 +704,7 @@ Test accuracy:  0.98
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.tensorflow</span> <span class="kn">import</span> <span class="n">MlflowCallback</span>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tensorflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowCallback</span>
 
 <span class="c1"># Turn off autologging.</span>
 <span class="n">mlflow</span><span class="o">.</span><span class="n">tensorflow</span><span class="o">.</span><span class="n">autolog</span><span class="p">(</span><span class="n">disable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -737,12 +739,12 @@ Epoch 2/2
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 
 
 <span class="c1"># Create our own callback by subclassing `MlflowCallback`.</span>
-<span class="k">class</span> <span class="nc">MlflowCustomCallback</span><span class="p">(</span><span class="n">MlflowCallback</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MlflowCustomCallback</span><span class="p">(</span><span class="n">MlflowCallback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_every_epoch</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">loss</span> <span class="o">=</span> <span class="n">logs</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span>
@@ -787,7 +789,7 @@ Epoch 2/2
 </pre></div></div>
 </div>
 <p>Going to your Databricks CE page, you should find the <code class="docutils literal notranslate"><span class="pre">log_loss</span></code> is replacing the <code class="docutils literal notranslate"><span class="pre">loss</span></code> metric, similar to what is shown in the screenshot below.</p>
-<p><img alt="log loss screenshot" src="https://i.imgur.com/dncAwaP.png" /></p>
+<img alt="log loss screenshot" src="https://i.imgur.com/dncAwaP.png" />
 </div>
 </div>
 <div class="section" id="Wrap-up">
@@ -836,7 +838,7 @@ Epoch 2/2
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

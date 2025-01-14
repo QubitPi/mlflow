@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Hyperparameter tuning with MLflow and child runs - Notebooks" href="index.html"/>
         <link rel="next" title="Leveraging Child Runs in MLflow for Hyperparameter Tuning" href="/parent-child-runs.html"/>
         <link rel="prev" title="Hyperparameter tuning with MLflow and child runs - Notebooks" href="/index.html"/> 
@@ -64,6 +64,7 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script type="text/javascript" src="../../../None"></script>
+<script type="text/javascript" src="../../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -76,7 +77,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,10 +114,11 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../llms/tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Traditional ML</a><ul class="current">
@@ -495,17 +497,17 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">optuna</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">xgboost</span> <span class="k">as</span> <span class="nn">xgb</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_squared_error</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">optuna</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xgboost</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xgb</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_squared_error</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
 
-<span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 </pre></div>
 </div>
 </div>
@@ -534,7 +536,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">generate_apple_sales_data_with_promo_adjustment</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">generate_apple_sales_data_with_promo_adjustment</span><span class="p">(</span>
     <span class="n">base_demand</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
     <span class="n">n_rows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span>
     <span class="n">competitor_price_effect</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">50.0</span><span class="p">,</span>
@@ -887,11 +889,11 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 
 
-<span class="k">def</span> <span class="nf">plot_correlation_with_demand</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_correlation_with_demand</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa: D417</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plots the correlation of each variable in the dataframe with the &#39;demand&#39; column.</span>
 
@@ -1011,7 +1013,7 @@ parameters, and performance metrics.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_residuals</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">dvalid</span><span class="p">,</span> <span class="n">valid_y</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">plot_residuals</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">dvalid</span><span class="p">,</span> <span class="n">valid_y</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa: D417</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plots the residuals of the model predictions against the true values.</span>
 
@@ -1095,7 +1097,7 @@ parameters, and performance metrics.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_feature_importance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">booster</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">plot_feature_importance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">booster</span><span class="p">):</span>  <span class="c1"># noqa: D417</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plots feature importance for an XGBoost model.</span>
 
@@ -1143,7 +1145,7 @@ parameters, and performance metrics.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_or_create_experiment</span><span class="p">(</span><span class="n">experiment_name</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_or_create_experiment</span><span class="p">(</span><span class="n">experiment_name</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Retrieve the ID of an existing MLflow experiment or create a new one if it doesn&#39;t exist.</span>
 
@@ -1306,7 +1308,7 @@ parameters, and performance metrics.</p>
 <span class="c1"># trial has usurped the state of &#39;best conditions&#39;</span>
 
 
-<span class="k">def</span> <span class="nf">champion_callback</span><span class="p">(</span><span class="n">study</span><span class="p">,</span> <span class="n">frozen_trial</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">champion_callback</span><span class="p">(</span><span class="n">study</span><span class="p">,</span> <span class="n">frozen_trial</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Logging callback that will report when a new trial iteration improves upon existing</span>
 <span class="sd">    best trial values.</span>
@@ -1337,7 +1339,7 @@ parameters, and performance metrics.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">objective</span><span class="p">(</span><span class="n">trial</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">objective</span><span class="p">(</span><span class="n">trial</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">(</span><span class="n">nested</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="c1"># Define hyperparameters</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
@@ -1914,7 +1916,7 @@ Trial 55 achieved value: 14570.287261018764 with  1.8972% improvement
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

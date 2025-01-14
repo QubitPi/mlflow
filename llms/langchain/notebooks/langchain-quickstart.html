@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="MLflow LangChain Flavor" href="../index.html"/>
         <link rel="next" title="Introduction to RAG with MLflow and LangChain" href="/langchain-retriever.html"/>
         <link rel="prev" title="MLflow Langchain Autologging" href="/../autologging.html"/> 
@@ -64,6 +64,7 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script type="text/javascript" src="../../../None"></script>
+<script type="text/javascript" src="../../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -76,7 +77,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,12 +114,13 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">LLMs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#tutorials-and-use-case-guides-for-genai-applications-in-mlflow">Tutorials and Use Case Guides for GenAI applications in MLflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id1">MLflow Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#id2">MLflow Deployments Server for LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#id2">MLflow AI Gateway for LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id3">LLM Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id4">Prompt Engineering UI</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../index.html#native-mlflow-flavors-for-llms">Native MLflow Flavors for LLMs</a><ul class="current">
@@ -131,18 +133,19 @@
 <li class="toctree-l4"><a class="reference internal" href="../index.html#supported-elements-in-mlflow-langchain-integration">Supported Elements in MLflow LangChain Integration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#overview-of-chains-agents-and-retrievers">Overview of Chains, Agents, and Retrievers</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="../index.html#getting-started-with-the-mlflow-langchain-flavor-tutorials-and-guides">Getting Started with the MLflow LangChain Flavor - Tutorials and Guides</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../index.html#id3">Detailed Documentation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../index.html#id4">Detailed Documentation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#faq">FAQ</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../llama-index/index.html">MLflow LlamaIndex Flavor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dspy/index.html">MLflow DSPy Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../index.html#explore-the-native-llm-flavors">Explore the Native LLM Flavors</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id5">LLM Tracking in MLflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#tutorials-and-use-case-guides-for-llms-in-mlflow">Tutorials and Use Case Guides for LLMs in MLflow</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../traditional-ml/index.html">Traditional ML</a></li>
@@ -556,7 +559,7 @@ div.rendered_html tbody tr:hover {
 <div class="section" id="API-Key-Security-Overview">
 <h2>API Key Security Overview<a class="headerlink" href="#API-Key-Security-Overview" title="Permalink to this headline"> </a></h2>
 <p>API keys, especially for SaaS Large Language Models (LLMs), are as sensitive as financial information due to their connection to billing.</p>
-<p>If you’re interested in learning more about an alternative MLflow solution that securely manages your access keys, <a class="reference external" href="https://www.mlflow.org/docs/latest/llms/deployments/index.html">read about the deployments server here</a>.</p>
+<p>If you’re interested in learning more about an alternative MLflow solution that securely manages your access keys, <a class="reference external" href="https://www.mlflow.org/docs/latest/llms/deployments/index.html">read about MLflow AI Gateway here</a>.</p>
 <div class="section" id="Essential-Practices:">
 <h3>Essential Practices:<a class="headerlink" href="#Essential-Practices:" title="Permalink to this headline"> </a></h3>
 <ul class="simple">
@@ -574,13 +577,13 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">LLMChain</span>
-<span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">PromptTemplate</span>
-<span class="kn">from</span> <span class="nn">langchain_openai</span> <span class="kn">import</span> <span class="n">OpenAI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.chains</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMChain</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain.prompts</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptTemplate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
 
-<span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="k">assert</span> <span class="s2">&quot;OPENAI_API_KEY&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">,</span> <span class="s2">&quot;Please set the OPENAI_API_KEY environment variable.&quot;</span>
 </pre></div>
@@ -596,7 +599,7 @@ div.rendered_html tbody tr:hover {
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: Only run this cell if you are using Azure interfaces with OpenAI. If you have a direct account with</span>
 <span class="c1"># OpenAI, ignore this cell.</span>
 
-<span class="kn">from</span> <span class="nn">langchain_openai</span> <span class="kn">import</span> <span class="n">AzureOpenAI</span><span class="p">,</span> <span class="n">AzureOpenAIEmbeddings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">AzureOpenAI</span><span class="p">,</span> <span class="n">AzureOpenAIEmbeddings</span>
 
 <span class="c1"># Set this to `azure`</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_TYPE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;azure&quot;</span>
@@ -710,7 +713,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <p>If we navigate to the MLflow UI, we’ll see our logged LangChain model.</p>
-<p><img alt="Our LangChain Model in the MLflow UI" src="https://i.imgur.com/CeCeyp2.png" /></p>
+<img alt="Our LangChain Model in the MLflow UI" src="https://i.imgur.com/CeCeyp2.png" />
 </div>
 <div class="section" id="Loading-the-Model-and-Predicting-with-MLflow">
 <h2>Loading the Model and Predicting with MLflow<a class="headerlink" href="#Loading-the-Model-and-Predicting-with-MLflow" title="Permalink to this headline"> </a></h2>
@@ -930,7 +933,7 @@ Remember, mise-en-place is key to a successful dish. Make sure all ingredients a
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="MLflow Sentence-Transformers Flavor" href="../index.html"/>
         <link rel="next" title="MLflow LangChain Flavor" href="/../../langchain/index.html"/>
         <link rel="prev" title="Introduction to Advanced Semantic Similarity Analysis with Sentence Transformers and MLflow" href="/../tutorials/semantic-similarity/semantic-similarity-sentence-transformers.html"/> 
@@ -62,6 +62,7 @@
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="../../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -74,7 +75,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -111,12 +112,13 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">LLMs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#tutorials-and-use-case-guides-for-genai-applications-in-mlflow">Tutorials and Use Case Guides for GenAI applications in MLflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id1">MLflow Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#id2">MLflow Deployments Server for LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#id2">MLflow AI Gateway for LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id3">LLM Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id4">Prompt Engineering UI</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../index.html#native-mlflow-flavors-for-llms">Native MLflow Flavors for LLMs</a><ul class="current">
@@ -133,13 +135,14 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../langchain/index.html">MLflow LangChain Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../llama-index/index.html">MLflow LlamaIndex Flavor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dspy/index.html">MLflow DSPy Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../index.html#explore-the-native-llm-flavors">Explore the Native LLM Flavors</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id5">LLM Tracking in MLflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#tutorials-and-use-case-guides-for-llms-in-mlflow">Tutorials and Use Case Guides for LLMs in MLflow</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../traditional-ml/index.html">Traditional ML</a></li>
@@ -245,8 +248,8 @@ and batch inference by adapting the required data structures for <code class="do
 <div class="section" id="saving-and-logging-sentence-transformers-models">
 <h2>Saving and Logging Sentence Transformers Models<a class="headerlink" href="#saving-and-logging-sentence-transformers-models" title="Permalink to this headline"> </a></h2>
 <p>You can save and log sentence-transformers models in MLflow. Here’s an example of both saving and logging a model:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sentence_transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformer</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s2">&quot;model_name&quot;</span><span class="p">)</span>
 
@@ -270,8 +273,8 @@ and batch inference by adapting the required data structures for <code class="do
 <p>MLflow’s <code class="docutils literal notranslate"><span class="pre">sentence_transformers</span></code> flavor allows you to pass in the <code class="docutils literal notranslate"><span class="pre">task</span></code> param with the string value <code class="docutils literal notranslate"><span class="pre">&quot;llm/v1/embeddings&quot;</span></code>
 when saving a model with <a class="reference internal" href="../../../python_api/mlflow.sentence_transformers.html#mlflow.sentence_transformers.save_model" title="mlflow.sentence_transformers.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.sentence_transformers.save_model()</span></code></a> and <a class="reference internal" href="../../../python_api/mlflow.sentence_transformers.html#mlflow.sentence_transformers.log_model" title="mlflow.sentence_transformers.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.sentence_transformers.log_model()</span></code></a>.</p>
 <p>For example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sentence_transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformer</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s2">&quot;all-MiniLM-L6-v2&quot;</span><span class="p">)</span>
 
@@ -297,19 +300,19 @@ always do so via <a class="reference internal" href="../../../python_api/mlflow.
 <h2>Custom Python Function Implementation<a class="headerlink" href="#custom-python-function-implementation" title="Permalink to this headline"> </a></h2>
 <p>In addition to using pre-built models, you can create custom Python functions with the <cite>sentence_transformers</cite> flavor. Here’s an example of a custom
 implementation for comparing the similarity between text documents:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.pyfunc</span> <span class="kn">import</span> <span class="n">PythonModel</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span><span class="p">,</span> <span class="n">util</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.pyfunc</span><span class="w"> </span><span class="kn">import</span> <span class="n">PythonModel</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sentence_transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformer</span><span class="p">,</span> <span class="n">util</span>
 
 
-<span class="k">class</span> <span class="nc">DocumentSimilarityModel</span><span class="p">(</span><span class="n">PythonModel</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">load_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DocumentSimilarityModel</span><span class="p">(</span><span class="n">PythonModel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load the model context for inference.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">artifacts</span><span class="p">[</span><span class="s2">&quot;model_path&quot;</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Predict method for comparing similarity between documents.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_input</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="ow">and</span> <span class="n">model_input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">documents</span> <span class="o">=</span> <span class="n">model_input</span><span class="o">.</span><span class="n">values</span>
@@ -399,7 +402,7 @@ implementation for comparing the similarity between text documents:</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

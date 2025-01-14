@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../index.html"/>
         <link rel="next" title="MLflow Projects" href="/../projects.html"/>
         <link rel="prev" title="Remote Experiment Tracking with MLflow Tracking Server" href="/../tracking/tutorials/remote-server.html"/> 
 
@@ -61,6 +61,7 @@
 <script type="text/javascript" src="../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -73,7 +74,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -110,10 +111,11 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../new-features/index.html">New Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llms/tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../traditional-ml/index.html">Traditional ML</a></li>
@@ -238,7 +240,7 @@ logging globally, as shown below:</p>
 <p>However, if you are executing the command above from within Ipython notebook (Jupyter, Databricks notebook,
 Google Colab), the <code class="docutils literal notranslate"><span class="pre">export</span></code> command will not work due to the segregated state of the ephemeral shell.
 Instead you can use the following code:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MLFLOW_ENABLE_SYSTEM_METRICS_LOGGING&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
 </pre></div>
@@ -247,8 +249,8 @@ Instead you can use the following code:</p>
 and log the default system metrics. Try running the following code in your favorite environment and you
 should see system metrics existing in the logged run data. Please note that you don’t necessarilty need to
 start an MLflow server, as the metrics are logged locally.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
 <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
@@ -274,7 +276,7 @@ start an MLflow server, as the metrics are logged locally.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">MLFLOW_ENABLE_SYSTEM_METRICS_LOGGING</span><span class="o">=</span><span class="s2">&quot;false&quot;</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="k">del</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MLFLOW_ENABLE_SYSTEM_METRICS_LOGGING&quot;</span><span class="p">]</span>
 </pre></div>
@@ -288,7 +290,7 @@ start an MLflow server, as the metrics are logged locally.</p>
 environments in which you do not have the appropriate access to set an environment variable.
 Running the following code will have the same effect as setting
 <code class="docutils literal notranslate"><span class="pre">MLFLOW_ENABLE_SYSTEM_METRICS_LOGGING</span></code> environment variable to <code class="docutils literal notranslate"><span class="pre">true</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">enable_system_metrics_logging</span><span class="p">()</span>
 
@@ -344,8 +346,8 @@ them, let’s start our MLflow UI server, and log some system metrics to it:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mlflow<span class="w"> </span>ui
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="s2">&quot;http://127.0.0.1:5000&quot;</span><span class="p">)</span>
 <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
@@ -417,7 +419,7 @@ the average of the samples.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

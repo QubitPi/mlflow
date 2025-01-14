@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -61,6 +61,7 @@
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="../../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -73,7 +74,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -110,10 +111,11 @@
 
       
         <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../llms/tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../traditional-ml/index.html">Traditional ML</a></li>
@@ -187,10 +189,10 @@
               <div itemprop="articleBody">
                 
   <h1>Source code for mlflow.entities.run_status</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">mlflow.protos.service_pb2</span> <span class="kn">import</span> <span class="n">RunStatus</span> <span class="k">as</span> <span class="n">ProtoRunStatus</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.service_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunStatus</span> <span class="k">as</span> <span class="n">ProtoRunStatus</span>
 
 
-<div class="viewcode-block" id="RunStatus"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.RunStatus">[docs]</a><span class="k">class</span> <span class="nc">RunStatus</span><span class="p">:</span>
+<div class="viewcode-block" id="RunStatus"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.RunStatus">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">RunStatus</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Enum for status of an :py:class:`mlflow.entities.Run`.&quot;&quot;&quot;</span>
 
     <span class="n">RUNNING</span> <span class="o">=</span> <span class="n">ProtoRunStatus</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;RUNNING&quot;</span><span class="p">)</span>
@@ -204,7 +206,7 @@
     <span class="n">_TERMINATED_STATUSES</span> <span class="o">=</span> <span class="p">{</span><span class="n">FINISHED</span><span class="p">,</span> <span class="n">FAILED</span><span class="p">,</span> <span class="n">KILLED</span><span class="p">}</span>
 
 <div class="viewcode-block" id="RunStatus.from_string"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.RunStatus.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">status_str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_string</span><span class="p">(</span><span class="n">status_str</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">status_str</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">RunStatus</span><span class="o">.</span><span class="n">_STRING_TO_STATUS</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Could not get run status corresponding to string </span><span class="si">{</span><span class="n">status_str</span><span class="si">}</span><span class="s2">. Valid run &quot;</span>
@@ -213,7 +215,7 @@
         <span class="k">return</span> <span class="n">RunStatus</span><span class="o">.</span><span class="n">_STRING_TO_STATUS</span><span class="p">[</span><span class="n">status_str</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="RunStatus.to_string"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.RunStatus.to_string">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="n">status</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_string</span><span class="p">(</span><span class="n">status</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">status</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">RunStatus</span><span class="o">.</span><span class="n">_STATUS_TO_STRING</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Could not get string corresponding to run status </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">. Valid run &quot;</span>
@@ -222,11 +224,11 @@
         <span class="k">return</span> <span class="n">RunStatus</span><span class="o">.</span><span class="n">_STATUS_TO_STRING</span><span class="p">[</span><span class="n">status</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="RunStatus.is_terminated"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.RunStatus.is_terminated">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">is_terminated</span><span class="p">(</span><span class="n">status</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_terminated</span><span class="p">(</span><span class="n">status</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">RunStatus</span><span class="o">.</span><span class="n">_TERMINATED_STATUSES</span></div>
 
 <div class="viewcode-block" id="RunStatus.all_status"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.RunStatus.all_status">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">all_status</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">all_status</span><span class="p">():</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">RunStatus</span><span class="o">.</span><span class="n">_STATUS_TO_STRING</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div></div>
 </pre></div>
 
@@ -258,7 +260,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

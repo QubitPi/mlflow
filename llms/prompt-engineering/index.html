@@ -47,10 +47,10 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="LLMs" href="../index.html"/>
         <link rel="next" title="MLflow Transformers Flavor" href="/../transformers/index.html"/>
-        <link rel="prev" title="MLflow LLM Evaluate" href="/../llm-evaluate/index.html"/> 
+        <link rel="prev" title="MLflow LLM Evaluation" href="/../llm-evaluate/index.html"/> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
@@ -62,6 +62,7 @@
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -74,7 +75,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -111,12 +112,13 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">LLMs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#tutorials-and-use-case-guides-for-genai-applications-in-mlflow">Tutorials and Use Case Guides for GenAI applications in MLflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#id1">MLflow Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#id2">MLflow Deployments Server for LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#id2">MLflow AI Gateway for LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#id3">LLM Evaluation</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html#id4">Prompt Engineering UI</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Prompt Engineering UI (Experimental)</a><ul>
@@ -129,9 +131,9 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#native-mlflow-flavors-for-llms">Native MLflow Flavors for LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#id5">LLM Tracking in MLflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#tutorials-and-use-case-guides-for-llms-in-mlflow">Tutorials and Use Case Guides for LLMs in MLflow</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../traditional-ml/index.html">Traditional ML</a></li>
@@ -208,7 +210,7 @@
 <span id="prompt-engineering"></span><h1>Prompt Engineering UI (Experimental)<a class="headerlink" href="#prompt-engineering-ui-experimental" title="Permalink to this headline"> </a></h1>
 <p>Starting in MLflow 2.7, the MLflow Tracking UI provides a best-in-class experience for prompt
 engineering. With no code required, you can try out multiple LLMs from the
-<a class="reference internal" href="../deployments/index.html#deployments"><span class="std std-ref">MLflow Deployments Server</span></a>, parameter configurations, and prompts to build a variety of models for
+<a class="reference internal" href="../deployments/index.html#deployments"><span class="std std-ref">MLflow AI Gateway</span></a>, parameter configurations, and prompts to build a variety of models for
 question answering, document summarization, and beyond. Using the embedded Evaluation UI, you can
 also evaluate multiple models on a set of inputs and compare the responses to select the best one.
 Every model created with the prompt engineering UI is stored in the <a class="reference internal" href="../../models.html#models"><span class="std std-ref">MLflow Model</span></a>
@@ -217,25 +219,25 @@ choice of LLM, parameters, etc.) are tracked as <a class="reference internal" hr
 <div class="section" id="quickstart">
 <span id="prompt-engineering-quickstart"></span><h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline"> </a></h2>
 <p>The following guide will get you started with MLflow’s UI for prompt engineering.</p>
-<div class="section" id="step-1-create-an-mlflow-deployments-server-completions-or-chat-endpoint">
-<h3>Step 1: Create an MLflow Deployments Server Completions or Chat Endpoint<a class="headerlink" href="#step-1-create-an-mlflow-deployments-server-completions-or-chat-endpoint" title="Permalink to this headline"> </a></h3>
-<p>To use the prompt engineering UI, you need to create one or more <a class="reference internal" href="../deployments/index.html#deployments"><span class="std std-ref">MLflow Deployments Server</span></a>
+<div class="section" id="step-1-create-an-mlflow-ai-gateway-completions-or-chat-endpoint">
+<h3>Step 1: Create an MLflow AI Gateway Completions or Chat Endpoint<a class="headerlink" href="#step-1-create-an-mlflow-ai-gateway-completions-or-chat-endpoint" title="Permalink to this headline"> </a></h3>
+<p>To use the prompt engineering UI, you need to create one or more <a class="reference internal" href="../deployments/index.html#deployments"><span class="std std-ref">MLflow AI Gateway</span></a>
 completions or chat <a class="reference internal" href="../deployments/index.html#deployments-endpoints"><span class="std std-ref">Endpoints</span></a>. Follow the
-<a class="reference internal" href="../deployments/index.html#deployments-quickstart"><span class="std std-ref">MLflow Deployments Server Quickstart guide</span></a> to easily create an endpoint in less than five
-minutes. If you already have access to an MLflow Deployments Server endpoint of type <code class="docutils literal notranslate"><span class="pre">llm/v1/completions</span></code>
+<a class="reference internal" href="../deployments/index.html#deployments-quickstart"><span class="std std-ref">MLflow AI Gateway Quickstart guide</span></a> to easily create an endpoint in less than five
+minutes. If you already have access to an MLflow AI Gateway endpoint of type <code class="docutils literal notranslate"><span class="pre">llm/v1/completions</span></code>
 or <code class="docutils literal notranslate"><span class="pre">llm/v1/chat</span></code>, you can skip this step.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mlflow<span class="w"> </span>deployments<span class="w"> </span>start-server<span class="w"> </span>--config-path<span class="w"> </span>config.yaml<span class="w"> </span>--port<span class="w"> </span><span class="m">7000</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mlflow<span class="w"> </span>gateway<span class="w"> </span>start<span class="w"> </span>--config-path<span class="w"> </span>config.yaml<span class="w"> </span>--port<span class="w"> </span><span class="m">7000</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="step-2-connect-the-mlflow-deployments-server-to-your-mlflow-tracking-server">
-<h3>Step 2: Connect the MLflow Deployments Server to your MLflow Tracking Server<a class="headerlink" href="#step-2-connect-the-mlflow-deployments-server-to-your-mlflow-tracking-server" title="Permalink to this headline"> </a></h3>
-<p>The prompt engineering UI also requires a connection between the MLflow Deployments Server and the MLflow
-Tracking Server. To connect the MLflow Deployments Server with the MLflow Tracking Server, simply set the
+<div class="section" id="step-2-connect-the-mlflow-ai-gateway-to-your-mlflow-tracking-server">
+<h3>Step 2: Connect the MLflow AI Gateway to your MLflow Tracking Server<a class="headerlink" href="#step-2-connect-the-mlflow-ai-gateway-to-your-mlflow-tracking-server" title="Permalink to this headline"> </a></h3>
+<p>The prompt engineering UI also requires a connection between the MLflow AI Gateway and the MLflow
+Tracking Server. To connect the MLflow AI Gateway with the MLflow Tracking Server, simply set the
 <code class="docutils literal notranslate"><span class="pre">MLFLOW_DEPLOYMENTS_TARGET</span></code> environment variable in the environment where the server is running and
-restart the server. For example, if the MLflow Deployments Server is running at <code class="docutils literal notranslate"><span class="pre">http://localhost:7000</span></code>, you
+restart the server. For example, if the MLflow AI Gateway is running at <code class="docutils literal notranslate"><span class="pre">http://localhost:7000</span></code>, you
 can start an MLflow Tracking Server in a shell on your local machine and connect it to the
-MLflow Deployments Server using the <a class="reference internal" href="../../cli.html#cli"><span class="std std-ref">mlflow server</span></a> command as follows:</p>
+MLflow AI Gateway using the <a class="reference internal" href="../../cli.html#cli"><span class="std std-ref">mlflow server</span></a> command as follows:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">MLFLOW_DEPLOYMENTS_TARGET</span><span class="o">=</span><span class="s2">&quot;http://127.0.0.1:7000&quot;</span>
 mlflow<span class="w"> </span>server<span class="w"> </span>--port<span class="w"> </span><span class="m">5000</span>
 </pre></div>
@@ -257,12 +259,12 @@ out different LLMs, parameters, and prompts.</p>
 </div>
 <div class="section" id="step-5-select-your-endpoint-and-evaluate-the-example-prompt">
 <h3>Step 5: Select your endpoint and evaluate the example prompt<a class="headerlink" href="#step-5-select-your-endpoint-and-evaluate-the-example-prompt" title="Permalink to this headline"> </a></h3>
-<p>Next, click the <em>Select endpoint</em> dropdown and select the MLflow Deployments Server completions endpoint you created in
+<p>Next, click the <em>Select endpoint</em> dropdown and select the MLflow AI Gateway completions endpoint you created in
 Step 1. Then, click the <strong>Evaluate</strong> button to test out an example prompt engineering use case
 for generating product advertisements.</p>
 <p>MLflow will embed the specified <em>stock_type</em> input
 variable value - <code class="docutils literal notranslate"><span class="pre">&quot;books&quot;</span></code> - into the specified <em>prompt  template</em> and send it to the LLM
-associated with the MLflow Deployments Server endpoint with the configured <em>temperature</em> (currently <code class="docutils literal notranslate"><span class="pre">0.01</span></code>)
+associated with the MLflow AI Gateway endpoint with the configured <em>temperature</em> (currently <code class="docutils literal notranslate"><span class="pre">0.01</span></code>)
 and <em>max_tokens</em> (currently 1000). The LLM response will appear in the <em>Output</em> section.</p>
 <div class="figure align-center">
 <a class="reference internal image-reference" href="../../_images/prompt_modal_2.png"><img alt="../../_images/prompt_modal_2.png" src="../../_images/prompt_modal_2.png" style="width: 1031.5px; height: 566.5px;" /></a>
@@ -410,7 +412,7 @@ all of the previous inputs.</p>
 as artifacts in MLflow Runs. They can be accessed programmatically using the <a class="reference internal" href="../../python_api/mlflow.html#mlflow.load_table" title="mlflow.load_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.load_table()</span></code></a> API
 as follows:</p>
 <blockquote>
-<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_experiment</span><span class="p">(</span><span class="s2">&quot;/Path/to/your/prompt/engineering/experiment&quot;</span><span class="p">)</span>
 
@@ -443,7 +445,7 @@ environment of your choosing, for example:</p>
 <div class="figure align-center">
 <a class="reference internal image-reference" href="../../_images/load_model.png"><img alt="../../_images/load_model.png" src="../../_images/load_model.png" style="width: 901.1999999999999px; height: 416.4px;" /></a>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">logged_model</span> <span class="o">=</span> <span class="s2">&quot;runs:/8451075c46964f82b85fe16c3d2b7ea0/model&quot;</span>
 
@@ -479,8 +481,8 @@ see the <a class="reference internal" href="#deploy-prompt-serving"><span class=
 API. Let’s evaluate our model on some <a class="reference internal" href="../llm-evaluate/index.html#llm-eval-default-metrics"><span class="std std-ref">pre-defined metrics</span></a>
 for text summarization:</p>
 <blockquote>
-<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="n">logged_model</span> <span class="o">=</span> <span class="s2">&quot;runs:/840a5c43f3fb46f2a2059b761557c1d0/model&quot;</span>
 
@@ -526,7 +528,7 @@ for text summarization:</p>
 </div></blockquote>
 <p>The <a class="reference internal" href="../../python_api/mlflow.html#mlflow.evaluate" title="mlflow.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.evaluate()</span></code></a> API also supports <a class="reference internal" href="../llm-evaluate/index.html#llm-eval-custom-metrics"><span class="std std-ref">custom metrics</span></a>,
 <a class="reference internal" href="../llm-evaluate/index.html#llm-eval-static-dataset"><span class="std std-ref">static dataset evaluation</span></a>, and much more. For a
-more in-depth guide, see <a class="reference internal" href="../llm-evaluate/index.html#llm-eval"><span class="std std-ref">MLflow LLM Evaluate</span></a>.</p>
+more in-depth guide, see <a class="reference internal" href="../llm-evaluate/index.html#llm-eval"><span class="std std-ref">MLflow LLM Evaluation</span></a>.</p>
 </div>
 </div>
 <div class="section" id="deployment-for-real-time-serving">
@@ -547,7 +549,7 @@ Registered Model named <code class="docutils literal notranslate"><span class="p
 <li><p>Define the following environment variables in the environment where you will run your
 MLflow Model Server, such as a shell on your local machine:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">MLFLOW_DEPLOYMENTS_TARGET</span></code>: The URL of the MLflow Deployments Server</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MLFLOW_DEPLOYMENTS_TARGET</span></code>: The URL of the MLflow AI Gateway</p></li>
 </ul>
 </li>
 <li><p>Use the <a class="reference internal" href="../../cli.html#cli"><span class="std std-ref">mlflow models serve</span></a> command to start the MLflow Model Server. For example,
@@ -592,7 +594,7 @@ prompt template.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../llm-evaluate/index.html" class="btn btn-neutral" title="MLflow LLM Evaluate" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
+        <a href="../llm-evaluate/index.html" class="btn btn-neutral" title="MLflow LLM Evaluation" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
       
       
         <a href="../transformers/index.html" class="btn btn-neutral" title="MLflow Transformers Flavor" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
@@ -623,7 +625,7 @@ prompt template.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

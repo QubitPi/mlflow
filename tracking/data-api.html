@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../index.html"/>
         <link rel="up" title="MLflow Tracking" href="../tracking.html"/>
         <link rel="next" title="Backend Stores" href="/backend-stores.html"/>
         <link rel="prev" title="Automatic Logging with MLflow Tracking" href="/autolog.html"/> 
@@ -62,6 +62,7 @@
 <script type="text/javascript" src="../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -74,7 +75,7 @@
     <a href="../index.html" class="wy-nav-top-logo"
       ><img src="../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -111,10 +112,11 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../new-features/index.html">New Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llms/tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../traditional-ml/index.html">Traditional ML</a></li>
@@ -226,9 +228,9 @@ The module provides functions to construct <a class="reference internal" href=".
 <li><p><a class="reference internal" href="../python_api/mlflow.data.html#mlflow.data.tensorflow_dataset.TensorFlowDataset" title="mlflow.data.tensorflow_dataset.TensorFlowDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlflow.data.tensorflow_dataset.TensorFlowDataset</span></code></a></p></li>
 </ul>
 <p>The following example demonstrates how to construct a <a class="reference internal" href="../python_api/mlflow.data.html#mlflow.data.pandas_dataset.PandasDataset" title="mlflow.data.pandas_dataset.PandasDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlflow.data.pandas_dataset.PandasDataset</span></code></a> object from a Pandas DataFrame:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.data</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">mlflow.data.pandas_dataset</span> <span class="kn">import</span> <span class="n">PandasDataset</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow.data</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.data.pandas_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">PandasDataset</span>
 
 
 <span class="n">dataset_source_url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/mlflow/mlflow/master/tests/datasets/winequality-white.csv&quot;</span>
@@ -260,9 +262,9 @@ dataset can be retrieved either by accessing the <code class="docutils literal n
 <div class="section" id="example-usage">
 <h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline"> </a></h2>
 <p>The following example demonstrates how to use the <code class="docutils literal notranslate"><span class="pre">log_inputs</span></code> API to log a training dataset, retrieve its information, and fetch the data source:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">mlflow.data.pandas_dataset</span> <span class="kn">import</span> <span class="n">PandasDataset</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.data.pandas_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">PandasDataset</span>
 
 
 <span class="n">dataset_source_url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/mlflow/mlflow/master/tests/datasets/winequality-white.csv&quot;</span>
@@ -345,14 +347,14 @@ usage of Datasets that have been logged with the <a class="reference internal" h
 <p>The integration of Datasets with MLflow evaluate was introduced in MLflow 2.8.0. Previous versions do not have this functionality.</p>
 </div>
 <p>To see how this integration functions, let’s take a look at a fairly simple and typical classification task.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
-<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">LabelEncoder</span>
-<span class="kn">import</span> <span class="nn">xgboost</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">LabelEncoder</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xgboost</span>
 
-<span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.data.pandas_dataset</span> <span class="kn">import</span> <span class="n">PandasDataset</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.data.pandas_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">PandasDataset</span>
 
 
 <span class="n">dataset_source_url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/mlflow/mlflow/master/tests/datasets/winequality-white.csv&quot;</span>
@@ -456,7 +458,7 @@ to the run.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

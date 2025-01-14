@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Getting Started with MLflow" href="../index.html"/>
         <link rel="next" title="5 Minute Tracking Server Overview" href="/../tracking-server-overview/index.html"/>
         <link rel="prev" title="MLflow 5 minute Tracking Quickstart" href="/../intro-quickstart/notebooks/tracking_quickstart.html"/> 
@@ -62,6 +62,7 @@
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -74,7 +75,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -111,7 +112,7 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Getting Started with MLflow</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../index.html#guidance-on-running-tutorials">Guidance on Running Tutorials</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html#getting-started-guides">Getting Started Guides</a><ul class="current">
@@ -130,6 +131,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../llms/tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../traditional-ml/index.html">Traditional ML</a></li>
@@ -239,15 +241,15 @@ our MLflow tracking server:</p>
 free-of-charge solution with Databricks Community Edition, please see <a class="reference external" href="../running-notebooks/index.html">this page</a>.</p>
 </div>
 <p>Import the following packages</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">keras</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">hyperopt</span> <span class="kn">import</span> <span class="n">STATUS_OK</span><span class="p">,</span> <span class="n">Trials</span><span class="p">,</span> <span class="n">fmin</span><span class="p">,</span> <span class="n">hp</span><span class="p">,</span> <span class="n">tpe</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_squared_error</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hyperopt</span><span class="w"> </span><span class="kn">import</span> <span class="n">STATUS_OK</span><span class="p">,</span> <span class="n">Trials</span><span class="p">,</span> <span class="n">fmin</span><span class="p">,</span> <span class="n">hp</span><span class="p">,</span> <span class="n">tpe</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_squared_error</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
 
-<span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">infer_signature</span>
 </pre></div>
 </div>
 <p>Now load the dataset and split it into training, validation, and test sets.</p>
@@ -271,7 +273,7 @@ free-of-charge solution with Databricks Community Edition, please see <a class="
 </div>
 <p>Then let’s define the model architecture and train the model. The <code class="docutils literal notranslate"><span class="pre">train_model</span></code> function uses MLflow to track the
 parameters, results, and model itself of each trial as a child run.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="n">valid_x</span><span class="p">,</span> <span class="n">valid_y</span><span class="p">,</span> <span class="n">test_x</span><span class="p">,</span> <span class="n">test_y</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">train_model</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="n">valid_x</span><span class="p">,</span> <span class="n">valid_y</span><span class="p">,</span> <span class="n">test_x</span><span class="p">,</span> <span class="n">test_y</span><span class="p">):</span>
     <span class="c1"># Define model architecture</span>
     <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -318,7 +320,7 @@ parameters, results, and model itself of each trial as a child run.</p>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">objective</span></code> function takes in the hyperparameters and returns the results of the <code class="docutils literal notranslate"><span class="pre">train_model</span></code>
 function for that set of hyperparameters.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">objective</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">objective</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
     <span class="c1"># MLflow will track the parameters and results for each run</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span>
         <span class="n">params</span><span class="p">,</span>
@@ -485,19 +487,19 @@ functions to implement:</p>
 DataFrame and the output will be a pandas Series of predicted result.</p></li>
 </ol>
 <p>For example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.pyfunc</span>
-<span class="kn">import</span> <span class="nn">pandas</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow.pyfunc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
 
 
-<span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">load_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="n">pretrained_model</span> <span class="o">=</span> <span class="s2">&quot;my-model&quot;</span>
         <span class="n">this</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">pretrained_model</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">):</span>
         <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">model_input</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
             <span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;input_column&quot;</span><span class="p">])</span>
@@ -527,19 +529,19 @@ conda environment specifying its dependencies:</p>
 </pre></div>
 </div>
 <p>In the end, we should have a file called <cite>MyModel.py</cite> with</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow.pyfunc</span>
-<span class="kn">import</span> <span class="nn">pandas</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow.pyfunc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
 
 
-<span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">load_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="n">pretrained_model</span> <span class="o">=</span> <span class="s2">&quot;my-model&quot;</span>
         <span class="n">this</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">pretrained_model</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">):</span>
         <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">model_input</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
             <span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;input_column&quot;</span><span class="p">])</span>
@@ -574,7 +576,7 @@ conda environment specifying its dependencies:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loaded_model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">mlflow_pyfunc_model_path</span><span class="p">)</span>
 
 <span class="c1"># Evaluate the model</span>
-<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
 
 <span class="n">test_data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
     <span class="p">{</span>
@@ -680,7 +682,7 @@ platforms and versions. Again, you will need to consult your cloud provider’s 
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

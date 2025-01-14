@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="MLflow OpenAI Flavor" href="../index.html"/>
         <link rel="next" title="MLflow Sentence-Transformers Flavor" href="/../../sentence-transformers/index.html"/>
         <link rel="prev" title="Advanced Tutorial: Embeddings Support with OpenAI in MLflow" href="/../notebooks/openai-embeddings-generation.html"/> 
@@ -62,6 +62,7 @@
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="../../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -74,7 +75,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -111,12 +112,13 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">LLMs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#tutorials-and-use-case-guides-for-genai-applications-in-mlflow">Tutorials and Use Case Guides for GenAI applications in MLflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id1">MLflow Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#id2">MLflow Deployments Server for LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#id2">MLflow AI Gateway for LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id3">LLM Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id4">Prompt Engineering UI</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../index.html#native-mlflow-flavors-for-llms">Native MLflow Flavors for LLMs</a><ul class="current">
@@ -134,13 +136,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../../sentence-transformers/index.html">MLflow Sentence-Transformers Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../langchain/index.html">MLflow LangChain Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../llama-index/index.html">MLflow LlamaIndex Flavor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dspy/index.html">MLflow DSPy Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../index.html#explore-the-native-llm-flavors">Explore the Native LLM Flavors</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id5">LLM Tracking in MLflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#tutorials-and-use-case-guides-for-llms-in-mlflow">Tutorials and Use Case Guides for LLMs in MLflow</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../traditional-ml/index.html">Traditional ML</a></li>
@@ -302,15 +305,15 @@ ensuring that each prompt-driven interaction is as effective and impactful as po
 <div class="section" id="direct-openai-service-usage">
 <h2>Direct OpenAI Service Usage<a class="headerlink" href="#direct-openai-service-usage" title="Permalink to this headline"> </a></h2>
 <p>Direct usage of OpenAI’s service through MLflow allows for seamless interaction with the latest GPT models for a variety of NLP tasks.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">import</span> <span class="nn">openai</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">openai</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.models.signature</span> <span class="kn">import</span> <span class="n">ModelSignature</span>
-<span class="kn">from</span> <span class="nn">mlflow.types.schema</span> <span class="kn">import</span> <span class="n">ColSpec</span><span class="p">,</span> <span class="n">ParamSchema</span><span class="p">,</span> <span class="n">ParamSpec</span><span class="p">,</span> <span class="n">Schema</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.signature</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelSignature</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.types.schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColSpec</span><span class="p">,</span> <span class="n">ParamSchema</span><span class="p">,</span> <span class="n">ParamSpec</span><span class="p">,</span> <span class="n">Schema</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;mlflow&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
 
@@ -529,10 +532,10 @@ or set through your IDE’s environment variable configuration. Please do not le
 <div class="section" id="azure-openai-service-in-mlflow">
 <h3>Azure OpenAI Service in MLflow<a class="headerlink" href="#azure-openai-service-in-mlflow" title="Permalink to this headline"> </a></h3>
 <p>Integrating Azure OpenAI models within MLflow follows similar procedures to direct OpenAI service usage, with additional Azure-specific configurations.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">openai</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">openai</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Set environment variables for Azure OpenAI service</span>
@@ -687,7 +690,7 @@ strategy, it is a key process component that greatly helps to enhance the qualit
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

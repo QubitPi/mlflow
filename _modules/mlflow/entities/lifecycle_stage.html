@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -61,6 +61,7 @@
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="../../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -73,7 +74,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -110,10 +111,11 @@
 
       
         <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../llms/tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../traditional-ml/index.html">Traditional ML</a></li>
@@ -187,17 +189,17 @@
               <div itemprop="articleBody">
                 
   <h1>Source code for mlflow.entities.lifecycle_stage</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">mlflow.entities.view_type</span> <span class="kn">import</span> <span class="n">ViewType</span>
-<span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.view_type</span><span class="w"> </span><span class="kn">import</span> <span class="n">ViewType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
 
 
-<div class="viewcode-block" id="LifecycleStage"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.LifecycleStage">[docs]</a><span class="k">class</span> <span class="nc">LifecycleStage</span><span class="p">:</span>
+<div class="viewcode-block" id="LifecycleStage"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.LifecycleStage">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">LifecycleStage</span><span class="p">:</span>
     <span class="n">ACTIVE</span> <span class="o">=</span> <span class="s2">&quot;active&quot;</span>
     <span class="n">DELETED</span> <span class="o">=</span> <span class="s2">&quot;deleted&quot;</span>
     <span class="n">_VALID_STAGES</span> <span class="o">=</span> <span class="p">{</span><span class="n">ACTIVE</span><span class="p">,</span> <span class="n">DELETED</span><span class="p">}</span>
 
 <div class="viewcode-block" id="LifecycleStage.view_type_to_stages"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.LifecycleStage.view_type_to_stages">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">view_type_to_stages</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">view_type</span><span class="o">=</span><span class="n">ViewType</span><span class="o">.</span><span class="n">ALL</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">view_type_to_stages</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">view_type</span><span class="o">=</span><span class="n">ViewType</span><span class="o">.</span><span class="n">ALL</span><span class="p">):</span>
         <span class="n">stages</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">view_type</span> <span class="o">==</span> <span class="n">ViewType</span><span class="o">.</span><span class="n">ACTIVE_ONLY</span> <span class="ow">or</span> <span class="n">view_type</span> <span class="o">==</span> <span class="n">ViewType</span><span class="o">.</span><span class="n">ALL</span><span class="p">:</span>
             <span class="n">stages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">ACTIVE</span><span class="p">)</span>
@@ -206,11 +208,11 @@
         <span class="k">return</span> <span class="n">stages</span></div>
 
 <div class="viewcode-block" id="LifecycleStage.is_valid"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.LifecycleStage.is_valid">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">lifecycle_stage</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_valid</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">lifecycle_stage</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">lifecycle_stage</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_VALID_STAGES</span></div>
 
 <div class="viewcode-block" id="LifecycleStage.matches_view_type"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.LifecycleStage.matches_view_type">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">matches_view_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">view_type</span><span class="p">,</span> <span class="n">lifecycle_stage</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">matches_view_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">view_type</span><span class="p">,</span> <span class="n">lifecycle_stage</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">lifecycle_stage</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid lifecycle stage &#39;</span><span class="si">{</span><span class="n">lifecycle_stage</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
@@ -252,7 +254,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

@@ -22,7 +22,7 @@ MLflow LangChain flavor supports autologging, a powerful feature that allows you
 Quickstart
 ----------
 
-To enable autologging for LangChain models, call :py:func:`mlflow.langchain.autolog()` at the beginning of your script or notebook. This will automatically log the traces by default as well as other artifacts such as models, input examples, and model signatures if you explicitly enable them. For more information about the configuration, please refer to the `Configure Autologging <#configure-autologging>`_ section.
+To enable autologging for LangChain models, call :py:func:`mlflow.langchain.autolog()` at the beginning of your script or notebook. This will automatically log the traces by default as well as other artifacts such as models, input examples, and model signatures if you explicitly enable them. For more information about the configuration, please refer to the :ref:`Configure Autologging <configure-lc-autologging>` section.
 
 .. code-block::
 
@@ -38,11 +38,12 @@ To enable autologging for LangChain models, call :py:func:`mlflow.langchain.auto
 
 Once you have invoked the chain, you can view the logged traces and artifacts in the MLflow UI.
 
-.. figure:: ../../_static/images/llms/tracing/langchain-tracing.gif
+.. figure:: ../../_static/images/llms/tracing/tracing-top.gif
     :alt: LangChain Tracing via autolog
     :width: 100%
     :align: center
 
+.. _configure-lc-autologging:
 
 Configure Autologging
 ---------------------
@@ -73,10 +74,6 @@ MLflow LangChain autologging can log various information about the model and its
       - ``false``
       - ``log_input_examples``
       - If set to ``True``, input examples from inference data are collected and logged along with LangChain model artifacts during inference. This option is only available when ``log_models`` is enabled.
-    * - Inputs and Outputs (**Deprecated**)
-      - ``false``
-      - ``log_inputs_outputs``
-      - If set to ``True``, the inputs and outputs will be logged when the model is invoked. This feature is deprecated and will be removed in the future. Please use ``log_traces`` instead.
 
 For example, to disable logging of traces, and instead enable model logging, run the following code:
 
@@ -100,6 +97,51 @@ Example Code of LangChain Autologging
 .. literalinclude:: ../../../../examples/langchain/chain_autolog.py
     :language: python
 
+
+Tracing LangGraph
+-----------------
+
+MLflow support automatic tracing for LangGraph, an open-source library from LangChain for building stateful, multi-actor applications with LLMs, used to create agent and multi-agent workflows. To enable auto-tracing for LangGraph, use the same :py:func:`mlflow.langchain.autolog()` function.
+
+.. code-block:: python
+
+    from typing import Literal
+
+    import mlflow
+
+    from langchain_core.tools import tool
+    from langchain_openai import ChatOpenAI
+    from langgraph.prebuilt import create_react_agent
+
+    # Enabling tracing for LangGraph (LangChain)
+    mlflow.langchain.autolog()
+
+    # Optional: Set a tracking URI and an experiment
+    mlflow.set_tracking_uri("http://localhost:5000")
+    mlflow.set_experiment("LangGraph")
+
+
+    @tool
+    def get_weather(city: Literal["nyc", "sf"]):
+        """Use this to get weather information."""
+        if city == "nyc":
+            return "It might be cloudy in nyc"
+        elif city == "sf":
+            return "It's always sunny in sf"
+
+
+    llm = ChatOpenAI(model="gpt-4o-mini")
+    tools = [get_weather]
+    graph = create_react_agent(llm, tools)
+
+    # Invoke the graph
+    result = graph.invoke(
+        {"messages": [{"role": "user", "content": "what is the weather in sf?"}]}
+    )
+
+.. note::
+
+    MLflow does not support other auto-logging features for LangGraph, such as automatic model logging. Only traces are logged for LangGraph.
 
 How It Works
 ------------
@@ -174,8 +216,8 @@ Other artifacts such as models are logged by patching the invocation functions o
     asynchronous and may block the main thread. The invocation function itself is still not blocking and returns a coroutine object, but
     the logging overhead may slow down the model inference process. Please be aware of this side effect when using async functions with autologging.
 
-Troubleshooting
----------------
+FAQ
+---
 
 If you encounter any issues with MLflow LangChain flavor, please also refer to `FAQ <../index.html#faq>`. If you still have questions, please feel free to open an issue in `MLflow Github repo <https://github.com/mlflow/mlflow/issues>`_.
 
@@ -210,88 +252,54 @@ There are a few type of models that MLflow LangChain autologging does not suppor
     environment has `pydantic` installed with at least version 2. 
 
 
-Documentation for Old Versions
-------------------------------
+How to customize span names in the traces?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-MLflow LangChain Autologging feature is largely renewed in ``MLflow 2.14.0``. If you are using the earlier version of MLflow, please refer to following documentation.
+By default, MLflow creates span names based on the class name in LangChain, such as ``ChatOpenAI``, ``RunnableLambda``, etc. If you want to customize the span names, you can do the following:
 
-.. note::
-    To use MLflow LangChain autologging, please upgrade langchain to **version 0.1.0** or higher.
-    Depending on your existing environment, you may need to manually install langchain_community>=0.0.16 in order to enable the automatic logging of artifacts and metrics. (this behavior will be modified in the future to be an optional import)
-    If autologging doesn't log artifacts as expected, please check the warning messages in `stdout` logs. 
-    For langchain_community==0.0.16, you will need to install the `textstat` and `spacy` libraries manually, as well as restarting any active interactive environment (i.e., a notebook environment). On Databricks, you can achieve this via executing `dbutils.library.restartPython()` to force the Python REPL to restart, allowing the newly installed libraries to be available.
+1. Pass ``name`` parameter to the constructor of the LangChain class. This is useful when you want to set a specific name for a single component.
+2. Use ``with_config`` method to set the name for the runnables. You can pass the ``"run_name"`` key to the config dictionary to set a name for a sub chain that contains multiple components.
 
-MLflow langchain autologging injects `MlflowCallbackHandler <https://github.com/langchain-ai/langchain/blob/master/libs/community/langchain_community/callbacks/mlflow_callback.py>`_ into the langchain model inference process to log
-metrics and artifacts automatically. We will only log the model if both `log_models` is set to `True` when calling :py:func:`mlflow.langchain.autolog` and the objects being invoked are within the supported model types: `Chain`, `AgentExecutor`, `BaseRetriever`, `RunnableSequence`, `RunnableParallel`, `RunnableBranch`, `SimpleChatModel`, `ChatPromptTemplate`,
-`RunnableLambda`, `RunnablePassthrough`. Additional model types will be supported in the future.
+.. code-block::
 
-.. note::
-    We patch the `invoke` function for all supported langchain models, the `__call__` function for Chains and AgentExecutors models, and `get_relevant_documents` function for BaseRetrievers so that only when those functions are called will MLflow automatically log metrics and artifacts.
-    If the model contains retrievers, we don't support autologging the model because it requires saving `loader_fn` and `persist_dir` in order to load the model. Please log the model manually if you want to log the model with retrievers.
+    import mlflow
+    from langchain_openai import ChatOpenAI
+    from langchain_core.output_parsers import StrOutputParser
 
-The following metrics and artifacts are logged by default (depending on the models involved):
+    # Enable auto-tracing for LangChain
+    mlflow.langchain.autolog()
 
-Artifacts:
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | Artifact name                                 | Explanation                                                               |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | table_action_records.html                     | Each action's details, including chains, tools, llms, agents, retrievers. |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | table_session_analysis.html                   | Details about prompt and output for each prompt step; token usages;       |
-  |                                               | text analysis metrics                                                     |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | chat_html.html                                | LLM input and output details                                              |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | llm_start_x_prompt_y.json                     | Includes prompt and kwargs passed during llm `generate` call              |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | llm_end_x_generation_y.json                   | Includes llm_output of the LLM result                                     |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | ent-<hash string of generation.text>.html     | Visualization of the generation text using spacy "en_core_web_sm" model   |
-  |                                               | with style ent (if spacy is installed and the model is downloaded)        | 
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | dep-<hash string of generation.text>.html     | Visualization of the generation text using spacy "en_core_web_sm" model   |
-  |                                               | with style dep (if spacy is installed and the model is downloaded)        |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | llm_new_tokens_x.json                         | Records new tokens added to the LLM during inference                      |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | chain_start_x.json                            | Records the inputs and chain related information during inference         |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | chain_end_x.json                              | Records the chain outputs                                                 |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | tool_start_x.json                             | Records the tool's name, descriptions information during inference        |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | tool_end_x.json                               | Records observation of the tool                                           |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | retriever_start_x.json                        | Records the retriever's information during inference                      |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | retriever_end_x.json                          | Records the retriever's result documents                                  |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | agent_finish_x.json                           | Records final return value of the ActionAgent, including output and log   |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | agent_action_x.json                           | Records the ActionAgent's action details                                  |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | on_text_x.json                                | Records the text during inference                                         |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | inference_inputs_outputs.json                 | Input and output details for each inference call (logged by default, can  |
-  |                                               | be turned off by setting `log_inputs_outputs=False` when turn on autolog) |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
+    # Method 1: Pass `name` parameter to the constructor
+    model = ChatOpenAI(name="custom-llm", model="gpt-4o-mini")
+    # Method 2: Use `with_config` method to set the name for the runnables
+    runnable= (model | StrOutputParser()).with_config({"run_name": "custom-chain"})
 
-Metrics:
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | Metric types                                  | Details                                                                   |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | Basic Metrics                                 | step, starts, ends, errors, text_ctr, chain_starts, chain_ends, llm_starts|
-  |                                               | llm_ends, llm_streams, tool_starts, tool_ends, agent_ends, retriever_ends |
-  |                                               | retriever_starts (they're the count number of each component invocation)  |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
-  | Text Analysis Metrics                         | flesch_reading_ease, flesch_kincaid_grade, smog_index, coleman_liau_index |
-  |                                               | automated_readability_index, dale_chall_readability_score,                |
-  |                                               | difficult_words, linsear_write_formula, gunning_fog, fernandez_huerta,    |
-  |                                               | szigriszt_pazos, gutierrez_polini, crawford, gulpease_index, osman        |
-  |                                               | (they're the text analysis metrics of the generation text if `textstat`   |
-  |                                               | library is installed)                                                     |
-  +-----------------------------------------------+---------------------------------------------------------------------------+
+    runnable.invoke("Hi")
 
-.. note::
-    Each inference call logs those artifacts into a separate directory named `artifacts-<session_id>-<idx>`, where `session_id` is randomly generated uuid, and `idx` is the index of the inference call.
-    `session_id` is also preserved in the `inference_inputs_outputs.json` file, so you can easily find the corresponding artifacts for each inference call.
+The above code will create a trace like the following:
+
+.. figure:: ../../_static/images/llms/tracing/langchain-name-customize.png
+    :alt: Customize Span Names in LangChain Traces
+    :width: 100%
+    :align: center
+
+How to add extra metadata to a span?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can record extra metadata to the span by passing the ``metadata`` parameter of the LangChain's ``RunnableConfig`` dictionary, either to the constructor or at runtime.
+
+.. code-block::
+
+    import mlflow
+    from langchain_openai import ChatOpenAI
+
+    # Enable auto-tracing for LangChain
+    mlflow.langchain.autolog()
+
+    # Pass metadata to the constructor using `with_config` method
+    model = ChatOpenAI(model="gpt-4o-mini").with_config({"metadata": {"key1": "value1"}})
+
+    # Pass metadata at runtime using the `config` parameter
+    model.invoke("Hi", config={"metadata": {"key2": "value2"}})
+
+The metadata can be accessed in the ``Attributes`` tab in the MLflow UI.

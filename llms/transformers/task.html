@@ -47,10 +47,10 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="MLflow Transformers Flavor" href="index.html"/>
         <link rel="next" title="🤗 Transformers within MLflow" href="/guide/index.html"/>
-        <link rel="prev" title="Prompt Templating with MLflow and Transformers" href="/tutorials/prompt-templating/prompt-templating.html"/> 
+        <link rel="prev" title="Working with Large Models in MLflow Transformers flavor" href="/large-models.html"/> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
@@ -62,6 +62,7 @@
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -74,7 +75,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -111,12 +112,13 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">LLMs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#tutorials-and-use-case-guides-for-genai-applications-in-mlflow">Tutorials and Use Case Guides for GenAI applications in MLflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#id1">MLflow Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#id2">MLflow Deployments Server for LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#id2">MLflow AI Gateway for LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#id3">LLM Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#id4">Prompt Engineering UI</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html#native-mlflow-flavors-for-llms">Native MLflow Flavors for LLMs</a><ul class="current">
@@ -124,6 +126,7 @@
 <li class="toctree-l4"><a class="reference internal" href="index.html#introduction">Introduction</a></li>
 <li class="toctree-l4"><a class="reference internal" href="index.html#getting-started-with-the-mlflow-transformers-flavor-tutorials-and-guides">Getting Started with the MLflow Transformers Flavor - Tutorials and Guides</a></li>
 <li class="toctree-l4"><a class="reference internal" href="index.html#important-details-to-be-aware-of-with-the-transformers-flavor">Important Details to be aware of with the transformers flavor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#logging-large-models">Logging Large Models</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="index.html#working-with-tasks-for-transformer-pipelines">Working with <code class="docutils literal notranslate"><span class="pre">tasks</span></code> for Transformer Pipelines</a></li>
 <li class="toctree-l4"><a class="reference internal" href="index.html#id1">Detailed Documentation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="index.html#learn-more-about-transformers">Learn more about Transformers</a></li>
@@ -133,13 +136,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../sentence-transformers/index.html">MLflow Sentence-Transformers Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../langchain/index.html">MLflow LangChain Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../llama-index/index.html">MLflow LlamaIndex Flavor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dspy/index.html">MLflow DSPy Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#explore-the-native-llm-flavors">Explore the Native LLM Flavors</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#id5">LLM Tracking in MLflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#tutorials-and-use-case-guides-for-llms-in-mlflow">Tutorials and Use Case Guides for LLMs in MLflow</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../traditional-ml/index.html">Traditional ML</a></li>
@@ -243,8 +247,8 @@
 <div class="section" id="native-transformers-task-types">
 <h2><a class="toc-backref" href="#id2">Native Transformers Task Types</a><a class="headerlink" href="#native-transformers-task-types" title="Permalink to this headline"> </a></h2>
 <p>For native Transformers tasks, MLflow will automatically infer the task type from the pipeline when you save a pipeline with <a class="reference internal" href="../../python_api/mlflow.transformers.html#mlflow.transformers.log_model" title="mlflow.transformers.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.transformers.log_model()</span></code></a>. You can also specify the task type explicitly by passing the <code class="docutils literal notranslate"><span class="pre">task</span></code> parameter. The full list of supported task types is available in the <a class="reference external" href="https://huggingface.co/tasks">Transformers documentation</a>, but note that <strong>not all task types are supported in MLflow</strong>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">import</span> <span class="nn">transformers</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">transformers</span>
 
 <span class="n">pipeline</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="s2">&quot;text-generation&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
 
@@ -272,7 +276,7 @@ In addition to the native Transformers task types, MLflow defines several additi
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;llm/v1/embeddings&quot;</span></code> for text embeddings generation</p></li>
 </ul>
 <p>The required step to use these advanced task types is just to specify the <code class="docutils literal notranslate"><span class="pre">task</span></code> parameter as an <code class="docutils literal notranslate"><span class="pre">llm/v1</span></code> task when logging the models.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
     <span class="n">mlflow</span><span class="o">.</span><span class="n">transformers</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span>
@@ -330,8 +334,8 @@ In addition to the native Transformers task types, MLflow defines several additi
 <div class="section" id="code-example-of-using-llm-v1-tasks">
 <h3><a class="toc-backref" href="#id5">Code Example of Using <code class="docutils literal notranslate"><span class="pre">llm/v1</span></code> Tasks</a><a class="headerlink" href="#code-example-of-using-llm-v1-tasks" title="Permalink to this headline"> </a></h3>
 <p>The following code snippet demonstrates how to log a Transformers pipeline with the <code class="docutils literal notranslate"><span class="pre">llm/v1/chat</span></code> task type, and use the model for chat-style inference. Check out the <a class="reference external" href="tutorials/conversational/pyfunc-chat-model.html">notebook tutorial</a> to see more examples in action!</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">import</span> <span class="nn">transformers</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">transformers</span>
 
 <span class="n">pipeline</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="s2">&quot;text-generation&quot;</span><span class="p">,</span> <span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
 
@@ -399,7 +403,7 @@ use <a class="reference internal" href="../../python_api/mlflow.transformers.htm
 <p><a class="reference external" href="https://docs.databricks.com/en/machine-learning/foundation-models/deploy-prov-throughput-foundation-model-apis.html">Provisioned Throughput</a> on Databricks Model Serving is a capability that optimizes inference performance for foundation models with performance guarantees. To serve Transformers models with provisioned throughput, specify <code class="docutils literal notranslate"><span class="pre">llm/v1/xxx</span></code> task type when logging the model. MLflow logs the required metadata to enable provisioned throughput on Databricks Model Serving.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>When logging large models, you can use <code class="docutils literal notranslate"><span class="pre">save_pretrained=False</span></code> to avoid creating a local copy of the model weights for saving time and disk space. Please refer to the <a class="reference internal" href="guide/index.html#transformers-save-pretrained-guide"><span class="std std-ref">documentation</span></a> for more details.</p>
+<p>When logging large models, you can use <code class="docutils literal notranslate"><span class="pre">save_pretrained=False</span></code> to avoid creating a local copy of the model weights for saving time and disk space. Please refer to the <a class="reference internal" href="large-models.html#transformers-save-pretrained-guide"><span class="std std-ref">documentation</span></a> for more details.</p>
 </div>
 </div>
 <div class="section" id="faq">
@@ -439,7 +443,7 @@ use <a class="reference internal" href="../../python_api/mlflow.transformers.htm
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="tutorials/prompt-templating/prompt-templating.html" class="btn btn-neutral" title="Prompt Templating with MLflow and Transformers" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
+        <a href="large-models.html" class="btn btn-neutral" title="Working with Large Models in MLflow Transformers flavor" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
       
       
         <a href="guide/index.html" class="btn btn-neutral" title="🤗 Transformers within MLflow" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
@@ -470,7 +474,7 @@ use <a class="reference internal" href="../../python_api/mlflow.transformers.htm
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

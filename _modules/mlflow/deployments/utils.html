@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="mlflow.deployments" href="../deployments.html"/> 
 
   
@@ -61,6 +61,7 @@
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="../../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -73,7 +74,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -110,10 +111,11 @@
 
       
         <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../llms/tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../traditional-ml/index.html">Traditional ML</a></li>
@@ -189,18 +191,18 @@
               <div itemprop="articleBody">
                 
   <h1>Source code for mlflow.deployments.utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">urllib</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
-<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">urllib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlparse</span>
 
-<span class="kn">from</span> <span class="nn">mlflow.environment_variables</span> <span class="kn">import</span> <span class="n">MLFLOW_DEPLOYMENTS_TARGET</span>
-<span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
-<span class="kn">from</span> <span class="nn">mlflow.utils.uri</span> <span class="kn">import</span> <span class="n">append_to_uri_path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.environment_variables</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLFLOW_DEPLOYMENTS_TARGET</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.uri</span><span class="w"> </span><span class="kn">import</span> <span class="n">append_to_uri_path</span>
 
 <span class="n">_deployments_target</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-<span class="k">def</span> <span class="nf">parse_target_uri</span><span class="p">(</span><span class="n">target_uri</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_target_uri</span><span class="p">(</span><span class="n">target_uri</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse out the deployment target from the provided target uri&quot;&quot;&quot;</span>
     <span class="n">parsed</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">target_uri</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span><span class="p">:</span>
@@ -214,7 +216,7 @@
     <span class="k">return</span> <span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span>
 
 
-<span class="k">def</span> <span class="nf">_is_valid_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_valid_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evaluates the basic structure of a provided uri to determine if the scheme and</span>
 <span class="sd">    netloc are provided</span>
@@ -226,7 +228,7 @@
         <span class="k">return</span> <span class="kc">False</span>
 
 
-<span class="k">def</span> <span class="nf">resolve_endpoint_url</span><span class="p">(</span><span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_endpoint_url</span><span class="p">(</span><span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Performs a validation on whether the returned value is a fully qualified url</span>
 <span class="sd">    or requires the assembly of a fully qualified url by appending `endpoint`.</span>
 
@@ -244,11 +246,11 @@
     <span class="k">return</span> <span class="n">endpoint</span> <span class="k">if</span> <span class="n">_is_valid_uri</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span> <span class="k">else</span> <span class="n">append_to_uri_path</span><span class="p">(</span><span class="n">base_url</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="set_deployments_target"><a class="viewcode-back" href="../../../python_api/mlflow.deployments.html#mlflow.deployments.set_deployments_target">[docs]</a><span class="k">def</span> <span class="nf">set_deployments_target</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="set_deployments_target"><a class="viewcode-back" href="../../../python_api/mlflow.deployments.html#mlflow.deployments.set_deployments_target">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">set_deployments_target</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sets the target deployment client for MLflow deployments</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        target: The full uri of a running MLflow deployments server or, if running on</span>
+<span class="sd">        target: The full uri of a running MLflow AI Gateway or, if running on</span>
 <span class="sd">            Databricks, &quot;databricks&quot;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_valid_target</span><span class="p">(</span><span class="n">target</span><span class="p">):</span>
@@ -260,13 +262,12 @@
     <span class="n">_deployments_target</span> <span class="o">=</span> <span class="n">target</span></div>
 
 
-<div class="viewcode-block" id="get_deployments_target"><a class="viewcode-back" href="../../../python_api/mlflow.deployments.html#mlflow.deployments.get_deployments_target">[docs]</a><span class="k">def</span> <span class="nf">get_deployments_target</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="get_deployments_target"><a class="viewcode-back" href="../../../python_api/mlflow.deployments.html#mlflow.deployments.get_deployments_target">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_deployments_target</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the currently set MLflow deployments target iff set.</span>
 <span class="sd">    If the deployments target has not been set by using ``set_deployments_target``, an</span>
 <span class="sd">    ``MlflowException`` is raised.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">_deployments_target</span>
     <span class="k">if</span> <span class="n">_deployments_target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_deployments_target</span>
     <span class="k">elif</span> <span class="n">uri</span> <span class="o">:=</span> <span class="n">MLFLOW_DEPLOYMENTS_TARGET</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
@@ -279,7 +280,7 @@
         <span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">_is_valid_target</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_valid_target</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evaluates the basic structure of a provided target to determine if the scheme and</span>
 <span class="sd">    netloc are provided</span>
@@ -317,7 +318,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

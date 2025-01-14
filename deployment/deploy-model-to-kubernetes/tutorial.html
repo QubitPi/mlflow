@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Deploy MLflow Model to Kubernetes" href="index.html"/>
         <link rel="next" title="MLflow Tracking" href="/../../tracking.html"/>
         <link rel="prev" title="Deploy MLflow Model to Kubernetes" href="/index.html"/> 
@@ -63,6 +63,7 @@
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -75,7 +76,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -112,10 +113,11 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../llms/tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../traditional-ml/index.html">Traditional ML</a></li>
@@ -251,7 +253,7 @@ as a single place to manage the entire ML lifecycle. This includes <a class="ref
 <div class="section" id="step-1-installing-mlflow-and-additional-dependencies">
 <h2>Step 1: Installing MLflow and Additional Dependencies<a class="headerlink" href="#step-1-installing-mlflow-and-additional-dependencies" title="Permalink to this headline"> </a></h2>
 <p>First, please install mlflow to your local machine using the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>mlflow<span class="o">[</span>extras<span class="o">]</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>mlflow<span class="o">[</span>mlserver<span class="o">]</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">[extras]</span></code> will install additional dependencies required for this tutorial including <a class="reference external" href="https://mlserver.readthedocs.io/en/latest/">mlserver</a> and
@@ -280,15 +282,15 @@ and install KServe on it.</p>
 This function allows MLflow to automatically log the appropriate set of model parameters and metrics during training. To learn more about the auto-logging feature
 or how to log manually instead, see the <a class="reference external" href="../../../tracking.html">MLflow Tracking documentation</a>.</p>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">metrics</span>
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">ElasticNet</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ElasticNet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
 
 
-<span class="k">def</span> <span class="nf">eval_metrics</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">actual</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">eval_metrics</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">actual</span><span class="p">):</span>
     <span class="n">rmse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">metrics</span><span class="o">.</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">pred</span><span class="p">))</span>
     <span class="n">mae</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span>
     <span class="n">r2</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">r2_score</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span>
@@ -330,8 +332,8 @@ For this case, you should see parameters including <code class="docutils literal
 <h2>Step 4: Running Hyperparameter Tuning<a class="headerlink" href="#step-4-running-hyperparameter-tuning" title="Permalink to this headline"> </a></h2>
 <p>Now that we have established a baseline model, let’s attempt to improve its performance by tuning the hyperparameters.
 We will conduct a random search to identify the optimal combination of <code class="docutils literal notranslate"><span class="pre">alpha</span></code> and <code class="docutils literal notranslate"><span class="pre">l1_ratio</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">RandomizedSearchCV</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">uniform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomizedSearchCV</span>
 
 <span class="n">lr</span> <span class="o">=</span> <span class="n">ElasticNet</span><span class="p">()</span>
 
@@ -428,7 +430,7 @@ same manner as it would in Kubernetes.</p>
 </pre></div>
 </div>
 <p>This command starts a local server listening on port 1234. You can send a request to the server using <code class="docutils literal notranslate"><span class="pre">curl</span></code> command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type:application/json&quot;</span><span class="w"> </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;inputs&quot;: [[14.23, 1.71, 2.43, 15.6, 127.0, 2.8, 3.06, 0.28, 2.29, 5.64, 1.04, 3.92, 1065.0]]&#39;</span><span class="w"> </span>http://127.0.0.1:1234/invocations
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type:application/json&quot;</span><span class="w"> </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;inputs&quot;: [[14.23, 1.71, 2.43, 15.6, 127.0, 2.8, 3.06, 0.28, 2.29, 5.64, 1.04, 3.92, 1065.0]]}&#39;</span><span class="w"> </span>http://127.0.0.1:1234/invocations
 
 <span class="o">{</span><span class="s2">&quot;predictions&quot;</span>:<span class="w"> </span><span class="o">[</span>-0.03416275504140387<span class="o">]}</span>
 </pre></div>
@@ -639,7 +641,7 @@ and deploying the model to Kubernetes cluster.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

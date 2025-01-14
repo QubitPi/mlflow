@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="MLflow Transformers Flavor" href="../index.html"/>
         <link rel="next" title="MLflow OpenAI Flavor" href="/../../openai/index.html"/>
         <link rel="prev" title="Tasks in MLflow Transformers Flavor" href="/../task.html"/> 
@@ -62,6 +62,7 @@
 <script type="text/javascript" src="../../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="../../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -74,7 +75,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -111,12 +112,13 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">LLMs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#tutorials-and-use-case-guides-for-genai-applications-in-mlflow">Tutorials and Use Case Guides for GenAI applications in MLflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id1">MLflow Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#id2">MLflow Deployments Server for LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#id2">MLflow AI Gateway for LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id3">LLM Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id4">Prompt Engineering UI</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../index.html#native-mlflow-flavors-for-llms">Native MLflow Flavors for LLMs</a><ul class="current">
@@ -124,6 +126,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../index.html#introduction">Introduction</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#getting-started-with-the-mlflow-transformers-flavor-tutorials-and-guides">Getting Started with the MLflow Transformers Flavor - Tutorials and Guides</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#important-details-to-be-aware-of-with-the-transformers-flavor">Important Details to be aware of with the transformers flavor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../index.html#logging-large-models">Logging Large Models</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#working-with-tasks-for-transformer-pipelines">Working with <code class="docutils literal notranslate"><span class="pre">tasks</span></code> for Transformer Pipelines</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="../index.html#id1">Detailed Documentation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#learn-more-about-transformers">Learn more about Transformers</a></li>
@@ -133,13 +136,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../../sentence-transformers/index.html">MLflow Sentence-Transformers Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../langchain/index.html">MLflow LangChain Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../llama-index/index.html">MLflow LlamaIndex Flavor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dspy/index.html">MLflow DSPy Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../index.html#explore-the-native-llm-flavors">Explore the Native LLM Flavors</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id5">LLM Tracking in MLflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#tutorials-and-use-case-guides-for-llms-in-mlflow">Tutorials and Use Case Guides for LLMs in MLflow</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../traditional-ml/index.html">Traditional ML</a></li>
@@ -240,8 +244,7 @@ Model with the <code class="docutils literal notranslate"><span class="pre">tran
 <li><p><a class="reference internal" href="#automatic-signature-inference" id="id7">Automatic Signature inference</a></p></li>
 <li><p><a class="reference internal" href="#scale-inference-with-overriding-pytorch-dtype" id="id8">Scale Inference with Overriding Pytorch dtype</a></p></li>
 <li><p><a class="reference internal" href="#input-data-types-for-audio-pipelines" id="id9">Input Data Types for Audio Pipelines</a></p></li>
-<li><p><a class="reference internal" href="#storage-efficient-model-logging-with-save-pretrained-option" id="id10">Storage-Efficient Model Logging with <code class="docutils literal notranslate"><span class="pre">save_pretrained</span></code> Option</a></p></li>
-<li><p><a class="reference internal" href="#peft-models-in-mlflow-transformers-flavor" id="id11">PEFT Models in MLflow Transformers flavor</a></p></li>
+<li><p><a class="reference internal" href="#peft-models-in-mlflow-transformers-flavor" id="id10">PEFT Models in MLflow Transformers flavor</a></p></li>
 </ul>
 </div>
 <div class="section" id="loading-a-transformers-model-as-a-python-function">
@@ -370,8 +373,8 @@ avoid failed inference requests.</p>
 <h3>Example of loading a transformers model as a python function<a class="headerlink" href="#example-of-loading-a-transformers-model-as-a-python-function" title="Permalink to this headline"> </a></h3>
 <p>In the below example, a simple pre-trained model is used within a pipeline. After logging to MLflow, the pipeline is
 loaded as a <code class="docutils literal notranslate"><span class="pre">pyfunc</span></code> and used to generate a response from a passed-in list of strings.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">import</span> <span class="nn">transformers</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">transformers</span>
 
 <span class="c1"># Read a pre-trained conversation pipeline from HuggingFace hub</span>
 <span class="n">conversational_pipeline</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;microsoft/DialoGPT-medium&quot;</span><span class="p">)</span>
@@ -425,8 +428,8 @@ loaded as a <code class="docutils literal notranslate"><span class="pre">pyfunc<
 use the <code class="docutils literal notranslate"><span class="pre">prompt_template</span></code> argument when calling <a class="reference internal" href="../../../python_api/mlflow.transformers.html#mlflow.transformers.save_model" title="mlflow.transformers.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.transformers.save_model()</span></code></a> or <a class="reference internal" href="../../../python_api/mlflow.transformers.html#mlflow.transformers.log_model" title="mlflow.transformers.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.transformers.log_model()</span></code></a>.
 The prompt template must be a string with a single format placeholder, <code class="docutils literal notranslate"><span class="pre">{prompt}</span></code>.</p>
 <p>For example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">pipeline</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipeline</span>
 
 <span class="c1"># Initialize a pipeline. `distilgpt2` uses a &quot;text-generation&quot; pipeline</span>
 <span class="n">generator</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;distilgpt2&quot;</span><span class="p">)</span>
@@ -444,7 +447,7 @@ The prompt template must be a string with a single format placeholder, <code cla
 </div>
 <p>When the model is then loaded with <a class="reference internal" href="../../../python_api/mlflow.pyfunc.html#mlflow.pyfunc.load_model" title="mlflow.pyfunc.load_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.pyfunc.load_model()</span></code></a>, the prompt
 template will be used to format user inputs before passing them into the pipeline:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="c1"># Load the model with pyfunc</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="s2">&quot;path/to/model&quot;</span><span class="p">)</span>
@@ -461,7 +464,7 @@ template will be used to format user inputs before passing them into the pipelin
 set to <code class="docutils literal notranslate"><span class="pre">False</span></code> by default. This is to prevent the template from being shown to the users,
 which could potentially cause confusion as it was not part of their original input. To
 override this behaviour, either set <code class="docutils literal notranslate"><span class="pre">return_full_text</span></code> to <code class="docutils literal notranslate"><span class="pre">True</span></code> via <code class="docutils literal notranslate"><span class="pre">params</span></code>, or by
-including it in a <code class="docutils literal notranslate"><span class="pre">model_config</span></code> dict in <code class="docutils literal notranslate"><span class="pre">log_model()</span></code>. See <a class="reference external" href="#using-model-config-and-model-signature-params-for-transformers-inference">this section</a>
+including it in a <code class="docutils literal notranslate"><span class="pre">model_config</span></code> dict in <code class="docutils literal notranslate"><span class="pre">log_model()</span></code>. See <a class="reference external" href="#using-model-config-and-model-signature-params-for-inference">this section</a>
 for more details on how to do this.</p>
 </div>
 <p>For a more in-depth guide, check out the <a class="reference internal" href="../tutorials/prompt-templating/prompt-templating.html"><span class="doc">Prompt Templating notebook</span></a>!</p>
@@ -489,10 +492,10 @@ per each of the samples.</p>
 <ul class="simple">
 <li><p>Using <code class="docutils literal notranslate"><span class="pre">model_config</span></code></p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
-<span class="kn">from</span> <span class="nn">mlflow.transformers</span> <span class="kn">import</span> <span class="n">generate_signature_output</span>
-<span class="kn">import</span> <span class="nn">transformers</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_signature_output</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">transformers</span>
 
 <span class="n">architecture</span> <span class="o">=</span> <span class="s2">&quot;mrm8488/t5-base-finetuned-common_gen&quot;</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span>
@@ -542,10 +545,10 @@ when calling <code class="docutils literal notranslate"><span class="pre">predic
 <ul class="simple">
 <li><p>Specifying params at inference time</p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
-<span class="kn">from</span> <span class="nn">mlflow.transformers</span> <span class="kn">import</span> <span class="n">generate_signature_output</span>
-<span class="kn">import</span> <span class="nn">transformers</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_signature_output</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">transformers</span>
 
 <span class="n">architecture</span> <span class="o">=</span> <span class="s2">&quot;mrm8488/t5-base-finetuned-common_gen&quot;</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span>
@@ -651,8 +654,8 @@ must be saved explicitly with the <code class="docutils literal notranslate"><sp
 <code class="docutils literal notranslate"><span class="pre">MLflowException</span></code> error stating that the model is missing the <cite>name_or_path</cite> attribute. In
 the event that this occurs, please construct the model directly via the <code class="docutils literal notranslate"><span class="pre">transformers.pipeline(&lt;repo</span> <span class="pre">name&gt;)</span></code> API and save the pipeline object directly.</p>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">import</span> <span class="nn">transformers</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">transformers</span>
 
 <span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;text-classification&quot;</span>
 <span class="n">architecture</span> <span class="o">=</span> <span class="s2">&quot;distilbert-base-uncased-finetuned-sst-2-english&quot;</span>
@@ -689,8 +692,8 @@ the event that this occurs, please construct the model directly via the <code cl
 <h3>Saving a pipeline and loading components<a class="headerlink" href="#saving-a-pipeline-and-loading-components" title="Permalink to this headline"> </a></h3>
 <p>Some use cases can benefit from the simplicity of defining a solution as a pipeline, but need the component-level access for performing a micro-services based deployment strategy
 where pre / post-processing is performed on containers that do not house the model itself. For this paradigm, a pipeline can be loaded as its constituent parts, as shown below.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">transformers</span>
-<span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">transformers</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">translation_pipeline</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span>
     <span class="n">task</span><span class="o">=</span><span class="s2">&quot;translation_en_to_fr&quot;</span><span class="p">,</span>
@@ -776,9 +779,9 @@ For a full reference of these tunable arguments for configuration of pipelines, 
 <li><p>Save a pipeline with the <cite>torch_dtype</cite> argument set to the encoding type of your choice.</p></li>
 </ul>
 <p>Example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">transformers</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">transformers</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;translation_en_to_fr&quot;</span>
 
@@ -820,9 +823,9 @@ For a full reference of these tunable arguments for configuration of pipelines, 
 <li><p>Specify the <cite>torch_dtype</cite> argument when loading the model to override any values set during logging or saving.</p></li>
 </ul>
 <p>Example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">transformers</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">transformers</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;translation_en_to_fr&quot;</span>
 
@@ -892,8 +895,8 @@ The default signature input value type of <code class="docutils literal notransl
 to be thrown from the serving process stating that the soundfile is corrupt.</p>
 </div>
 <p>An example of specifying an appropriate uri-based input model signature for an audio model is shown below:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.models</span> <span class="kn">import</span> <span class="n">infer_signature</span>
-<span class="kn">from</span> <span class="nn">mlflow.transformers</span> <span class="kn">import</span> <span class="n">generate_signature_output</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">infer_signature</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_signature_output</span>
 
 <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://www.mywebsite.com/sound/files/for/transcription/file111.mp3&quot;</span>
 <span class="n">signature</span> <span class="o">=</span> <span class="n">infer_signature</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">generate_signature_output</span><span class="p">(</span><span class="n">my_audio_pipeline</span><span class="p">,</span> <span class="n">url</span><span class="p">))</span>
@@ -925,87 +928,8 @@ audio transformers pipelines being set as expecting <code class="docutils litera
 or the other as an allowed input type.</p>
 </div>
 </div>
-<div class="section" id="storage-efficient-model-logging-with-save-pretrained-option">
-<span id="transformers-save-pretrained-guide"></span><h2><a class="toc-backref" href="#id10">Storage-Efficient Model Logging with <code class="docutils literal notranslate"><span class="pre">save_pretrained</span></code> Option</a><a class="headerlink" href="#storage-efficient-model-logging-with-save-pretrained-option" title="Permalink to this headline"> </a></h2>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">save_pretrained</span></code> argument is only available in MLflow 2.11.0 and above, and still in experimental stage. The API and behavior may change in future releases. Moreover, this feature is intended for advanced users who are familiar with Transformers and MLflow, understanding <a class="reference internal" href="#caveats-of-save-pretrained"><span class="std std-ref">the potential risks</span></a> of using this feature.</p>
-</div>
-<div class="section" id="avoiding-redundant-model-copy-by-setting-save-pretrained-false">
-<h3>Avoiding Redundant Model Copy by Setting <code class="docutils literal notranslate"><span class="pre">save_pretrained=False</span></code><a class="headerlink" href="#avoiding-redundant-model-copy-by-setting-save-pretrained-false" title="Permalink to this headline"> </a></h3>
-<p>Typically, when MLflow logs an ML model, it saves a copy of the model weight to the artifact store.
-However, this is not optimal when you use a pretrained model from HuggingFace Hub and have no intention of fine-tuning or otherwise manipulating the model or its weights before logging it. For this very common case, copying the (typically very large) model weights is redundant while developing prompts, testing inference parameters, and otherwise is little more than an unnecessary waste of storage space.</p>
-<p>To address this issue, MLflow 2.11.0 introduced a new argument <code class="docutils literal notranslate"><span class="pre">save_pretrained</span></code> in the <a class="reference internal" href="../../../python_api/mlflow.transformers.html#mlflow.transformers.save_model" title="mlflow.transformers.save_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.transformers.save_model()</span></code></a> and <a class="reference internal" href="../../../python_api/mlflow.transformers.html#mlflow.transformers.log_model" title="mlflow.transformers.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.transformers.log_model()</span></code></a> APIs. When with argument is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>, MLflow will forego saving the pretrained model weights, opting instead to store a reference to the underlying repository entry on the HuggingFace Hub; specifically, the  repository name and the unique commit hash of the model weights are stored when your components or pipeline are logged. When loading back such a <em>refernce-only</em> model, MLflow will check the repository name and commit hash from the saved metadata, and either download the model weight from the HuggingFace Hub or use the locally cached model from your HuggingFace local cache directory.</p>
-<p>A good analogy for this feature is the comparison between a file <em>copy</em> and a <em>symlink</em> operation. The default behavior for the transformers flavor is to perform a copy, materializing the model weight files in your artifact store that is associated with the run that the model is logged to. By setting <code class="docutils literal notranslate"><span class="pre">save_pretrained=False</span></code>, MLflow will log a link to the HuggingFace Hub repository, effectively building in symlink functionality to the run. This will save storage space and reduce the logging latency significantly, particularly for large models like LLMs.</p>
-</div>
-<div class="section" id="example-usage">
-<h3>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline"> </a></h3>
-<p>Here is the example of using <code class="docutils literal notranslate"><span class="pre">save_pretrained</span></code> argument for logging a model</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">transformers</span>
-
-<span class="n">pipeline</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span>
-    <span class="n">task</span><span class="o">=</span><span class="s2">&quot;text-generation&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;databricks/dolly-v2-7b&quot;</span><span class="p">,</span> <span class="n">torch_dtype</span><span class="o">=</span><span class="s2">&quot;torch.float16&quot;</span>
-<span class="p">)</span>
-
-<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
-    <span class="n">mlflow</span><span class="o">.</span><span class="n">transformers</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span>
-        <span class="n">transformers_model</span><span class="o">=</span><span class="n">pipeline</span><span class="p">,</span>
-        <span class="n">artifact_path</span><span class="o">=</span><span class="s2">&quot;dolly&quot;</span><span class="p">,</span>
-        <span class="n">save_pretrained</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span>
-</pre></div>
-</div>
-<p>In the above example, MLflow will not save a copy of the <strong>Dolly-v2-7B</strong> model’s weights and will instead log the following metadata as a reference to the HuggingFace Hub model. This will save roughly 15GB of storage space and reduce the logging latency significantly as well for each run that you initiate during development.
-<code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">source_model_name:</span> <span class="pre">&quot;databricks/dolly-v2-7b&quot;</span>
-<span class="pre">source_model_revision:</span> <span class="pre">&quot;d632f0c8b75b1ae5b26b250d25bfba4e99cb7c6f&quot;</span>
-<span class="pre">`</span></code></p>
-</div>
-<div class="section" id="caveats-of-reference-only-models">
-<span id="caveats-of-save-pretrained"></span><h3>Caveats of Reference-Only Models<a class="headerlink" href="#caveats-of-reference-only-models" title="Permalink to this headline"> </a></h3>
-<p>While the <code class="docutils literal notranslate"><span class="pre">save_pretrained</span></code> argument is useful for saving storage space and reducing logging latency, it has the following caveats to be aware of:</p>
-<ul class="simple">
-<li><p><strong>Change in Model Unavailability</strong>: If you are using a model from other users’ repository, the model may be deleted or become private in the HuggingFace Hub. In such cases, MLflow cannot load the model back. For production use cases, it is recommended to save the copy model weight to the artifact store prior to moving from development or staging to production for your model.</p></li>
-<li><p><strong>HuggingFace Hub Access</strong>: Downloading a model from the HuggingFace Hub might be slow or unstable due to the network condition or the HuggingFace Hub service status. MLflow doesn’t provide any retry mechanism or robust error handling for the model downloading. As such, you should not rely on this functionality for your final production-candidate run.</p></li>
-<li><p><strong>Limited Databricks Integration</strong>: If you are using Databricks, be aware that the model saved with <cite>save_pretrained=False</cite> cannot be registered to the legacy <a class="reference external" href="https://docs.databricks.com/en/machine-learning/manage-model-lifecycle/workspace-model-registry.html">Workspace Model Registry</a>. If you want to register the reference-only Transformer model, please use <a class="reference external" href="https://docs.databricks.com/en/machine-learning/manage-model-lifecycle/index.html">Unity Catalog</a> instead, or download the model weight in advance using <a class="reference internal" href="../../../python_api/mlflow.transformers.html#mlflow.transformers.persist_pretrained_model" title="mlflow.transformers.persist_pretrained_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.transformers.persist_pretrained_model()</span></code></a> API as described in the next section.</p></li>
-</ul>
-</div>
-<div class="section" id="persist-the-model-weight-to-the-existing-reference-only-model">
-<span id="persist-pretrained-guide"></span><h3>Persist the Model Weight to the Existing Reference-Only Model<a class="headerlink" href="#persist-the-model-weight-to-the-existing-reference-only-model" title="Permalink to this headline"> </a></h3>
-<p>If you want to update the reference-only model to an instance that contains the model weight, you can use the <a class="reference internal" href="../../../python_api/mlflow.transformers.html#mlflow.transformers.persist_pretrained_model" title="mlflow.transformers.persist_pretrained_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.transformers.persist_pretrained_model()</span></code></a> API. This API will download the model weight from the HuggingFace Hub, save it to the artifact location, and update the metadata of the given reference-only model. After this operation, the model will be equivalent to the one saved with <cite>save_pretrained=True</cite> and be ready for the production use.</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>The <a class="reference internal" href="../../../python_api/mlflow.transformers.html#mlflow.transformers.persist_pretrained_model" title="mlflow.transformers.persist_pretrained_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.transformers.persist_pretrained_model()</span></code></a> API <strong>does NOT require re-logging a model</strong> but efficiently update the existing model and metadata in-place.</p>
-</div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">import</span> <span class="nn">transformers</span>
-
-<span class="n">pipeline</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span>
-    <span class="n">task</span><span class="o">=</span><span class="s2">&quot;text-generation&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;databricks/dolly-v2-7b&quot;</span><span class="p">,</span> <span class="n">torch_dtype</span><span class="o">=</span><span class="s2">&quot;torch.float16&quot;</span>
-<span class="p">)</span>
-
-<span class="c1"># Save the reference-only Transformer model</span>
-<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
-    <span class="n">model_info</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">transformers</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span>
-        <span class="n">transformers_model</span><span class="o">=</span><span class="n">pipeline</span><span class="p">,</span>
-        <span class="n">artifact_path</span><span class="o">=</span><span class="s2">&quot;dolly&quot;</span><span class="p">,</span>
-        <span class="n">save_pretrained</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span>
-
-<span class="c1"># Model weight is not saved to the artifact store</span>
-<span class="k">assert</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">artifact_path</span> <span class="o">+</span> <span class="s2">&quot;/model&quot;</span><span class="p">)</span>
-
-<span class="c1"># This will download the model weight from the HuggingFace Hub and save it</span>
-<span class="c1"># to the artifact location</span>
-<span class="n">mlflow</span><span class="o">.</span><span class="n">transformers</span><span class="o">.</span><span class="n">persist_pretrained_model</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_uri</span><span class="p">)</span>
-
-<span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">artifact_path</span> <span class="o">+</span> <span class="s2">&quot;/model&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
 <div class="section" id="peft-models-in-mlflow-transformers-flavor">
-<h2><a class="toc-backref" href="#id11">PEFT Models in MLflow Transformers flavor</a><a class="headerlink" href="#peft-models-in-mlflow-transformers-flavor" title="Permalink to this headline"> </a></h2>
+<h2><a class="toc-backref" href="#id10">PEFT Models in MLflow Transformers flavor</a><a class="headerlink" href="#peft-models-in-mlflow-transformers-flavor" title="Permalink to this headline"> </a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The PEFT model is supported in MLflow 2.11.0 and above and is still in the experimental stage. The API and behavior may change in future releases. Moreover, the <a class="reference external" href="https://huggingface.co/docs/peft/en/index">PEFT</a> library is under active development, so not all features
@@ -1014,7 +938,7 @@ and adapter types might be supported in MLflow.</p>
 <p><a class="reference external" href="https://huggingface.co/docs/peft/en/index">PEFT</a> is a library developed by HuggingFace🤗, that provides various optimization methods for pretrained models available on the HuggingFace Hub. With PEFT, you can easily apply various optimization techniques like LoRA and QLoRA to reduce the cost of fine-tuning Transformers models.</p>
 <p>For example, <a class="reference external" href="https://huggingface.co/docs/peft/main/en/conceptual_guides/lora">LoRA (Low-Rank Adaptation)</a> is a method that approximate the weight updates of fine-tuning process with two smaller matrices through low-rank decomposition. LoRA typically shrinks the number of parameters to train to only 0.01% ~ a few % of the full model fine-tuning (depending on the configuration), which significantly accelerates the fine-tuning process and reduces the memory footprint, such that you can even <a class="reference external" href="../tutorials/fine-tuning/transformers-peft.html">train a Mistral/Llama2 7B model on a single Nvidia A10G GPU in an hour</a>.
 By using PEFT, you can apply LoRA to your Transformers model with only a few lines of code:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">peft</span> <span class="kn">import</span> <span class="n">LoraConfig</span><span class="p">,</span> <span class="n">get_peft_model</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">peft</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoraConfig</span><span class="p">,</span> <span class="n">get_peft_model</span>
 
 <span class="n">base_model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="n">lora_config</span> <span class="o">=</span> <span class="n">LoraConfig</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
@@ -1022,9 +946,9 @@ By using PEFT, you can apply LoRA to your Transformers model with only a few lin
 </pre></div>
 </div>
 <p>In MLflow 2.11.0, we introduced support for tracking PEFT models in the MLflow Transformers flavor. You can log and load PEFT models using the same APIs as other Transformers models, such as <a class="reference internal" href="../../../python_api/mlflow.transformers.html#mlflow.transformers.log_model" title="mlflow.transformers.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.transformers.log_model()</span></code></a> and <a class="reference internal" href="../../../python_api/mlflow.transformers.html#mlflow.transformers.load_model" title="mlflow.transformers.load_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.transformers.load_model()</span></code></a>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">peft</span> <span class="kn">import</span> <span class="n">LoraConfig</span><span class="p">,</span> <span class="n">get_peft_model</span>
-<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoModelForCausalLM</span><span class="p">,</span> <span class="n">AutoTokenizer</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">peft</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoraConfig</span><span class="p">,</span> <span class="n">get_peft_model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoModelForCausalLM</span><span class="p">,</span> <span class="n">AutoTokenizer</span>
 
 <span class="n">model_id</span> <span class="o">=</span> <span class="s2">&quot;databricks/dolly-v2-7b&quot;</span>
 <span class="n">base_model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
@@ -1065,8 +989,8 @@ By using PEFT, you can apply LoRA to your Transformers model with only a few lin
 </div>
 <div class="section" id="limitations-of-peft-models-in-mlflow">
 <h3>Limitations of PEFT Models in MLflow<a class="headerlink" href="#limitations-of-peft-models-in-mlflow" title="Permalink to this headline"> </a></h3>
-<p>Since the model saving/loading behavior for PEFT models is similar to that of <code class="docutils literal notranslate"><span class="pre">save_pretrained=False</span></code>, <a class="reference internal" href="#caveats-of-save-pretrained"><span class="std std-ref">the same caveats</span></a> apply to PEFT models. For example, the base model weight may be deleted or become private in the HuggingFace Hub, and PEFT models cannot be registered to the legacy Databricks Workspace Model Registry.</p>
-<p>To save the base model weight for PEFT models, you can use the <a class="reference internal" href="../../../python_api/mlflow.transformers.html#mlflow.transformers.persist_pretrained_model" title="mlflow.transformers.persist_pretrained_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.transformers.persist_pretrained_model()</span></code></a> API. This will download the base model weight from the HuggingFace Hub and save it to the artifact location, updating the metadata of the given PEFT model. Please refer to <a class="reference internal" href="#persist-pretrained-guide"><span class="std std-ref">this section</span></a> for the detailed usage of this API.</p>
+<p>Since the model saving/loading behavior for PEFT models is similar to that of <code class="docutils literal notranslate"><span class="pre">save_pretrained=False</span></code>, <a class="reference internal" href="../large-models.html#caveats-of-save-pretrained"><span class="std std-ref">the same caveats</span></a> apply to PEFT models. For example, the base model weight may be deleted or become private in the HuggingFace Hub, and PEFT models cannot be registered to the legacy Databricks Workspace Model Registry.</p>
+<p>To save the base model weight for PEFT models, you can use the <a class="reference internal" href="../../../python_api/mlflow.transformers.html#mlflow.transformers.persist_pretrained_model" title="mlflow.transformers.persist_pretrained_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.transformers.persist_pretrained_model()</span></code></a> API. This will download the base model weight from the HuggingFace Hub and save it to the artifact location, updating the metadata of the given PEFT model. Please refer to <a class="reference internal" href="../large-models.html#persist-pretrained-guide"><span class="std std-ref">this section</span></a> for the detailed usage of this API.</p>
 </div>
 </div>
 </div>
@@ -1109,7 +1033,7 @@ By using PEFT, you can apply LoRA to your Transformers model with only a few lin
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

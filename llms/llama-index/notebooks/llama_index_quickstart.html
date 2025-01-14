@@ -47,10 +47,10 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../../index.html"/>
         <link rel="up" title="MLflow LlamaIndex Flavor" href="../index.html"/>
-        <link rel="next" title="MLflow’s LLM Tracking Capabilities" href="/../../llm-tracking/index.html"/>
-        <link rel="prev" title="MLflow LlamaIndex Flavor" href="/../index.html"/> 
+        <link rel="next" title="MLflow DSPy Flavor" href="/../../dspy/index.html"/>
+        <link rel="prev" title="Building a Tool-calling Agent with LlamaIndex Workflow and MLflow" href="/llama_index_workflow_tutorial.html"/> 
 
   
   <script src="../../../_static/js/modernizr.min.js"></script>
@@ -64,6 +64,7 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script type="text/javascript" src="../../../None"></script>
+<script type="text/javascript" src="../../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -76,7 +77,7 @@
     <a href="../../../index.html" class="wy-nav-top-logo"
       ><img src="../../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -113,12 +114,13 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">LLMs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#tutorials-and-use-case-guides-for-genai-applications-in-mlflow">Tutorials and Use Case Guides for GenAI applications in MLflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id1">MLflow Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#id2">MLflow Deployments Server for LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#id2">MLflow AI Gateway for LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id3">LLM Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id4">Prompt Engineering UI</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../index.html#native-mlflow-flavors-for-llms">Native MLflow Flavors for LLMs</a><ul class="current">
@@ -135,13 +137,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../index.html#faq">FAQ</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../dspy/index.html">MLflow DSPy Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../index.html#explore-the-native-llm-flavors">Explore the Native LLM Flavors</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../index.html#id5">LLM Tracking in MLflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../index.html#tutorials-and-use-case-guides-for-llms-in-mlflow">Tutorials and Use Case Guides for LLMs in MLflow</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../traditional-ml/index.html">Traditional ML</a></li>
@@ -502,13 +505,13 @@ Note: you may need to restart the kernel to use updated packages.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">getpass</span> <span class="kn">import</span> <span class="n">getpass</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">getpass</span><span class="w"> </span><span class="kn">import</span> <span class="n">getpass</span>
 
-<span class="kn">from</span> <span class="nn">llama_index.core</span> <span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">VectorStoreIndex</span>
-<span class="kn">from</span> <span class="nn">llama_index.core.llms</span> <span class="kn">import</span> <span class="n">ChatMessage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">llama_index.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">VectorStoreIndex</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">llama_index.core.llms</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatMessage</span>
 
-<span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpass</span><span class="p">(</span><span class="s2">&quot;Enter your OpenAI API key: &quot;</span><span class="p">)</span>
 </pre></div>
@@ -726,7 +729,7 @@ Hello! How can I assist you today?
 <span class="n">show_spark_udf_inference</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="k">if</span> <span class="n">show_spark_udf_inference</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">------------- Inference via MLflow Spark UDF -------------&quot;</span><span class="p">)</span>
-    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">SparkSession</span>
 
     <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
 
@@ -744,10 +747,10 @@ Hello! How can I assist you today?
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 
-<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">IFrame</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">IFrame</span>
 
 <span class="c1"># Start the MLflow UI in a background process</span>
 <span class="n">mlflow_ui_command</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mlflow&quot;</span><span class="p">,</span> <span class="s2">&quot;ui&quot;</span><span class="p">,</span> <span class="s2">&quot;--port&quot;</span><span class="p">,</span> <span class="s2">&quot;5000&quot;</span><span class="p">]</span>
@@ -783,14 +786,14 @@ Hello! How can I assist you today?
 <li><p><code class="docutils literal notranslate"><span class="pre">settings.json</span></code>: the serialized <code class="docutils literal notranslate"><span class="pre">llama_index.core.Settings</span></code> service context. For more details, visit <a class="reference external" href="https://docs.llamaindex.ai/en/stable/module_guides/supporting_modules/settings/">LlamaIndex’s Settings docs</a></p></li>
 </ul>
 <p>By storing these objects, MLflow is able to recreate the environment in which you logged your model.</p>
-<p><img alt="llama_index_mlflow_ui_run" src="../../../_images/llama_index_mlflow_ui_run.png" /></p>
+<img alt="llama_index_mlflow_ui_run" src="../../../_images/llama_index_mlflow_ui_run.png" />
 <p><strong>Important:</strong> MLflow will not serialize API keys. Those must be present in your model loading environment as environment variables.</p>
 <p>We also created a record of the model in the model registry. By simply specifying <code class="docutils literal notranslate"><span class="pre">registered_model_name</span></code> and <code class="docutils literal notranslate"><span class="pre">input_example</span></code> when logging the model, we get robust signature inference and an instance in the model registry, as shown below.</p>
-<p><img alt="llama_index_mlflow_ui_registered_model" src="../../../_images/llama_index_mlflow_ui_registered_model.png" /></p>
+<img alt="llama_index_mlflow_ui_registered_model" src="../../../_images/llama_index_mlflow_ui_registered_model.png" />
 <p>Finally, let’s explore the traces we logged. In the <code class="docutils literal notranslate"><span class="pre">Experiments</span></code> tab we can click on <code class="docutils literal notranslate"><span class="pre">Tracing</span></code> to view the logged traces for our two inference calls. Tracing effectively shows a callback-based stacktrace for what ocurred in our inference system.</p>
-<p><img alt="llama_index_tracing_quickstart" src="../../../_images/llama_index_tracing_quickstart.png" /></p>
+<img alt="llama_index_tracing_quickstart" src="../../../_images/llama_index_tracing_quickstart.png" />
 <p>If we click on our first trace, we can see some really cool details about our inputs, outputs, and the duration of each step in the chain.</p>
-<p><img alt="llama_index_single_trace_quickstart" src="../../../_images/llama_index_single_trace_quickstart.png" /></p>
+<img alt="llama_index_single_trace_quickstart" src="../../../_images/llama_index_single_trace_quickstart.png" />
 </div>
 </div>
 <div class="section" id="Customization-and-Next-Steps">
@@ -805,10 +808,10 @@ Hello! How can I assist you today?
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../index.html" class="btn btn-neutral" title="MLflow LlamaIndex Flavor" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
+        <a href="llama_index_workflow_tutorial.html" class="btn btn-neutral" title="Building a Tool-calling Agent with LlamaIndex Workflow and MLflow" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
       
       
-        <a href="../../llm-tracking/index.html" class="btn btn-neutral" title="MLflow’s LLM Tracking Capabilities" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
+        <a href="../../dspy/index.html" class="btn btn-neutral" title="MLflow DSPy Flavor" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
       
     </div>
   
@@ -836,7 +839,7 @@ Hello! How can I assist you today?
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -61,6 +61,7 @@
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -73,7 +74,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -110,10 +111,11 @@
 
       
         <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../llms/tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../traditional-ml/index.html">Traditional ML</a></li>
@@ -202,30 +204,31 @@
 <span class="sd">your own plugin for deployment to a custom serving tool, see</span>
 <span class="sd">`plugin docs &lt;http://mlflow.org/docs/latest/plugins.html#writing-your-own-mlflow-plugins&gt;`_.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">contextlib</span>
-<span class="kn">import</span> <span class="nn">json</span>
 
-<span class="kn">from</span> <span class="nn">mlflow.deployments.base</span> <span class="kn">import</span> <span class="n">BaseDeploymentClient</span>
-<span class="kn">from</span> <span class="nn">mlflow.deployments.databricks</span> <span class="kn">import</span> <span class="n">DatabricksDeploymentClient</span><span class="p">,</span> <span class="n">DatabricksEndpoint</span>
-<span class="kn">from</span> <span class="nn">mlflow.deployments.interface</span> <span class="kn">import</span> <span class="n">get_deploy_client</span><span class="p">,</span> <span class="n">run_local</span>
-<span class="kn">from</span> <span class="nn">mlflow.deployments.openai</span> <span class="kn">import</span> <span class="n">OpenAIDeploymentClient</span>
-<span class="kn">from</span> <span class="nn">mlflow.deployments.utils</span> <span class="kn">import</span> <span class="n">get_deployments_target</span><span class="p">,</span> <span class="n">set_deployments_target</span>
-<span class="kn">from</span> <span class="nn">mlflow.exceptions</span> <span class="kn">import</span> <span class="n">MlflowException</span>
-<span class="kn">from</span> <span class="nn">mlflow.protos.databricks_pb2</span> <span class="kn">import</span> <span class="n">INVALID_PARAMETER_VALUE</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.deployments.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseDeploymentClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.deployments.databricks</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatabricksDeploymentClient</span><span class="p">,</span> <span class="n">DatabricksEndpoint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.deployments.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_deploy_client</span><span class="p">,</span> <span class="n">run_local</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.deployments.openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAIDeploymentClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.deployments.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_deployments_target</span><span class="p">,</span> <span class="n">set_deployments_target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.databricks_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">INVALID_PARAMETER_VALUE</span>
 
 <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="c1"># MlflowDeploymentClient depends on optional dependencies and can&#39;t be imported</span>
     <span class="c1"># if they are not installed.</span>
-    <span class="kn">from</span> <span class="nn">mlflow.deployments.mlflow</span> <span class="kn">import</span> <span class="n">MlflowDeploymentClient</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.deployments.mlflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowDeploymentClient</span>
 
 
-<div class="viewcode-block" id="PredictionsResponse"><a class="viewcode-back" href="../../python_api/mlflow.deployments.html#mlflow.deployments.PredictionsResponse">[docs]</a><span class="k">class</span> <span class="nc">PredictionsResponse</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="PredictionsResponse"><a class="viewcode-back" href="../../python_api/mlflow.deployments.html#mlflow.deployments.PredictionsResponse">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">PredictionsResponse</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents the predictions and metadata returned in response to a scoring request, such as a</span>
 <span class="sd">    REST API request sent to the ``/invocations`` endpoint of an MLflow Model Server.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="PredictionsResponse.get_predictions"><a class="viewcode-back" href="../../python_api/mlflow.deployments.html#mlflow.deployments.PredictionsResponse.get_predictions">[docs]</a>    <span class="k">def</span> <span class="nf">get_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictions_format</span><span class="o">=</span><span class="s2">&quot;dataframe&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PredictionsResponse.get_predictions"><a class="viewcode-back" href="../../python_api/mlflow.deployments.html#mlflow.deployments.PredictionsResponse.get_predictions">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictions_format</span><span class="o">=</span><span class="s2">&quot;dataframe&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the predictions returned from the MLflow Model Server in the specified format.</span>
 
 <span class="sd">        Args:</span>
@@ -241,9 +244,9 @@
 <span class="sd">            The predictions, represented in the specified format.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-        <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-        <span class="kn">from</span> <span class="nn">pandas.core.dtypes.common</span> <span class="kn">import</span> <span class="n">is_list_like</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pandas.core.dtypes.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_list_like</span>
 
         <span class="k">if</span> <span class="n">predictions_format</span> <span class="o">==</span> <span class="s2">&quot;dataframe&quot;</span><span class="p">:</span>
             <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;predictions&quot;</span><span class="p">]</span>
@@ -262,7 +265,7 @@
                 <span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
             <span class="p">)</span></div>
 
-<div class="viewcode-block" id="PredictionsResponse.to_json"><a class="viewcode-back" href="../../python_api/mlflow.deployments.html#mlflow.deployments.PredictionsResponse.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PredictionsResponse.to_json"><a class="viewcode-back" href="../../python_api/mlflow.deployments.html#mlflow.deployments.PredictionsResponse.to_json">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the JSON representation of the MLflow Predictions Response.</span>
 
 <span class="sd">        Args:</span>
@@ -280,11 +283,11 @@
             <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span></div>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">json_str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_json</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">json_str</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">parsed_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_str</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span><span class="s2">&quot;Predictions response contents are not valid JSON&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span><span class="s2">&quot;Predictions response contents are not valid JSON&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parsed_response</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;predictions&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parsed_response</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Invalid response. Predictions response contents must be a dictionary&quot;</span>
@@ -335,7 +338,7 @@
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

@@ -47,7 +47,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="index.html"/>
         <link rel="next" title="MLflow Authentication" href="/auth/index.html"/>
         <link rel="prev" title="MLflow Recipes" href="/recipes.html"/> 
 
@@ -61,6 +61,7 @@
 <script type="text/javascript" src="_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -73,7 +74,7 @@
     <a href="index.html" class="wy-nav-top-logo"
       ><img src="_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -110,10 +111,11 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="new-features/index.html">New Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="llms/index.html">LLMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llms/tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="traditional-ml/index.html">Traditional ML</a></li>
@@ -306,16 +308,16 @@ mlflow<span class="w"> </span>server<span class="w"> </span>--backend-store-uri<
 <p>To use it, implement the <code class="docutils literal notranslate"><span class="pre">RequestAuthProvider</span></code> class and override the <code class="docutils literal notranslate"><span class="pre">get_name</span></code> and <code class="docutils literal notranslate"><span class="pre">get_auth</span></code> methods.
 <code class="docutils literal notranslate"><span class="pre">get_name</span></code> should return the name of your auth provider, while <code class="docutils literal notranslate"><span class="pre">get_auth</span></code> should return the auth object
 that will be added to the http request.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.tracking.request_auth.abstract_request_auth_provider</span> <span class="kn">import</span> <span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.request_auth.abstract_request_auth_provider</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">RequestAuthProvider</span><span class="p">,</span>
 <span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">DummyAuthProvider</span><span class="p">(</span><span class="n">RequestAuthProvider</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DummyAuthProvider</span><span class="p">(</span><span class="n">RequestAuthProvider</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;dummy_auth_provider_name&quot;</span>
 
-    <span class="k">def</span> <span class="nf">get_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">DummyAuth</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -560,12 +562,12 @@ and the conda.yaml file associated with the model.</p>
 It expects Aliyun Storage access credentials in the <code class="docutils literal notranslate"><span class="pre">MLFLOW_OSS_ENDPOINT_URL</span></code>, <code class="docutils literal notranslate"><span class="pre">MLFLOW_OSS_KEY_ID</span></code> and <code class="docutils literal notranslate"><span class="pre">MLFLOW_OSS_KEY_SECRET</span></code> environment variables,
 so you must set these variables on both your client application and your MLflow tracking server.
 To use Aliyun OSS as an artifact store, an OSS URI of the form <code class="docutils literal notranslate"><span class="pre">oss://&lt;bucket&gt;/&lt;path&gt;</span></code> must be provided, as shown in the example below:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">import</span> <span class="nn">mlflow.pyfunc</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow.pyfunc</span>
 
 
-<span class="k">class</span> <span class="nc">Mod</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Mod</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">7</span>
 
 
@@ -589,12 +591,12 @@ and the conda.yaml file associated with the model.</p>
 It expects XetHub access credentials through <code class="docutils literal notranslate"><span class="pre">xet</span> <span class="pre">login</span></code> CLI command or in the <code class="docutils literal notranslate"><span class="pre">XET_USER_EMAIL</span></code>, <code class="docutils literal notranslate"><span class="pre">XET_USER_NAME</span></code> and <code class="docutils literal notranslate"><span class="pre">XET_USER_TOKEN</span></code> environment variables,
 so you must authenticate with XetHub for both your client application and your MLflow tracking server.
 To use XetHub as an artifact store, an XetHub URI of the form <code class="docutils literal notranslate"><span class="pre">xet://&lt;username&gt;/&lt;repo&gt;/&lt;branch&gt;</span></code> must be provided, as shown in the example below:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">import</span> <span class="nn">mlflow.pyfunc</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow.pyfunc</span>
 
 
-<span class="k">class</span> <span class="nc">Mod</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Mod</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">7</span>
 
 
@@ -698,9 +700,9 @@ USe the mlflowdocumentation for additional mlflow server options</p>
 –gunicorn-opts ‘–timeout &lt;timeout in seconds&gt;’</p>
 <p><strong>Usage</strong></p>
 <p>MLflow model logging code example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">mlflow</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
-<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">pipeline</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipeline</span>
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="s2">&quot;&lt;your mlflow tracking server uri&gt;&quot;</span><span class="p">)</span>
 <span class="n">mlflow</span><span class="o">.</span><span class="n">create_experiment</span><span class="p">(</span><span class="s2">&quot;&lt;your_exp_name&gt;&quot;</span><span class="p">)</span>
@@ -772,7 +774,7 @@ Notice this settings might cause significant storage usage and might require JFr
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'./',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

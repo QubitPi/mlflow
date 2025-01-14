@@ -47,9 +47,9 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="MLflow 2.15.2.dev0 documentation" href="../../index.html"/>
+    <link rel="top" title="MLflow 2.19.1.dev0 documentation" href="../../index.html"/>
         <link rel="up" title="LLMs" href="../index.html"/>
-        <link rel="next" title="Introduction to Using LlamaIndex with MLflow" href="/notebooks/llama_index_quickstart.html"/>
+        <link rel="next" title="Building a Tool-calling Agent with LlamaIndex Workflow and MLflow" href="/notebooks/llama_index_workflow_tutorial.html"/>
         <link rel="prev" title="LangChain within MLflow (Experimental)" href="/../langchain/guide/index.html"/> 
 
   
@@ -62,6 +62,7 @@
 <script type="text/javascript" src="../../_static/languagesections.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+<script type="text/javascript" src="../../_static/runllm.js"></script>
 
 <body class="wy-body-for-nav" role="document">
   
@@ -74,7 +75,7 @@
     <a href="../../index.html" class="wy-nav-top-logo"
       ><img src="../../_static/MLflow-logo-final-black.png" alt="MLflow"
     /></a>
-    <span class="version">2.15.2.dev0</span>
+    <span class="version">2.19.1.dev0</span>
   </li>
 </ul>
   </nav>
@@ -111,12 +112,13 @@
 
       
         <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">What is MLflow?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">MLflow Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../getting-started/index.html">Getting Started with MLflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../new-features/index.html">New Features</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">LLMs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#tutorials-and-use-case-guides-for-genai-applications-in-mlflow">Tutorials and Use Case Guides for GenAI applications in MLflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#id1">MLflow Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#id2">MLflow Deployments Server for LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#id2">MLflow AI Gateway for LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#id3">LLM Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#id4">Prompt Engineering UI</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html#native-mlflow-flavors-for-llms">Native MLflow Flavors for LLMs</a><ul class="current">
@@ -133,13 +135,14 @@
 <li class="toctree-l4"><a class="reference internal" href="#faq">FAQ</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../dspy/index.html">MLflow DSPy Flavor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#explore-the-native-llm-flavors">Explore the Native LLM Flavors</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#id5">LLM Tracking in MLflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#tutorials-and-use-case-guides-for-llms-in-mlflow">Tutorials and Use Case Guides for LLMs in MLflow</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../tracing/index.html">MLflow Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model-evaluation/index.html">Model Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../deep-learning/index.html">Deep Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../traditional-ml/index.html">Traditional ML</a></li>
@@ -234,22 +237,31 @@ and other AI-driven applications that require integration of external knowledge.
 <h2>Why use LlamaIndex with MLflow?<a class="headerlink" href="#why-use-llamaindex-with-mlflow" title="Permalink to this headline"> </a></h2>
 <p>The integration of the LlamaIndex library with MLflow provides a seamless experience for managing and deploying LlamaIndex engines. The following are some of the key benefits of using LlamaIndex with MLflow:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="../../tracking.html">MLflow Tracking</a> allows you to track your indices within MLflow and manage the many moving parts that comprise your LlamaIndex project, such as prompts, LLMs, retrievers, tools, global configurations, and more.</p></li>
-<li><p><a class="reference external" href="../../models.html">MLflow Model</a> packages your LlamaIndex engine with all its dependency versions, input and output interfaces, and other essential metadata. This allows you to deploy your LlamaIndex engine with ease, knowing that the environment is consistent across different stages of the ML lifecycle.</p></li>
-<li><p><a class="reference external" href="../llm-evaluate/index.html">MLflow Evaluate</a> provides native capabilities within MLflow to evaluate GenAI applications. This capability facilitates the efficient assessment of inference results from your LlamaIndex engine, ensuring robust performance analytics and facilitating quick iterations.</p></li>
+<li><p><a class="reference external" href="../../tracking.html">MLflow Tracking</a> allows you to track your indices within MLflow and manage the many moving parts that comprise your LlamaIndex project, such as prompts, LLMs, workflows, tools, global configurations, and more.</p></li>
+<li><p><a class="reference external" href="../../models.html">MLflow Model</a> packages your LlamaIndex index/engine/workflows with all its dependency versions, input and output interfaces, and other essential metadata. This allows you to deploy your LlamaIndex models for inference with ease, knowing that the environment is consistent across different stages of the ML lifecycle.</p></li>
+<li><p><a class="reference external" href="../llm-evaluate/index.html">MLflow Evaluate</a> provides native capabilities within MLflow to evaluate GenAI applications. This capability facilitates the efficient assessment of inference results from your LlamaIndex models, ensuring robust performance analytics and facilitating quick iterations.</p></li>
 <li><p><a class="reference external" href="../tracing/index.html">MLflow Tracing</a> is a powerful observability tool for monitoring and debugging what happens inside the LlamaIndex models, helping you identify potential bottlenecks or issues quickly. With its powerful automatic logging capability, you can instrument your LlamaIndex application without needing to add any code apart from running a single command.</p></li>
 </ul>
 </div>
 <div class="section" id="getting-started">
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline"> </a></h2>
-<p>In this introductory tutorial, you will learn the most fundamental components of LlamaIndex and how to leverage the integration with MLflow to store, retrieve, and
-use an index.</p>
+<p>In these introductory tutorials, you will learn the most fundamental components of LlamaIndex and how to leverage the integration with MLflow to bring better maintainability and observability to your LlamaIndex applications.</p>
 <section>
     <article class="simple-grid">
         <div class="simple-card">
+            <a href="notebooks/llama_index_workflow_tutorial.html">
+                <div class="header">
+                    LlamaIndex Workflows with MLflow
+                </div>
+                <p>
+                    Get started with MLflow and LLamaIndex by building a simple agentic Workflow. Learn how to log and load the Workflow for inference, as well as enable tracing for observability.
+                </p>
+            </a>
+        </div>
+        <div class="simple-card">
             <a href="notebooks/llama_index_quickstart.html">
                 <div class="header">
-                    LlamaIndex Quickstart
+                    Building Index with MLflow
                 </div>
                 <p>
                     Get started with MLflow and LlamaIndex by exploring the simplest possible index configuration of a VectorStoreIndex.
@@ -262,18 +274,30 @@ use an index.</p>
 </div>
 <div class="section" id="concepts">
 <h2>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline"> </a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Workflow integration is only available in LlamaIndex &gt;= 0.11.0 and MLflow &gt;= 2.17.0.</p>
+</div>
+<div class="section" id="workflow">
+<h3><code class="docutils literal notranslate"><span class="pre">Workflow</span></code> 🆕<a class="headerlink" href="#workflow" title="Permalink to this headline"> </a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">Workflow</span></code> is LlamaIndex’s event-driven orchestration framework. It is designed
+as a flexible and interpretable framework for building arbitrary LLM applications such as an agent, a RAG flow, a data extraction pipeline, etc.
+MLflow supports tracking, evaluating, and tracing the <code class="docutils literal notranslate"><span class="pre">Workflow</span></code> objects, which makes them more observable and maintainable.</p>
+</div>
 <div class="section" id="index">
 <h3><code class="docutils literal notranslate"><span class="pre">Index</span></code><a class="headerlink" href="#index" title="Permalink to this headline"> </a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">Index</span></code> object is the core foundation in LlamaIndex. This object is a collection of documents that are indexed for fast information retrieval, providing capabilities for applications such as Retrieval-Augmented Generation (RAG) and Agents. The <code class="docutils literal notranslate"><span class="pre">Index</span></code> object can be logged directly to an MLflow run and loaded back for use as an inference engine.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Index</span></code> object is a collection of documents that are indexed for fast information retrieval, providing capabilities for applications such as Retrieval-Augmented Generation (RAG) and Agents. The <code class="docutils literal notranslate"><span class="pre">Index</span></code> object can be logged directly to an MLflow run and loaded back for use as an inference engine.</p>
 </div>
 <div class="section" id="engine">
 <h3><code class="docutils literal notranslate"><span class="pre">Engine</span></code><a class="headerlink" href="#engine" title="Permalink to this headline"> </a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">Engine</span></code> is a generic interface built on top of the <code class="docutils literal notranslate"><span class="pre">Index</span></code> object, which provides a set of APIs to interact with the index. LlamaIndex provides two types of engines: <code class="docutils literal notranslate"><span class="pre">QueryEngine</span></code> and <code class="docutils literal notranslate"><span class="pre">ChatEngine</span></code>. The <code class="docutils literal notranslate"><span class="pre">QueryEngine</span></code> simply takes a single
 query and returns a response based on the index. The <code class="docutils literal notranslate"><span class="pre">ChatEngine</span></code> is designed for conversational agents, which keeps track of the conversation history as well.</p>
 </div>
-<div class="section" id="retriever">
-<h3><code class="docutils literal notranslate"><span class="pre">Retriever</span></code><a class="headerlink" href="#retriever" title="Permalink to this headline"> </a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">Retriever</span></code> is a lower-level component built on top of the <code class="docutils literal notranslate"><span class="pre">Index</span></code> object. It is responsible for fetching the most relevant context given a user query (or chat message), and used as a building block for the <code class="docutils literal notranslate"><span class="pre">ChatEngine</span></code> and <code class="docutils literal notranslate"><span class="pre">QueryEngine</span></code>. MLflow supports <code class="docutils literal notranslate"><span class="pre">Retriever</span></code> as a third engine type, which is useful for scenarios where you need more fine-grained control over the retrieval process in your application.</p>
+<div class="section" id="settings">
+<h3><code class="docutils literal notranslate"><span class="pre">Settings</span></code><a class="headerlink" href="#settings" title="Permalink to this headline"> </a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">Settings</span></code> object is a global service context that bundles commonly used resources throughout the
+LlamaIndex application. It includes settings such as the LLM model, embedding model, callbacks, and more. When logging a LlamaIndex index/engine/workflow, MLflow tracks
+the state of the <code class="docutils literal notranslate"><span class="pre">Settings</span></code> object so that you can easily reproduce the same result when loading the model back for inference (note that some objects like API keys, non-serializable objects, etc., are not tracked).</p>
 </div>
 </div>
 <div class="section" id="usage">
@@ -289,7 +313,7 @@ query and returns a response based on the index. The <code class="docutils liter
 curl<span class="w"> </span>-L<span class="w"> </span>https://raw.githubusercontent.com/run-llama/llama_index/main/docs/docs/examples/data/paul_graham/paul_graham_essay.txt<span class="w"> </span>-o<span class="w"> </span>./data/paul_graham_essay.txt
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">llama_index.core</span> <span class="kn">import</span> <span class="n">VectorStoreIndex</span><span class="p">,</span> <span class="n">SimpleDirectoryReader</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">llama_index.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">VectorStoreIndex</span><span class="p">,</span> <span class="n">SimpleDirectoryReader</span>
 
 <span class="n">documents</span> <span class="o">=</span> <span class="n">SimpleDirectoryReader</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
 <span class="n">index</span> <span class="o">=</span> <span class="n">VectorStoreIndex</span><span class="o">.</span><span class="n">from_documents</span><span class="p">(</span><span class="n">documents</span><span class="p">)</span>
@@ -307,7 +331,7 @@ but dictates the interface of how you query the index when you load it back for 
 <li><p>Retriever (<code class="docutils literal notranslate"><span class="pre">engine_type=&quot;retriever&quot;</span></code>) is a lower-level component that returns the top-k relevant documents matching the query.</p></li>
 </ol>
 <p>The following code is an example of logging an index to MLflow with the <code class="docutils literal notranslate"><span class="pre">chat</span></code> engine type.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_experiment</span><span class="p">(</span><span class="s2">&quot;llama-index-demo&quot;</span><span class="p">)</span>
 
@@ -325,7 +349,7 @@ but dictates the interface of how you query the index when you load it back for 
 <p>The above code snippet passes the index object directly to the <code class="docutils literal notranslate"><span class="pre">log_model</span></code> function.
 This method only works with the default <code class="docutils literal notranslate"><span class="pre">SimpleVectorStore</span></code> vector store, which
 simply keeps the embedded documents in memory. If your index uses <strong>external vector stores</strong> such as <code class="docutils literal notranslate"><span class="pre">QdrantVectorStore</span></code> or <code class="docutils literal notranslate"><span class="pre">DatabricksVectorSearch</span></code>, you can use the Model-from-Code
-logging method. See the <a class="reference external" href="#how-to-log-an-index-with-external-vector-stores">How to log an index with external vector stores</a> for more details.</p>
+logging method. See the <a class="reference external" href="#how-to-log-and-load-an-index-with-external-vector-stores">How to log an index with external vector stores</a> for more details.</p>
 </div>
 <div class="figure align-center">
 <a class="reference internal image-reference" href="../../_images/llama-index-artifacts.png"><img alt="MLflow artifacts for the LlamaIndex index" src="../../_images/llama-index-artifacts.png" style="width: 80%;" /></a>
@@ -339,7 +363,7 @@ logging method. See the <a class="reference external" href="#how-to-log-an-index
 <h4>Loading the Index Back for inference<a class="headerlink" href="#loading-the-index-back-for-inference" title="Permalink to this headline"> </a></h4>
 <p>The saved index can be loaded back for inference using the <a class="reference internal" href="../../python_api/mlflow.pyfunc.html#mlflow.pyfunc.load_model" title="mlflow.pyfunc.load_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.pyfunc.load_model()</span></code></a> function. This function
 gives an MLflow Python Model backed by the LlamaIndex engine, with the engine type specified during logging.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_uri</span><span class="p">)</span>
 
@@ -365,7 +389,7 @@ gives an MLflow Python Model backed by the LlamaIndex engine, with the engine ty
 <div class="section" id="enable-tracing">
 <h3>Enable Tracing<a class="headerlink" href="#enable-tracing" title="Permalink to this headline"> </a></h3>
 <p>You can enable tracing for your LlamaIndex code by calling the <a class="reference internal" href="../../python_api/mlflow.llama_index.html#mlflow.llama_index.autolog" title="mlflow.llama_index.autolog"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.llama_index.autolog()</span></code></a> function. MLflow automatically logs the input and output of the LlamaIndex execution to the active MLflow experiment, providing you with a detailed view of the model’s behavior.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">llama_index</span><span class="o">.</span><span class="n">autolog</span><span class="p">()</span>
 
@@ -416,7 +440,7 @@ support the combination of async and streaming, such as the <code class="docutil
 </pre></div>
 </div>
 <p>Then you can log the index by passing the Python file path to the <a class="reference internal" href="../../python_api/mlflow.llama_index.html#mlflow.llama_index.log_model" title="mlflow.llama_index.log_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.llama_index.log_model()</span></code></a> function. The global <a class="reference external" href="https://docs.llamaindex.ai/en/stable/module_guides/supporting_modules/settings/">Settings</a> object is saved normally as part of the model.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
     <span class="n">model_info</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">llama_index</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span>
@@ -437,13 +461,42 @@ support the combination of async and streaming, such as the <code class="docutil
 objects support will be added in the future releases.</p>
 </div>
 </div>
+<div class="section" id="how-to-log-and-load-a-llamaindex-workflow">
+<h3>How to log and load a LlamaIndex Workflow?<a class="headerlink" href="#how-to-log-and-load-a-llamaindex-workflow" title="Permalink to this headline"> </a></h3>
+<p>Mlflow supports logging and loading a LlamaIndex Workflow via the <a class="reference external" href="../../../models.html#models-from-code">Model-from-Code</a> feature. For a detailed example of logging and loading a LlamaIndex Workflow, see the <a class="reference external" href="notebooks/llama_index_workflow_tutorial.html">LlamaIndex Workflows with MLflow</a> notebook.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
+    <span class="n">model_info</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">llama_index</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span>
+        <span class="s2">&quot;/path/to/workflow.py&quot;</span><span class="p">,</span>
+        <span class="n">artifact_path</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span>
+        <span class="n">input_example</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;What is MLflow?&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>The logged workflow can be loaded back using the <a class="reference internal" href="../../python_api/mlflow.llama_index.html#mlflow.llama_index.load_model" title="mlflow.llama_index.load_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.llama_index.load_model()</span></code></a> or <a class="reference internal" href="../../python_api/mlflow.pyfunc.html#mlflow.pyfunc.load_model" title="mlflow.pyfunc.load_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.pyfunc.load_model()</span></code></a> function.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use mlflow.llama_index.load_model to load the workflow object as is</span>
+<span class="n">workflow</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">llama_index</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_uri</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">workflow</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="s2">&quot;What is MLflow?&quot;</span><span class="p">)</span>
+
+<span class="c1"># Use mlflow.pyfunc.load_model to load the workflow as a MLflow Pyfunc Model</span>
+<span class="c1"># with standard inference APIs for deployment and evaluation.</span>
+<span class="n">pyfunc</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_uri</span><span class="p">)</span>
+<span class="n">pyfunc</span><span class="o">.</span><span class="n">predict</span><span class="p">({</span><span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;What is MLflow?&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The MLflow PyFunc Model does not support async inference. When you load the workflow with <a class="reference internal" href="../../python_api/mlflow.pyfunc.html#mlflow.pyfunc.load_model" title="mlflow.pyfunc.load_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.pyfunc.load_model()</span></code></a>, the <code class="docutils literal notranslate"><span class="pre">predict</span></code> method becomes <strong>synchronous</strong> and will block until the workflow execution is completed. This also applies when deploying the logged LlamaIndex workflow to a production endpoint using <a class="reference external" href="https://mlflow.org/docs/latest/deployment/index.html">MLflow Deployment</a> or Databricks <a class="reference external" href="https://docs.databricks.com/en/machine-learning/model-serving/index.html">Model Serving</a>.</p>
+</div>
+</div>
 <div class="section" id="i-have-an-index-logged-with-query-engine-type-can-i-load-it-back-a-chat-engine">
 <h3>I have an index logged with <code class="docutils literal notranslate"><span class="pre">query</span></code> engine type. Can I load it back a <code class="docutils literal notranslate"><span class="pre">chat</span></code> engine?<a class="headerlink" href="#i-have-an-index-logged-with-query-engine-type-can-i-load-it-back-a-chat-engine" title="Permalink to this headline"> </a></h3>
 <p>While it is not possible to update the engine type of the logged model in-place,
 you can always load the index back and re-log it with the desired engine type. This process
 does <strong>not require re-creating the index</strong>, so it is an efficient way to switch between
 different engine types.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="c1"># Log the index with the query engine type first</span>
 <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">():</span>
@@ -475,9 +528,9 @@ different engine types.</p>
 <h3>How to use different LLMs for inference with the loaded engine?<a class="headerlink" href="#how-to-use-different-llms-for-inference-with-the-loaded-engine" title="Permalink to this headline"> </a></h3>
 <p>When saving the index to MLflow, it persists the global <a class="reference external" href="https://docs.llamaindex.ai/en/stable/module_guides/supporting_modules/settings/">Settings</a> object as a part of the model. This object contains settings such as LLM and embedding
 models to be used by engines.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-<span class="kn">from</span> <span class="nn">llama_index.core</span> <span class="kn">import</span> <span class="n">Settings</span>
-<span class="kn">from</span> <span class="nn">llama_index.llms.openai</span> <span class="kn">import</span> <span class="n">OpenAI</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">llama_index.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">llama_index.llms.openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
 
 <span class="n">Settings</span><span class="o">.</span><span class="n">llm</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">)</span>
 
@@ -490,7 +543,7 @@ models to be used by engines.</p>
 </div>
 <p>Then later when you load the index back, the persisted settings are also applied globally. This means that the loaded engine will use the same LLM as when it was logged.</p>
 <p>However, sometimes you may want to use a different LLM for inference. In such cases, you can update the global <code class="docutils literal notranslate"><span class="pre">Settings</span></code> object directly after loading the index.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="c1"># Load the index back</span>
 <span class="n">loaded_index</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">llama_index</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_uri</span><span class="p">)</span>
@@ -518,7 +571,7 @@ models to be used by engines.</p>
         <a href="../langchain/guide/index.html" class="btn btn-neutral" title="LangChain within MLflow (Experimental)" accesskey="p"><span class="db-icon db-icon-chevron-left"></span> Previous</a>
       
       
-        <a href="notebooks/llama_index_quickstart.html" class="btn btn-neutral" title="Introduction to Using LlamaIndex with MLflow" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
+        <a href="notebooks/llama_index_workflow_tutorial.html" class="btn btn-neutral" title="Building a Tool-calling Agent with LlamaIndex Workflow and MLflow" accesskey="n">Next <span class="db-icon db-icon-chevron-right"></span></a>
       
     </div>
   
@@ -546,7 +599,7 @@ models to be used by engines.</p>
   <script type="text/javascript">
     var DOCUMENTATION_OPTIONS = {
       URL_ROOT:'../../',
-      VERSION:'2.15.2.dev0',
+      VERSION:'2.19.1.dev0',
       COLLAPSE_INDEX:false,
       FILE_SUFFIX:'.html',
       LINK_SUFFIX: '.html',

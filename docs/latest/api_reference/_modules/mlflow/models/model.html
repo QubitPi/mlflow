@@ -235,7 +235,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">packaging.requirements</span><span class="w"> </span><span class="kn">import</span> <span class="n">InvalidRequirement</span><span class="p">,</span> <span class="n">Requirement</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoggedModel</span><span class="p">,</span> <span class="n">LoggedModelOutput</span><span class="p">,</span> <span class="n">LoggedModelStatus</span><span class="p">,</span> <span class="n">Metric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoggedModel</span><span class="p">,</span> <span class="n">LoggedModelOutput</span><span class="p">,</span> <span class="n">Metric</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.model_registry.prompt</span><span class="w"> </span><span class="kn">import</span> <span class="n">Prompt</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.environment_variables</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLFLOW_RECORD_ENV_VARS_IN_MODEL_LOGGING</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
@@ -250,6 +250,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking._model_registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking._tracking_service.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_resolve_tracking_uri</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.artifact_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_download_artifact_from_uri</span><span class="p">,</span> <span class="n">_upload_artifact_to_uri</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.fluent</span><span class="w"> </span><span class="kn">import</span> <span class="n">_use_logged_model</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.annotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">experimental</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.databricks_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_databricks_runtime_version</span><span class="p">,</span> <span class="n">is_in_databricks_runtime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.docstring_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">LOG_MODEL_PARAM_DOCS</span><span class="p">,</span> <span class="n">format_docstring</span>
@@ -1158,138 +1159,148 @@
                     <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">run_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">client</span><span class="o">.</span><span class="n">log_outputs</span><span class="p">(</span>
-                    <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="p">[</span><span class="n">LoggedModelOutput</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">)]</span>
-                <span class="p">)</span>
-                <span class="n">log_model_metrics_for_step</span><span class="p">(</span>
-                    <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">model_id</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span>
-                <span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">prompts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># Convert to URIs for serialization</span>
-                <span class="n">prompts</span> <span class="o">=</span> <span class="p">[</span><span class="n">pr</span><span class="o">.</span><span class="n">uri</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pr</span><span class="p">,</span> <span class="n">Prompt</span><span class="p">)</span> <span class="k">else</span> <span class="n">pr</span> <span class="k">for</span> <span class="n">pr</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">]</span>
-
-            <span class="n">mlflow_model</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
-                <span class="n">artifact_path</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">artifact_location</span><span class="p">,</span>
-                <span class="n">model_uuid</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span>
-                <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span>
-                <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-                <span class="n">resources</span><span class="o">=</span><span class="n">resources</span><span class="p">,</span>
-                <span class="n">auth_policy</span><span class="o">=</span><span class="n">auth_policy</span><span class="p">,</span>
-                <span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">,</span>
-                <span class="n">model_id</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">flavor</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">local_path</span><span class="p">,</span> <span class="n">mlflow_model</span><span class="o">=</span><span class="n">mlflow_model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="c1"># `save_model` calls `load_model` to infer the model requirements, which may result in</span>
-            <span class="c1"># __pycache__ directories being created in the model directory.</span>
-            <span class="k">for</span> <span class="n">pycache</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;__pycache__&quot;</span><span class="p">):</span>
-                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">pycache</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">is_in_databricks_runtime</span><span class="p">():</span>
-                <span class="n">_copy_model_metadata_for_uc_sharing</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">flavor</span><span class="p">)</span>
-
-            <span class="n">serving_input</span> <span class="o">=</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">get_serving_input</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
-            <span class="c1"># We check signature presence here as some flavors have a default signature as a</span>
-            <span class="c1"># fallback when not provided by user, which is set during flavor&#39;s save_model() call.</span>
-            <span class="k">if</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">serving_input</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="n">_LOG_MODEL_MISSING_INPUT_EXAMPLE_WARNING</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">}</span>
+            <span class="k">with</span> <span class="n">_use_logged_model</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">run_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">client</span><span class="o">.</span><span class="n">log_outputs</span><span class="p">(</span>
+                        <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="p">[</span><span class="n">LoggedModelOutput</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">)]</span>
                     <span class="p">)</span>
-                <span class="k">elif</span> <span class="n">tracking_uri</span> <span class="o">==</span> <span class="s2">&quot;databricks&quot;</span> <span class="ow">or</span> <span class="n">get_uri_scheme</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;databricks&quot;</span><span class="p">:</span>
-                    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_LOG_MODEL_MISSING_SIGNATURE_WARNING</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">})</span>
+                    <span class="n">log_model_metrics_for_step</span><span class="p">(</span>
+                        <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">model_id</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span>
+                    <span class="p">)</span>
 
-            <span class="n">env_vars</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="c1"># validate input example works for serving when logging the model</span>
-            <span class="k">if</span> <span class="n">serving_input</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;validate_serving_input&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
-                <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_serving_input</span>
-                <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.model_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">RECORD_ENV_VAR_ALLOWLIST</span><span class="p">,</span> <span class="n">env_var_tracker</span>
+                <span class="k">if</span> <span class="n">prompts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># Convert to URIs for serialization</span>
+                    <span class="n">prompts</span> <span class="o">=</span> <span class="p">[</span><span class="n">pr</span><span class="o">.</span><span class="n">uri</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pr</span><span class="p">,</span> <span class="n">Prompt</span><span class="p">)</span> <span class="k">else</span> <span class="n">pr</span> <span class="k">for</span> <span class="n">pr</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">]</span>
 
-                <span class="k">with</span> <span class="n">env_var_tracker</span><span class="p">()</span> <span class="k">as</span> <span class="n">tracked_env_names</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">validate_serving_input</span><span class="p">(</span>
-                            <span class="n">model_uri</span><span class="o">=</span><span class="n">local_path</span><span class="p">,</span>
-                            <span class="n">serving_input</span><span class="o">=</span><span class="n">serving_input</span><span class="p">,</span>
-                        <span class="p">)</span>
-                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">mlflow_model</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+                    <span class="n">artifact_path</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">artifact_location</span><span class="p">,</span>
+                    <span class="n">model_uuid</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span>
+                    <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span>
+                    <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+                    <span class="n">resources</span><span class="o">=</span><span class="n">resources</span><span class="p">,</span>
+                    <span class="n">auth_policy</span><span class="o">=</span><span class="n">auth_policy</span><span class="p">,</span>
+                    <span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">,</span>
+                    <span class="n">model_id</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">flavor</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">local_path</span><span class="p">,</span> <span class="n">mlflow_model</span><span class="o">=</span><span class="n">mlflow_model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="c1"># `save_model` calls `load_model` to infer the model requirements, which may result</span>
+                <span class="c1"># in __pycache__ directories being created in the model directory.</span>
+                <span class="k">for</span> <span class="n">pycache</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;__pycache__&quot;</span><span class="p">):</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">pycache</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">is_in_databricks_runtime</span><span class="p">():</span>
+                    <span class="n">_copy_model_metadata_for_uc_sharing</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">flavor</span><span class="p">)</span>
+
+                <span class="n">serving_input</span> <span class="o">=</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">get_serving_input</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
+                <span class="c1"># We check signature presence here as some flavors have a default signature as a</span>
+                <span class="c1"># fallback when not provided by user, which is set during flavor&#39;s save_model()</span>
+                <span class="c1"># call.</span>
+                <span class="k">if</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">signature</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">serving_input</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Failed to validate serving input example </span><span class="si">{</span><span class="n">serving_input</span><span class="si">}</span><span class="s2">. &quot;</span>
-                            <span class="s2">&quot;Alternatively, you can avoid passing input example and pass model &quot;</span>
-                            <span class="s2">&quot;signature instead when logging the model. To ensure the input example &quot;</span>
-                            <span class="s2">&quot;is valid prior to serving, please try calling &quot;</span>
-                            <span class="s2">&quot;`mlflow.models.validate_serving_input` on the model uri and serving &quot;</span>
-                            <span class="s2">&quot;input example. A serving input example can be generated from model &quot;</span>
-                            <span class="s2">&quot;input example using &quot;</span>
-                            <span class="s2">&quot;`mlflow.models.convert_input_example_to_serving_input` function.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;Got error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                            <span class="n">exc_info</span><span class="o">=</span><span class="n">_logger</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">),</span>
+                            <span class="n">_LOG_MODEL_MISSING_INPUT_EXAMPLE_WARNING</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">}</span>
                         <span class="p">)</span>
-                    <span class="n">env_vars</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="nb">sorted</span><span class="p">(</span>
-                            <span class="n">x</span>
-                            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tracked_env_names</span>
-                            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">env_var</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">for</span> <span class="n">env_var</span> <span class="ow">in</span> <span class="n">RECORD_ENV_VAR_ALLOWLIST</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="p">(</span>
+                        <span class="n">tracking_uri</span> <span class="o">==</span> <span class="s2">&quot;databricks&quot;</span> <span class="ow">or</span> <span class="n">get_uri_scheme</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;databricks&quot;</span>
+                    <span class="p">):</span>
+                        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="n">_LOG_MODEL_MISSING_SIGNATURE_WARNING</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">}</span>
                         <span class="p">)</span>
-                        <span class="ow">or</span> <span class="kc">None</span>
-                    <span class="p">)</span>
-            <span class="k">if</span> <span class="n">env_vars</span><span class="p">:</span>
-                <span class="c1"># Keep the environment variable file as it serves as a check</span>
-                <span class="c1"># for displaying tips in Databricks serving endpoint</span>
-                <span class="n">env_var_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">ENV_VAR_FILE_NAME</span><span class="p">)</span>
-                <span class="n">env_var_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">ENV_VAR_FILE_HEADER</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">env_vars</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">env_vars</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">:</span>
-                    <span class="n">env_var_info</span> <span class="o">=</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">env_vars</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">env_var_info</span> <span class="o">=</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">env_vars</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;, ... &quot;</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;(check file </span><span class="si">{</span><span class="n">ENV_VAR_FILE_NAME</span><span class="si">}</span><span class="s2"> in the model&#39;s artifact folder for full list&quot;</span>
-                    <span class="s2">&quot; of environment variable names)&quot;</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;Found the following environment variables used during model inference: &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">env_var_info</span><span class="si">}</span><span class="s2">. Please check if you need to set them when deploying the &quot;</span>
-                    <span class="s2">&quot;model. To disable this message, set environment variable &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">MLFLOW_RECORD_ENV_VARS_IN_MODEL_LOGGING</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">` to `false`.&quot;</span>
-                <span class="p">)</span>
-                <span class="n">mlflow_model</span><span class="o">.</span><span class="n">env_vars</span> <span class="o">=</span> <span class="n">env_vars</span>
-                <span class="c1"># mlflow_model is updated, rewrite the MLmodel file</span>
-                <span class="n">mlflow_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">MLMODEL_FILE_NAME</span><span class="p">))</span>
 
-            <span class="n">client</span><span class="o">.</span><span class="n">log_model_artifacts</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">local_path</span><span class="p">)</span>
-            <span class="c1"># If the model was previously identified as external, delete the tag because the model</span>
-            <span class="c1"># now has artifacts in MLflow Model format</span>
-            <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">MLFLOW_MODEL_IS_EXTERNAL</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
-                <span class="n">client</span><span class="o">.</span><span class="n">delete_logged_model_tag</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">MLFLOW_MODEL_IS_EXTERNAL</span><span class="p">)</span>
-            <span class="n">client</span><span class="o">.</span><span class="n">finalize_logged_model</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">LoggedModelStatus</span><span class="o">.</span><span class="n">READY</span><span class="p">)</span>
+                <span class="n">env_vars</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="c1"># validate input example works for serving when logging the model</span>
+                <span class="k">if</span> <span class="n">serving_input</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;validate_serving_input&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+                    <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_serving_input</span>
+                    <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.model_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">RECORD_ENV_VAR_ALLOWLIST</span><span class="p">,</span> <span class="n">env_var_tracker</span>
 
-            <span class="c1"># Associate prompts to the model Run</span>
-            <span class="c1"># TODO: pass model_id to log_prompt</span>
-            <span class="k">if</span> <span class="n">prompts</span> <span class="ow">and</span> <span class="n">run_id</span><span class="p">:</span>
-                <span class="n">client</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowClient</span><span class="p">()</span>
-                <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">:</span>
-                    <span class="n">client</span><span class="o">.</span><span class="n">log_prompt</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">prompt</span><span class="p">)</span>
-
-            <span class="c1"># if the model_config kwarg is passed in, then log the model config as an params</span>
-            <span class="k">if</span> <span class="n">model_config</span> <span class="o">:=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model_config&quot;</span><span class="p">):</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_config</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">file_extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">model_config</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-                        <span class="k">if</span> <span class="n">file_extension</span> <span class="o">==</span> <span class="s2">&quot;.json&quot;</span><span class="p">:</span>
-                            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">model_config</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                                <span class="n">model_config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-                        <span class="k">elif</span> <span class="n">file_extension</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;.yml&quot;</span><span class="p">]:</span>
-                            <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.model_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-                                <span class="n">_validate_and_get_model_config_from_file</span><span class="p">,</span>
+                    <span class="k">with</span> <span class="n">env_var_tracker</span><span class="p">()</span> <span class="k">as</span> <span class="n">tracked_env_names</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">validate_serving_input</span><span class="p">(</span>
+                                <span class="n">model_uri</span><span class="o">=</span><span class="n">local_path</span><span class="p">,</span>
+                                <span class="n">serving_input</span><span class="o">=</span><span class="n">serving_input</span><span class="p">,</span>
                             <span class="p">)</span>
-
-                            <span class="n">model_config</span> <span class="o">=</span> <span class="n">_validate_and_get_model_config_from_file</span><span class="p">(</span><span class="n">model_config</span><span class="p">)</span>
-                        <span class="k">else</span><span class="p">:</span>
+                        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                             <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                                <span class="s2">&quot;Unsupported file format for model config: </span><span class="si">%s</span><span class="s2">. &quot;</span>
-                                <span class="s2">&quot;Failed to load model config.&quot;</span><span class="p">,</span>
-                                <span class="n">model_config</span><span class="p">,</span>
+                                <span class="sa">f</span><span class="s2">&quot;Failed to validate serving input example </span><span class="si">{</span><span class="n">serving_input</span><span class="si">}</span><span class="s2">. &quot;</span>
+                                <span class="s2">&quot;Alternatively, you can avoid passing input example and pass model &quot;</span>
+                                <span class="s2">&quot;signature instead when logging the model. To ensure the input &quot;</span>
+                                <span class="s2">&quot;example is valid prior to serving, please try calling &quot;</span>
+                                <span class="s2">&quot;`mlflow.models.validate_serving_input` on the model uri and &quot;</span>
+                                <span class="s2">&quot;serving input example. A serving input example can be generated &quot;</span>
+                                <span class="s2">&quot;from model input example using &quot;</span>
+                                <span class="s2">&quot;`mlflow.models.convert_input_example_to_serving_input` function.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                <span class="sa">f</span><span class="s2">&quot;Got error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                <span class="n">exc_info</span><span class="o">=</span><span class="n">_logger</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">),</span>
                             <span class="p">)</span>
-                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to load model config from </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_config</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                        <span class="n">env_vars</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="nb">sorted</span><span class="p">(</span>
+                                <span class="n">x</span>
+                                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tracked_env_names</span>
+                                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">env_var</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">for</span> <span class="n">env_var</span> <span class="ow">in</span> <span class="n">RECORD_ENV_VAR_ALLOWLIST</span><span class="p">)</span>
+                            <span class="p">)</span>
+                            <span class="ow">or</span> <span class="kc">None</span>
+                        <span class="p">)</span>
+                <span class="k">if</span> <span class="n">env_vars</span><span class="p">:</span>
+                    <span class="c1"># Keep the environment variable file as it serves as a check</span>
+                    <span class="c1"># for displaying tips in Databricks serving endpoint</span>
+                    <span class="n">env_var_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">ENV_VAR_FILE_NAME</span><span class="p">)</span>
+                    <span class="n">env_var_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">ENV_VAR_FILE_HEADER</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">env_vars</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">env_vars</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="n">env_var_info</span> <span class="o">=</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">env_vars</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">env_var_info</span> <span class="o">=</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">env_vars</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;, ... &quot;</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;(check file </span><span class="si">{</span><span class="n">ENV_VAR_FILE_NAME</span><span class="si">}</span><span class="s2"> in the model&#39;s artifact folder for full &quot;</span>
+                        <span class="s2">&quot;list of environment variable names)&quot;</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s2">&quot;Found the following environment variables used during model inference: &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">env_var_info</span><span class="si">}</span><span class="s2">. Please check if you need to set them when deploying the &quot;</span>
+                        <span class="s2">&quot;model. To disable this message, set environment variable &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">MLFLOW_RECORD_ENV_VARS_IN_MODEL_LOGGING</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">` to `false`.&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">mlflow_model</span><span class="o">.</span><span class="n">env_vars</span> <span class="o">=</span> <span class="n">env_vars</span>
+                    <span class="c1"># mlflow_model is updated, rewrite the MLmodel file</span>
+                    <span class="n">mlflow_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">MLMODEL_FILE_NAME</span><span class="p">))</span>
+
+                <span class="n">client</span><span class="o">.</span><span class="n">log_model_artifacts</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">local_path</span><span class="p">)</span>
+                <span class="c1"># If the model was previously identified as external, delete the tag because</span>
+                <span class="c1"># the model now has artifacts in MLflow Model format</span>
+                <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">MLFLOW_MODEL_IS_EXTERNAL</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
+                    <span class="n">client</span><span class="o">.</span><span class="n">delete_logged_model_tag</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">MLFLOW_MODEL_IS_EXTERNAL</span><span class="p">)</span>
+                <span class="c1"># client.finalize_logged_model(model.model_id, status=LoggedModelStatus.READY)</span>
+
+                <span class="c1"># Associate prompts to the model Run</span>
+                <span class="c1"># TODO: pass model_id to log_prompt</span>
+                <span class="k">if</span> <span class="n">prompts</span> <span class="ow">and</span> <span class="n">run_id</span><span class="p">:</span>
+                    <span class="n">client</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowClient</span><span class="p">()</span>
+                    <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">:</span>
+                        <span class="n">client</span><span class="o">.</span><span class="n">log_prompt</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">prompt</span><span class="p">)</span>
+
+                <span class="c1"># if the model_config kwarg is passed in, then log the model config as an params</span>
+                <span class="k">if</span> <span class="n">model_config</span> <span class="o">:=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model_config&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_config</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">file_extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">model_config</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">file_extension</span> <span class="o">==</span> <span class="s2">&quot;.json&quot;</span><span class="p">:</span>
+                                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">model_config</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                                    <span class="n">model_config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                            <span class="k">elif</span> <span class="n">file_extension</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;.yml&quot;</span><span class="p">]:</span>
+                                <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.model_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+                                    <span class="n">_validate_and_get_model_config_from_file</span><span class="p">,</span>
+                                <span class="p">)</span>
+
+                                <span class="n">model_config</span> <span class="o">=</span> <span class="n">_validate_and_get_model_config_from_file</span><span class="p">(</span>
+                                    <span class="n">model_config</span>
+                                <span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                                    <span class="s2">&quot;Unsupported file format for model config: </span><span class="si">%s</span><span class="s2">. &quot;</span>
+                                    <span class="s2">&quot;Failed to load model config.&quot;</span><span class="p">,</span>
+                                    <span class="n">model_config</span><span class="p">,</span>
+                                <span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                                <span class="s2">&quot;Failed to load model config from </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_config</span><span class="p">,</span> <span class="n">e</span>
+                            <span class="p">)</span>
 
                 <span class="k">try</span><span class="p">:</span>
                     <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_flatten_nested_params</span>
@@ -1302,7 +1313,10 @@
                     <span class="n">params_to_log</span> <span class="o">=</span> <span class="n">model_config</span>
 
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">log_params</span><span class="p">(</span><span class="n">params_to_log</span> <span class="ow">or</span> <span class="p">{},</span> <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">)</span>
+                    <span class="c1"># do not log params to run if run_id is None, since that could trigger</span>
+                    <span class="c1"># a new run to be created</span>
+                    <span class="k">if</span> <span class="n">run_id</span><span class="p">:</span>
+                        <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">log_params</span><span class="p">(</span><span class="n">params_to_log</span> <span class="ow">or</span> <span class="p">{},</span> <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to log model config as params: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 

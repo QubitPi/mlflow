@@ -5442,7 +5442,9 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="MlflowClient.finalize_logged_model"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.finalize_logged_model">[docs]</a>    <span class="nd">@experimental</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">finalize_logged_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">LoggedModelStatus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoggedModel</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">finalize_logged_model</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">LoggedModelStatus</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoggedModel</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Finalize a model by updating its status.</span>
 
@@ -5453,7 +5455,9 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The updated model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">finalize_logged_model</span><span class="p">(</span><span class="n">model_id</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">finalize_logged_model</span><span class="p">(</span>
+            <span class="n">model_id</span><span class="p">,</span> <span class="n">LoggedModelStatus</span><span class="p">(</span><span class="n">status</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">status</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="MlflowClient.get_logged_model"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.get_logged_model">[docs]</a>    <span class="nd">@experimental</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_logged_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoggedModel</span><span class="p">:</span>

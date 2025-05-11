@@ -234,7 +234,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextvars</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContextVar</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -2353,6 +2353,23 @@
     <span class="k">return</span> <span class="n">model</span></div>
 
 
+<span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_use_logged_model</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">LoggedModel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">LoggedModel</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Context manager to wrap a LoggedModel and update the model</span>
+<span class="sd">    status after the context is exited.</span>
+<span class="sd">    If any exception occurs, the model status is set to FAILED.</span>
+<span class="sd">    Otherwise, it is set to READY.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">model</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">finalize_logged_model</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">LoggedModelStatus</span><span class="o">.</span><span class="n">FAILED</span><span class="p">)</span>
+        <span class="k">raise</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">finalize_logged_model</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">LoggedModelStatus</span><span class="o">.</span><span class="n">READY</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="create_external_model"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.create_external_model">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_external_model</span><span class="p">(</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">source_run_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2462,7 +2479,7 @@
 
 
 <div class="viewcode-block" id="finalize_logged_model"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.finalize_logged_model">[docs]</a><span class="nd">@experimental</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">finalize_logged_model</span><span class="p">(</span><span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">LoggedModelStatus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoggedModel</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">finalize_logged_model</span><span class="p">(</span><span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">LoggedModelStatus</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">LoggedModel</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Finalize a model by updating its status.</span>
 
@@ -2654,16 +2671,29 @@
             <span class="n">page_token</span><span class="o">=</span><span class="n">page_token</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">models</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">logged_models_page</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">max_results</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">max_results</span><span class="p">:</span>
+            <span class="k">break</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">logged_models_page</span><span class="o">.</span><span class="n">token</span><span class="p">:</span>
             <span class="k">break</span>
         <span class="n">page_token</span> <span class="o">=</span> <span class="n">logged_models_page</span><span class="o">.</span><span class="n">token</span>
+
+    <span class="c1"># Only return at most max_results logged models if specified</span>
+    <span class="k">if</span> <span class="n">max_results</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">models</span> <span class="o">=</span> <span class="n">models</span><span class="p">[:</span><span class="n">max_results</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">models</span>
     <span class="k">elif</span> <span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;pandas&quot;</span><span class="p">:</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">to_dictionary</span><span class="p">()</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">])</span>
+        <span class="n">model_dicts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+            <span class="n">model_dict</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to_dictionary</span><span class="p">()</span>
+            <span class="c1"># Convert the status back from int to the enum string</span>
+            <span class="n">model_dict</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">LoggedModelStatus</span><span class="o">.</span><span class="n">from_int</span><span class="p">(</span><span class="n">model_dict</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">])</span>
+            <span class="n">model_dicts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_dict</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">model_dicts</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>

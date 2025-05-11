@@ -16,7 +16,7 @@ const config: Config = {
   trailingSlash: true,
 
   // Set the production url of your site here
-  url: 'https://mlflow.org',
+  url: 'https://mlflow.qubitpi.org',
 
   // when building for production, check this environment
   // variable to determine the correct base URL
@@ -24,7 +24,7 @@ const config: Config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'mlflow', // Usually your GitHub org/user name.
+  organizationName: 'QubitPi', // Usually your GitHub org/user name.
   projectName: 'mlflow', // Usually your repo name.
 
   staticDirectories: ['static'],
@@ -205,7 +205,7 @@ const config: Config = {
 
       // Optional: Specify domains where the navigation should occur through window.location instead on history.push.
       // Useful when our Algolia config crawls multiple documentation sites and we want to navigate with window.location.href to them.
-      externalUrlRegex: '/api_reference',
+      externalUrlRegex: "/api_reference",
     },
   } satisfies Preset.ThemeConfig,
 

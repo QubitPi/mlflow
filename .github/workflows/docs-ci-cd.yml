@@ -1,0 +1,78 @@
+# Copyright 2025 Jiaqi Liu. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+name: CI/CD
+
+"on":
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  documentation:
+    name: Test & Deploy Documentation
+    timeout-minutes: 60
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      # Referencing .circleci/config.yml
+      - name: Install dependencies
+        run: |
+          sudo apt-get install pandoc
+          pip install --progress-bar off -r requirements/doc-requirements.txt pytest pytest-cov plotly
+          pip install -e .[gateway]
+          cd docs
+          yarn
+        env:
+          PIP_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
+      # Referencing .circleci/config.yml
+      - name: Generate R API Doc
+        working-directory: docs/api_reference
+        run: |
+          ./build-rdoc.sh
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "The following files have changed:"
+            git status --porcelain
+            exit 1
+          fi
+      # Referencing .circleci/config.yml
+      - name: Build Jupyter
+        working-directory: docs
+        run: yarn convert-notebooks
+        env:
+          GTM_ID: ${{ secrets.GTM_ID }}
+      # Referencing .circleci/config.yml
+      - name: Build documentations
+        working-directory: docs
+        run: yarn build-all -- --no-r
+        env:
+          GTM_ID: ${{ secrets.GTM_ID }}
+      - name: Deploy documentation to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build
+          destination_dir: docs # we specify destination_dir because docs/scripts/build-all.py uses versioned_url to make base URL be "docs/latest", which is later assigned to "DOCS_BASE_URL" used in docusaurus.config.ts
+          enable_jekyll: false
+          user_name: QubitPi
+          user_email: jack20220723@gmail.com
+          cname: mlflow.qubitpi.org

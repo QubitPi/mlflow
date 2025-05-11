@@ -16,7 +16,7 @@ def build_docs(package_manager, version):
     # ensure it ends with a "/"
     base_url = env.get("DOCS_BASE_URL", "/docs/").rstrip("/") + "/"
     api_reference_prefix = (
-        env.get("API_REFERENCE_PREFIX", "https://mlflow.org/docs/").rstrip("/") + "/"
+        env.get("API_REFERENCE_PREFIX", "https://mlflow.qubitpi.org/docs/").rstrip("/") + "/"
     )
 
     output_path = Path(f"_build/{version}")

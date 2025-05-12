@@ -234,7 +234,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.llama_index.constant</span><span class="w"> </span><span class="kn">import</span> <span class="n">FLAVOR_NAME</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.llama_index.pyfunc_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_pyfunc_wrapper</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">ModelInputExample</span><span class="p">,</span> <span class="n">ModelSignature</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLMODEL_FILE_NAME</span><span class="p">,</span> <span class="n">MODEL_CODE_PATH</span><span class="p">,</span> <span class="n">MODEL_CONFIG</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MLMODEL_FILE_NAME</span><span class="p">,</span>
+    <span class="n">MODEL_CODE_PATH</span><span class="p">,</span>
+    <span class="n">MODEL_CONFIG</span><span class="p">,</span>
+    <span class="n">_update_active_model_id_based_on_mlflow_model</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.signature</span><span class="w"> </span><span class="kn">import</span> <span class="n">_infer_signature_from_input_example</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_load_model_code_path</span><span class="p">,</span>
@@ -244,10 +249,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">trace_disabled</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking._model_registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.artifact_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_download_artifact_from_uri</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.fluent</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_get_active_model_context</span><span class="p">,</span>
-    <span class="n">_set_active_model</span><span class="p">,</span>
-<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.annotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">experimental</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.autologging_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">disable_autologging_globally</span><span class="p">,</span>
@@ -783,23 +784,14 @@
 
     <span class="n">local_model_path</span> <span class="o">=</span> <span class="n">_download_artifact_from_uri</span><span class="p">(</span><span class="n">artifact_uri</span><span class="o">=</span><span class="n">model_uri</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">dst_path</span><span class="p">)</span>
     <span class="n">mlflow_model</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">)</span>
-    <span class="k">if</span> <span class="p">(</span>
-        <span class="n">mlflow_model</span><span class="o">.</span><span class="n">model_id</span>
-        <span class="ow">and</span> <span class="p">(</span><span class="n">amc</span> <span class="o">:=</span> <span class="n">_get_active_model_context</span><span class="p">())</span>
-        <span class="c1"># only set the active model if the model is not set by the user</span>
-        <span class="ow">and</span> <span class="ow">not</span> <span class="n">amc</span><span class="o">.</span><span class="n">set_by_user</span>
-        <span class="ow">and</span> <span class="n">amc</span><span class="o">.</span><span class="n">model_id</span> <span class="o">!=</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">model_id</span>
-    <span class="p">):</span>
-        <span class="n">_set_active_model</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">mlflow_model</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;Use `mlflow.set_active_model` to set the active model to a different one if needed.&quot;</span>
-        <span class="p">)</span>
     <span class="n">flavor_conf</span> <span class="o">=</span> <span class="n">_get_flavor_configuration</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">flavor_name</span><span class="o">=</span><span class="n">FLAVOR_NAME</span><span class="p">)</span>
 
     <span class="n">settings_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">_SETTINGS_FILE</span><span class="p">)</span>
     <span class="c1"># NB: Settings is a singleton and can be loaded via llama_index.core.Settings</span>
     <span class="n">deserialize_settings</span><span class="p">(</span><span class="n">settings_path</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">_load_llama_model</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">flavor_conf</span><span class="p">)</span></div>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">_load_llama_model</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">flavor_conf</span><span class="p">)</span>
+    <span class="n">_update_active_model_id_based_on_mlflow_model</span><span class="p">(</span><span class="n">mlflow_model</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span></div>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_load_pyfunc</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">model_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>

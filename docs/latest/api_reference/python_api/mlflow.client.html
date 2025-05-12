@@ -3669,6 +3669,36 @@ name=CordobaWeatherForecastModel; run_id=e14afa2f47a040728060c1699968fd43; versi
 </dd></dl>
 
 <dl class="py method">
+<dt id="mlflow.client.MlflowClient.search_prompts">
+<code class="sig-name descname"><span class="pre">search_prompts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page_token</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="mlflow.entities.html#mlflow.store.entities.PagedList" title="mlflow.store.entities.PagedList"><span class="pre">PagedList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlflow.entities.html#mlflow.entities.model_registry.Prompt" title="mlflow.entities.model_registry.Prompt"><span class="pre">Prompt</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.search_prompts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.search_prompts" title="Permalink to this definition"> </a></dt>
+<dd><p>Retrieve prompt templates from the MLflow Prompt Registry.</p>
+<p>This call returns only those registered models that have been marked
+as prompts (i.e. tagged with <cite>mlflow.prompt.is_prompt=true</cite>). We can
+further restrict results via a standard registry filter expression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filter_string</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – An additional registry‐search expression to apply (e.g.
+<cite>“name LIKE ‘my_prompt%’”</cite>).  The prompt‐tag filter is always
+applied internally.  Defaults to <cite>None</cite> (no extra filtering).</p></li>
+<li><p><strong>max_results</strong> (<em>int</em>) – The maximum number of prompts to return in one page.  Defaults
+to <cite>SEARCH_MAX_RESULTS_DEFAULT</cite> (typically 1 000).</p></li>
+<li><p><strong>page_token</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – A pagination token from a previous <cite>search_prompts</cite> call; use this
+to retrieve the next page of results.  Defaults to <cite>None</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A pageable list of <a class="reference internal" href="mlflow.entities.html#mlflow.entities.model_registry.Prompt" title="mlflow.entities.model_registry.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a>
+entities representing prompt templates. Inspect the returned object’s
+<cite>.token</cite> attribute to fetch subsequent pages.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="mlflow.entities.html#mlflow.entities.model_registry.Prompt" title="mlflow.entities.model_registry.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="mlflow.client.MlflowClient.search_registered_models">
 <code class="sig-name descname"><span class="pre">search_registered_models</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_by</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page_token</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="mlflow.entities.html#mlflow.store.entities.PagedList" title="mlflow.store.entities.PagedList"><span class="pre">PagedList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlflow.entities.html#mlflow.entities.model_registry.RegisteredModel" title="mlflow.entities.model_registry.RegisteredModel"><span class="pre">RegisteredModel</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.search_registered_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.search_registered_models" title="Permalink to this definition"> </a></dt>
 <dd><p>Search for registered models in backend that satisfy the filter criteria.</p>

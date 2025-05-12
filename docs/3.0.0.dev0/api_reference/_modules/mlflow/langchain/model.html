@@ -269,7 +269,12 @@
     <span class="n">_get_dependencies_schema_from_model</span><span class="p">,</span>
     <span class="n">_get_dependencies_schemas</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLMODEL_FILE_NAME</span><span class="p">,</span> <span class="n">MODEL_CODE_PATH</span><span class="p">,</span> <span class="n">MODEL_CONFIG</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MLMODEL_FILE_NAME</span><span class="p">,</span>
+    <span class="n">MODEL_CODE_PATH</span><span class="p">,</span>
+    <span class="n">MODEL_CONFIG</span><span class="p">,</span>
+    <span class="n">_update_active_model_id_based_on_mlflow_model</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatabricksFunction</span><span class="p">,</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">_ResourceBuilder</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.signature</span><span class="w"> </span><span class="kn">import</span> <span class="n">_infer_signature_from_input_example</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -281,10 +286,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">trace_disabled</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking._model_registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.artifact_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_download_artifact_from_uri</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.fluent</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_get_active_model_context</span><span class="p">,</span>
-    <span class="n">_set_active_model</span><span class="p">,</span>
-<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.types.schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColSpec</span><span class="p">,</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">Schema</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.annotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">experimental</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.autologging_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -1069,17 +1070,6 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_load_model_from_local_fs</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">model_config_overrides</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">mlflow_model</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">)</span>
-    <span class="k">if</span> <span class="p">(</span>
-        <span class="n">mlflow_model</span><span class="o">.</span><span class="n">model_id</span>
-        <span class="ow">and</span> <span class="p">(</span><span class="n">amc</span> <span class="o">:=</span> <span class="n">_get_active_model_context</span><span class="p">())</span>
-        <span class="c1"># only set the active model if the model is not set by the user</span>
-        <span class="ow">and</span> <span class="ow">not</span> <span class="n">amc</span><span class="o">.</span><span class="n">set_by_user</span>
-        <span class="ow">and</span> <span class="n">amc</span><span class="o">.</span><span class="n">model_id</span> <span class="o">!=</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">model_id</span>
-    <span class="p">):</span>
-        <span class="n">_set_active_model</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">mlflow_model</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;Use `mlflow.set_active_model` to set the active model to a different one if needed.&quot;</span>
-        <span class="p">)</span>
     <span class="n">flavor_conf</span> <span class="o">=</span> <span class="n">_get_flavor_configuration</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">flavor_name</span><span class="o">=</span><span class="n">FLAVOR_NAME</span><span class="p">)</span>
     <span class="n">pyfunc_flavor_conf</span> <span class="o">=</span> <span class="n">_get_flavor_configuration</span><span class="p">(</span>
         <span class="n">model_path</span><span class="o">=</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">flavor_name</span><span class="o">=</span><span class="n">PYFUNC_FLAVOR_NAME</span>
@@ -1113,9 +1103,12 @@
             <span class="c1"># We would like to clean up the dependencies schema which is set to global</span>
             <span class="c1"># after loading the mode to avoid the schema being used in the next model loading</span>
             <span class="n">_clear_dependencies_schemas</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">model</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_load_model</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">flavor_conf</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">_load_model</span><span class="p">(</span><span class="n">local_model_path</span><span class="p">,</span> <span class="n">flavor_conf</span><span class="p">)</span>
+    <span class="c1"># set active model after model loading since experiment ID might be set</span>
+    <span class="c1"># in the model loading process</span>
+    <span class="n">_update_active_model_id_based_on_mlflow_model</span><span class="p">(</span><span class="n">mlflow_model</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
 
 
 <div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../../python_api/mlflow.langchain.html#mlflow.langchain.load_model">[docs]</a><span class="nd">@experimental</span>

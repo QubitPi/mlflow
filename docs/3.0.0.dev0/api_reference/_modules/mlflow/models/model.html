@@ -224,6 +224,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -250,9 +251,19 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking._model_registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking._tracking_service.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_resolve_tracking_uri</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.artifact_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_download_artifact_from_uri</span><span class="p">,</span> <span class="n">_upload_artifact_to_uri</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.fluent</span><span class="w"> </span><span class="kn">import</span> <span class="n">_use_logged_model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.fluent</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_get_active_model_context</span><span class="p">,</span>
+    <span class="n">_set_active_model_id</span><span class="p">,</span>
+    <span class="n">_use_logged_model</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.annotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">experimental</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.databricks_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_databricks_runtime_version</span><span class="p">,</span> <span class="n">is_in_databricks_runtime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.databricks_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_construct_databricks_uc_registered_model_url</span><span class="p">,</span>
+    <span class="n">get_databricks_runtime_version</span><span class="p">,</span>
+    <span class="n">get_workspace_id</span><span class="p">,</span>
+    <span class="n">get_workspace_url</span><span class="p">,</span>
+    <span class="n">is_in_databricks_runtime</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.docstring_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">LOG_MODEL_PARAM_DOCS</span><span class="p">,</span> <span class="n">format_docstring</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.environment</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_CONDA_ENV_FILE_NAME</span><span class="p">,</span>
@@ -268,6 +279,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.uri</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">append_to_uri_path</span><span class="p">,</span>
     <span class="n">get_uri_scheme</span><span class="p">,</span>
+    <span class="n">is_databricks_unity_catalog_uri</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -1331,6 +1343,21 @@
             <span class="k">if</span> <span class="n">registered_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">model_info</span><span class="o">.</span><span class="n">registered_model_version</span> <span class="o">=</span> <span class="n">registered_model</span><span class="o">.</span><span class="n">version</span>
 
+                <span class="c1"># Print a link to the UC model version page if the model is in UC.</span>
+                <span class="n">registry_uri</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_registry_uri</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">is_databricks_unity_catalog_uri</span><span class="p">(</span><span class="n">registry_uri</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">url</span> <span class="o">:=</span> <span class="n">get_workspace_url</span><span class="p">()):</span>
+                    <span class="n">uc_model_url</span> <span class="o">=</span> <span class="n">_construct_databricks_uc_registered_model_url</span><span class="p">(</span>
+                        <span class="n">url</span><span class="p">,</span>
+                        <span class="n">registered_model_name</span><span class="p">,</span>
+                        <span class="n">registered_model</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+                        <span class="n">get_workspace_id</span><span class="p">(),</span>
+                    <span class="p">)</span>
+                    <span class="c1"># Use sys.stdout.write to make the link clickable in the UI</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;🔗 View model version &#39;</span><span class="si">{</span><span class="n">registered_model</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&#39; of &quot;</span>
+                        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">registered_model_name</span><span class="si">}</span><span class="s2">&#39; in Unity Catalog at: </span><span class="si">{</span><span class="n">uc_model_url</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
         <span class="c1"># If the model signature is Mosaic AI Agent compatible, render a recipe for evaluation.</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.display_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">maybe_render_agent_eval_recipe</span>
 
@@ -1592,6 +1619,21 @@
             <span class="k">pass</span>
 
     <span class="k">raise</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowException</span><span class="p">(</span><span class="n">SET_MODEL_ERROR</span><span class="p">)</span></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_update_active_model_id_based_on_mlflow_model</span><span class="p">(</span><span class="n">mlflow_model</span><span class="p">:</span> <span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the current active model ID based on the provided MLflow model.</span>
+<span class="sd">    Only set the active model ID if it is not already set by the user.</span>
+<span class="sd">    This is useful for setting the active model ID when loading a model</span>
+<span class="sd">    to ensure traces generated are associated with the loaded model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">model_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">amc</span> <span class="o">=</span> <span class="n">_get_active_model_context</span><span class="p">()</span>
+    <span class="c1"># only set the active model if the model is not set by the user</span>
+    <span class="k">if</span> <span class="n">amc</span><span class="o">.</span><span class="n">model_id</span> <span class="o">!=</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">model_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">amc</span><span class="o">.</span><span class="n">set_by_user</span><span class="p">:</span>
+        <span class="n">_set_active_model_id</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">mlflow_model</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
 </pre></div>
 
               </div>

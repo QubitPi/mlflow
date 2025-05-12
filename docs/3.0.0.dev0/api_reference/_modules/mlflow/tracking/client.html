@@ -778,6 +778,49 @@
 
         <span class="k">return</span> <span class="n">Prompt</span><span class="o">.</span><span class="n">from_model_version</span><span class="p">(</span><span class="n">mv</span><span class="p">,</span> <span class="n">prompt_tags</span><span class="o">=</span><span class="n">prompt_tags</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="MlflowClient.search_prompts"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.search_prompts">[docs]</a>    <span class="nd">@translate_prompt_exception</span>
+    <span class="nd">@require_prompt_registry</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search_prompts</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">filter_string</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_results</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">SEARCH_MAX_RESULTS_DEFAULT</span><span class="p">,</span>
+        <span class="n">page_token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PagedList</span><span class="p">[</span><span class="n">Prompt</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve prompt templates from the MLflow Prompt Registry.</span>
+
+<span class="sd">        This call returns only those registered models that have been marked</span>
+<span class="sd">        as prompts (i.e. tagged with `mlflow.prompt.is_prompt=true`). We can</span>
+<span class="sd">        further restrict results via a standard registry filter expression.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filter_string (Optional[str]):</span>
+<span class="sd">                An additional registry‐search expression to apply (e.g.</span>
+<span class="sd">                `&quot;name LIKE &#39;my_prompt%&#39;&quot;`).  The prompt‐tag filter is always</span>
+<span class="sd">                applied internally.  Defaults to `None` (no extra filtering).</span>
+<span class="sd">            max_results (int):</span>
+<span class="sd">                The maximum number of prompts to return in one page.  Defaults</span>
+<span class="sd">                to `SEARCH_MAX_RESULTS_DEFAULT` (typically 1 000).</span>
+<span class="sd">            page_token (Optional[str]):</span>
+<span class="sd">                A pagination token from a previous `search_prompts` call; use this</span>
+<span class="sd">                to retrieve the next page of results.  Defaults to `None`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :py:class:`Prompt &lt;mlflow.entities.model_registry.Prompt&gt;`:</span>
+<span class="sd">                A pageable list of :py:class:`Prompt &lt;mlflow.entities.model_registry.Prompt&gt;`</span>
+<span class="sd">                entities representing prompt templates. Inspect the returned object&#39;s</span>
+<span class="sd">                `.token` attribute to fetch subsequent pages.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fls</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;tag.`</span><span class="si">{</span><span class="n">IS_PROMPT_TAG_KEY</span><span class="si">}</span><span class="s2">` = &#39;true&#39;&quot;</span>
+        <span class="k">if</span> <span class="n">filter_string</span><span class="p">:</span>
+            <span class="n">fls</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fls</span><span class="si">}</span><span class="s2"> AND </span><span class="si">{</span><span class="n">filter_string</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span><span class="o">.</span><span class="n">search_registered_models</span><span class="p">(</span>
+            <span class="n">filter_string</span><span class="o">=</span><span class="n">fls</span><span class="p">,</span>
+            <span class="n">max_results</span><span class="o">=</span><span class="n">max_results</span><span class="p">,</span>
+            <span class="n">page_token</span><span class="o">=</span><span class="n">page_token</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
 <div class="viewcode-block" id="MlflowClient.load_prompt"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.load_prompt">[docs]</a>    <span class="nd">@experimental</span>
     <span class="nd">@require_prompt_registry</span>
     <span class="nd">@translate_prompt_exception</span>

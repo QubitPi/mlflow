@@ -240,7 +240,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.span_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpanStatusCode</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.trace_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceStatus</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.databricks_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">BAD_REQUEST</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.store.tracking</span><span class="w"> </span><span class="kn">import</span> <span class="n">SEARCH_TRACES_DEFAULT_MAX_RESULTS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing</span><span class="w"> </span><span class="kn">import</span> <span class="n">provider</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">TracingClient</span>
@@ -1138,11 +1137,11 @@
     <span class="n">active_span</span> <span class="o">=</span> <span class="n">get_current_active_span</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">active_span</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
             <span class="s2">&quot;No active trace found. Please create a span using `mlflow.start_span` or &quot;</span>
-            <span class="s2">&quot;`@mlflow.trace` before calling this function.&quot;</span><span class="p">,</span>
-            <span class="n">error_code</span><span class="o">=</span><span class="n">BAD_REQUEST</span><span class="p">,</span>
+            <span class="s2">&quot;`@mlflow.trace` before calling `mlflow.update_current_trace`.&quot;</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">return</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tags</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="n">non_string_items</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tags</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)}</span>

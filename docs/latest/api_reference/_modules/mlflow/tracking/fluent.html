@@ -254,7 +254,7 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.lifecycle_stage</span><span class="w"> </span><span class="kn">import</span> <span class="n">LifecycleStage</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.environment_variables</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">MLFLOW_ACTIVE_MODEL_ID</span><span class="p">,</span>
+    <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="p">,</span>
     <span class="n">MLFLOW_ENABLE_ASYNC_LOGGING</span><span class="p">,</span>
     <span class="n">MLFLOW_ENABLE_SYSTEM_METRICS_LOGGING</span><span class="p">,</span>
     <span class="n">MLFLOW_EXPERIMENT_ID</span><span class="p">,</span>
@@ -1146,8 +1146,9 @@
 <span class="sd">        timestamp: Time when this metric was calculated. Defaults to the current system time.</span>
 <span class="sd">        run_id: If specified, log the metric to the specified run. If not specified, log the metric</span>
 <span class="sd">            to the currently active run.</span>
-<span class="sd">        model_id: The ID of the model associated with the metric. If not specified, the models IDs</span>
-<span class="sd">            associated with the specified or active run will be used.</span>
+<span class="sd">        model_id: The ID of the model associated with the metric. If not specified, use the current</span>
+<span class="sd">            active model ID set by :py:func:`mlflow.set_active_model`. If no active model exists,</span>
+<span class="sd">            the models IDs associated with the specified or active run will be used.</span>
 <span class="sd">        dataset: The dataset associated with the metric.</span>
 
 <span class="sd">    Returns:</span>
@@ -1171,6 +1172,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">run_id</span> <span class="o">=</span> <span class="n">run_id</span> <span class="ow">or</span> <span class="n">_get_or_start_run</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
     <span class="n">synchronous</span> <span class="o">=</span> <span class="n">synchronous</span> <span class="k">if</span> <span class="n">synchronous</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="ow">not</span> <span class="n">MLFLOW_ENABLE_ASYNC_LOGGING</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="n">model_id</span> <span class="o">=</span> <span class="n">model_id</span> <span class="ow">or</span> <span class="n">get_active_model_id</span><span class="p">()</span>
     <span class="n">_log_inputs_for_metrics_if_necessary</span><span class="p">(</span>
         <span class="n">run_id</span><span class="p">,</span>
         <span class="p">[</span>
@@ -1275,8 +1277,9 @@
 <span class="sd">        run_id: Run ID. If specified, log metrics to the specified run. If not specified, log</span>
 <span class="sd">            metrics to the currently active run.</span>
 <span class="sd">        timestamp: Time when these metrics were calculated. Defaults to the current system time.</span>
-<span class="sd">        model_id: The ID of the model associated with the metrics. If not specified, the models IDs</span>
-<span class="sd">            associated with the specified or active run will be used.</span>
+<span class="sd">        model_id: The ID of the model associated with the metric. If not specified, use the current</span>
+<span class="sd">            active model ID set by :py:func:`mlflow.set_active_model`. If no active model</span>
+<span class="sd">            exists, the models IDs associated with the specified or active run will be used.</span>
 <span class="sd">        dataset: The dataset associated with the metrics.</span>
 
 <span class="sd">    Returns:</span>
@@ -1305,6 +1308,7 @@
     <span class="n">step</span> <span class="o">=</span> <span class="n">step</span> <span class="ow">or</span> <span class="mi">0</span>
     <span class="n">dataset_name</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="n">dataset_digest</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">digest</span> <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">model_id</span> <span class="o">=</span> <span class="n">model_id</span> <span class="ow">or</span> <span class="n">get_active_model_id</span><span class="p">()</span>
     <span class="n">model_ids</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">[</span><span class="n">model_id</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">model_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -2529,9 +2533,15 @@
 
 <span class="sd">        import mlflow</span>
 
-<span class="sd">        model = mlflow.create_external_model(name=&quot;model&quot;)</span>
-<span class="sd">        logged_model = mlflow.get_logged_model(model_id=model.model_id)</span>
-<span class="sd">        assert logged_model.model_id == model.model_id</span>
+
+<span class="sd">        class DummyModel(mlflow.pyfunc.PythonModel):</span>
+<span class="sd">            def predict(self, context, model_input: list[str]) -&gt; list[str]:</span>
+<span class="sd">                return model_input</span>
+
+
+<span class="sd">        model_info = mlflow.pyfunc.log_model(name=&quot;model&quot;, python_model=DummyModel())</span>
+<span class="sd">        logged_model = mlflow.get_logged_model(model_id=model_info.model_id)</span>
+<span class="sd">        assert logged_model.model_id == model_info.model_id</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">get_logged_model</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span></div>
@@ -2551,19 +2561,17 @@
 <span class="sd">        :test:</span>
 <span class="sd">        :caption: Example</span>
 
-<span class="sd">        from typing import List</span>
-
 <span class="sd">        import mlflow</span>
 
 
-<span class="sd">        class Model(mlflow.pyfunc.PythonModel):</span>
-<span class="sd">            def predict(self, integers: List[int]) -&gt; List[int]:</span>
-<span class="sd">                return integers * 2</span>
+<span class="sd">        class DummyModel(mlflow.pyfunc.PythonModel):</span>
+<span class="sd">            def predict(self, context, model_input: list[str]) -&gt; list[str]:</span>
+<span class="sd">                return model_input</span>
 
 
-<span class="sd">        logged_model = mlflow.pyfunc.log_model(python_model=Model())</span>
+<span class="sd">        model_info = mlflow.pyfunc.log_model(name=&quot;model&quot;, python_model=DummyModel())</span>
 <span class="sd">        last_model = mlflow.last_logged_model()</span>
-<span class="sd">        assert last_model.model_id == logged_model.model_id</span>
+<span class="sd">        assert last_model.model_id == model_info.model_id</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">id</span> <span class="o">:=</span> <span class="n">_last_logged_model_id</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">get_logged_model</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span></div>
@@ -2668,8 +2676,16 @@
 
 <span class="sd">        import mlflow</span>
 
-<span class="sd">        mlflow.create_external_model(name=&quot;model&quot;)</span>
-<span class="sd">        mlflow.create_external_model(name=&quot;another_model&quot;)</span>
+
+<span class="sd">        class DummyModel(mlflow.pyfunc.PythonModel):</span>
+<span class="sd">            def predict(self, context, model_input: list[str]) -&gt; list[str]:</span>
+<span class="sd">                return model_input</span>
+
+
+<span class="sd">        model_info = mlflow.pyfunc.log_model(name=&quot;model&quot;, python_model=DummyModel())</span>
+<span class="sd">        another_model_info = mlflow.pyfunc.log_model(</span>
+<span class="sd">            name=&quot;another_model&quot;, python_model=DummyModel()</span>
+<span class="sd">        )</span>
 <span class="sd">        models = mlflow.search_logged_models(output_format=&quot;list&quot;)</span>
 <span class="sd">        assert [m.name for m in models] == [&quot;another_model&quot;, &quot;model&quot;]</span>
 <span class="sd">        models = mlflow.search_logged_models(</span>
@@ -2793,9 +2809,15 @@
 
 <span class="sd">        import mlflow</span>
 
-<span class="sd">        model = mlflow.initialize_logged_model(name=&quot;my_model&quot;)</span>
-<span class="sd">        mlflow.set_logged_model_tags(model.model_id, {&quot;key&quot;: &quot;value&quot;})</span>
-<span class="sd">        model = mlflow.get_logged_model(model.model_id)</span>
+
+<span class="sd">        class DummyModel(mlflow.pyfunc.PythonModel):</span>
+<span class="sd">            def predict(self, context, model_input: list[str]) -&gt; list[str]:</span>
+<span class="sd">                return model_input</span>
+
+
+<span class="sd">        model_info = mlflow.pyfunc.log_model(name=&quot;model&quot;, python_model=DummyModel())</span>
+<span class="sd">        mlflow.set_logged_model_tags(model_info.model_id, {&quot;key&quot;: &quot;value&quot;})</span>
+<span class="sd">        model = mlflow.get_logged_model(model_info.model_id)</span>
 <span class="sd">        assert model.tags[&quot;key&quot;] == &quot;value&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">set_logged_model_tags</span><span class="p">(</span><span class="n">model_id</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span></div>
@@ -2816,12 +2838,18 @@
 
 <span class="sd">        import mlflow</span>
 
-<span class="sd">        model = mlflow.initialize_logged_model(name=&quot;my_model&quot;)</span>
-<span class="sd">        mlflow.set_logged_model_tags(model.model_id, {&quot;key&quot;: &quot;value&quot;})</span>
-<span class="sd">        model = mlflow.get_logged_model(model.model_id)</span>
+
+<span class="sd">        class DummyModel(mlflow.pyfunc.PythonModel):</span>
+<span class="sd">            def predict(self, context, model_input: list[str]) -&gt; list[str]:</span>
+<span class="sd">                return model_input</span>
+
+
+<span class="sd">        model_info = mlflow.pyfunc.log_model(name=&quot;model&quot;, python_model=DummyModel())</span>
+<span class="sd">        mlflow.set_logged_model_tags(model_info.model_id, {&quot;key&quot;: &quot;value&quot;})</span>
+<span class="sd">        model = mlflow.get_logged_model(model_info.model_id)</span>
 <span class="sd">        assert model.tags[&quot;key&quot;] == &quot;value&quot;</span>
-<span class="sd">        mlflow.delete_logged_model_tag(model.model_id, &quot;key&quot;)</span>
-<span class="sd">        model = mlflow.get_logged_model(model.model_id)</span>
+<span class="sd">        mlflow.delete_logged_model_tag(model_info.model_id, &quot;key&quot;)</span>
+<span class="sd">        model = mlflow.get_logged_model(model_info.model_id)</span>
 <span class="sd">        assert &quot;key&quot; not in model.tags</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">delete_logged_model_tag</span><span class="p">(</span><span class="n">model_id</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span></div>
@@ -3429,7 +3457,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">set_by_user</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span> <span class="o">=</span> <span class="n">model_id</span>
+        <span class="c1"># use _MLFLOW_ACTIVE_MODEL_ID as the default value for model_id</span>
+        <span class="c1"># so that for subprocesses the default _ACTIVE_MODEL_CONTEXT.model_id</span>
+        <span class="c1"># is still valid, and we don&#39;t need to read from env var.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span> <span class="o">=</span> <span class="n">model_id</span> <span class="ow">or</span> <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_by_user</span> <span class="o">=</span> <span class="n">set_by_user</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -3437,7 +3468,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">model_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span> <span class="ow">or</span> <span class="n">MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_by_user</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -3458,15 +3489,13 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logged_model</span><span class="p">:</span> <span class="n">LoggedModel</span><span class="p">,</span> <span class="n">set_by_user</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">logged_model</span><span class="o">.</span><span class="n">to_dictionary</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_active_model_context</span> <span class="o">=</span> <span class="n">_ACTIVE_MODEL_CONTEXT</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">last_active_model_id_env_var</span> <span class="o">=</span> <span class="n">MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
         <span class="n">_set_active_model_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">set_by_user</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
-        <span class="n">_ACTIVE_MODEL_CONTEXT</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_active_model_context</span><span class="p">)</span>
-        <span class="n">_update_active_model_id_env_var</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_active_model_id_env_var</span><span class="p">)</span></div>
+        <span class="n">_ACTIVE_MODEL_CONTEXT</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_active_model_context</span><span class="p">)</span></div>
 
 
 <span class="c1"># NB: This function is only intended to be used publicly by users to set the</span>
@@ -3478,8 +3507,7 @@
 <span class="sd">    Set the active model with the specified name or model ID, and it will be used for linking</span>
 <span class="sd">    traces that are generated during the lifecycle of the model. The return value can be used as</span>
 <span class="sd">    a context manager within a ``with`` block; otherwise, you must call ``set_active_model()``</span>
-<span class="sd">    to update active model. Note that this function also sets the environment variable</span>
-<span class="sd">    ``MLFLOW_ACTIVE_MODEL_ID`` to the model ID of the active model.</span>
+<span class="sd">    to update active model.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        name: The name of the :py:class:`mlflow.entities.LoggedModel` to set as active.</span>
@@ -3568,7 +3596,6 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">_ACTIVE_MODEL_CONTEXT</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ActiveModelContext</span><span class="p">(</span><span class="n">model_id</span><span class="p">,</span> <span class="n">set_by_user</span><span class="p">))</span>
-        <span class="n">_update_active_model_id_env_var</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to set active model ID to </span><span class="si">{</span><span class="n">model_id</span><span class="si">}</span><span class="s2">, error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -3590,9 +3617,9 @@
 
 <div class="viewcode-block" id="get_active_model_id"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.get_active_model_id">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_active_model_id</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the active model ID. If no active model is set with ``set_active_model()``, this will</span>
-<span class="sd">    try to get the model ID from the environment variable ``MLFLOW_ACTIVE_MODEL_ID``.</span>
-<span class="sd">    If neither is set, return None.</span>
+<span class="sd">    Get the active model ID. If no active model is set with ``set_active_model()``, the</span>
+<span class="sd">    default active model is set using model ID from the environment variable</span>
+<span class="sd">    ``_MLFLOW_ACTIVE_MODEL_ID``. If neither is set, return None.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The active model ID if set, otherwise None.</span>
@@ -3604,15 +3631,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Should be called only for testing purposes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">unset</span><span class="p">()</span>
     <span class="n">_ACTIVE_MODEL_CONTEXT</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ActiveModelContext</span><span class="p">())</span>
-    <span class="n">_update_active_model_id_env_var</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_update_active_model_id_env_var</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">unset</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 </pre></div>
 
               </div>

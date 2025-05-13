@@ -226,6 +226,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.logged_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoggedModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.model_registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelVersion</span><span class="p">,</span> <span class="n">Prompt</span><span class="p">,</span> <span class="n">RegisteredModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">Run</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.prompt.registry_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">require_prompt_registry</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.databricks_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -416,7 +417,7 @@
     <span class="k">return</span> <span class="n">create_version_response</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_logged_models_from_run</span><span class="p">(</span><span class="n">source_run</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">LoggedModel</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_logged_models_from_run</span><span class="p">(</span><span class="n">source_run</span><span class="p">:</span> <span class="n">Run</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">LoggedModel</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get all logged models from the source rnu that have the specified model name.</span>
 
 <span class="sd">    Args:</span>
@@ -430,17 +431,12 @@
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">logged_models_page</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">search_logged_models</span><span class="p">(</span>
             <span class="n">experiment_ids</span><span class="o">=</span><span class="p">[</span><span class="n">source_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">],</span>
-            <span class="c1"># TODO: Use filter_string once the backend supports it</span>
-            <span class="c1"># filter_string=&quot;...&quot;,</span>
+            <span class="c1"># TODO: Filter by &#39;source_run_id&#39; once Databricks backend supports it</span>
+            <span class="n">filter_string</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;name = &#39;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
             <span class="n">page_token</span><span class="o">=</span><span class="n">page_token</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">logged_models</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="n">logged_model</span>
-                <span class="k">for</span> <span class="n">logged_model</span> <span class="ow">in</span> <span class="n">logged_models_page</span>
-                <span class="k">if</span> <span class="n">logged_model</span><span class="o">.</span><span class="n">source_run_id</span> <span class="o">==</span> <span class="n">source_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
-                <span class="ow">and</span> <span class="n">logged_model</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">model_name</span>
-            <span class="p">]</span>
+            <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">logged_models_page</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">source_run_id</span> <span class="o">==</span> <span class="n">source_run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">logged_models_page</span><span class="o">.</span><span class="n">token</span><span class="p">:</span>
             <span class="k">break</span>

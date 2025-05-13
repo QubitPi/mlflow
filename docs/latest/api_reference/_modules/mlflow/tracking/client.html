@@ -359,6 +359,14 @@
     <span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_model_id_specified</span><span class="p">(</span><span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">model_id</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;`model_id` must be a non-empty string, but got </span><span class="si">{</span><span class="n">model_id</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
 <div class="viewcode-block" id="MlflowClient"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">MlflowClient</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Client of an MLflow Tracking Server that creates and manages experiments and runs, and of an</span>
@@ -2084,7 +2092,8 @@
 <span class="sd">                ``dataset_digest`` must also be provided.</span>
 <span class="sd">            dataset_digest: The digest of the dataset associated with the metric. If specified,</span>
 <span class="sd">                ``dataset_name`` must also be provided.</span>
-<span class="sd">            model_id: The ID of the model associated with the metric.</span>
+<span class="sd">            model_id: The ID of the model associated with the metric. If not specified, use the</span>
+<span class="sd">                current active model ID set by :py:func:`mlflow.set_active_model`.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            When `synchronous=True` or None, returns None. When `synchronous=False`, returns an</span>
@@ -2134,9 +2143,12 @@
 <span class="sd">            metrics: {&#39;m&#39;: 1.5}</span>
 <span class="sd">            status: FINISHED</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.fluent</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_active_model_id</span>
+
         <span class="n">synchronous</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">synchronous</span> <span class="k">if</span> <span class="n">synchronous</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="ow">not</span> <span class="n">MLFLOW_ENABLE_ASYNC_LOGGING</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
         <span class="p">)</span>
+        <span class="n">model_id</span> <span class="o">=</span> <span class="n">model_id</span> <span class="ow">or</span> <span class="n">get_active_model_id</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span>
             <span class="n">run_id</span><span class="p">,</span>
             <span class="n">key</span><span class="p">,</span>
@@ -5498,6 +5510,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The updated model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_validate_model_id_specified</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">finalize_logged_model</span><span class="p">(</span>
             <span class="n">model_id</span><span class="p">,</span> <span class="n">LoggedModelStatus</span><span class="p">(</span><span class="n">status</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">status</span>
         <span class="p">)</span></div>
@@ -5513,6 +5526,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The fetched model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_validate_model_id_specified</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">get_logged_model</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MlflowClient.delete_logged_model"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.delete_logged_model">[docs]</a>    <span class="nd">@experimental</span>
@@ -5523,6 +5537,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            model_id: ID of the model to delete.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_validate_model_id_specified</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">delete_logged_model</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MlflowClient.set_logged_model_tags"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.set_logged_model_tags">[docs]</a>    <span class="nd">@experimental</span>
@@ -5537,6 +5552,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_validate_model_id_specified</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">set_logged_model_tags</span><span class="p">(</span><span class="n">model_id</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MlflowClient.delete_logged_model_tag"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.delete_logged_model_tag">[docs]</a>    <span class="nd">@experimental</span>
@@ -5549,6 +5565,7 @@
 <span class="sd">            key: Tag key to delete.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_validate_model_id_specified</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">delete_logged_model_tag</span><span class="p">(</span><span class="n">model_id</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MlflowClient.log_model_artifact"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.log_model_artifact">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">log_model_artifact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">local_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

@@ -1511,9 +1511,9 @@ metrics of evaluating the model with the given dataset.</p>
 <dl class="py function">
 <dt id="mlflow.get_active_model_id">
 <code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">get_active_model_id</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#get_active_model_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.get_active_model_id" title="Permalink to this definition"> </a></dt>
-<dd><p>Get the active model ID. If no active model is set with <code class="docutils literal notranslate"><span class="pre">set_active_model()</span></code>, this will
-try to get the model ID from the environment variable <code class="docutils literal notranslate"><span class="pre">MLFLOW_ACTIVE_MODEL_ID</span></code>.
-If neither is set, return None.</p>
+<dd><p>Get the active model ID. If no active model is set with <code class="docutils literal notranslate"><span class="pre">set_active_model()</span></code>, the
+default active model is set using model ID from the environment variable
+<code class="docutils literal notranslate"><span class="pre">_MLFLOW_ACTIVE_MODEL_ID</span></code>. If neither is set, return None.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The active model ID if set, otherwise None.</p>
@@ -2531,8 +2531,9 @@ variable <cite>MLFLOW_ENABLE_ASYNC_LOGGING</cite>, which defaults to False if no
 <li><p><strong>timestamp</strong> – Time when this metric was calculated. Defaults to the current system time.</p></li>
 <li><p><strong>run_id</strong> – If specified, log the metric to the specified run. If not specified, log the metric
 to the currently active run.</p></li>
-<li><p><strong>model_id</strong> – The ID of the model associated with the metric. If not specified, the models IDs
-associated with the specified or active run will be used.</p></li>
+<li><p><strong>model_id</strong> – The ID of the model associated with the metric. If not specified, use the current
+active model ID set by <a class="reference internal" href="#mlflow.set_active_model" title="mlflow.set_active_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.set_active_model()</span></code></a>. If no active model exists,
+the models IDs associated with the specified or active run will be used.</p></li>
 <li><p><strong>dataset</strong> – The dataset associated with the metric.</p></li>
 </ul>
 </dd>
@@ -2579,8 +2580,9 @@ variable <cite>MLFLOW_ENABLE_ASYNC_LOGGING</cite>, which defaults to False if no
 <li><p><strong>run_id</strong> – Run ID. If specified, log metrics to the specified run. If not specified, log
 metrics to the currently active run.</p></li>
 <li><p><strong>timestamp</strong> – Time when these metrics were calculated. Defaults to the current system time.</p></li>
-<li><p><strong>model_id</strong> – The ID of the model associated with the metrics. If not specified, the models IDs
-associated with the specified or active run will be used.</p></li>
+<li><p><strong>model_id</strong> – The ID of the model associated with the metric. If not specified, use the current
+active model ID set by <a class="reference internal" href="#mlflow.set_active_model" title="mlflow.set_active_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.set_active_model()</span></code></a>. If no active model
+exists, the models IDs associated with the specified or active run will be used.</p></li>
 <li><p><strong>dataset</strong> – The dataset associated with the metrics.</p></li>
 </ul>
 </dd>
@@ -4860,12 +4862,18 @@ type <code class="docutils literal notranslate"><span class="pre">&quot;agent&qu
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
-<span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">initialize_logged_model</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span>
-<span class="n">mlflow</span><span class="o">.</span><span class="n">set_logged_model_tags</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">})</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_logged_model</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DummyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">model_input</span>
+
+
+<span class="n">model_info</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">python_model</span><span class="o">=</span><span class="n">DummyModel</span><span class="p">())</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">set_logged_model_tags</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">})</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_logged_model</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
 <span class="k">assert</span> <span class="n">model</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;value&quot;</span>
-<span class="n">mlflow</span><span class="o">.</span><span class="n">delete_logged_model_tag</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="s2">&quot;key&quot;</span><span class="p">)</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_logged_model</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">delete_logged_model_tag</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="s2">&quot;key&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_logged_model</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
 <span class="k">assert</span> <span class="s2">&quot;key&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">tags</span>
 </pre></div>
 </div>
@@ -4923,9 +4931,15 @@ type <code class="docutils literal notranslate"><span class="pre">&quot;agent&qu
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
-<span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">create_external_model</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
-<span class="n">logged_model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_logged_model</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">logged_model</span><span class="o">.</span><span class="n">model_id</span> <span class="o">==</span> <span class="n">model</span><span class="o">.</span><span class="n">model_id</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DummyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">model_input</span>
+
+
+<span class="n">model_info</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">python_model</span><span class="o">=</span><span class="n">DummyModel</span><span class="p">())</span>
+<span class="n">logged_model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_logged_model</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">logged_model</span><span class="o">.</span><span class="n">model_id</span> <span class="o">==</span> <span class="n">model_info</span><span class="o">.</span><span class="n">model_id</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -4974,19 +4988,17 @@ If no model has been logged, None is returned.</p>
 </dl>
 <div class="literal-block-wrapper docutils container" id="id104">
 <div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id104" title="Permalink to this code"> </a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">integers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="n">integers</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DummyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">model_input</span>
 
 
-<span class="n">logged_model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span><span class="n">python_model</span><span class="o">=</span><span class="n">Model</span><span class="p">())</span>
+<span class="n">model_info</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">python_model</span><span class="o">=</span><span class="n">DummyModel</span><span class="p">())</span>
 <span class="n">last_model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">last_logged_model</span><span class="p">()</span>
-<span class="k">assert</span> <span class="n">last_model</span><span class="o">.</span><span class="n">model_id</span> <span class="o">==</span> <span class="n">logged_model</span><span class="o">.</span><span class="n">model_id</span>
+<span class="k">assert</span> <span class="n">last_model</span><span class="o">.</span><span class="n">model_id</span> <span class="o">==</span> <span class="n">model_info</span><span class="o">.</span><span class="n">model_id</span>
 </pre></div>
 </div>
 </div>
@@ -5084,8 +5096,16 @@ and ‘list’.</p></li>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
-<span class="n">mlflow</span><span class="o">.</span><span class="n">create_external_model</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
-<span class="n">mlflow</span><span class="o">.</span><span class="n">create_external_model</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;another_model&quot;</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DummyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">model_input</span>
+
+
+<span class="n">model_info</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">python_model</span><span class="o">=</span><span class="n">DummyModel</span><span class="p">())</span>
+<span class="n">another_model_info</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;another_model&quot;</span><span class="p">,</span> <span class="n">python_model</span><span class="o">=</span><span class="n">DummyModel</span><span class="p">()</span>
+<span class="p">)</span>
 <span class="n">models</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_logged_models</span><span class="p">(</span><span class="n">output_format</span><span class="o">=</span><span class="s2">&quot;list&quot;</span><span class="p">)</span>
 <span class="k">assert</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">models</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;another_model&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">]</span>
 <span class="n">models</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_logged_models</span><span class="p">(</span>
@@ -5106,8 +5126,7 @@ and ‘list’.</p></li>
 <dd><p>Set the active model with the specified name or model ID, and it will be used for linking
 traces that are generated during the lifecycle of the model. The return value can be used as
 a context manager within a <code class="docutils literal notranslate"><span class="pre">with</span></code> block; otherwise, you must call <code class="docutils literal notranslate"><span class="pre">set_active_model()</span></code>
-to update active model. Note that this function also sets the environment variable
-<code class="docutils literal notranslate"><span class="pre">MLFLOW_ACTIVE_MODEL_ID</span></code> to the model ID of the active model.</p>
+to update active model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -5174,9 +5193,15 @@ LoggedModel’s state.</p>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
-<span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">initialize_logged_model</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span>
-<span class="n">mlflow</span><span class="o">.</span><span class="n">set_logged_model_tags</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">})</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_logged_model</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DummyModel</span><span class="p">(</span><span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">PythonModel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">model_input</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">model_input</span>
+
+
+<span class="n">model_info</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">python_model</span><span class="o">=</span><span class="n">DummyModel</span><span class="p">())</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">set_logged_model_tags</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">})</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_logged_model</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
 <span class="k">assert</span> <span class="n">model</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;value&quot;</span>
 </pre></div>
 </div>

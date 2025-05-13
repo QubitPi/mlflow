@@ -232,7 +232,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.span</span><span class="w"> </span><span class="kn">import</span> <span class="n">Span</span><span class="p">,</span> <span class="n">SpanType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.trace_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceData</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.trace_info</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceInfo</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.trace_info_v3</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceInfoV3</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.trace_info_v2</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceInfoV2</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.databricks_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">INVALID_PARAMETER_VALUE</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.service_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trace</span> <span class="k">as</span> <span class="n">ProtoTrace</span>
@@ -249,11 +249,11 @@
 <span class="sd">        data: A container object that holds the spans data of a trace.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">info</span><span class="p">:</span> <span class="n">TraceInfoV3</span>
+    <span class="n">info</span><span class="p">:</span> <span class="n">TraceInfo</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">TraceData</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="n">TraceInfo</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="n">TraceInfoV2</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">to_v3</span><span class="p">(</span><span class="n">request</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">response</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -279,7 +279,7 @@
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">info</span><span class="o">=</span><span class="n">TraceInfoV3</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">info</span><span class="p">),</span>
+            <span class="n">info</span><span class="o">=</span><span class="n">TraceInfo</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">info</span><span class="p">),</span>
             <span class="n">data</span><span class="o">=</span><span class="n">TraceData</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
         <span class="p">)</span></div>
 
@@ -331,18 +331,16 @@
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;trace_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">trace_id</span><span class="p">,</span>
             <span class="s2">&quot;trace&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="p">,</span>
-            <span class="s2">&quot;timestamp_ms&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">timestamp_ms</span><span class="p">,</span>
-            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
-            <span class="s2">&quot;execution_time_ms&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">execution_time_ms</span><span class="p">,</span>
+            <span class="s2">&quot;client_request_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">client_request_id</span><span class="p">,</span>
+            <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
+            <span class="s2">&quot;request_time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">request_time</span><span class="p">,</span>
+            <span class="s2">&quot;execution_duration&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">execution_duration</span><span class="p">,</span>
             <span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deserialize_json_attr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">request</span><span class="p">),</span>
             <span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deserialize_json_attr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">response</span><span class="p">),</span>
-            <span class="s2">&quot;request_metadata&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">request_metadata</span><span class="p">,</span>
-            <span class="s2">&quot;spans&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">span</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">spans</span><span class="p">],</span>
+            <span class="s2">&quot;trace_metadata&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">trace_metadata</span><span class="p">,</span>
             <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">tags</span><span class="p">,</span>
+            <span class="s2">&quot;spans&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">span</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">spans</span><span class="p">],</span>
             <span class="s2">&quot;assessments&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">assessments</span><span class="p">,</span>
-            <span class="c1"># For backward compatibility, we need to keep the old &quot;request_id&quot; field</span>
-            <span class="c1"># Ref: https://docs.databricks.com/aws/en/generative-ai/agent-evaluation/evaluation-schema</span>
-            <span class="s2">&quot;request_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">request_id</span><span class="p">,</span>
         <span class="p">}</span></div>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_deserialize_json_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
@@ -455,16 +453,16 @@
         <span class="k">return</span> <span class="p">[</span>
             <span class="s2">&quot;trace_id&quot;</span><span class="p">,</span>
             <span class="s2">&quot;trace&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;timestamp_ms&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;execution_time_ms&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;client_request_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;request_time&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;execution_duration&quot;</span><span class="p">,</span>
             <span class="s2">&quot;request&quot;</span><span class="p">,</span>
             <span class="s2">&quot;response&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;request_metadata&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;spans&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;trace_metadata&quot;</span><span class="p">,</span>
             <span class="s2">&quot;tags&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;spans&quot;</span><span class="p">,</span>
             <span class="s2">&quot;assessments&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;request_id&quot;</span><span class="p">,</span>
         <span class="p">]</span></div>
 
 <div class="viewcode-block" id="Trace.to_proto"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.Trace.to_proto">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_proto</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

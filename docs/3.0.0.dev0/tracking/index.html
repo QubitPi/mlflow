@@ -16,8 +16,8 @@
 <link rel="search" type="application/opensearchdescription+xml" title="MLflow" href="/docs/3.0.0.dev0/opensearch.xml">
 
 <script src="/docs/3.0.0.dev0/js/runllm.js" defer="defer"></script><link rel="stylesheet" href="/docs/3.0.0.dev0/assets/css/styles.504e3d8b.css">
-<script src="/docs/3.0.0.dev0/assets/js/runtime~main.0a478332.js" defer="defer"></script>
-<script src="/docs/3.0.0.dev0/assets/js/main.1e5075a1.js" defer="defer"></script>
+<script src="/docs/3.0.0.dev0/assets/js/runtime~main.4eeafe88.js" defer="defer"></script>
+<script src="/docs/3.0.0.dev0/assets/js/main.ac3d8b58.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5J249Z5D" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -100,6 +100,11 @@ MLflow supports two types of storage for the backend: <strong>file-system-based<
 <p>Artifact store persists (typically large) artifacts for each run, such as model weights (e.g. a pickled scikit-learn model),
 images (e.g. PNGs), model and data files (e.g. <a href="https://parquet.apache.org" target="_blank" rel="noopener noreferrer">Parquet</a> file). MLflow stores artifacts ina a
 local file (<code>mlruns</code>) by default, but also supports different storage options such as Amazon S3 and Azure Blob Storage.</p>
+<p>For models which are logged as MLflow artifacts, you can refer the model through a model URI of format: <code>runs:/&lt;run_id&gt;/&lt;artifact_path&gt;</code>,
+the &#x27;run_id&#x27; is the run which the model is logged to, and the &#x27;artifact_path&#x27; is the relative path of the artifact.
+If the model is registered in the <a href="/docs/3.0.0.dev0/model-registry">MLflow Model Registry</a>,
+you can also refer the the model through a model URI of format: <code>models:/&lt;model-name&gt;/&lt;model-version&gt;</code>,
+see <a href="/docs/3.0.0.dev0/model-registry/#model-uri">MLflow Model Registry</a> for details.</p>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="tracking_server"><a href="/docs/3.0.0.dev0/tracking/server">MLflow Tracking Server</a> (Optional)<a href="#tracking_server" class="hash-link" aria-label="Direct link to tracking_server" title="Direct link to tracking_server">​</a></h4>
 <p>MLflow Tracking Server is a stand-alone HTTP server that provides REST APIs for accessing backend and/or artifact store.
 Tracking server also offers flexibility to configure what data to server, govern access control, versioning, and etc. Read

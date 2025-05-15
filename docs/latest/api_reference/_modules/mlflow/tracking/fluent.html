@@ -401,18 +401,19 @@
         <span class="k">if</span> <span class="n">experiment_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">experiment</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_experiment_by_name</span><span class="p">(</span><span class="n">experiment_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">experiment</span><span class="p">:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Experiment with name &#39;</span><span class="si">%s</span><span class="s2">&#39; does not exist. Creating a new experiment.&quot;</span><span class="p">,</span>
+                    <span class="n">experiment_name</span><span class="p">,</span>
+                <span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">experiment_id</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_experiment</span><span class="p">(</span><span class="n">experiment_name</span><span class="p">)</span>
-                    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="s2">&quot;Experiment with name &#39;</span><span class="si">%s</span><span class="s2">&#39; does not exist. Creating a new experiment.&quot;</span><span class="p">,</span>
-                        <span class="n">experiment_name</span><span class="p">,</span>
-                    <span class="p">)</span>
                 <span class="k">except</span> <span class="n">MlflowException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">error_code</span> <span class="o">==</span> <span class="s2">&quot;RESOURCE_ALREADY_EXISTS&quot;</span><span class="p">:</span>
                         <span class="c1"># NB: If two simultaneous processes attempt to set the same experiment</span>
                         <span class="c1"># simultaneously, a race condition may be encountered here wherein</span>
                         <span class="c1"># experiment creation fails</span>
                         <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">get_experiment_by_name</span><span class="p">(</span><span class="n">experiment_name</span><span class="p">)</span>
+                    <span class="k">raise</span>
 
                 <span class="n">experiment</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_experiment</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>

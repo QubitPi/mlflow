@@ -1173,9 +1173,16 @@
                     <span class="k">if</span> <span class="n">tags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                     <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="k">if</span> <span class="n">MLFLOW_PRINT_MODEL_URLS_ON_CREATION</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="ow">and</span> <span class="n">is_databricks_uri</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">MLFLOW_PRINT_MODEL_URLS_ON_CREATION</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                    <span class="ow">and</span> <span class="n">is_databricks_uri</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="p">(</span><span class="n">workspace_url</span> <span class="o">:=</span> <span class="n">get_workspace_url</span><span class="p">())</span>
+                <span class="p">):</span>
                     <span class="n">logged_model_url</span> <span class="o">=</span> <span class="n">_construct_databricks_logged_model_url</span><span class="p">(</span>
-                        <span class="n">get_workspace_url</span><span class="p">(),</span> <span class="n">model</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">get_workspace_id</span><span class="p">()</span>
+                        <span class="n">workspace_url</span><span class="p">,</span>
+                        <span class="n">model</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">,</span>
+                        <span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span>
+                        <span class="n">get_workspace_id</span><span class="p">(),</span>
                     <span class="p">)</span>
                     <span class="n">eprint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔗 View Logged Model at: </span><span class="si">{</span><span class="n">logged_model_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -1322,15 +1329,15 @@
                                 <span class="s2">&quot;Failed to load model config from </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_config</span><span class="p">,</span> <span class="n">e</span>
                             <span class="p">)</span>
 
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_flatten_nested_params</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_flatten_nested_params</span>
 
-                    <span class="c1"># We are using the `/` separator to flatten the nested params</span>
-                    <span class="c1"># since we are using the same separator to log nested metrics.</span>
-                    <span class="n">params_to_log</span> <span class="o">=</span> <span class="n">_flatten_nested_params</span><span class="p">(</span><span class="n">model_config</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to flatten nested params: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-                    <span class="n">params_to_log</span> <span class="o">=</span> <span class="n">model_config</span>
+                        <span class="c1"># We are using the `/` separator to flatten the nested params</span>
+                        <span class="c1"># since we are using the same separator to log nested metrics.</span>
+                        <span class="n">params_to_log</span> <span class="o">=</span> <span class="n">_flatten_nested_params</span><span class="p">(</span><span class="n">model_config</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to flatten nested params: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                        <span class="n">params_to_log</span> <span class="o">=</span> <span class="n">model_config</span>
 
                 <span class="k">try</span><span class="p">:</span>
                     <span class="c1"># do not log params to run if run_id is None, since that could trigger</span>

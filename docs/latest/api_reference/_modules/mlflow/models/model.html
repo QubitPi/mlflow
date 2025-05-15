@@ -224,7 +224,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -238,7 +237,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoggedModel</span><span class="p">,</span> <span class="n">LoggedModelOutput</span><span class="p">,</span> <span class="n">Metric</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.model_registry.prompt</span><span class="w"> </span><span class="kn">import</span> <span class="n">Prompt</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.environment_variables</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLFLOW_RECORD_ENV_VARS_IN_MODEL_LOGGING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.environment_variables</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MLFLOW_PRINT_MODEL_URLS_ON_CREATION</span><span class="p">,</span>
+    <span class="n">MLFLOW_RECORD_ENV_VARS_IN_MODEL_LOGGING</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.auth_policy</span><span class="w"> </span><span class="kn">import</span> <span class="n">AuthPolicy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">ResourceType</span><span class="p">,</span> <span class="n">_ResourceBuilder</span>
@@ -258,7 +260,7 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.annotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">experimental</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.databricks_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_construct_databricks_uc_registered_model_url</span><span class="p">,</span>
+    <span class="n">_construct_databricks_logged_model_url</span><span class="p">,</span>
     <span class="n">get_databricks_runtime_version</span><span class="p">,</span>
     <span class="n">get_workspace_id</span><span class="p">,</span>
     <span class="n">get_workspace_url</span><span class="p">,</span>
@@ -275,11 +277,12 @@
     <span class="n">_write_requirements_to_file</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.file_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">TempDir</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.logging_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">eprint</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.mlflow_tags</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLFLOW_MODEL_IS_EXTERNAL</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.uri</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">append_to_uri_path</span><span class="p">,</span>
     <span class="n">get_uri_scheme</span><span class="p">,</span>
-    <span class="n">is_databricks_unity_catalog_uri</span><span class="p">,</span>
+    <span class="n">is_databricks_uri</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -1170,6 +1173,11 @@
                     <span class="k">if</span> <span class="n">tags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                     <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="p">)</span>
+                <span class="k">if</span> <span class="n">MLFLOW_PRINT_MODEL_URLS_ON_CREATION</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="ow">and</span> <span class="n">is_databricks_uri</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">):</span>
+                    <span class="n">logged_model_url</span> <span class="o">=</span> <span class="n">_construct_databricks_logged_model_url</span><span class="p">(</span>
+                        <span class="n">get_workspace_url</span><span class="p">(),</span> <span class="n">model</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">get_workspace_id</span><span class="p">()</span>
+                    <span class="p">)</span>
+                    <span class="n">eprint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔗 View Logged Model at: </span><span class="si">{</span><span class="n">logged_model_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="k">with</span> <span class="n">_use_logged_model</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">run_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1342,21 +1350,6 @@
             <span class="n">model_info</span> <span class="o">=</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">get_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">registered_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">model_info</span><span class="o">.</span><span class="n">registered_model_version</span> <span class="o">=</span> <span class="n">registered_model</span><span class="o">.</span><span class="n">version</span>
-
-                <span class="c1"># Print a link to the UC model version page if the model is in UC.</span>
-                <span class="n">registry_uri</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_registry_uri</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">is_databricks_unity_catalog_uri</span><span class="p">(</span><span class="n">registry_uri</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">url</span> <span class="o">:=</span> <span class="n">get_workspace_url</span><span class="p">()):</span>
-                    <span class="n">uc_model_url</span> <span class="o">=</span> <span class="n">_construct_databricks_uc_registered_model_url</span><span class="p">(</span>
-                        <span class="n">url</span><span class="p">,</span>
-                        <span class="n">registered_model_name</span><span class="p">,</span>
-                        <span class="n">registered_model</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
-                        <span class="n">get_workspace_id</span><span class="p">(),</span>
-                    <span class="p">)</span>
-                    <span class="c1"># Use sys.stdout.write to make the link clickable in the UI</span>
-                    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;🔗 View model version &#39;</span><span class="si">{</span><span class="n">registered_model</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&#39; of &quot;</span>
-                        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">registered_model_name</span><span class="si">}</span><span class="s2">&#39; in Unity Catalog at: </span><span class="si">{</span><span class="n">uc_model_url</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="p">)</span>
 
         <span class="c1"># If the model signature is Mosaic AI Agent compatible, render a recipe for evaluation.</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.display_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">maybe_render_agent_eval_recipe</span>

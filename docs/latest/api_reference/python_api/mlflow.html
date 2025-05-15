@@ -1512,9 +1512,9 @@ metrics of evaluating the model with the given dataset.</p>
 <dl class="py function">
 <dt id="mlflow.get_active_model_id">
 <code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">get_active_model_id</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#get_active_model_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.get_active_model_id" title="Permalink to this definition"> </a></dt>
-<dd><p>Get the active model ID. If no active model is set with <code class="docutils literal notranslate"><span class="pre">set_active_model()</span></code>, the
-default active model is set using model ID from the environment variable
-<code class="docutils literal notranslate"><span class="pre">_MLFLOW_ACTIVE_MODEL_ID</span></code>. If neither is set, return None.</p>
+<dd><p>Get the active model ID. If no active model is set with <code class="docutils literal notranslate"><span class="pre">set_active_model()</span></code>, this will
+try to get the model ID from the environment variable <code class="docutils literal notranslate"><span class="pre">MLFLOW_ACTIVE_MODEL_ID</span></code>.
+If neither is set, return None.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The active model ID if set, otherwise None.</p>
@@ -5140,7 +5140,8 @@ and ‘list’.</p></li>
 <dd><p>Set the active model with the specified name or model ID, and it will be used for linking
 traces that are generated during the lifecycle of the model. The return value can be used as
 a context manager within a <code class="docutils literal notranslate"><span class="pre">with</span></code> block; otherwise, you must call <code class="docutils literal notranslate"><span class="pre">set_active_model()</span></code>
-to update active model.</p>
+to update active model. Note that this function also sets the environment variable
+<code class="docutils literal notranslate"><span class="pre">MLFLOW_ACTIVE_MODEL_ID</span></code> to the model ID of the active model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

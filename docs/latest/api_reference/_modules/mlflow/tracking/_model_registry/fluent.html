@@ -224,9 +224,11 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.logged_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoggedModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.model_registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelVersion</span><span class="p">,</span> <span class="n">Prompt</span><span class="p">,</span> <span class="n">RegisteredModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">Run</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.environment_variables</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLFLOW_PRINT_MODEL_URLS_ON_CREATION</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.prompt.registry_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">require_prompt_registry</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.databricks_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -247,7 +249,13 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.fluent</span><span class="w"> </span><span class="kn">import</span> <span class="n">active_run</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_results_from_paginated_fn</span><span class="p">,</span> <span class="n">mlflow_tags</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.annotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">experimental</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.databricks_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_construct_databricks_uc_registered_model_url</span><span class="p">,</span>
+    <span class="n">get_workspace_id</span><span class="p">,</span>
+    <span class="n">get_workspace_url</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.logging_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">eprint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.uri</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_databricks_unity_catalog_uri</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -393,10 +401,27 @@
         <span class="n">local_model_path</span><span class="o">=</span><span class="n">local_model_path</span><span class="p">,</span>
         <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">eprint</span><span class="p">(</span>
+    <span class="n">created_message</span> <span class="o">=</span> <span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;Created version &#39;</span><span class="si">{</span><span class="n">create_version_response</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&#39; of model &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">create_version_response</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">create_version_response</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
     <span class="p">)</span>
+    <span class="c1"># Print a link to the UC model version page if the model is in UC.</span>
+    <span class="n">registry_uri</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_registry_uri</span><span class="p">()</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">MLFLOW_PRINT_MODEL_URLS_ON_CREATION</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="ow">and</span> <span class="n">is_databricks_unity_catalog_uri</span><span class="p">(</span><span class="n">registry_uri</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="p">(</span><span class="n">url</span> <span class="o">:=</span> <span class="n">get_workspace_url</span><span class="p">())</span>
+    <span class="p">):</span>
+        <span class="n">uc_model_url</span> <span class="o">=</span> <span class="n">_construct_databricks_uc_registered_model_url</span><span class="p">(</span>
+            <span class="n">url</span><span class="p">,</span>
+            <span class="n">create_version_response</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">create_version_response</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+            <span class="n">get_workspace_id</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="n">created_message</span> <span class="o">=</span> <span class="s2">&quot;🔗 &quot;</span> <span class="o">+</span> <span class="n">created_message</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;: </span><span class="si">{</span><span class="n">uc_model_url</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">created_message</span> <span class="o">+=</span> <span class="s2">&quot;.&quot;</span>
+    <span class="n">eprint</span><span class="p">(</span><span class="n">created_message</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">model_id</span><span class="p">:</span>
         <span class="n">new_value</span> <span class="o">=</span> <span class="p">[</span>

@@ -237,7 +237,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">packaging.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">Version</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.environment_variables</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="p">,</span>
     <span class="n">_MLFLOW_TESTING</span><span class="p">,</span>
     <span class="n">MLFLOW_EXPERIMENT_ID</span><span class="p">,</span>
     <span class="n">MLFLOW_INPUT_EXAMPLE_INFERENCE_TIMEOUT</span><span class="p">,</span>
@@ -246,7 +245,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.databricks_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">INVALID_PARAMETER_VALUE</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_tracking_uri</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.fluent</span><span class="w"> </span><span class="kn">import</span> <span class="n">_get_experiment_id</span><span class="p">,</span> <span class="n">get_active_model_id</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.fluent</span><span class="w"> </span><span class="kn">import</span> <span class="n">_get_experiment_id</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">PYTHON_VERSION</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.databricks_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_get_databricks_serverless_env_vars</span><span class="p">,</span>
@@ -1092,8 +1091,6 @@
             <span class="n">command_env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_get_databricks_serverless_env_vars</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">exp_id</span> <span class="o">:=</span> <span class="n">_get_experiment_id</span><span class="p">():</span>
             <span class="n">command_env</span><span class="p">[</span><span class="n">MLFLOW_EXPERIMENT_ID</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp_id</span>
-        <span class="k">if</span> <span class="n">active_model_id</span> <span class="o">:=</span> <span class="n">get_active_model_id</span><span class="p">():</span>
-            <span class="n">command_env</span><span class="p">[</span><span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">active_model_id</span>
         <span class="n">command_env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_extra_env</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="n">command</span><span class="p">]</span>

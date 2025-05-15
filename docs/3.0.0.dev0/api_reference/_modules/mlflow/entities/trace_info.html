@@ -337,7 +337,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">from_proto</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">proto</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;TraceInfo&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">trace_id</span><span class="o">=</span><span class="n">proto</span><span class="o">.</span><span class="n">trace_id</span><span class="p">,</span>
-            <span class="n">client_request_id</span><span class="o">=</span><span class="n">proto</span><span class="o">.</span><span class="n">client_request_id</span><span class="p">,</span>
+            <span class="n">client_request_id</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">proto</span><span class="o">.</span><span class="n">client_request_id</span> <span class="k">if</span> <span class="n">proto</span><span class="o">.</span><span class="n">HasField</span><span class="p">(</span><span class="s2">&quot;client_request_id&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">),</span>
             <span class="n">trace_location</span><span class="o">=</span><span class="n">TraceLocation</span><span class="o">.</span><span class="n">from_proto</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">trace_location</span><span class="p">),</span>
             <span class="n">request_preview</span><span class="o">=</span><span class="n">proto</span><span class="o">.</span><span class="n">request_preview</span><span class="p">,</span>
             <span class="n">response_preview</span><span class="o">=</span><span class="n">proto</span><span class="o">.</span><span class="n">response_preview</span><span class="p">,</span>

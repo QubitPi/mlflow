@@ -238,7 +238,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">packaging.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">Version</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">BAD_REQUEST</span><span class="p">,</span> <span class="n">MlflowTracingException</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.constant</span><span class="w"> </span><span class="kn">import</span> <span class="n">TRACE_REQUEST_ID_PREFIX</span><span class="p">,</span> <span class="n">SpanAttributeKey</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.constant</span><span class="w"> </span><span class="kn">import</span> <span class="n">TRACE_REQUEST_ID_PREFIX</span><span class="p">,</span> <span class="n">SpanAttributeKey</span><span class="p">,</span> <span class="n">TraceMetadataKey</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.mlflow_tags</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMMUTABLE_TAGS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">IS_TRACING_SDK_ONLY</span>
 
@@ -247,7 +247,7 @@
 <span class="n">SPANS_COLUMN_NAME</span> <span class="o">=</span> <span class="s2">&quot;spans&quot;</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">LiveSpan</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">LiveSpan</span><span class="p">,</span> <span class="n">Trace</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.pyfunc.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">Context</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.types.chat</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatMessage</span><span class="p">,</span> <span class="n">ChatTool</span>
 
@@ -661,14 +661,42 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.openai.utils.chat_schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_span_chat_attributes</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.types.responses</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResponsesAgentResponse</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.types.responses</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResponsesAgentResponse</span><span class="p">,</span> <span class="n">ResponsesAgentStreamEvent</span>
 
-        <span class="k">if</span> <span class="n">ResponsesAgentResponse</span><span class="o">.</span><span class="n">validate_compat</span><span class="p">(</span><span class="n">outputs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">ResponsesAgentResponse</span><span class="p">):</span>
             <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">model_dump_compat</span><span class="p">()</span>
             <span class="n">set_span_chat_attributes</span><span class="p">(</span><span class="n">span</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span>
-
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">ResponsesAgentStreamEvent</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">outputs</span>
+        <span class="p">):</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">model_dump_compat</span><span class="p">()</span>
+            <span class="n">output_items</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">custom_outputs</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;response.output_item.done&quot;</span><span class="p">:</span>
+                    <span class="n">output_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">item</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">custom_outputs</span><span class="p">:</span>
+                    <span class="n">custom_outputs</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">custom_outputs</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">ResponsesAgentResponse</span><span class="p">(</span>
+                <span class="n">output</span><span class="o">=</span><span class="n">output_items</span><span class="p">,</span>
+                <span class="n">custom_outputs</span><span class="o">=</span><span class="n">custom_outputs</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">set_span_chat_attributes</span><span class="p">(</span><span class="n">span</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="k">pass</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">add_size_bytes_to_trace_metadata</span><span class="p">(</span><span class="n">trace</span><span class="p">:</span> <span class="n">Trace</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the size of the trace in bytes and add it as a tag to the trace.</span>
+
+<span class="sd">    This method modifies the trace object in place by adding a new tag.</span>
+
+<span class="sd">    Note: For simplicity, we calculate the size without considering the size metadata itself.</span>
+<span class="sd">    This provides a close approximation without requiring complex calculations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">trace_size_bytes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trace</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">trace_metadata</span><span class="p">[</span><span class="n">TraceMetadataKey</span><span class="o">.</span><span class="n">SIZE_BYTES</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">trace_size_bytes</span><span class="p">)</span>
 </pre></div>
 
               </div>

@@ -234,7 +234,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">valid_data_for_builtin_scorers</span><span class="p">,</span> <span class="n">validate_scorers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.utils.trace_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_model_traced</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.evaluation.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_get_model_from_deployment_endpoint_uri</span><span class="p">,</span>
     <span class="n">_is_model_deployment_endpoint_uri</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.uri</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_databricks_uri</span>
@@ -513,19 +512,46 @@
 <span class="sd">        A predict function that can be used to make predictions.</span>
 
 <span class="sd">    Example:</span>
+
+<span class="sd">        The following example assumes that the model serving endpoint accepts a JSON</span>
+<span class="sd">        object with a `messages` key. Please adjust the input based on the actual</span>
+<span class="sd">        schema of the model serving endpoint.</span>
+
 <span class="sd">        .. code-block:: python</span>
 
-<span class="sd">            data = pd.DataFrame(</span>
-<span class="sd">                [</span>
-<span class="sd">                    {&quot;inputs&quot;: {&quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What is MLflow?&quot;}]}},</span>
-<span class="sd">                    {&quot;inputs&quot;: {&quot;question&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What is Spark?&quot;}]}},</span>
-<span class="sd">                ]</span>
-<span class="sd">            )</span>
+<span class="sd">            from mlflow.genai.scorers import all_scorers</span>
+
+<span class="sd">            data = [</span>
+<span class="sd">                {</span>
+<span class="sd">                    &quot;inputs&quot;: {</span>
+<span class="sd">                        &quot;messages&quot;: [</span>
+<span class="sd">                            {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;You are a helpful assistant.&quot;},</span>
+<span class="sd">                            {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What is MLflow?&quot;},</span>
+<span class="sd">                        ]</span>
+<span class="sd">                    }</span>
+<span class="sd">                },</span>
+<span class="sd">                {</span>
+<span class="sd">                    &quot;inputs&quot;: {</span>
+<span class="sd">                        &quot;messages&quot;: [</span>
+<span class="sd">                            {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;You are a helpful assistant.&quot;},</span>
+<span class="sd">                            {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What is Spark?&quot;},</span>
+<span class="sd">                        ]</span>
+<span class="sd">                    }</span>
+<span class="sd">                },</span>
+<span class="sd">            ]</span>
 <span class="sd">            predict_fn = mlflow.genai.to_predict_fn(&quot;endpoints:/chat&quot;)</span>
 <span class="sd">            mlflow.genai.evaluate(</span>
 <span class="sd">                data=data,</span>
 <span class="sd">                predict_fn=predict_fn,</span>
+<span class="sd">                scorers=all_scorers,</span>
 <span class="sd">            )</span>
+
+<span class="sd">        You can also directly invoke the function to validate if the endpoint works</span>
+<span class="sd">        properly with your input schema.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            predict_fn(**data[0][&quot;inputs&quot;])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_model_deployment_endpoint_uri</span><span class="p">(</span><span class="n">endpoint_uri</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -533,11 +559,34 @@
             <span class="sa">f</span><span class="s2">&quot;deployment endpoint URI.&quot;</span>
         <span class="p">)</span>
 
-    <span class="n">model</span> <span class="o">=</span> <span class="n">_get_model_from_deployment_endpoint_uri</span><span class="p">(</span><span class="n">endpoint_uri</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model not found for endpoint URI: </span><span class="si">{</span><span class="n">endpoint_uri</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.deployments</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_deploy_client</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.metrics.genai.model_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_parse_model_uri</span>
 
-    <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span></div>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">get_deploy_client</span><span class="p">(</span><span class="s2">&quot;databricks&quot;</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">endpoint</span> <span class="o">=</span> <span class="n">_parse_model_uri</span><span class="p">(</span><span class="n">endpoint_uri</span><span class="p">)</span>
+
+    <span class="c1"># NB: Wrap the function to show better docstring and change signature to `model_inputs`</span>
+    <span class="c1">#   to unnamed keyword arguments. This is necessary because we pass input samples as</span>
+    <span class="c1">#   keyword arguments to the predict function.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict_fn</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># NB: Manually set inputs and outputs rather than using @mlflow.trace decorator,</span>
+        <span class="c1">#   because we want to record keyword arguments with names rather than **kwargs.</span>
+        <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_span</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;predict&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">span</span><span class="p">:</span>
+            <span class="n">span</span><span class="o">.</span><span class="n">set_inputs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">span</span><span class="o">.</span><span class="n">set_attribute</span><span class="p">(</span><span class="s2">&quot;endpoint&quot;</span><span class="p">,</span> <span class="n">endpoint_uri</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">span</span><span class="o">.</span><span class="n">set_outputs</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+    <span class="n">predict_fn</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">A wrapper function for invoking the model serving endpoint `</span><span class="si">{</span><span class="n">endpoint_uri</span><span class="si">}</span><span class="s2">`.</span>
+
+<span class="s2">Args:</span>
+<span class="s2">    **kwargs: The input samples to be passed to the model serving endpoint.</span>
+<span class="s2">        For example, if the endpoint accepts a JSON object with a `messages` key,</span>
+<span class="s2">        the input sample should be a dictionary with a `messages` key.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">predict_fn</span></div>
 </pre></div>
 
               </div>

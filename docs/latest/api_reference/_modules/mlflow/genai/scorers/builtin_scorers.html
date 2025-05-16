@@ -221,7 +221,7 @@
                 
   <h1>Source code for mlflow.genai.scorers.builtin_scorers</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Assessment</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
@@ -331,14 +331,13 @@
 <span class="sd">            }</span>
 <span class="sd">        ]</span>
 <span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[chunk_relevance()])</span>
-<span class="sd">        print(result)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_ChunkRelevance</span><span class="p">()</span></div>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">_ContextSufficiency</span><span class="p">(</span><span class="n">_BaseBuiltInScorer</span><span class="p">):</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;context_sufficiency&quot;</span>
-    <span class="n">required_columns</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;inputs&quot;</span><span class="p">,</span> <span class="s2">&quot;retrieved_context&quot;</span><span class="p">,</span> <span class="s2">&quot;expected_response&quot;</span><span class="p">}</span>
+    <span class="n">required_columns</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;inputs&quot;</span><span class="p">,</span> <span class="s2">&quot;retrieved_context&quot;</span><span class="p">,</span> <span class="s2">&quot;expectations/expected_response&quot;</span><span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">retrieved_context</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Assessment</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate context sufficiency based on retrieved documents.&quot;&quot;&quot;</span>
@@ -380,7 +379,6 @@
 <span class="sd">            }</span>
 <span class="sd">        ]</span>
 <span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[context_sufficiency()])</span>
-<span class="sd">        print(result)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_ContextSufficiency</span><span class="p">()</span></div>
 
@@ -433,14 +431,39 @@
 <span class="sd">            }</span>
 <span class="sd">        ]</span>
 <span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[groundedness()])</span>
-<span class="sd">        print(result)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_Groundedness</span><span class="p">()</span></div>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">_GuidelineAdherence</span><span class="p">(</span><span class="n">_BaseBuiltInScorer</span><span class="p">):</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;guideline_adherence&quot;</span>
-    <span class="n">required_columns</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;inputs&quot;</span><span class="p">,</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span> <span class="s2">&quot;guidelines&quot;</span><span class="p">}</span>
+    <span class="n">global_guidelines</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">required_columns</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;inputs&quot;</span><span class="p">,</span> <span class="s2">&quot;outputs&quot;</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_evaluation_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="c1"># Metric name should always be &quot;guideline_adherence&quot; regardless of the custom name</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">evaluation_config</span><span class="p">)</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">GENAI_CONFIG_NAME</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;metrics&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="s2">&quot;guideline_adherence&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">:</span>
+            <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;guideline_adherence&quot;</span><span class="p">)</span>
+
+        <span class="c1"># If global guidelines are specified, add it to the config</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_guidelines</span><span class="p">:</span>
+            <span class="c1"># NB: The agent eval harness will take multiple global guidelines in a dictionary format</span>
+            <span class="c1">#   where the key is the name of the global guideline judge. Therefore, when multiple</span>
+            <span class="c1">#   judges are specified, we merge them into a single dictionary.</span>
+            <span class="c1">#   https://docs.databricks.com/aws/en/generative-ai/agent-evaluation/llm-judge-reference#examples</span>
+            <span class="n">global_guidelines</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">GENAI_CONFIG_NAME</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;global_guidelines&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">global_guidelines</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_guidelines</span>
+            <span class="n">config</span><span class="p">[</span><span class="n">GENAI_CONFIG_NAME</span><span class="p">][</span><span class="s2">&quot;global_guidelines&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">global_guidelines</span>
+
+        <span class="k">return</span> <span class="n">config</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate_columns</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+        <span class="c1"># If no global guidelines are specified, the guidelines must exist in the input dataset</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_guidelines</span> <span class="ow">and</span> <span class="s2">&quot;guidelines&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingColumnsException</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;guidelines&quot;</span><span class="p">])</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -460,7 +483,10 @@
 
 
 <div class="viewcode-block" id="guideline_adherence"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.guideline_adherence">[docs]</a><span class="nd">@_builtin_scorer</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">guideline_adherence</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">guideline_adherence</span><span class="p">(</span>
+    <span class="n">global_guidelines</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;guideline_adherence&quot;</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Guideline adherence evaluates whether the agent&#39;s response follows specific constraints</span>
 <span class="sd">    or instructions provided in the guidelines.</span>
@@ -468,11 +494,12 @@
 <span class="sd">    You can invoke the scorer directly with a single input for testing, or pass it to</span>
 <span class="sd">    `mlflow.genai.evaluate` for running full evaluation on a dataset.</span>
 
-<span class="sd">    This judge should be used when each example has a different set of guidelines. The guidelines</span>
-<span class="sd">    must be specified in the `guidelines` column of the input dataset.</span>
+<span class="sd">    There are two different ways to specify judges, depending on the use case:</span>
 
-<span class="sd">    You can also specify contextual information for guidelines using the `guidelines_context`</span>
-<span class="sd">    column in your dataset (requires `databricks-agents&gt;=0.20.0`).</span>
+<span class="sd">    **1. Global Guidelines**</span>
+
+<span class="sd">    If you want to evaluate all the response with a single set of guidelines, you can specify</span>
+<span class="sd">    the guidelines in the `guidelines` parameter of this scorer.</span>
 
 <span class="sd">    Example (direct usage):</span>
 
@@ -481,95 +508,10 @@
 <span class="sd">        import mlflow</span>
 <span class="sd">        from mlflow.genai.scorers import guideline_adherence</span>
 
-<span class="sd">        assessment = guideline_adherence()(</span>
-<span class="sd">            inputs={&quot;question&quot;: &quot;What is the capital of France?&quot;},</span>
-<span class="sd">            outputs=&quot;The capital of France is Paris.&quot;,</span>
-<span class="sd">            guidelines={</span>
-<span class="sd">                &quot;english&quot;: [&quot;The response must be in English&quot;],</span>
-<span class="sd">            },</span>
-<span class="sd">            guidelines_context={</span>
-<span class="sd">                &quot;tool_call_result&quot;: &quot;{&#39;country&#39;: &#39;France&#39;, &#39;capital&#39;: &#39;Paris&#39;}&quot;,</span>
-<span class="sd">            },</span>
-<span class="sd">        )</span>
-<span class="sd">        print(assessment)</span>
-
-<span class="sd">    Example (with evaluate):</span>
-
-<span class="sd">    .. code-block:: python</span>
-
-<span class="sd">        import mlflow</span>
-
-<span class="sd">        data = [</span>
-<span class="sd">            {</span>
-<span class="sd">                &quot;inputs&quot;: {&quot;question&quot;: &quot;What is the capital of France?&quot;},</span>
-<span class="sd">                &quot;outputs&quot;: &quot;The capital of France is Paris.&quot;,</span>
-<span class="sd">                &quot;guidelines&quot;: {</span>
-<span class="sd">                    &quot;english&quot;: [&quot;The response must be in English&quot;],</span>
-<span class="sd">                    &quot;clarity&quot;: [&quot;The response must be clear, coherent, and concise&quot;],</span>
-<span class="sd">                    &quot;grounded&quot;: [&quot;The response must be grounded in the tool call result&quot;],</span>
-<span class="sd">                },</span>
-<span class="sd">                &quot;guidelines_context&quot;: {</span>
-<span class="sd">                    &quot;tool_call_result&quot;: &quot;{&#39;country&#39;: &#39;France&#39;, &#39;capital&#39;: &#39;Paris&#39;}&quot;,</span>
-<span class="sd">                },</span>
-<span class="sd">            }</span>
-<span class="sd">        ]</span>
-<span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[guideline_adherence()])</span>
-<span class="sd">        print(result)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_GuidelineAdherence</span><span class="p">()</span></div>
-
-
-<span class="k">class</span><span class="w"> </span><span class="nc">_GlobalGuidelineAdherence</span><span class="p">(</span><span class="n">_GuidelineAdherence</span><span class="p">):</span>
-    <span class="n">guidelines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="n">required_columns</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;inputs&quot;</span><span class="p">,</span> <span class="s2">&quot;outputs&quot;</span><span class="p">}</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">update_evaluation_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">evaluation_config</span><span class="p">)</span>
-        <span class="n">metrics</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">GENAI_CONFIG_NAME</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;metrics&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="k">if</span> <span class="s2">&quot;guideline_adherence&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">:</span>
-            <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;guideline_adherence&quot;</span><span class="p">)</span>
-
-        <span class="c1"># NB: The agent eval harness will take multiple global guidelines in a dictionary format</span>
-        <span class="c1">#   where the key is the name of the global guideline judge. Therefore, when multiple</span>
-        <span class="c1">#   judges are specified, we merge them into a single dictionary.</span>
-        <span class="c1">#   https://docs.databricks.com/aws/en/generative-ai/agent-evaluation/llm-judge-reference#examples</span>
-        <span class="n">global_guidelines</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">GENAI_CONFIG_NAME</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;global_guidelines&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">global_guidelines</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">guidelines</span>
-        <span class="n">config</span><span class="p">[</span><span class="n">GENAI_CONFIG_NAME</span><span class="p">][</span><span class="s2">&quot;global_guidelines&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">global_guidelines</span>
-        <span class="k">return</span> <span class="n">config</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">outputs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Assessment</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate adherence to global guidelines.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">outputs</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="global_guideline_adherence"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.global_guideline_adherence">[docs]</a><span class="nd">@_builtin_scorer</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">global_guideline_adherence</span><span class="p">(</span>
-    <span class="n">guidelines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;guideline_adherence&quot;</span><span class="p">,</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Guideline adherence evaluates whether the agent&#39;s response follows specific global</span>
-<span class="sd">    constraints or instructions provided in the guidelines.</span>
-
-<span class="sd">    You can invoke the scorer directly with a single input for testing, or pass it to</span>
-<span class="sd">    `mlflow.genai.evaluate` for running full evaluation on a dataset.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        guidelines: A list of global guidelines to evaluate the agent&#39;s response against.</span>
-<span class="sd">        name: The name of the judge. Defaults to &quot;guideline_adherence&quot;.</span>
-
-<span class="sd">    Example (direct usage):</span>
-
-<span class="sd">    .. code-block:: python</span>
-
-<span class="sd">        import mlflow</span>
-<span class="sd">        from mlflow.genai.scorers import global_guideline_adherence</span>
-
 <span class="sd">        # Create a global judge</span>
-<span class="sd">        english = global_guideline_adherence(</span>
-<span class="sd">            guidelines=[&quot;The response must be in English&quot;],</span>
+<span class="sd">        english = guideline_adherence(</span>
 <span class="sd">            name=&quot;english_guidelines&quot;,</span>
+<span class="sd">            global_guidelines=[&quot;The response must be in English&quot;],</span>
 <span class="sd">        )</span>
 <span class="sd">        assessment = english()(</span>
 <span class="sd">            inputs={&quot;question&quot;: &quot;What is the capital of France?&quot;},</span>
@@ -579,19 +521,22 @@
 
 <span class="sd">    Example (with evaluate):</span>
 
+<span class="sd">    In the following example, the guidelines specified in the `english` and `clarify` scorers</span>
+<span class="sd">    will be uniformly applied to all the examples in the dataset. The evaluation result will</span>
+<span class="sd">    contains two scores &quot;english&quot; and &quot;clarify&quot;.</span>
+
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        import mlflow</span>
-<span class="sd">        from mlflow.genai.scorers import global_guideline_adherence</span>
+<span class="sd">        from mlflow.genai.scorers import guideline_adherence</span>
 
-<span class="sd">        guideline = global_guideline_adherence([&quot;Be polite&quot;, &quot;Be kind&quot;])</span>
-<span class="sd">        english = global_guideline_adherence(</span>
-<span class="sd">            guidelines=[&quot;The response must be in English&quot;],</span>
-<span class="sd">            name=&quot;english_guidelines&quot;,</span>
+<span class="sd">        english = guideline_adherence(</span>
+<span class="sd">            name=&quot;english&quot;,</span>
+<span class="sd">            global_guidelines=[&quot;The response must be in English&quot;],</span>
 <span class="sd">        )</span>
-<span class="sd">        clarify = global_guideline_adherence(</span>
-<span class="sd">            guidelines=[&quot;The response must be clear, coherent, and concise&quot;],</span>
-<span class="sd">            name=&quot;clarify_guidelines&quot;,</span>
+<span class="sd">        clarify = guideline_adherence(</span>
+<span class="sd">            name=&quot;clarify&quot;,</span>
+<span class="sd">            global_guidelines=[&quot;The response must be clear, coherent, and concise&quot;],</span>
 <span class="sd">        )</span>
 
 <span class="sd">        data = [</span>
@@ -604,13 +549,43 @@
 <span class="sd">                &quot;outputs&quot;: &quot;The capital of Germany is Berlin.&quot;,</span>
 <span class="sd">            },</span>
 <span class="sd">        ]</span>
-<span class="sd">        result = mlflow.genai.evaluate(</span>
-<span class="sd">            data=data,</span>
-<span class="sd">            scorers=[guideline, english, clarify],</span>
-<span class="sd">        )</span>
-<span class="sd">        print(result)</span>
+<span class="sd">        mlflow.genai.evaluate(data=data, scorers=[english, clarify])</span>
+
+<span class="sd">    **2. Per-Example Guidelines**</span>
+
+<span class="sd">    When you have a different set of guidelines for each example, you can specify the guidelines</span>
+<span class="sd">    in the `guidelines` field of the `expectations` column of the input dataset. Alternatively,</span>
+<span class="sd">    you can annotate a trace with &quot;guidelines&quot; expectation and use the trace as an input data.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    In this example, the guidelines specified in the `guidelines` field of the `expectations`</span>
+<span class="sd">    column will be applied to each example individually. The evaluation result will contain a</span>
+<span class="sd">    single &quot;guideline_adherence&quot; score.</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        import mlflow</span>
+
+<span class="sd">        data = [</span>
+<span class="sd">            {</span>
+<span class="sd">                &quot;inputs&quot;: {&quot;question&quot;: &quot;What is the capital of France?&quot;},</span>
+<span class="sd">                &quot;outputs&quot;: &quot;The capital of France is Paris.&quot;,</span>
+<span class="sd">                &quot;expectations&quot;: {</span>
+<span class="sd">                    &quot;guidelines&quot;: [&quot;The response must be factual and concise&quot;],</span>
+<span class="sd">                },</span>
+<span class="sd">            },</span>
+<span class="sd">            {</span>
+<span class="sd">                &quot;inputs&quot;: {&quot;question&quot;: &quot;How to learn Python?&quot;},</span>
+<span class="sd">                &quot;outputs&quot;: &quot;You can read a book or take a course.&quot;,</span>
+<span class="sd">                &quot;expectations&quot;: {</span>
+<span class="sd">                    &quot;guidelines&quot;: [&quot;The response must be helpful and encouraging&quot;],</span>
+<span class="sd">                },</span>
+<span class="sd">            },</span>
+<span class="sd">        ]</span>
+<span class="sd">        mlflow.genai.evaluate(data=data, scorers=[guideline_adherence()])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_GlobalGuidelineAdherence</span><span class="p">(</span><span class="n">guidelines</span><span class="o">=</span><span class="n">guidelines</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_GuidelineAdherence</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">global_guidelines</span><span class="o">=</span><span class="n">global_guidelines</span><span class="p">)</span></div>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">_RelevanceToQuery</span><span class="p">(</span><span class="n">_BaseBuiltInScorer</span><span class="p">):</span>
@@ -658,7 +633,6 @@
 <span class="sd">            }</span>
 <span class="sd">        ]</span>
 <span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[relevance_to_query()])</span>
-<span class="sd">        print(result)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_RelevanceToQuery</span><span class="p">()</span></div>
 
@@ -707,7 +681,6 @@
 <span class="sd">            }</span>
 <span class="sd">        ]</span>
 <span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[safety()])</span>
-<span class="sd">        print(result)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_Safety</span><span class="p">()</span></div>
 
@@ -718,8 +691,13 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate_columns</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;expected_response&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span> <span class="ow">and</span> <span class="s2">&quot;expected_facts&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">MissingColumnsException</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;expected_response or expected_facts&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="s2">&quot;expectations/expected_response&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span>
+            <span class="ow">and</span> <span class="s2">&quot;expectations/expected_facts&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">MissingColumnsException</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;expectations/expected_response or expectations/expected_facts&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">outputs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">expectations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Assessment</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate correctness of the response against expectations.&quot;&quot;&quot;</span>
@@ -750,8 +728,8 @@
 <span class="sd">                &quot;shuffles all data, making reduceByKey more efficient.&quot;</span>
 <span class="sd">            ),</span>
 <span class="sd">            expectations=[</span>
-<span class="sd">                &quot;reduceByKey aggregates data before shuffling&quot;,</span>
-<span class="sd">                &quot;groupByKey shuffles all data&quot;,</span>
+<span class="sd">                {&quot;expected_response&quot;: &quot;reduceByKey aggregates data before shuffling&quot;},</span>
+<span class="sd">                {&quot;expected_response&quot;: &quot;groupByKey shuffles all data&quot;},</span>
 <span class="sd">            ],</span>
 <span class="sd">        )</span>
 <span class="sd">        print(assessment)</span>
@@ -775,13 +753,12 @@
 <span class="sd">                    &quot;shuffles all data, making reduceByKey more efficient.&quot;</span>
 <span class="sd">                ),</span>
 <span class="sd">                &quot;expectations&quot;: [</span>
-<span class="sd">                    &quot;reduceByKey aggregates data before shuffling&quot;,</span>
-<span class="sd">                    &quot;groupByKey shuffles all data&quot;,</span>
+<span class="sd">                    {&quot;expected_response&quot;: &quot;reduceByKey aggregates data before shuffling&quot;},</span>
+<span class="sd">                    {&quot;expected_response&quot;: &quot;groupByKey shuffles all data&quot;},</span>
 <span class="sd">                ],</span>
 <span class="sd">            }</span>
 <span class="sd">        ]</span>
 <span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[correctness()])</span>
-<span class="sd">        print(result)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_Correctness</span><span class="p">()</span></div>
 
@@ -793,7 +770,7 @@
 <span class="sd">    Returns a list of built-in scorers for evaluating RAG models. Contains scorers</span>
 <span class="sd">    chunk_relevance, context_sufficiency, groundedness, and relevance_to_query.</span>
 
-<span class="sd">    Example (with evaluate):</span>
+<span class="sd">    Example:</span>
 
 <span class="sd">    .. code-block:: python</span>
 
@@ -810,13 +787,42 @@
 <span class="sd">            }</span>
 <span class="sd">        ]</span>
 <span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=rag_scorers())</span>
-<span class="sd">        print(result)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span>
         <span class="n">chunk_relevance</span><span class="p">(),</span>
         <span class="n">context_sufficiency</span><span class="p">(),</span>
         <span class="n">groundedness</span><span class="p">(),</span>
         <span class="n">relevance_to_query</span><span class="p">(),</span>
+    <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="all_scorers"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.all_scorers">[docs]</a><span class="nd">@_builtin_scorer</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">all_scorers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BuiltInScorer</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of all built-in scorers.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        import mlflow</span>
+<span class="sd">        from mlflow.genai.scorers import all_scorers</span>
+
+<span class="sd">        data = [</span>
+<span class="sd">            {</span>
+<span class="sd">                &quot;inputs&quot;: {&quot;question&quot;: &quot;What is the capital of France?&quot;},</span>
+<span class="sd">                &quot;outputs&quot;: &quot;The capital of France is Paris.&quot;,</span>
+<span class="sd">                &quot;retrieved_context&quot;: [</span>
+<span class="sd">                    {&quot;content&quot;: &quot;Paris is the capital city of France.&quot;},</span>
+<span class="sd">                ],</span>
+<span class="sd">            }</span>
+<span class="sd">        ]</span>
+<span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=all_scorers())</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">rag_scorers</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="n">guideline_adherence</span><span class="p">(),</span>
+        <span class="n">safety</span><span class="p">(),</span>
+        <span class="n">correctness</span><span class="p">(),</span>
     <span class="p">]</span></div>
 
 

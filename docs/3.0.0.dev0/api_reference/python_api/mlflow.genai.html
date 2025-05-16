@@ -303,6 +303,11 @@
 <code class="sig-name descname"><span class="pre">name</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#mlflow.genai.Scorer.name" title="Permalink to this definition"> </a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt id="mlflow.genai.Scorer.run">
+<code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expectations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/genai/scorers/base.html#Scorer.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.Scorer.run" title="Permalink to this definition"> </a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
@@ -586,17 +591,40 @@ that contains a set of assessments in the format of
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-    <span class="p">[</span>
-        <span class="p">{</span><span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What is MLflow?&quot;</span><span class="p">}]}},</span>
-        <span class="p">{</span><span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What is Spark?&quot;</span><span class="p">}]}},</span>
-    <span class="p">]</span>
-<span class="p">)</span>
+<p>The following example assumes that the model serving endpoint accepts a JSON
+object with a <cite>messages</cite> key. Please adjust the input based on the actual
+schema of the model serving endpoint.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">all_scorers</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;You are a helpful assistant.&quot;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What is MLflow?&quot;</span><span class="p">},</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;You are a helpful assistant.&quot;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What is Spark?&quot;</span><span class="p">},</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+<span class="p">]</span>
 <span class="n">predict_fn</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">to_predict_fn</span><span class="p">(</span><span class="s2">&quot;endpoints:/chat&quot;</span><span class="p">)</span>
 <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
     <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
     <span class="n">predict_fn</span><span class="o">=</span><span class="n">predict_fn</span><span class="p">,</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="n">all_scorers</span><span class="p">,</span>
 <span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also directly invoke the function to validate if the endpoint works
+properly with your input schema.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">predict_fn</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;inputs&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -652,6 +680,33 @@ More details about built-in judges can be found at
 <code class="sig-name descname"><span class="pre">name</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#mlflow.genai.scorers.Scorer.name" title="Permalink to this definition"> </a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt id="mlflow.genai.scorers.Scorer.run">
+<code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expectations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/genai/scorers/base.html#Scorer.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.Scorer.run" title="Permalink to this definition"> </a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="mlflow.genai.scorers.all_scorers">
+<code class="sig-prename descclassname"><span class="pre">mlflow.genai.scorers.</span></code><code class="sig-name descname"><span class="pre">all_scorers</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">list</span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#all_scorers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.all_scorers" title="Permalink to this definition"> </a></dt>
+<dd><p>Returns a list of all built-in scorers.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">all_scorers</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;What is the capital of France?&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="s2">&quot;The capital of France is Paris.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;retrieved_context&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Paris is the capital city of France.&quot;</span><span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="n">all_scorers</span><span class="p">())</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -687,7 +742,6 @@ More details about built-in judges can be found at
     <span class="p">}</span>
 <span class="p">]</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">chunk_relevance</span><span class="p">()])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -720,7 +774,6 @@ information to generate the expected response.</p>
     <span class="p">}</span>
 <span class="p">]</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">context_sufficiency</span><span class="p">()])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -744,8 +797,8 @@ information to generate the expected response.</p>
         <span class="s2">&quot;shuffles all data, making reduceByKey more efficient.&quot;</span>
     <span class="p">),</span>
     <span class="n">expectations</span><span class="o">=</span><span class="p">[</span>
-        <span class="s2">&quot;reduceByKey aggregates data before shuffling&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;groupByKey shuffles all data&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">&quot;expected_response&quot;</span><span class="p">:</span> <span class="s2">&quot;reduceByKey aggregates data before shuffling&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;expected_response&quot;</span><span class="p">:</span> <span class="s2">&quot;groupByKey shuffles all data&quot;</span><span class="p">},</span>
     <span class="p">],</span>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">assessment</span><span class="p">)</span>
@@ -767,77 +820,12 @@ information to generate the expected response.</p>
             <span class="s2">&quot;shuffles all data, making reduceByKey more efficient.&quot;</span>
         <span class="p">),</span>
         <span class="s2">&quot;expectations&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="s2">&quot;reduceByKey aggregates data before shuffling&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;groupByKey shuffles all data&quot;</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;expected_response&quot;</span><span class="p">:</span> <span class="s2">&quot;reduceByKey aggregates data before shuffling&quot;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">&quot;expected_response&quot;</span><span class="p">:</span> <span class="s2">&quot;groupByKey shuffles all data&quot;</span><span class="p">},</span>
         <span class="p">],</span>
     <span class="p">}</span>
 <span class="p">]</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">correctness</span><span class="p">()])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt id="mlflow.genai.scorers.global_guideline_adherence">
-<code class="sig-prename descclassname"><span class="pre">mlflow.genai.scorers.</span></code><code class="sig-name descname"><span class="pre">global_guideline_adherence</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">guidelines</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'guideline_adherence'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#global_guideline_adherence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.global_guideline_adherence" title="Permalink to this definition"> </a></dt>
-<dd><p>Guideline adherence evaluates whether the agent’s response follows specific global
-constraints or instructions provided in the guidelines.</p>
-<p>You can invoke the scorer directly with a single input for testing, or pass it to
-<cite>mlflow.genai.evaluate</cite> for running full evaluation on a dataset.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>guidelines</strong> – A list of global guidelines to evaluate the agent’s response against.</p></li>
-<li><p><strong>name</strong> – The name of the judge. Defaults to “guideline_adherence”.</p></li>
-</ul>
-</dd>
-</dl>
-<p>Example (direct usage):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">global_guideline_adherence</span>
-
-<span class="c1"># Create a global judge</span>
-<span class="n">english</span> <span class="o">=</span> <span class="n">global_guideline_adherence</span><span class="p">(</span>
-    <span class="n">guidelines</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;The response must be in English&quot;</span><span class="p">],</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;english_guidelines&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">assessment</span> <span class="o">=</span> <span class="n">english</span><span class="p">()(</span>
-    <span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;What is the capital of France?&quot;</span><span class="p">},</span>
-    <span class="n">outputs</span><span class="o">=</span><span class="s2">&quot;The capital of France is Paris.&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">assessment</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Example (with evaluate):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">global_guideline_adherence</span>
-
-<span class="n">guideline</span> <span class="o">=</span> <span class="n">global_guideline_adherence</span><span class="p">([</span><span class="s2">&quot;Be polite&quot;</span><span class="p">,</span> <span class="s2">&quot;Be kind&quot;</span><span class="p">])</span>
-<span class="n">english</span> <span class="o">=</span> <span class="n">global_guideline_adherence</span><span class="p">(</span>
-    <span class="n">guidelines</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;The response must be in English&quot;</span><span class="p">],</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;english_guidelines&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">clarify</span> <span class="o">=</span> <span class="n">global_guideline_adherence</span><span class="p">(</span>
-    <span class="n">guidelines</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;The response must be clear, coherent, and concise&quot;</span><span class="p">],</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;clarify_guidelines&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;What is the capital of France?&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="s2">&quot;The capital of France is Paris.&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;What is the capital of Germany?&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="s2">&quot;The capital of Germany is Berlin.&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-<span class="p">]</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
-    <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
-    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">guideline</span><span class="p">,</span> <span class="n">english</span><span class="p">,</span> <span class="n">clarify</span><span class="p">],</span>
-<span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -872,58 +860,93 @@ in the retrieved context.</p>
     <span class="p">}</span>
 <span class="p">]</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">groundedness</span><span class="p">()])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt id="mlflow.genai.scorers.guideline_adherence">
-<code class="sig-prename descclassname"><span class="pre">mlflow.genai.scorers.</span></code><code class="sig-name descname"><span class="pre">guideline_adherence</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#guideline_adherence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.guideline_adherence" title="Permalink to this definition"> </a></dt>
+<code class="sig-prename descclassname"><span class="pre">mlflow.genai.scorers.</span></code><code class="sig-name descname"><span class="pre">guideline_adherence</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_guidelines</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'guideline_adherence'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#guideline_adherence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.guideline_adherence" title="Permalink to this definition"> </a></dt>
 <dd><p>Guideline adherence evaluates whether the agent’s response follows specific constraints
 or instructions provided in the guidelines.</p>
 <p>You can invoke the scorer directly with a single input for testing, or pass it to
 <cite>mlflow.genai.evaluate</cite> for running full evaluation on a dataset.</p>
-<p>This judge should be used when each example has a different set of guidelines. The guidelines
-must be specified in the <cite>guidelines</cite> column of the input dataset.</p>
-<p>You can also specify contextual information for guidelines using the <cite>guidelines_context</cite>
-column in your dataset (requires <cite>databricks-agents&gt;=0.20.0</cite>).</p>
+<p>There are two different ways to specify judges, depending on the use case:</p>
+<p><strong>1. Global Guidelines</strong></p>
+<p>If you want to evaluate all the response with a single set of guidelines, you can specify
+the guidelines in the <cite>guidelines</cite> parameter of this scorer.</p>
 <p>Example (direct usage):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">guideline_adherence</span>
 
-<span class="n">assessment</span> <span class="o">=</span> <span class="n">guideline_adherence</span><span class="p">()(</span>
+<span class="c1"># Create a global judge</span>
+<span class="n">english</span> <span class="o">=</span> <span class="n">guideline_adherence</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;english_guidelines&quot;</span><span class="p">,</span>
+    <span class="n">global_guidelines</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;The response must be in English&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">assessment</span> <span class="o">=</span> <span class="n">english</span><span class="p">()(</span>
     <span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;What is the capital of France?&quot;</span><span class="p">},</span>
     <span class="n">outputs</span><span class="o">=</span><span class="s2">&quot;The capital of France is Paris.&quot;</span><span class="p">,</span>
-    <span class="n">guidelines</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;english&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;The response must be in English&quot;</span><span class="p">],</span>
-    <span class="p">},</span>
-    <span class="n">guidelines_context</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;tool_call_result&quot;</span><span class="p">:</span> <span class="s2">&quot;{&#39;country&#39;: &#39;France&#39;, &#39;capital&#39;: &#39;Paris&#39;}&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">assessment</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Example (with evaluate):</p>
+<p>In the following example, the guidelines specified in the <cite>english</cite> and <cite>clarify</cite> scorers
+will be uniformly applied to all the examples in the dataset. The evaluation result will
+contains two scores “english” and “clarify”.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">guideline_adherence</span>
+
+<span class="n">english</span> <span class="o">=</span> <span class="n">guideline_adherence</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;english&quot;</span><span class="p">,</span>
+    <span class="n">global_guidelines</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;The response must be in English&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">clarify</span> <span class="o">=</span> <span class="n">guideline_adherence</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;clarify&quot;</span><span class="p">,</span>
+    <span class="n">global_guidelines</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;The response must be clear, coherent, and concise&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;What is the capital of France?&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="s2">&quot;The capital of France is Paris.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;What is the capital of Germany?&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="s2">&quot;The capital of Germany is Berlin.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">]</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">english</span><span class="p">,</span> <span class="n">clarify</span><span class="p">])</span>
+</pre></div>
+</div>
+<p><strong>2. Per-Example Guidelines</strong></p>
+<p>When you have a different set of guidelines for each example, you can specify the guidelines
+in the <cite>guidelines</cite> field of the <cite>expectations</cite> column of the input dataset. Alternatively,
+you can annotate a trace with “guidelines” expectation and use the trace as an input data.</p>
+<p>Example:</p>
+<p>In this example, the guidelines specified in the <cite>guidelines</cite> field of the <cite>expectations</cite>
+column will be applied to each example individually. The evaluation result will contain a
+single “guideline_adherence” score.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">{</span>
         <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;What is the capital of France?&quot;</span><span class="p">},</span>
         <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="s2">&quot;The capital of France is Paris.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;guidelines&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;english&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;The response must be in English&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;clarity&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;The response must be clear, coherent, and concise&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;grounded&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;The response must be grounded in the tool call result&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;expectations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;guidelines&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;The response must be factual and concise&quot;</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;guidelines_context&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;tool_call_result&quot;</span><span class="p">:</span> <span class="s2">&quot;{&#39;country&#39;: &#39;France&#39;, &#39;capital&#39;: &#39;Paris&#39;}&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;How to learn Python?&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="s2">&quot;You can read a book or take a course.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;expectations&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;guidelines&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;The response must be helpful and encouraging&quot;</span><span class="p">],</span>
         <span class="p">},</span>
-    <span class="p">}</span>
+    <span class="p">},</span>
 <span class="p">]</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">guideline_adherence</span><span class="p">()])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">guideline_adherence</span><span class="p">()])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -933,7 +956,7 @@ column in your dataset (requires <cite>databricks-agents&gt;=0.20.0</cite>).</p>
 <code class="sig-prename descclassname"><span class="pre">mlflow.genai.scorers.</span></code><code class="sig-name descname"><span class="pre">rag_scorers</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">list</span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#rag_scorers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.rag_scorers" title="Permalink to this definition"> </a></dt>
 <dd><p>Returns a list of built-in scorers for evaluating RAG models. Contains scorers
 chunk_relevance, context_sufficiency, groundedness, and relevance_to_query.</p>
-<p>Example (with evaluate):</p>
+<p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">rag_scorers</span>
 
@@ -947,7 +970,6 @@ chunk_relevance, context_sufficiency, groundedness, and relevance_to_query.</p>
     <span class="p">}</span>
 <span class="p">]</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="n">rag_scorers</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -981,7 +1003,6 @@ deviating into unrelated topics.</p>
     <span class="p">}</span>
 <span class="p">]</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">relevance_to_query</span><span class="p">()])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1014,7 +1035,6 @@ deviating into unrelated topics.</p>
     <span class="p">}</span>
 <span class="p">]</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">safety</span><span class="p">()])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

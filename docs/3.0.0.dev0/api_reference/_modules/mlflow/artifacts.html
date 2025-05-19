@@ -308,7 +308,17 @@
     <span class="n">artifact_repo</span> <span class="o">=</span> <span class="n">get_artifact_repository</span><span class="p">(</span>
         <span class="n">add_databricks_profile_info_to_artifact_uri</span><span class="p">(</span><span class="n">artifact_uri</span><span class="p">,</span> <span class="n">tracking_uri</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">artifact_repo</span><span class="o">.</span><span class="n">download_artifacts</span><span class="p">(</span><span class="n">artifact_path</span><span class="p">,</span> <span class="n">dst_path</span><span class="o">=</span><span class="n">dst_path</span><span class="p">)</span></div>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">artifact_repo</span><span class="o">.</span><span class="n">download_artifacts</span><span class="p">(</span><span class="n">artifact_path</span><span class="p">,</span> <span class="n">dst_path</span><span class="o">=</span><span class="n">dst_path</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">run_id</span> <span class="ow">and</span> <span class="n">artifact_path</span><span class="p">:</span>
+            <span class="c1"># To ensure backward compatibility with MLflow 2.x and earlier,</span>
+            <span class="c1"># download artifacts using `runs:/&lt;run_id&gt;/&lt;artifact_path&gt;` URI format.</span>
+            <span class="k">return</span> <span class="n">_download_artifact_from_uri</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">artifact_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">dst_path</span>
+            <span class="p">)</span>
+        <span class="k">raise</span></div>
 
 
 <div class="viewcode-block" id="list_artifacts"><a class="viewcode-back" href="../../python_api/mlflow.artifacts.html#mlflow.artifacts.list_artifacts">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">list_artifacts</span><span class="p">(</span>

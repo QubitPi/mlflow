@@ -3499,13 +3499,16 @@
         <span class="c1"># so that for subprocesses the default _ACTIVE_MODEL_CONTEXT.model_id</span>
         <span class="c1"># is still valid, and we don&#39;t need to read from env var.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_by_user</span> <span class="o">=</span> <span class="n">set_by_user</span>
-        <span class="k">with</span> <span class="n">_active_model_id_env_lock</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span> <span class="o">=</span> <span class="n">model_id</span> <span class="ow">or</span> <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">is_in_databricks_model_serving_environment</span><span class="p">():</span>
             <span class="c1"># In Databricks, we set the active model ID to the environment variable</span>
             <span class="c1"># so that it can be used in the main process, since databricks serving</span>
             <span class="c1"># loads model from threads.</span>
-            <span class="k">if</span> <span class="n">is_in_databricks_model_serving_environment</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span><span class="p">:</span>
-                <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">_active_model_id_env_lock</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span> <span class="o">=</span> <span class="n">model_id</span> <span class="ow">or</span> <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span><span class="p">:</span>
+                    <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span> <span class="o">=</span> <span class="n">model_id</span> <span class="ow">or</span> <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;ActiveModelContext(model_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model_id</span><span class="si">}</span><span class="s2">, set_by_user=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">set_by_user</span><span class="si">}</span><span class="s2">)&quot;</span>
@@ -3536,7 +3539,17 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
-        <span class="n">_ACTIVE_MODEL_CONTEXT</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_active_model_context</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">is_in_databricks_model_serving_environment</span><span class="p">():</span>
+            <span class="c1"># create a new instance of ActiveModelContext to make sure the</span>
+            <span class="c1"># environment variable is updated in databricks serving environment</span>
+            <span class="n">_ACTIVE_MODEL_CONTEXT</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+                <span class="n">ActiveModelContext</span><span class="p">(</span>
+                    <span class="n">model_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_active_model_context</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span>
+                    <span class="n">set_by_user</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_active_model_context</span><span class="o">.</span><span class="n">set_by_user</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_ACTIVE_MODEL_CONTEXT</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_active_model_context</span><span class="p">)</span></div>
 
 
 <span class="c1"># NB: This function is only intended to be used publicly by users to set the</span>

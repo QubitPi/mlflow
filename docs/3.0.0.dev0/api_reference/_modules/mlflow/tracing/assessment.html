@@ -220,9 +220,10 @@
               <div itemprop="articleBody">
                 
   <h1>Source code for mlflow.tracing.assessment</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.assessment</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_FEEDBACK_NAME</span><span class="p">,</span>
     <span class="n">Assessment</span><span class="p">,</span>
     <span class="n">AssessmentError</span><span class="p">,</span>
     <span class="n">Expectation</span><span class="p">,</span>
@@ -340,6 +341,7 @@
 
 <span class="nd">@experimental</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">log_expectation</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">trace_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
@@ -348,9 +350,7 @@
     <span class="n">span_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Assessment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    DEPRECATED: Use :py:func:`~mlflow.log_assessment` instead.</span>
-
-<span class="sd">    Logs an expectation (e.g. ground truth label) to a Trace.</span>
+<span class="sd">    Logs an expectation (e.g. ground truth label) to a Trace. This API only takes keyword arguments.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        trace_id: The ID of the trace.</span>
@@ -446,23 +446,23 @@
 
 <span class="nd">@experimental</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">log_feedback</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">trace_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FEEDBACK_NAME</span><span class="p">,</span>
     <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FeedbackValueType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AssessmentSource</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AssessmentError</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Expectation</span><span class="p">,</span> <span class="n">AssessmentError</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">rationale</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">span_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Assessment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    DEPRECATED: Use :py:func:`~mlflow.log_assessment` instead.</span>
-
-<span class="sd">    Logs feedback to a Trace.</span>
+<span class="sd">    Logs feedback to a Trace. This API only takes keyword arguments.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        trace_id: The ID of the trace.</span>
-<span class="sd">        name: The name of the feedback assessment e.g., &quot;faithfulness&quot;</span>
+<span class="sd">        name: The name of the feedback assessment e.g., &quot;faithfulness&quot;. Defaults to</span>
+<span class="sd">            &quot;feedback&quot; if not provided.</span>
 <span class="sd">        value: The value of the feedback. Must be one of the following types:</span>
 <span class="sd">            - float</span>
 <span class="sd">            - int</span>
@@ -474,8 +474,9 @@
 <span class="sd">                :py:class:`~mlflow.entities.AssessmentSource`. If not provided, defaults to</span>
 <span class="sd">                CODE source type</span>
 <span class="sd">        error: An error object representing any issues encountered while computing the</span>
-<span class="sd">            feedback, e.g., a timeout error from an LLM judge. Either this or `value`</span>
-<span class="sd">            must be provided.</span>
+<span class="sd">            feedback, e.g., a timeout error from an LLM judge. Accepts an exception</span>
+<span class="sd">            object, or an :py:class:`~mlflow.entities.Expectation` object. Either</span>
+<span class="sd">            this or `value` must be provided.</span>
 <span class="sd">        rationale: The rationale / justification for the feedback.</span>
 <span class="sd">        metadata: Additional metadata for the feedback.</span>
 <span class="sd">        span_id: The ID of the span associated with the feedback, if it needs be</span>

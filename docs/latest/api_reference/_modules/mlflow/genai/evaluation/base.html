@@ -221,6 +221,7 @@
                 
   <h1>Source code for mlflow.genai.evaluation.base</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
 
@@ -494,15 +495,22 @@
     <span class="k">if</span> <span class="n">predict_fn</span><span class="p">:</span>
         <span class="n">predict_fn</span> <span class="o">=</span> <span class="n">convert_predict_fn</span><span class="p">(</span><span class="n">predict_fn</span><span class="o">=</span><span class="n">predict_fn</span><span class="p">,</span> <span class="n">sample_input</span><span class="o">=</span><span class="n">sample_input</span><span class="p">)</span>
 
-    <span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
-        <span class="n">model</span><span class="o">=</span><span class="n">predict_fn</span><span class="p">,</span>
-        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
-        <span class="n">evaluator_config</span><span class="o">=</span><span class="n">evaluation_config</span><span class="p">,</span>
-        <span class="n">extra_metrics</span><span class="o">=</span><span class="n">extra_metrics</span><span class="p">,</span>
-        <span class="n">model_type</span><span class="o">=</span><span class="n">GENAI_CONFIG_NAME</span><span class="p">,</span>
-        <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
-        <span class="n">_called_from_genai_evaluate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
+            <span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;Hint: Inferred schema contains integer column\(s\).*&quot;</span><span class="p">,</span>
+            <span class="n">category</span><span class="o">=</span><span class="ne">UserWarning</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">predict_fn</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">evaluator_config</span><span class="o">=</span><span class="n">evaluation_config</span><span class="p">,</span>
+            <span class="n">extra_metrics</span><span class="o">=</span><span class="n">extra_metrics</span><span class="p">,</span>
+            <span class="n">model_type</span><span class="o">=</span><span class="n">GENAI_CONFIG_NAME</span><span class="p">,</span>
+            <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
+            <span class="n">_called_from_genai_evaluate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">EvaluationResult</span><span class="p">(</span>
         <span class="n">run_id</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">_run_id</span><span class="p">,</span>

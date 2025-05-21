@@ -227,6 +227,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Assessment</span><span class="p">,</span> <span class="n">Feedback</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.assessment</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_FEEDBACK_NAME</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.trace</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trace</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.annotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">experimental</span>
 
@@ -267,7 +268,7 @@
                 <span class="sa">f</span><span class="s2">&quot;Feedback, or list[Feedback]. Got </span><span class="si">{</span><span class="n">result_type</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">Feedback</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">Feedback</span><span class="p">)</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">DEFAULT_FEEDBACK_NAME</span><span class="p">:</span>
             <span class="c1"># NB: Overwrite the returned feedback name to the scorer name. This is important</span>
             <span class="c1"># so we show a consistent name for the feedback regardless of whether the scorer</span>
             <span class="c1"># succeeds or fails. For example, let&#39;s say we have a scorer like this:</span>
@@ -276,13 +277,14 @@
             <span class="c1"># def my_scorer():</span>
             <span class="c1">#     # do something</span>
             <span class="c1">#     ...</span>
-            <span class="c1">#     return Feedback(name=&quot;another_name&quot;, value=True)</span>
+            <span class="c1">#     return Feedback(value=True)</span>
             <span class="c1">#</span>
-            <span class="c1"># If the scorer succeeds, the returned feedback name will be &quot;another_name&quot;.</span>
+            <span class="c1"># If the scorer succeeds, the returned feedback name will be default &quot;feedback&quot;.</span>
             <span class="c1"># However, if the scorer fails, it doesn&#39;t return a Feedback object, and we</span>
             <span class="c1"># only know the scorer name. To unify this behavior, we overwrite the feedback</span>
             <span class="c1"># name to the scorer name in the happy path.</span>
             <span class="c1"># This will not apply when the scorer returns a list of Feedback objects.</span>
+            <span class="c1"># or users explicitly specify the feedback name via Feedback constructor.</span>
             <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
         <span class="k">return</span> <span class="n">result</span></div>
@@ -481,10 +483,8 @@
 
 <span class="sd">    .. note::</span>
 
-<span class="sd">        The metric name will be determined by the scorer&#39;s name specified in the `name`</span>
-<span class="sd">        parameter or inferred from the scorer function&#39;s name. When returning a</span>
-<span class="sd">        :class:`~mlflow.entities.Feedback` object from the scorer, the name of the</span>
-<span class="sd">        feedback will **not** be used as the metric name.</span>
+<span class="sd">        The metric name will be determined by the scorer function&#39;s name or a custom name</span>
+<span class="sd">        specified in the `name` parameter for the scorer.</span>
 
 <span class="sd">    Example:</span>
 

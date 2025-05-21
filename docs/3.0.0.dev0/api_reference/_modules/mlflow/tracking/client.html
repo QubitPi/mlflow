@@ -319,6 +319,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.async_logging.run_operations</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunOperations</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.databricks_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_databricks_run_url</span><span class="p">,</span>
+    <span class="n">is_in_databricks_runtime</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.logging_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">eprint</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.mlflow_tags</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -5509,6 +5510,20 @@
 <span class="sd">            None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_validate_model_id_specified</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">get_logged_model</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">extra_error_reason</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;the logged model may exist in a different workspace, &quot;</span>
+                <span class="k">if</span> <span class="n">is_in_databricks_runtime</span><span class="p">()</span>
+                <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to get logged model with ID </span><span class="si">{</span><span class="n">model_id</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;You may not have access to the logged model, </span><span class="si">{</span><span class="n">extra_error_reason</span><span class="si">}</span><span class="s2">or the &quot;</span>
+                <span class="s2">&quot;logged model may have been deleted. If you are attempting to log parameters &quot;</span>
+                <span class="s2">&quot;to a Registered Model Version, this is not supported.&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">log_model_params</span><span class="p">(</span><span class="n">model_id</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MlflowClient.finalize_logged_model"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.finalize_logged_model">[docs]</a>    <span class="nd">@experimental</span>
@@ -5568,6 +5583,20 @@
 <span class="sd">            None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_validate_model_id_specified</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">get_logged_model</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">extra_error_reason</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;the logged model may exist in a different workspace, &quot;</span>
+                <span class="k">if</span> <span class="n">is_in_databricks_runtime</span><span class="p">()</span>
+                <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to get logged model with ID </span><span class="si">{</span><span class="n">model_id</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;You may not have access to the logged model, </span><span class="si">{</span><span class="n">extra_error_reason</span><span class="si">}</span><span class="s2">or the &quot;</span>
+                <span class="s2">&quot;logged model may have been deleted. If you are attempting to &quot;</span>
+                <span class="s2">&quot;set tags on a Registered Model Version, use `set_model_version_tag` instead.&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">set_logged_model_tags</span><span class="p">(</span><span class="n">model_id</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MlflowClient.delete_logged_model_tag"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.delete_logged_model_tag">[docs]</a>    <span class="nd">@experimental</span>

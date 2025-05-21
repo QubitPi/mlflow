@@ -1916,10 +1916,15 @@ signature if it’s not used.
 
 <dl class="py class">
 <dt id="mlflow.pyfunc.ChatModel">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">mlflow.pyfunc.</span></code><code class="sig-name descname"><span class="pre">ChatModel</span></code><a class="reference internal" href="../_modules/mlflow/pyfunc/model.html#ChatModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.ChatModel" title="Permalink to this definition"> </a></dt>
-<dd><div class="admonition tip">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">mlflow.pyfunc.</span></code><code class="sig-name descname"><span class="pre">ChatModel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/pyfunc/model.html#ChatModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.ChatModel" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">mlflow.pyfunc.model.ChatModel</span></code> is deprecated since 3.0.0. This method will be removed in a future release. Use <code class="docutils literal notranslate"><span class="pre">ResponsesAgent</span></code> instead.</p>
+</div>
+<div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Since MLflow 2.20.2, we recommend using <a class="reference internal" href="#mlflow.pyfunc.ChatAgent" title="mlflow.pyfunc.ChatAgent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChatAgent</span></code></a>
+<p>Since MLflow 3.0.0, we recommend using
+<a class="reference internal" href="#mlflow.pyfunc.ResponsesAgent" title="mlflow.pyfunc.ResponsesAgent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResponsesAgent</span></code></a>
 instead of <a class="reference internal" href="#mlflow.pyfunc.ChatModel" title="mlflow.pyfunc.ChatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChatModel</span></code></a> unless you need strict
 compatibility with the OpenAI ChatCompletion API.</p>
 </div>
@@ -2041,9 +2046,11 @@ object containing the model’s response(s), as well as other metadata.</p>
 <dl class="py class">
 <dt id="mlflow.pyfunc.ChatAgent">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">mlflow.pyfunc.</span></code><code class="sig-name descname"><span class="pre">ChatAgent</span></code><a class="reference internal" href="../_modules/mlflow/pyfunc/model.html#ChatAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.ChatAgent" title="Permalink to this definition"> </a></dt>
-<dd><div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Experimental: This class may change or be removed in a future release without warning.</p>
+<dd><div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Since MLflow 3.0.0, we recommend using
+<a class="reference internal" href="#mlflow.pyfunc.ResponsesAgent" title="mlflow.pyfunc.ResponsesAgent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResponsesAgent</span></code></a>
+instead of <a class="reference internal" href="#mlflow.pyfunc.ChatAgent" title="mlflow.pyfunc.ChatAgent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChatAgent</span></code></a>.</p>
 </div>
 <p><strong>What is the ChatAgent Interface?</strong></p>
 <p>The ChatAgent interface is a chat schema specification that has been designed for authoring
@@ -2203,7 +2210,7 @@ pass in when logging the model</p></li>
 </li>
 <li><dl>
 <dt>Input Example</dt><dd><ul>
-<li><p>Providng an input example is optional, <code class="docutils literal notranslate"><span class="pre">mlflow.types.agent.CHAT_AGENT_INPUT_EXAMPLE</span></code>
+<li><p>Providing an input example is optional, <code class="docutils literal notranslate"><span class="pre">mlflow.types.agent.CHAT_AGENT_INPUT_EXAMPLE</span></code>
 will be provided by default</p></li>
 <li><p>If you do provide an input example, ensure it’s a dict with the
 <a class="reference internal" href="mlflow.types.html#mlflow.types.agent.ChatAgentRequest" title="mlflow.types.agent.ChatAgentRequest"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChatAgentRequest</span></code></a> schema</p></li>
@@ -2369,6 +2376,96 @@ Defaults to None.</p></li>
 objects containing the model’s response(s), as well as other metadata.</p>
 </dd>
 </dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="mlflow.pyfunc.ResponsesAgent">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">mlflow.pyfunc.</span></code><code class="sig-name descname"><span class="pre">ResponsesAgent</span></code><a class="reference internal" href="../_modules/mlflow/pyfunc/model.html#ResponsesAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.ResponsesAgent" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This class may change or be removed in a future release without warning.</p>
+</div>
+<p>A base class for creating ResponsesAgent models. It can be used as a wrapper around any
+agent framework to create an agent model that can be deployed to MLflow. Has a few helper
+methods to help create output items that can be a part of a ResponsesAgentResponse or
+ResponsesAgentStreamEvent.</p>
+<p>See <a class="reference external" href="https://www.mlflow.org/docs/latest/llms/responses-agent-intro/">https://www.mlflow.org/docs/latest/llms/responses-agent-intro/</a> for more details.</p>
+<dl class="py method">
+<dt id="mlflow.pyfunc.ResponsesAgent.create_function_call_item">
+<code class="sig-name descname"><span class="pre">create_function_call_item</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">call_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arguments</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="reference internal" href="../_modules/mlflow/pyfunc/model.html#ResponsesAgent.create_function_call_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.ResponsesAgent.create_function_call_item" title="Permalink to this definition"> </a></dt>
+<dd><p>Helper method to create a dictionary conforming to the function call item schema.</p>
+<p>Read more at <a class="reference external" href="https://www.mlflow.org/docs/latest/llms/responses-agent-intro/#creating-agent-output">https://www.mlflow.org/docs/latest/llms/responses-agent-intro/#creating-agent-output</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>str</em>) – The id of the output item.</p></li>
+<li><p><strong>call_id</strong> (<em>str</em>) – The id of the function call.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – The name of the function to be called.</p></li>
+<li><p><strong>arguments</strong> (<em>str</em>) – The arguments to be passed to the function.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mlflow.pyfunc.ResponsesAgent.create_function_call_output_item">
+<code class="sig-name descname"><span class="pre">create_function_call_output_item</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">call_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="reference internal" href="../_modules/mlflow/pyfunc/model.html#ResponsesAgent.create_function_call_output_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.ResponsesAgent.create_function_call_output_item" title="Permalink to this definition"> </a></dt>
+<dd><p>Helper method to create a dictionary conforming to the function call output item
+schema.</p>
+<p>Read more at <a class="reference external" href="https://www.mlflow.org/docs/latest/llms/responses-agent-intro/#creating-agent-output">https://www.mlflow.org/docs/latest/llms/responses-agent-intro/#creating-agent-output</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>call_id</strong> (<em>str</em>) – The id of the function call.</p></li>
+<li><p><strong>output</strong> (<em>str</em>) – The output of the function call.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mlflow.pyfunc.ResponsesAgent.create_text_delta">
+<code class="sig-name descname"><span class="pre">create_text_delta</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="reference internal" href="../_modules/mlflow/pyfunc/model.html#ResponsesAgent.create_text_delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.ResponsesAgent.create_text_delta" title="Permalink to this definition"> </a></dt>
+<dd><p>Helper method to create a dictionary conforming to the text delta schema for
+streaming.</p>
+<p>Read more at <a class="reference external" href="https://www.mlflow.org/docs/latest/llms/responses-agent-intro/#streaming-agent-output">https://www.mlflow.org/docs/latest/llms/responses-agent-intro/#streaming-agent-output</a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mlflow.pyfunc.ResponsesAgent.create_text_output_item">
+<code class="sig-name descname"><span class="pre">create_text_output_item</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="reference internal" href="../_modules/mlflow/pyfunc/model.html#ResponsesAgent.create_text_output_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.ResponsesAgent.create_text_output_item" title="Permalink to this definition"> </a></dt>
+<dd><p>Helper method to create a dictionary conforming to the text output item schema.</p>
+<p>Read more at <a class="reference external" href="https://www.mlflow.org/docs/latest/llms/responses-agent-intro/#creating-agent-output">https://www.mlflow.org/docs/latest/llms/responses-agent-intro/#creating-agent-output</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> (<em>str</em>) – The text to be outputted.</p></li>
+<li><p><strong>id</strong> (<em>str</em>) – The id of the output item.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mlflow.pyfunc.ResponsesAgent.predict">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="mlflow.types.html#mlflow.types.responses.ResponsesAgentRequest" title="mlflow.types.responses.ResponsesAgentRequest"><span class="pre">mlflow.types.responses.ResponsesAgentRequest</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="mlflow.types.html#mlflow.types.responses.ResponsesAgentResponse" title="mlflow.types.responses.ResponsesAgentResponse"><span class="pre">mlflow.types.responses.ResponsesAgentResponse</span></a><a class="reference internal" href="../_modules/mlflow/pyfunc/model.html#ResponsesAgent.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.ResponsesAgent.predict" title="Permalink to this definition"> </a></dt>
+<dd><p>Given a ResponsesAgentRequest, returns a ResponsesAgentResponse.</p>
+<p>You can see example implementations at
+<a class="reference external" href="https://www.mlflow.org/docs/latest/llms/responses-agent-intro#simple-chat-example">https://www.mlflow.org/docs/latest/llms/responses-agent-intro#simple-chat-example</a> and
+<a class="reference external" href="https://www.mlflow.org/docs/latest/llms/responses-agent-intro#tool-calling-example">https://www.mlflow.org/docs/latest/llms/responses-agent-intro#tool-calling-example</a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mlflow.pyfunc.ResponsesAgent.predict_stream">
+<code class="sig-name descname"><span class="pre">predict_stream</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="mlflow.types.html#mlflow.types.responses.ResponsesAgentRequest" title="mlflow.types.responses.ResponsesAgentRequest"><span class="pre">mlflow.types.responses.ResponsesAgentRequest</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlflow.types.html#mlflow.types.responses.ResponsesAgentStreamEvent" title="mlflow.types.responses.ResponsesAgentStreamEvent"><span class="pre">mlflow.types.responses.ResponsesAgentStreamEvent</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">None</span><span class="p"><span class="pre">,</span> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/mlflow/pyfunc/model.html#ResponsesAgent.predict_stream"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.ResponsesAgent.predict_stream" title="Permalink to this definition"> </a></dt>
+<dd><p>Given a ResponsesAgentRequest, returns a generator of ResponsesAgentStreamEvent objects.</p>
+<p>See more details at
+<a class="reference external" href="https://www.mlflow.org/docs/latest/llms/responses-agent-intro#streaming-agent-output">https://www.mlflow.org/docs/latest/llms/responses-agent-intro#streaming-agent-output</a>.</p>
+<p>You can see example implementations at
+<a class="reference external" href="https://www.mlflow.org/docs/latest/llms/responses-agent-intro#simple-chat-example">https://www.mlflow.org/docs/latest/llms/responses-agent-intro#simple-chat-example</a> and
+<a class="reference external" href="https://www.mlflow.org/docs/latest/llms/responses-agent-intro#tool-calling-example">https://www.mlflow.org/docs/latest/llms/responses-agent-intro#tool-calling-example</a>.</p>
 </dd></dl>
 
 </dd></dl>

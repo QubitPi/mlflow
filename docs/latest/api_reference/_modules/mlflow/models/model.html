@@ -1339,13 +1339,13 @@
                         <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to flatten nested params: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
                         <span class="n">params_to_log</span> <span class="o">=</span> <span class="n">model_config</span>
 
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="c1"># do not log params to run if run_id is None, since that could trigger</span>
-                    <span class="c1"># a new run to be created</span>
-                    <span class="k">if</span> <span class="n">run_id</span><span class="p">:</span>
-                        <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">log_params</span><span class="p">(</span><span class="n">params_to_log</span> <span class="ow">or</span> <span class="p">{},</span> <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to log model config as params: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="c1"># do not log params to run if run_id is None, since that could trigger</span>
+                        <span class="c1"># a new run to be created</span>
+                        <span class="k">if</span> <span class="n">run_id</span><span class="p">:</span>
+                            <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">log_params</span><span class="p">(</span><span class="n">params_to_log</span> <span class="ow">or</span> <span class="p">{},</span> <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to log model config as params: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="n">registered_model_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">registered_model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">_model_registry</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">_register_model</span><span class="p">(</span>

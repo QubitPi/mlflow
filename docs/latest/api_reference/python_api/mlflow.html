@@ -4689,6 +4689,34 @@ for details)</p>
 <span id="mlflow-logged-model-fluent-python-apis"></span><h1>MLflow Logged Model APIs<a class="headerlink" href="#mlflow-logged-model-apis" title="Permalink to this headline"> </a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">mlflow</span></code> module provides a set of high-level APIs to interact with <code class="docutils literal notranslate"><span class="pre">MLflow</span> <span class="pre">Logged</span> <span class="pre">Models</span></code>.</p>
 <dl class="py function">
+<dt id="mlflow.clear_active_model">
+<code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">clear_active_model</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#clear_active_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.clear_active_model" title="Permalink to this definition"> </a></dt>
+<dd><p>Clear the active model. This will clear the active model previously set by
+<a class="reference internal" href="#mlflow.set_active_model" title="mlflow.set_active_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.set_active_model()</span></code></a> from current thread. To temporarily switch
+the active model, use <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">mlflow.set_active_model(...)</span></code> instead.</p>
+<div class="literal-block-wrapper docutils container" id="id101">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id101" title="Permalink to this code"> </a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+
+<span class="c1"># Set the active model by name</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">set_active_model</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span>
+
+<span class="c1"># Clear the active model</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">clear_active_model</span><span class="p">()</span>
+<span class="c1"># Check that the active model is None</span>
+<span class="k">assert</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_active_model_id</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span>
+
+<span class="c1"># If you want to temporarily set the active model,</span>
+<span class="c1"># use  `set_active_model` as a context manager instead</span>
+<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">set_active_model</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">active_model</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_active_model_id</span><span class="p">()</span> <span class="o">==</span> <span class="n">active_model</span><span class="o">.</span><span class="n">model_id</span>
+<span class="k">assert</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_active_model_id</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt id="mlflow.create_external_model">
 <code class="sig-prename descclassname"><span class="pre">mlflow.</span></code><code class="sig-name descname"><span class="pre">create_external_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="mlflow.entities.html#mlflow.entities.LoggedModel" title="mlflow.entities.LoggedModel"><span class="pre">LoggedModel</span></a><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#create_external_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.create_external_model" title="Permalink to this definition"> </a></dt>
 <dd><p>Create a new LoggedModel whose artifacts are stored outside of MLflow. This is useful for
@@ -4854,8 +4882,8 @@ If no model has been logged, None is returned.</p>
 <dd class="field-odd"><p>The logged model.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id101">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id101" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id102">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id102" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 
@@ -5011,8 +5039,8 @@ If no LoggedModel with the ID exists, an exception will be raised.</p></li>
 LoggedModel’s state.</p>
 </dd>
 </dl>
-<div class="literal-block-wrapper docutils container" id="id102">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id102" title="Permalink to this code"> </a></div>
+<div class="literal-block-wrapper docutils container" id="id103">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id103" title="Permalink to this code"> </a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="c1"># Set the active model by name</span>

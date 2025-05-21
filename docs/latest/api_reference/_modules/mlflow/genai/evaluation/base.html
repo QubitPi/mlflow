@@ -501,6 +501,14 @@
             <span class="n">message</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;Hint: Inferred schema contains integer column\(s\).*&quot;</span><span class="p">,</span>
             <span class="n">category</span><span class="o">=</span><span class="ne">UserWarning</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="c1"># Suppress numpy warning about ragged nested sequences. This is raised when passing</span>
+        <span class="c1"># a dataset that contains complex object to mlflow.evaluate(). MLflow converts data</span>
+        <span class="c1"># into numpy array to compute dataset digest, which triggers the warning.</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
+            <span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;Creating an ndarray from ragged nested sequences&quot;</span><span class="p">,</span>
+            <span class="n">module</span><span class="o">=</span><span class="s2">&quot;mlflow.data.evaluation_dataset&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
             <span class="n">model</span><span class="o">=</span><span class="n">predict_fn</span><span class="p">,</span>

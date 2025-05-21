@@ -3707,12 +3707,40 @@
     <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;No active model ID found in any thread.&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_reset_active_model_context</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="clear_active_model"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.clear_active_model">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">clear_active_model</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Should be called only for testing purposes.</span>
+<span class="sd">    Clear the active model. This will clear the active model previously set by</span>
+<span class="sd">    :py:func:`mlflow.set_active_model` from current thread. To temporarily switch</span>
+<span class="sd">    the active model, use ``with mlflow.set_active_model(...)`` instead.</span>
+
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">        :test:</span>
+<span class="sd">        :caption: Example</span>
+
+<span class="sd">        import mlflow</span>
+
+<span class="sd">        # Set the active model by name</span>
+<span class="sd">        mlflow.set_active_model(name=&quot;my_model&quot;)</span>
+
+<span class="sd">        # Clear the active model</span>
+<span class="sd">        mlflow.clear_active_model()</span>
+<span class="sd">        # Check that the active model is None</span>
+<span class="sd">        assert mlflow.get_active_model_id() is None</span>
+
+<span class="sd">        # If you want to temporarily set the active model,</span>
+<span class="sd">        # use  `set_active_model` as a context manager instead</span>
+<span class="sd">        with mlflow.set_active_model(name=&quot;my_model&quot;) as active_model:</span>
+<span class="sd">            assert mlflow.get_active_model_id() == active_model.model_id</span>
+<span class="sd">        assert mlflow.get_active_model_id() is None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># reset the environment variable as well to avoid it being used when creating</span>
+    <span class="c1"># ActiveModelContext</span>
+    <span class="c1"># no lock here because this environment variable is not expected to be set outside</span>
+    <span class="c1"># of databricks serving environment</span>
     <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">unset</span><span class="p">()</span>
-    <span class="n">_ACTIVE_MODEL_CONTEXT</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ActiveModelContext</span><span class="p">())</span>
+    <span class="c1"># set_by_user is False because this API clears the state of active model</span>
+    <span class="c1"># and MLflow might still set the active model in cases like `load_model`</span>
+    <span class="n">_ACTIVE_MODEL_CONTEXT</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ActiveModelContext</span><span class="p">(</span><span class="n">set_by_user</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
 </pre></div>
 
               </div>

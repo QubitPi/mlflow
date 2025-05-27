@@ -221,7 +221,8 @@
               <div itemprop="articleBody">
                 
   <h1>Source code for mlflow.entities.trace_info</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">google.protobuf.duration_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Duration</span>
@@ -234,6 +235,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.trace_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceState</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.trace_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceStatus</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.service_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceInfoV3</span> <span class="k">as</span> <span class="n">ProtoTraceInfoV3</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.constant</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceMetadataKey</span>
 
 
 <div class="viewcode-block" id="TraceInfo"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.TraceInfo">[docs]</a><span class="nd">@dataclass</span>
@@ -320,6 +322,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">execution_duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">execution_duration</span> <span class="o">=</span> <span class="n">Duration</span><span class="p">()</span>
             <span class="n">execution_duration</span><span class="o">.</span><span class="n">FromMilliseconds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">execution_duration</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">ProtoTraceInfoV3</span><span class="p">(</span>
             <span class="n">trace_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trace_id</span><span class="p">,</span>
             <span class="n">client_request_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">client_request_id</span><span class="p">,</span>
@@ -406,7 +409,28 @@
 
     <span class="nd">@status</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">TraceStatus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">to_state</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">to_state</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">token_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the aggregated token usage for the trace.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A dictionary containing the aggregated LLM token usage for the trace.</span>
+<span class="sd">            - &quot;input_tokens&quot;: The total number of input tokens.</span>
+<span class="sd">            - &quot;output_tokens&quot;: The total number of output tokens.</span>
+<span class="sd">            - &quot;total_tokens&quot;: Sum of input and output tokens.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            The token usage tracking is not supported for all LLM providers.</span>
+<span class="sd">            Refer to the MLflow Tracing documentation for which providers</span>
+<span class="sd">            support token usage tracking.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">usage_json</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">TraceMetadataKey</span><span class="o">.</span><span class="n">TOKEN_USAGE</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">usage_json</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
 </pre></div>
 
               </div>

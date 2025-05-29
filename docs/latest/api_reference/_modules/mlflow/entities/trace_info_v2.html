@@ -232,7 +232,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.service_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceInfo</span> <span class="k">as</span> <span class="n">ProtoTraceInfo</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.service_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceRequestMetadata</span> <span class="k">as</span> <span class="n">ProtoTraceRequestMetadata</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.service_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceTag</span> <span class="k">as</span> <span class="n">ProtoTraceTag</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.utils.truncation</span><span class="w"> </span><span class="kn">import</span> <span class="n">truncate_request_response_preview</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_truncate_request_metadata</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
@@ -359,8 +358,8 @@
         <span class="k">return</span> <span class="n">TraceInfo</span><span class="p">(</span>
             <span class="n">trace_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">request_id</span><span class="p">,</span>
             <span class="n">trace_location</span><span class="o">=</span><span class="n">TraceLocation</span><span class="o">.</span><span class="n">from_experiment_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">),</span>
-            <span class="n">request_preview</span><span class="o">=</span><span class="n">truncate_request_response_preview</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">),</span>
-            <span class="n">response_preview</span><span class="o">=</span><span class="n">truncate_request_response_preview</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;assistant&quot;</span><span class="p">),</span>
+            <span class="n">request_preview</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
+            <span class="n">response_preview</span><span class="o">=</span><span class="n">response</span><span class="p">,</span>
             <span class="n">request_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamp_ms</span><span class="p">,</span>
             <span class="n">execution_duration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">execution_time_ms</span><span class="p">,</span>
             <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">to_state</span><span class="p">(),</span>

@@ -347,6 +347,10 @@
 <span class="sd">          - ✅ (&gt;= 2.20.2)</span>
 <span class="sd">        * - Async Generator</span>
 <span class="sd">          - ✅ (&gt;= 2.20.2)</span>
+<span class="sd">        * - ClassMethod</span>
+<span class="sd">          - ✅ (&gt;= 3.0.0)</span>
+<span class="sd">        * - StaticMethod</span>
+<span class="sd">          - ✅ (&gt;= 3.0.0)</span>
 
 <span class="sd">    For more examples of using the @mlflow.trace decorator, including streaming/async</span>
 <span class="sd">    handling, see the `MLflow Tracing documentation &lt;https://www.mlflow.org/docs/latest/tracing/api/manual-instrumentation#decorator&gt;`_.</span>
@@ -379,14 +383,36 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isgeneratorfunction</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span> <span class="ow">or</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isasyncgenfunction</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">_wrap_generator</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">span_type</span><span class="p">,</span> <span class="n">attributes</span><span class="p">,</span> <span class="n">output_reducer</span><span class="p">)</span>
+        <span class="c1"># Check if the function is a classmethod or staticmethod</span>
+        <span class="n">is_classmethod</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="nb">classmethod</span><span class="p">)</span>
+        <span class="n">is_staticmethod</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="nb">staticmethod</span><span class="p">)</span>
+
+        <span class="c1"># Extract the original function if it&#39;s a descriptor</span>
+        <span class="n">original_fn</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="vm">__func__</span> <span class="k">if</span> <span class="n">is_classmethod</span> <span class="ow">or</span> <span class="n">is_staticmethod</span> <span class="k">else</span> <span class="n">fn</span>
+
+        <span class="c1"># Apply the appropriate wrapper to the original function</span>
+        <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isgeneratorfunction</span><span class="p">(</span><span class="n">original_fn</span><span class="p">)</span> <span class="ow">or</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isasyncgenfunction</span><span class="p">(</span><span class="n">original_fn</span><span class="p">):</span>
+            <span class="n">wrapped</span> <span class="o">=</span> <span class="n">_wrap_generator</span><span class="p">(</span>
+                <span class="n">original_fn</span><span class="p">,</span>
+                <span class="n">name</span><span class="p">,</span>
+                <span class="n">span_type</span><span class="p">,</span>
+                <span class="n">attributes</span><span class="p">,</span>
+                <span class="n">output_reducer</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">output_reducer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
                     <span class="s2">&quot;The output_reducer argument is only supported for generator functions.&quot;</span>
                 <span class="p">)</span>
-            <span class="k">return</span> <span class="n">_wrap_function</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">span_type</span><span class="p">,</span> <span class="n">attributes</span><span class="p">)</span>
+            <span class="n">wrapped</span> <span class="o">=</span> <span class="n">_wrap_function</span><span class="p">(</span><span class="n">original_fn</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">span_type</span><span class="p">,</span> <span class="n">attributes</span><span class="p">)</span>
+
+        <span class="c1"># If the original was a descriptor, wrap the result back as the same type of descriptor</span>
+        <span class="k">if</span> <span class="n">is_classmethod</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">classmethod</span><span class="p">(</span><span class="n">wrapped</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">is_staticmethod</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">wrapped</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">wrapped</span>
 
     <span class="k">return</span> <span class="n">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">)</span> <span class="k">if</span> <span class="n">func</span> <span class="k">else</span> <span class="n">decorator</span></div>
 
@@ -1058,9 +1084,40 @@
     <span class="k">return</span> <span class="n">trace_manager</span><span class="o">.</span><span class="n">get_span_from_id</span><span class="p">(</span><span class="n">request_id</span><span class="p">,</span> <span class="n">encode_span_id</span><span class="p">(</span><span class="n">otel_span</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">span_id</span><span class="p">))</span></div>
 
 
+<div class="viewcode-block" id="get_active_trace_id"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.get_active_trace_id">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_active_trace_id</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the active trace ID in the current process.</span>
+
+<span class="sd">    This function is thread-safe.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">        :test:</span>
+
+<span class="sd">        import mlflow</span>
+
+
+<span class="sd">        @mlflow.trace</span>
+<span class="sd">        def f():</span>
+<span class="sd">            trace_id = mlflow.get_active_trace_id()</span>
+<span class="sd">            print(trace_id)</span>
+
+
+<span class="sd">        f()</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The ID of the current active trace if exists, otherwise None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">active_span</span> <span class="o">=</span> <span class="n">get_current_active_span</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">active_span</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">active_span</span><span class="o">.</span><span class="n">trace_id</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
 <div class="viewcode-block" id="get_last_active_trace_id"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.get_last_active_trace_id">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_last_active_trace_id</span><span class="p">(</span><span class="n">thread_local</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the last active trace in the same process if exists.</span>
+<span class="sd">    Get the **LAST** active trace in the same process if exists.</span>
 
 <span class="sd">    .. warning::</span>
 
@@ -1111,29 +1168,81 @@
 
 <div class="viewcode-block" id="update_current_trace"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.update_current_trace">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">update_current_trace</span><span class="p">(</span>
     <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">client_request_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">request_preview</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">response_preview</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Update the current active trace with the given tags.</span>
+<span class="sd">    Update the current active trace with the given options.</span>
 
-<span class="sd">    You can use this function either within a function decorated with `@mlflow.trace` or within the</span>
-<span class="sd">    scope of the `with mlflow.start_span` context manager. If there is no active trace found, this</span>
-<span class="sd">    function will raise an exception.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        tags: A dictionary of tags to update the trace with.</span>
+<span class="sd">        client_request_id: Client supplied request ID to associate with the trace. This is</span>
+<span class="sd">            useful for linking the trace back to a specific request in your application or</span>
+<span class="sd">            external system. If None, the client request ID is not updated.</span>
+<span class="sd">        request_preview: A preview of the request to be shown in the Trace list view in the UI.</span>
+<span class="sd">            By default, MLflow will truncate the trace request naively by limiting the length.</span>
+<span class="sd">            This parameter allows you to specify a custom preview string.</span>
+<span class="sd">        response_preview: A preview of the response to be shown in the Trace list view in the UI.</span>
+<span class="sd">            By default, MLflow will truncate the trace response naively by limiting the length.</span>
+<span class="sd">            This parameter allows you to specify a custom preview string.</span>
 
-<span class="sd">    Using within a function decorated with `@mlflow.trace`:</span>
+<span class="sd">    Example:</span>
 
-<span class="sd">    .. code-block:: python</span>
+<span class="sd">        You can use this function either within a function decorated with ``@mlflow.trace`` or</span>
+<span class="sd">        within the scope of the `with mlflow.start_span` context manager. If there is no active</span>
+<span class="sd">        trace found, this function will raise an exception.</span>
 
-<span class="sd">        @mlflow.trace</span>
-<span class="sd">        def my_func(x):</span>
-<span class="sd">            mlflow.update_current_trace(tags={&quot;fruit&quot;: &quot;apple&quot;})</span>
-<span class="sd">            return x + 1</span>
+<span class="sd">        Using within a function decorated with `@mlflow.trace`:</span>
 
-<span class="sd">    Using within the `with mlflow.start_span` context manager:</span>
+<span class="sd">        .. code-block:: python</span>
 
-<span class="sd">    .. code-block:: python</span>
+<span class="sd">            @mlflow.trace</span>
+<span class="sd">            def my_func(x):</span>
+<span class="sd">                mlflow.update_current_trace(tags={&quot;fruit&quot;: &quot;apple&quot;}, client_request_id=&quot;req-12345&quot;)</span>
+<span class="sd">                return x + 1</span>
 
-<span class="sd">        with mlflow.start_span(&quot;span&quot;):</span>
-<span class="sd">            mlflow.update_current_trace(tags={&quot;fruit&quot;: &quot;apple&quot;})</span>
+<span class="sd">        Using within the ``with mlflow.start_span`` context manager:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            with mlflow.start_span(&quot;span&quot;):</span>
+<span class="sd">                mlflow.update_current_trace(tags={&quot;fruit&quot;: &quot;apple&quot;}, client_request_id=&quot;req-12345&quot;)</span>
+
+<span class="sd">        Updating request preview:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            import mlflow</span>
+<span class="sd">            import openai</span>
+
+
+<span class="sd">            @mlflow.trace</span>
+<span class="sd">            def predict(messages: list[dict]) -&gt; str:</span>
+<span class="sd">                # Customize the request preview to show the first and last messages</span>
+<span class="sd">                custom_preview = f&quot;{messages[0][&#39;content&#39;][:10]} ... {messages[-1][&#39;content&#39;][:10]}&quot;</span>
+<span class="sd">                mlflow.update_current_trace(request_preview=custom_preview)</span>
+
+<span class="sd">                # Call the model</span>
+<span class="sd">                response = openai.chat.completions.create(</span>
+<span class="sd">                    model=&quot;o4-mini&quot;,</span>
+<span class="sd">                    messages=messages,</span>
+<span class="sd">                )</span>
+
+<span class="sd">                return response.choices[0].message.content</span>
+
+
+<span class="sd">            messages = [</span>
+<span class="sd">                {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hi, how are you?&quot;},</span>
+<span class="sd">                {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;I&#39;m good, thank you!&quot;},</span>
+<span class="sd">                {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What&#39;s your name?&quot;},</span>
+<span class="sd">                # ... (long message history)</span>
+<span class="sd">                {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;Bye!&quot;},</span>
+<span class="sd">            ]</span>
+<span class="sd">            predict(messages)</span>
+
+<span class="sd">            # The request preview rendered in the UI will be:</span>
+<span class="sd">            #     &quot;Hi, how are you? ... Bye!&quot;</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">active_span</span> <span class="o">=</span> <span class="n">get_current_active_span</span><span class="p">()</span>
@@ -1160,12 +1269,31 @@
                 <span class="sa">f</span><span class="s2">&quot;Non-string items: </span><span class="si">{</span><span class="n">non_string_items</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
 
-    <span class="c1"># Update tags for the trace stored in-memory rather than directly updating the</span>
+    <span class="c1"># Update tags and client request ID for the trace stored in-memory rather than directly</span>
+    <span class="c1"># updating the backend store. The in-memory trace will be exported when it is ended.</span>
+    <span class="c1"># By doing this, we can avoid unnecessary server requests for each tag update.</span>
+    <span class="k">if</span> <span class="n">request_preview</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">request_preview</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+            <span class="s2">&quot;The `request_preview` parameter must be a string.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">response_preview</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response_preview</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+            <span class="s2">&quot;The `response_preview` parameter must be a string.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Update trace info for the trace stored in-memory rather than directly updating the</span>
     <span class="c1"># backend store. The in-memory trace will be exported when it is ended. By doing</span>
     <span class="c1"># this, we can avoid unnecessary server requests for each tag update.</span>
     <span class="n">request_id</span> <span class="o">=</span> <span class="n">active_span</span><span class="o">.</span><span class="n">request_id</span>
     <span class="k">with</span> <span class="n">InMemoryTraceManager</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span><span class="o">.</span><span class="n">get_trace</span><span class="p">(</span><span class="n">request_id</span><span class="p">)</span> <span class="k">as</span> <span class="n">trace</span><span class="p">:</span>
-        <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">{})</span></div>
+        <span class="k">if</span> <span class="n">request_preview</span><span class="p">:</span>
+            <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">request_preview</span> <span class="o">=</span> <span class="n">request_preview</span>
+        <span class="k">if</span> <span class="n">response_preview</span><span class="p">:</span>
+            <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">response_preview</span> <span class="o">=</span> <span class="n">response_preview</span>
+
+        <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">{})</span>
+        <span class="k">if</span> <span class="n">client_request_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">client_request_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">client_request_id</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="set_trace_tag"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.set_trace_tag">[docs]</a><span class="nd">@request_id_backward_compatible</span>

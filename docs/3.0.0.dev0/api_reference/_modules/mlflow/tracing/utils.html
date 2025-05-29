@@ -260,7 +260,6 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">capture_function_input_args</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Avoid capturing `self`</span>
         <span class="n">func_signature</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="n">bound_arguments</span> <span class="o">=</span> <span class="n">func_signature</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">bound_arguments</span><span class="o">.</span><span class="n">apply_defaults</span><span class="p">()</span>
@@ -268,6 +267,12 @@
         <span class="c1"># Remove `self` from bound arguments if it exists</span>
         <span class="k">if</span> <span class="n">bound_arguments</span><span class="o">.</span><span class="n">arguments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self&quot;</span><span class="p">):</span>
             <span class="k">del</span> <span class="n">bound_arguments</span><span class="o">.</span><span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;self&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Remove `cls` from bound arguments if it&#39;s the first parameter and it&#39;s a type</span>
+        <span class="c1"># This detects classmethods more reliably</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">bound_arguments</span><span class="o">.</span><span class="n">arguments</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">and</span> <span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cls&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bound_arguments</span><span class="o">.</span><span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;cls&quot;</span><span class="p">],</span> <span class="nb">type</span><span class="p">):</span>
+            <span class="k">del</span> <span class="n">bound_arguments</span><span class="o">.</span><span class="n">arguments</span><span class="p">[</span><span class="s2">&quot;cls&quot;</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">bound_arguments</span><span class="o">.</span><span class="n">arguments</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -341,7 +346,8 @@
             <span class="kn">from</span><span class="w"> </span><span class="nn">llama_index.core.chat_engine.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">StreamingAgentChatResponse</span>
 
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span>
-                <span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="n">AsyncStreamingResponse</span><span class="p">,</span> <span class="n">StreamingResponse</span><span class="p">,</span> <span class="n">StreamingAgentChatResponse</span><span class="p">)</span>
+                <span class="n">obj</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">AsyncStreamingResponse</span><span class="p">,</span> <span class="n">StreamingResponse</span><span class="p">,</span> <span class="n">StreamingAgentChatResponse</span><span class="p">),</span>
             <span class="p">):</span>
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
@@ -419,9 +425,20 @@
     <span class="n">input_tokens</span><span class="p">,</span> <span class="n">output_tokens</span><span class="p">,</span> <span class="n">total_tokens</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
     <span class="n">has_usage_data</span> <span class="o">=</span> <span class="kc">False</span>
 
+    <span class="n">span_id_to_spans</span> <span class="o">=</span> <span class="p">{</span><span class="n">span</span><span class="o">.</span><span class="n">span_id</span><span class="p">:</span> <span class="n">span</span> <span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="n">spans</span><span class="p">}</span>
     <span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="n">spans</span><span class="p">:</span>
         <span class="c1"># Get usage attribute from span</span>
         <span class="k">if</span> <span class="n">usage</span> <span class="o">:=</span> <span class="n">span</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="n">SpanAttributeKey</span><span class="o">.</span><span class="n">CHAT_USAGE</span><span class="p">):</span>
+            <span class="c1"># If the parent span is also LLM/Chat span and has the token usage data,</span>
+            <span class="c1"># it tracks the same usage data by multiple flavors e.g. LangChain ChatOpenAI</span>
+            <span class="c1"># and OpenAI tracing. We should avoid double counting the usage data.</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">span</span><span class="o">.</span><span class="n">parent_id</span>
+                <span class="ow">and</span> <span class="p">(</span><span class="n">parent_span</span> <span class="o">:=</span> <span class="n">span_id_to_spans</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">span</span><span class="o">.</span><span class="n">parent_id</span><span class="p">))</span>
+                <span class="ow">and</span> <span class="n">parent_span</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="n">SpanAttributeKey</span><span class="o">.</span><span class="n">CHAT_USAGE</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="k">continue</span>
+
             <span class="n">input_tokens</span> <span class="o">+=</span> <span class="n">usage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">TokenUsageKey</span><span class="o">.</span><span class="n">INPUT_TOKENS</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
             <span class="n">output_tokens</span> <span class="o">+=</span> <span class="n">usage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">TokenUsageKey</span><span class="o">.</span><span class="n">OUTPUT_TOKENS</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
             <span class="n">total_tokens</span> <span class="o">+=</span> <span class="n">usage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">TokenUsageKey</span><span class="o">.</span><span class="n">TOTAL_TOKENS</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>

@@ -232,8 +232,28 @@
     <span class="n">FeedbackValueType</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.assessment_source</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssessmentSource</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">TracingClient</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.annotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">experimental</span>
+
+
+<div class="viewcode-block" id="get_assessment"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.get_assessment">[docs]</a><span class="nd">@experimental</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_assessment</span><span class="p">(</span><span class="n">trace_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assessment_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Assessment</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. important::</span>
+
+<span class="sd">        This API is currently only available for `Databricks Managed MLflow &lt;https://www.databricks.com/product/managed-mlflow&gt;`_.</span>
+
+<span class="sd">    Get an assessment entity from the backend store.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        trace_id: The ID of the trace.</span>
+<span class="sd">        assessment_id: The ID of the assessment to get.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        :py:class:`~mlflow.entities.Assessment`: The Assessment object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">TracingClient</span><span class="p">()</span><span class="o">.</span><span class="n">get_assessment</span><span class="p">(</span><span class="n">trace_id</span><span class="p">,</span> <span class="n">assessment_id</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="log_assessment"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.log_assessment">[docs]</a><span class="nd">@experimental</span>
@@ -351,6 +371,10 @@
     <span class="n">span_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Assessment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. important::</span>
+
+<span class="sd">        This API is currently only available for `Databricks Managed MLflow &lt;https://www.databricks.com/product/managed-mlflow&gt;`_.</span>
+
 <span class="sd">    Logs an expectation (e.g. ground truth label) to a Trace. This API only takes keyword arguments.</span>
 
 <span class="sd">    Args:</span>
@@ -458,6 +482,10 @@
     <span class="n">span_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Assessment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. important::</span>
+
+<span class="sd">        This API is currently only available for `Databricks Managed MLflow &lt;https://www.databricks.com/product/managed-mlflow&gt;`_.</span>
+
 <span class="sd">    Logs feedback to a Trace. This API only takes keyword arguments.</span>
 
 <span class="sd">    Args:</span>
@@ -497,6 +525,59 @@
         <span class="n">span_id</span><span class="o">=</span><span class="n">span_id</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">TracingClient</span><span class="p">()</span><span class="o">.</span><span class="n">log_assessment</span><span class="p">(</span><span class="n">trace_id</span><span class="p">,</span> <span class="n">assessment</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="override_feedback"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.override_feedback">[docs]</a><span class="nd">@experimental</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">override_feedback</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">trace_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">assessment_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">FeedbackValueType</span><span class="p">,</span>
+    <span class="n">rationale</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AssessmentSource</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Assessment</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. important::</span>
+
+<span class="sd">        This API is currently only available for `Databricks Managed MLflow &lt;https://www.databricks.com/product/managed-mlflow&gt;`_.</span>
+
+<span class="sd">    Overrides an existing feedback assessment with a new assessment. This API</span>
+<span class="sd">    logs a new assessment with the `overrides` field set to the provided assessment ID.</span>
+<span class="sd">    The original assessment will be marked as invalid, but will otherwise be unchanged.</span>
+<span class="sd">    This is useful when you want to correct an assessment generated by an LLM judge,</span>
+<span class="sd">    but want to preserve the original assessment for future judge fine-tuning.</span>
+
+<span class="sd">    If you want to mutate an assessment in-place, use :py:func:`update_assessment` instead.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        trace_id: The ID of the trace.</span>
+<span class="sd">        assessment_id: The ID of the assessment to override.</span>
+<span class="sd">        value: The new value of the assessment.</span>
+<span class="sd">        rationale: The rationale of the new assessment.</span>
+<span class="sd">        source: The source of the new assessment.</span>
+<span class="sd">        metadata: Additional metadata for the new assessment.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        :py:class:`~mlflow.entities.Assessment`: The created assessment.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">old_assessment</span> <span class="o">=</span> <span class="n">get_assessment</span><span class="p">(</span><span class="n">trace_id</span><span class="p">,</span> <span class="n">assessment_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">old_assessment</span><span class="p">,</span> <span class="n">Feedback</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The assessment with ID </span><span class="si">{</span><span class="n">assessment_id</span><span class="si">}</span><span class="s2"> is not a feedback assessment.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">new_assessment</span> <span class="o">=</span> <span class="n">Feedback</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">old_assessment</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">span_id</span><span class="o">=</span><span class="n">old_assessment</span><span class="o">.</span><span class="n">span_id</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">rationale</span><span class="o">=</span><span class="n">rationale</span><span class="p">,</span>
+        <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+        <span class="n">overrides</span><span class="o">=</span><span class="n">old_assessment</span><span class="o">.</span><span class="n">assessment_id</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">TracingClient</span><span class="p">()</span><span class="o">.</span><span class="n">log_assessment</span><span class="p">(</span><span class="n">trace_id</span><span class="p">,</span> <span class="n">new_assessment</span><span class="p">)</span></div>
 </pre></div>
 
               </div>

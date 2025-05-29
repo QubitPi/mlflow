@@ -291,6 +291,11 @@
     <span class="c1"># use the`Expectation` or `Feedback` classes instead.</span>
     <span class="n">expectation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExpectationValue</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">feedback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FeedbackValue</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># The ID of the assessment which this assessment overrides.</span>
+    <span class="n">overrides</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># Whether this assessment is valid (i.e. has not been overridden).</span>
+    <span class="c1"># This should not be set by the user, it is automatically set by the backend.</span>
+    <span class="n">valid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expectation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feedback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
@@ -348,6 +353,10 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span>
             <span class="n">assessment</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overrides</span><span class="p">:</span>
+            <span class="n">assessment</span><span class="o">.</span><span class="n">overrides</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">overrides</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">assessment</span><span class="o">.</span><span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid</span>
 
         <span class="k">return</span> <span class="n">assessment</span></div>
 
@@ -445,6 +454,8 @@
         <span class="n">create_time_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">last_update_time_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">rationale</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">overrides</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">valid</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">error</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
@@ -475,6 +486,8 @@
             <span class="n">last_update_time_ms</span><span class="o">=</span><span class="n">last_update_time_ms</span><span class="p">,</span>
             <span class="n">feedback</span><span class="o">=</span><span class="n">FeedbackValue</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">error</span><span class="p">),</span>
             <span class="n">rationale</span><span class="o">=</span><span class="n">rationale</span><span class="p">,</span>
+            <span class="n">overrides</span><span class="o">=</span><span class="n">overrides</span><span class="p">,</span>
+            <span class="n">valid</span><span class="o">=</span><span class="n">valid</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
@@ -496,12 +509,14 @@
             <span class="n">rationale</span><span class="o">=</span><span class="n">proto</span><span class="o">.</span><span class="n">rationale</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
             <span class="n">span_id</span><span class="o">=</span><span class="n">proto</span><span class="o">.</span><span class="n">span_id</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">overrides</span><span class="o">=</span><span class="n">proto</span><span class="o">.</span><span class="n">overrides</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">valid</span><span class="o">=</span><span class="n">proto</span><span class="o">.</span><span class="n">valid</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">feedback</span><span class="o">.</span><span class="n">assessment_id</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">assessment_id</span> <span class="ow">or</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">feedback</span></div>
 
 <div class="viewcode-block" id="Feedback.from_dictionary"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.Feedback.from_dictionary">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_dictionary</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Expectation&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dictionary</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Feedback&quot;</span><span class="p">:</span>
         <span class="n">feedback_value</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;feedback&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">feedback_value</span><span class="p">:</span>
@@ -522,6 +537,8 @@
             <span class="n">rationale</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rationale&quot;</span><span class="p">),</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metadata&quot;</span><span class="p">),</span>
             <span class="n">span_id</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;span_id&quot;</span><span class="p">),</span>
+            <span class="n">overrides</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;overrides&quot;</span><span class="p">),</span>
+            <span class="n">valid</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;valid&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">feedback</span><span class="o">.</span><span class="n">assessment_id</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assessment_id&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">feedback</span></div>

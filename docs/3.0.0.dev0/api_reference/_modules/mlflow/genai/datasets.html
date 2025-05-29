@@ -229,18 +229,14 @@
 <span class="sd">&lt;https://api-docs.databricks.com/python/databricks-agents/latest/databricks_agent_eval.html#datasets&gt;</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">databricks.agents.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-        <span class="n">Dataset</span> <span class="k">as</span> <span class="n">EvaluationDataset</span><span class="p">,</span>
-    <span class="p">)</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-        <span class="s2">&quot;The `databricks-agents` package is required to use `mlflow.genai.datasets`. &quot;</span>
-        <span class="s2">&quot;Please install it with `pip install databricks-agents`.&quot;</span>
-    <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.datasets.evaluation_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationDataset</span>
+
+<span class="n">_ERROR_MSG</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;The `databricks-agents` package is required to use `mlflow.genai.datasets`. &quot;</span>
+    <span class="s2">&quot;Please install it with `pip install databricks-agents`.&quot;</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="create_dataset"><a class="viewcode-back" href="../../../python_api/mlflow.genai.html#mlflow.genai.create_dataset">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_dataset</span><span class="p">(</span>
@@ -252,18 +248,12 @@
 <span class="sd">        uc_table_name: The UC table name of the dataset.</span>
 <span class="sd">        experiment_id: The ID of the experiment to associate the dataset with. If not provided,</span>
 <span class="sd">            the current experiment is inferred from the environment.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        EvaluationDataset: The created dataset.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">databricks.agents.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_dataset</span>
-    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-            <span class="s2">&quot;The `databricks-agents` package is required to use `mlflow.genai.datasets`. &quot;</span>
-            <span class="s2">&quot;Please install it with `pip install databricks-agents`.&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
-    <span class="k">return</span> <span class="n">create_dataset</span><span class="p">(</span><span class="n">uc_table_name</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">)</span></div>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">_ERROR_MSG</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+    <span class="k">return</span> <span class="n">EvaluationDataset</span><span class="p">(</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">uc_table_name</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="delete_dataset"><a class="viewcode-back" href="../../../python_api/mlflow.genai.html#mlflow.genai.delete_dataset">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">delete_dataset</span><span class="p">(</span><span class="n">uc_table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -275,10 +265,7 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">databricks.agents.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">delete_dataset</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-            <span class="s2">&quot;The `databricks-agents` package is required to use `mlflow.genai.datasets`. &quot;</span>
-            <span class="s2">&quot;Please install it with `pip install databricks-agents`.&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">_ERROR_MSG</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
     <span class="k">return</span> <span class="n">delete_dataset</span><span class="p">(</span><span class="n">uc_table_name</span><span class="p">)</span></div>
 
 
@@ -287,31 +274,19 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        uc_table_name: The UC table name of the dataset.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        EvaluationDataset: The dataset.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">databricks.agents.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_dataset</span>
-    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-            <span class="s2">&quot;The `databricks-agents` package is required to use `mlflow.genai.datasets`. &quot;</span>
-            <span class="s2">&quot;Please install it with `pip install databricks-agents`.&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
-    <span class="k">return</span> <span class="n">get_dataset</span><span class="p">(</span><span class="n">uc_table_name</span><span class="p">)</span></div>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">_ERROR_MSG</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+    <span class="k">return</span> <span class="n">EvaluationDataset</span><span class="p">(</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">uc_table_name</span><span class="p">))</span></div>
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;create_dataset&quot;</span><span class="p">,</span>
     <span class="s2">&quot;delete_dataset&quot;</span><span class="p">,</span>
     <span class="s2">&quot;get_dataset&quot;</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">(</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;EvaluationDataset&quot;</span><span class="p">,</span>
-        <span class="p">]</span>
-        <span class="k">if</span> <span class="s2">&quot;EvaluationDataset&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span>
-        <span class="k">else</span> <span class="p">[]</span>
-    <span class="p">),</span>
+    <span class="s2">&quot;EvaluationDataset&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 </pre></div>
 

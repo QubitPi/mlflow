@@ -227,12 +227,13 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationDataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.evaluation.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_convert_scorer_to_legacy_metric</span><span class="p">,</span>
     <span class="n">_convert_to_legacy_eval_set</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Scorer</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers.builtin_scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">GENAI_CONFIG_NAME</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers.builtin_scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">GENAI_CONFIG_NAME</span><span class="p">,</span> <span class="n">BuiltInScorer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">valid_data_for_builtin_scorers</span><span class="p">,</span> <span class="n">validate_scorers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.utils.trace_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_predict_fn</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.evaluation.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -406,10 +407,6 @@
 
 <span class="sd">                - expectations (optional): Column containing a dictionary of ground truths.</span>
 
-<span class="sd">            The input dataframe can contain extra columns that will be directly passed to</span>
-<span class="sd">            the scorers. For example, you can pass a dataframe with `retrieved_context`</span>
-<span class="sd">            column to use a scorer that takes `retrieved_context` as a parameter.</span>
-
 <span class="sd">            For list of dictionaries, each dict should follow the above schema.</span>
 
 <span class="sd">        scorers: A list of Scorer objects that produces evaluation scores from</span>
@@ -453,30 +450,21 @@
             <span class="s2">&quot;Please set the tracking URI to Databricks.&quot;</span>
         <span class="p">)</span>
 
-    <span class="n">builtin_scorers</span><span class="p">,</span> <span class="n">custom_scorers</span> <span class="o">=</span> <span class="n">validate_scorers</span><span class="p">(</span><span class="n">scorers</span><span class="p">)</span>
+    <span class="n">is_managed_dataset</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">EvaluationDataset</span><span class="p">)</span>
 
-    <span class="n">evaluation_config</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">GENAI_CONFIG_NAME</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;metrics&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="k">for</span> <span class="n">_scorer</span> <span class="ow">in</span> <span class="n">builtin_scorers</span><span class="p">:</span>
-        <span class="n">evaluation_config</span> <span class="o">=</span> <span class="n">_scorer</span><span class="o">.</span><span class="n">update_evaluation_config</span><span class="p">(</span><span class="n">evaluation_config</span><span class="p">)</span>
-
-    <span class="n">extra_metrics</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">_scorer</span> <span class="ow">in</span> <span class="n">custom_scorers</span><span class="p">:</span>
-        <span class="n">extra_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_convert_scorer_to_legacy_metric</span><span class="p">(</span><span class="n">_scorer</span><span class="p">))</span>
-
+    <span class="n">scorers</span> <span class="o">=</span> <span class="n">validate_scorers</span><span class="p">(</span><span class="n">scorers</span><span class="p">)</span>
     <span class="c1"># convert into a pandas dataframe with current evaluation set schema</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">_convert_to_legacy_eval_set</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span> <span class="k">if</span> <span class="n">is_managed_dataset</span> <span class="k">else</span> <span class="n">_convert_to_legacy_eval_set</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
-    <span class="n">valid_data_for_builtin_scorers</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">builtin_scorers</span><span class="p">,</span> <span class="n">predict_fn</span><span class="p">)</span>
+    <span class="n">builtin_scorers</span> <span class="o">=</span> <span class="p">[</span><span class="n">scorer</span> <span class="k">for</span> <span class="n">scorer</span> <span class="ow">in</span> <span class="n">scorers</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scorer</span><span class="p">,</span> <span class="n">BuiltInScorer</span><span class="p">)]</span>
+    <span class="n">valid_data_for_builtin_scorers</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">builtin_scorers</span><span class="p">,</span> <span class="n">predict_fn</span><span class="p">)</span>
 
     <span class="c1"># &quot;request&quot; column must exist after conversion</span>
-    <span class="n">sample_input</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;request&quot;</span><span class="p">]</span>
+    <span class="n">input_key</span> <span class="o">=</span> <span class="s2">&quot;inputs&quot;</span> <span class="k">if</span> <span class="n">is_managed_dataset</span> <span class="k">else</span> <span class="s2">&quot;request&quot;</span>
+    <span class="n">sample_input</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">input_key</span><span class="p">]</span>
 
     <span class="c1"># Only check &#39;inputs&#39; column when it is not derived from the trace object</span>
-    <span class="k">if</span> <span class="s2">&quot;trace&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sample_input</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s2">&quot;trace&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sample_input</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
             <span class="s2">&quot;The &#39;inputs&#39; column must be a dictionary of field names and values. &quot;</span>
             <span class="s2">&quot;For example: {&#39;query&#39;: &#39;What is MLflow?&#39;}&quot;</span>
@@ -502,9 +490,12 @@
 
         <span class="k">return</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
             <span class="n">model</span><span class="o">=</span><span class="n">predict_fn</span><span class="p">,</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
-            <span class="n">evaluator_config</span><span class="o">=</span><span class="n">evaluation_config</span><span class="p">,</span>
-            <span class="n">extra_metrics</span><span class="o">=</span><span class="n">extra_metrics</span><span class="p">,</span>
+            <span class="c1"># If the input dataset is a managed dataset, we pass the original dataset</span>
+            <span class="c1"># to the evaluate function to preserve metadata like dataset name.</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span> <span class="k">if</span> <span class="n">is_managed_dataset</span> <span class="k">else</span> <span class="n">df</span><span class="p">,</span>
+            <span class="n">evaluator_config</span><span class="o">=</span><span class="p">{</span><span class="n">GENAI_CONFIG_NAME</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metrics&quot;</span><span class="p">:</span> <span class="p">[]}},</span>  <span class="c1"># Turn off the default metrics</span>
+            <span class="c1"># Scorers are passed to the eval harness as extra metrics</span>
+            <span class="n">extra_metrics</span><span class="o">=</span><span class="p">[</span><span class="n">_convert_scorer_to_legacy_metric</span><span class="p">(</span><span class="n">_scorer</span><span class="p">)</span> <span class="k">for</span> <span class="n">_scorer</span> <span class="ow">in</span> <span class="n">scorers</span><span class="p">],</span>
             <span class="n">model_type</span><span class="o">=</span><span class="n">GENAI_CONFIG_NAME</span><span class="p">,</span>
             <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
             <span class="n">_called_from_genai_evaluate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>

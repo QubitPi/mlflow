@@ -104,8 +104,10 @@
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
-      padding-left: 12px;
-      padding-right: 12px;
+      padding: 8px 16px;
+
+      background-color: #fff;
+      box-shadow: 0 1px 2px 0 #0000001a;
     }
 
     .logo-container {
@@ -113,21 +115,37 @@
       gap: 12px;
       flex-direction: row;
       white-space: nowrap;
+      align-items: center;
+      justify-content: center;
     }
 
     a:hover {
-      text-decoration: underline;
+      text-decoration: none;
+      color: #0194e2;
     }
   </style>
   <div class="logo-container">
-    <i data-toggle="wy-nav-top" class="wy-nav-top-menu-button db-icon db-icon-menu pull-left"></i>
+    <i
+      data-toggle="wy-nav-top"
+      class="wy-nav-top-menu-button db-icon db-icon-menu pull-left"
+    ></i>
     <a href="../../../../index.html" class="wy-nav-top-logo">
-      <img src="../../../../_static/MLflow-logo-final-black.png" alt="MLflow"/>
+      <img
+        src="../../../../_static/MLflow-logo-final-black.png"
+        alt="MLflow"
+      />
     </a>
-    <b style="overflow: hidden; text-overflow: ellipsis;">API Documentation</b>
-    <a style="overflow: hidden; text-overflow: ellipsis;" href="/docs/latest">Main Docs</a>
+    <a
+      style="overflow: hidden; text-overflow: ellipsis"
+      class="header-link"
+      href="/docs/latest"
+      >Main Docs</a
+    >
+    <span style="overflow: hidden; text-overflow: ellipsis" class="header-link"
+      >API Documentation</span
+    >
   </div>
-  <span class="version">3.0.0.dev0</span>
+  <span class="header-link">3.0.0.dev0</span>
 </div>
   </nav>
   <page>
@@ -259,7 +277,9 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PromptOptimizationResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Optimize a LLM prompt using the given dataset and evaluation metrics.</span>
-<span class="sd">    Currently, only supports MIPROv2 optimizer of DSPy.</span>
+<span class="sd">    The optimized prompt template is automatically registered as a new version of the</span>
+<span class="sd">    original prompt and included in the result.</span>
+<span class="sd">    Currently, this API only supports DSPy&#39;s MIPROv2 optimizer.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        target_llm_params: Parameters for the the LLM that prompt is optimized for.</span>
@@ -276,15 +296,15 @@
 
 <span class="sd">            The dataset must include the following columns:</span>
 
-<span class="sd">            - inputs (required): A column containing single inputs in dict format.</span>
+<span class="sd">            - inputs: A column containing single inputs in dict format.</span>
 <span class="sd">              Each input should contain keys matching the variables in the prompt template.</span>
-<span class="sd">            - expectations (optional): A column containing a dictionary</span>
+<span class="sd">            - expectations: A column containing a dictionary</span>
 <span class="sd">              of ground truths for individual output fields.</span>
 
 <span class="sd">        scorers: List of scorers that evaluate the inputs, outputs and expectations.</span>
 <span class="sd">            Note: Trace input is not supported for optimization. Use inputs, outputs and</span>
 <span class="sd">            expectations for optimization. Also, pass the `objective` argument</span>
-<span class="sd">            when using scorers with string or Assessment type outputs.</span>
+<span class="sd">            when using scorers with string or :class:`~mlflow.entities.Feedback` type outputs.</span>
 <span class="sd">        objective: A callable that computes the overall performance metric from individual</span>
 <span class="sd">            assessments. Takes a dict mapping assessment names to assessment scores and</span>
 <span class="sd">            returns a float value (greater is better).</span>
@@ -293,7 +313,7 @@
 <span class="sd">        optimizer_config: Configuration parameters for the optimizer.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        PromptOptimizationResult: The optimized prompt.</span>
+<span class="sd">        PromptOptimizationResult: The optimization result including the optimized prompt.</span>
 
 <span class="sd">    Example:</span>
 

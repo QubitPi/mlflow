@@ -104,8 +104,10 @@
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
-      padding-left: 12px;
-      padding-right: 12px;
+      padding: 8px 16px;
+
+      background-color: #fff;
+      box-shadow: 0 1px 2px 0 #0000001a;
     }
 
     .logo-container {
@@ -113,21 +115,37 @@
       gap: 12px;
       flex-direction: row;
       white-space: nowrap;
+      align-items: center;
+      justify-content: center;
     }
 
     a:hover {
-      text-decoration: underline;
+      text-decoration: none;
+      color: #0194e2;
     }
   </style>
   <div class="logo-container">
-    <i data-toggle="wy-nav-top" class="wy-nav-top-menu-button db-icon db-icon-menu pull-left"></i>
+    <i
+      data-toggle="wy-nav-top"
+      class="wy-nav-top-menu-button db-icon db-icon-menu pull-left"
+    ></i>
     <a href="../../../../index.html" class="wy-nav-top-logo">
-      <img src="../../../../_static/MLflow-logo-final-black.png" alt="MLflow"/>
+      <img
+        src="../../../../_static/MLflow-logo-final-black.png"
+        alt="MLflow"
+      />
     </a>
-    <b style="overflow: hidden; text-overflow: ellipsis;">API Documentation</b>
-    <a style="overflow: hidden; text-overflow: ellipsis;" href="/docs/latest">Main Docs</a>
+    <a
+      style="overflow: hidden; text-overflow: ellipsis"
+      class="header-link"
+      href="/docs/latest"
+      >Main Docs</a
+    >
+    <span style="overflow: hidden; text-overflow: ellipsis" class="header-link"
+      >API Documentation</span
+    >
   </div>
-  <span class="version">3.0.0.dev0</span>
+  <span class="header-link">3.0.0.dev0</span>
 </div>
   </nav>
   <page>
@@ -359,13 +377,13 @@
         <span class="c1"># If the uri is of the form runs:/...</span>
         <span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">artifact_path</span><span class="p">)</span> <span class="o">=</span> <span class="n">RunsArtifactRepository</span><span class="o">.</span><span class="n">parse_runs_uri</span><span class="p">(</span><span class="n">model_uri</span><span class="p">)</span>
         <span class="n">runs_artifact_repo</span> <span class="o">=</span> <span class="n">RunsArtifactRepository</span><span class="p">(</span><span class="n">model_uri</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">runs_artifact_repo</span><span class="o">.</span><span class="n">_is_directory</span><span class="p">(</span><span class="n">artifact_path</span><span class="p">):</span>
-            <span class="c1"># First check if run has artifact at artifact_path,</span>
-            <span class="c1"># if so use the run&#39;s artifact location as source</span>
+        <span class="c1"># List artifacts in `&lt;run_artifact_root&gt;/&lt;artifact_path&gt;` to see if the run has artifacts.</span>
+        <span class="c1"># If so use the run&#39;s artifact location as source.</span>
+        <span class="k">if</span> <span class="n">runs_artifact_repo</span><span class="o">.</span><span class="n">_is_directory</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
             <span class="n">source</span> <span class="o">=</span> <span class="n">RunsArtifactRepository</span><span class="o">.</span><span class="n">get_underlying_uri</span><span class="p">(</span><span class="n">model_uri</span><span class="p">)</span>
+        <span class="c1"># Otherwise check if there&#39;s a logged model with</span>
+        <span class="c1"># name artifact_path and source_run_id run_id</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Otherwise check if there&#39;s a logged model with</span>
-            <span class="c1"># name artifact_path and source_run_id run_id</span>
             <span class="n">run</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
             <span class="n">logged_models</span> <span class="o">=</span> <span class="n">_get_logged_models_from_run</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">artifact_path</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">logged_models</span><span class="p">:</span>

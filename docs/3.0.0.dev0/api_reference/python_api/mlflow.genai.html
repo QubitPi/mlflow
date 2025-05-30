@@ -105,8 +105,10 @@
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
-      padding-left: 12px;
-      padding-right: 12px;
+      padding: 8px 16px;
+
+      background-color: #fff;
+      box-shadow: 0 1px 2px 0 #0000001a;
     }
 
     .logo-container {
@@ -114,21 +116,37 @@
       gap: 12px;
       flex-direction: row;
       white-space: nowrap;
+      align-items: center;
+      justify-content: center;
     }
 
     a:hover {
-      text-decoration: underline;
+      text-decoration: none;
+      color: #0194e2;
     }
   </style>
   <div class="logo-container">
-    <i data-toggle="wy-nav-top" class="wy-nav-top-menu-button db-icon db-icon-menu pull-left"></i>
+    <i
+      data-toggle="wy-nav-top"
+      class="wy-nav-top-menu-button db-icon db-icon-menu pull-left"
+    ></i>
     <a href="../index.html" class="wy-nav-top-logo">
-      <img src="../_static/MLflow-logo-final-black.png" alt="MLflow"/>
+      <img
+        src="../_static/MLflow-logo-final-black.png"
+        alt="MLflow"
+      />
     </a>
-    <b style="overflow: hidden; text-overflow: ellipsis;">API Documentation</b>
-    <a style="overflow: hidden; text-overflow: ellipsis;" href="/docs/latest">Main Docs</a>
+    <a
+      style="overflow: hidden; text-overflow: ellipsis"
+      class="header-link"
+      href="/docs/latest"
+      >Main Docs</a
+    >
+    <span style="overflow: hidden; text-overflow: ellipsis" class="header-link"
+      >API Documentation</span
+    >
   </div>
-  <span class="version">3.0.0.dev0</span>
+  <span class="header-link">3.0.0.dev0</span>
 </div>
   </nav>
   <page>
@@ -535,13 +553,15 @@ environments.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlflow.genai.optimize_prompt">
-<span class="sig-prename descclassname"><span class="pre">mlflow.genai.</span></span><span class="sig-name descname"><span class="pre">optimize_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_llm_params</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">mlflow.genai.optimize.types.LLMParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Prompt</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">EvaluationDatasetTypes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scorers</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mlflow.genai.Scorer" title="mlflow.genai.Scorer"><span class="pre">Scorer</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">typing.Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="mlflow.entities.html#mlflow.entities.Feedback" title="mlflow.entities.Feedback"><span class="pre">Feedback</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlflow.entities.html#mlflow.entities.Feedback" title="mlflow.entities.Feedback"><span class="pre">Feedback</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">EvaluationDatasetTypes</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">mlflow.genai.optimize.types.OptimizerConfig</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">mlflow.genai.optimize.types.PromptOptimizationResult</span></span></span><a class="reference internal" href="../_modules/mlflow/genai/optimize/base.html#optimize_prompt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.optimize_prompt" title="Permalink to this definition"> </a></dt>
+<span class="sig-prename descclassname"><span class="pre">mlflow.genai.</span></span><span class="sig-name descname"><span class="pre">optimize_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_llm_params</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#mlflow.genai.optimize.LLMParams" title="mlflow.genai.optimize.types.LLMParams"><span class="pre">mlflow.genai.optimize.types.LLMParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Prompt</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">EvaluationDatasetTypes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scorers</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mlflow.genai.Scorer" title="mlflow.genai.Scorer"><span class="pre">Scorer</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">typing.Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="mlflow.entities.html#mlflow.entities.Feedback" title="mlflow.entities.Feedback"><span class="pre">Feedback</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlflow.entities.html#mlflow.entities.Feedback" title="mlflow.entities.Feedback"><span class="pre">Feedback</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">EvaluationDatasetTypes</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mlflow.genai.optimize.OptimizerConfig" title="mlflow.genai.optimize.types.OptimizerConfig"><span class="pre">mlflow.genai.optimize.types.OptimizerConfig</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mlflow.genai.optimize.PromptOptimizationResult" title="mlflow.genai.optimize.types.PromptOptimizationResult"><span class="pre">mlflow.genai.optimize.types.PromptOptimizationResult</span></a></span></span><a class="reference internal" href="../_modules/mlflow/genai/optimize/base.html#optimize_prompt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.optimize_prompt" title="Permalink to this definition"> </a></dt>
 <dd><div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Experimental: This function may change or be removed in a future release without warning.</p>
 </div>
 <p>Optimize a LLM prompt using the given dataset and evaluation metrics.
-Currently, only supports MIPROv2 optimizer of DSPy.</p>
+The optimized prompt template is automatically registered as a new version of the
+original prompt and included in the result.
+Currently, this API only supports DSPy’s MIPROv2 optimizer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -559,16 +579,16 @@ The data must be one of the following formats:</p>
 </ul>
 <p>The dataset must include the following columns:</p>
 <ul>
-<li><p>inputs (required): A column containing single inputs in dict format.
+<li><p>inputs: A column containing single inputs in dict format.
 Each input should contain keys matching the variables in the prompt template.</p></li>
-<li><p>expectations (optional): A column containing a dictionary
+<li><p>expectations: A column containing a dictionary
 of ground truths for individual output fields.</p></li>
 </ul>
 </p></li>
 <li><p><strong>scorers</strong> – List of scorers that evaluate the inputs, outputs and expectations.
 Note: Trace input is not supported for optimization. Use inputs, outputs and
 expectations for optimization. Also, pass the <cite>objective</cite> argument
-when using scorers with string or Assessment type outputs.</p></li>
+when using scorers with string or <a class="reference internal" href="mlflow.entities.html#mlflow.entities.Feedback" title="mlflow.entities.Feedback"><code class="xref py py-class docutils literal notranslate"><span class="pre">Feedback</span></code></a> type outputs.</p></li>
 <li><p><strong>objective</strong> – A callable that computes the overall performance metric from individual
 assessments. Takes a dict mapping assessment names to assessment scores and
 returns a float value (greater is better).</p></li>
@@ -578,10 +598,10 @@ train_data will be automatically split into training and evaluation sets.</p></l
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The optimized prompt.</p>
+<dd class="field-even"><p>The optimization result including the optimized prompt.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>PromptOptimizationResult</p>
+<dd class="field-odd"><p><a class="reference internal" href="#mlflow.genai.optimize.PromptOptimizationResult" title="mlflow.genai.optimize.PromptOptimizationResult">PromptOptimizationResult</a></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -1699,6 +1719,206 @@ the current experiment is inferred from the environment.</p></li>
 <dd class="field-odd"><p><strong>uc_table_name</strong> – The UC table name of the dataset.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<span class="target" id="module-mlflow.genai.optimize"></span><dl class="py class">
+<dt class="sig sig-object py" id="mlflow.genai.optimize.LLMParams">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlflow.genai.optimize.</span></span><span class="sig-name descname"><span class="pre">LLMParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_uri</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/genai/optimize/types.html#LLMParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.optimize.LLMParams" title="Permalink to this definition"> </a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This class may change or be removed in a future release without warning.</p>
+</div>
+<p>Parameters for configuring a LLM Model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> – Name of the model in the format <cite>&lt;provider&gt;/&lt;model name&gt;</cite>.
+For example, “openai/gpt-4” or “anthropic/claude-4”.</p></li>
+<li><p><strong>base_uri</strong> – Optional base URI for the API endpoint. If not provided,
+the default endpoint for the provider will be used.</p></li>
+<li><p><strong>temperature</strong> – Optional sampling temperature for the model’s outputs.
+Higher values (e.g., 0.8) make the output more random,
+while lower values (e.g., 0.2) make it more deterministic.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlflow.genai.optimize.LLMParams.base_uri">
+<span class="sig-name descname"><span class="pre">base_uri</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#mlflow.genai.optimize.LLMParams.base_uri" title="Permalink to this definition"> </a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlflow.genai.optimize.LLMParams.model_name">
+<span class="sig-name descname"><span class="pre">model_name</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#mlflow.genai.optimize.LLMParams.model_name" title="Permalink to this definition"> </a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlflow.genai.optimize.LLMParams.temperature">
+<span class="sig-name descname"><span class="pre">temperature</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#mlflow.genai.optimize.LLMParams.temperature" title="Permalink to this definition"> </a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlflow.genai.optimize.OptimizerConfig">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlflow.genai.optimize.</span></span><span class="sig-name descname"><span class="pre">OptimizerConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">num_instruction_candidates:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">8</span></em>, <em class="sig-param"><span class="pre">max_few_show_examples:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">3</span></em>, <em class="sig-param"><span class="pre">num_threads:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">optimizer_llm:</span> <span class="pre">Optional[mlflow.genai.optimize.types.LLMParams]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">algorithm:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'DSPy/MIPROv2'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/genai/optimize/types.html#OptimizerConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig" title="Permalink to this definition"> </a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This class may change or be removed in a future release without warning.</p>
+</div>
+<p>Configuration for prompt optimization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_instruction_candidates</strong> – Number of candidate instructions to generate
+during each optimization iteration. Higher values may lead to better
+results but increase optimization time. Default: 8</p></li>
+<li><p><strong>max_few_show_examples</strong> – Maximum number of examples to show in few-shot
+demonstrations. Default: 3</p></li>
+<li><p><strong>num_threads</strong> – Number of threads to use for parallel optimization.
+Default: (number of CPU cores * 2 + 1)</p></li>
+<li><p><strong>optimizer_llm</strong> – Optional LLM parameters for the teacher model. If not provided,
+the target LLM will be used as the teacher.</p></li>
+<li><p><strong>algorithm</strong> – The optimization algorithm to use. Default: “DSPy/MIPROv2”</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlflow.genai.optimize.OptimizerConfig.algorithm">
+<span class="sig-name descname"><span class="pre">algorithm</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'DSPy/MIPROv2'</span></em><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig.algorithm" title="Permalink to this definition"> </a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlflow.genai.optimize.OptimizerConfig.max_few_show_examples">
+<span class="sig-name descname"><span class="pre">max_few_show_examples</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig.max_few_show_examples" title="Permalink to this definition"> </a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlflow.genai.optimize.OptimizerConfig.num_instruction_candidates">
+<span class="sig-name descname"><span class="pre">num_instruction_candidates</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><em class="property"> <span class="pre">=</span> <span class="pre">8</span></em><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig.num_instruction_candidates" title="Permalink to this definition"> </a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlflow.genai.optimize.OptimizerConfig.num_threads">
+<span class="sig-name descname"><span class="pre">num_threads</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig.num_threads" title="Permalink to this definition"> </a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlflow.genai.optimize.OptimizerConfig.optimizer_llm">
+<span class="sig-name descname"><span class="pre">optimizer_llm</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mlflow.genai.optimize.LLMParams" title="mlflow.genai.optimize.types.LLMParams"><span class="pre">mlflow.genai.optimize.types.LLMParams</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig.optimizer_llm" title="Permalink to this definition"> </a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlflow.genai.optimize.PromptOptimizationResult">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlflow.genai.optimize.</span></span><span class="sig-name descname"><span class="pre">PromptOptimizationResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Prompt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/genai/optimize/types.html#PromptOptimizationResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.optimize.PromptOptimizationResult" title="Permalink to this definition"> </a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This class may change or be removed in a future release without warning.</p>
+</div>
+<p>Result of the <a class="reference internal" href="#mlflow.genai.optimize_prompt" title="mlflow.genai.optimize_prompt"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.genai.optimize_prompt()</span></code></a> API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prompt</strong> – A prompt entity containing the optimized template.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlflow.genai.optimize.PromptOptimizationResult.prompt">
+<span class="sig-name descname"><span class="pre">prompt</span></span><em class="property"><span class="pre">:</span> <span class="pre">Prompt</span></em><a class="headerlink" href="#mlflow.genai.optimize.PromptOptimizationResult.prompt" title="Permalink to this definition"> </a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlflow.genai.optimize.optimize_prompt">
+<span class="sig-prename descclassname"><span class="pre">mlflow.genai.optimize.</span></span><span class="sig-name descname"><span class="pre">optimize_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_llm_params</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#mlflow.genai.optimize.LLMParams" title="mlflow.genai.optimize.types.LLMParams"><span class="pre">mlflow.genai.optimize.types.LLMParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Prompt</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">EvaluationDatasetTypes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scorers</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mlflow.genai.Scorer" title="mlflow.genai.Scorer"><span class="pre">Scorer</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">typing.Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="mlflow.entities.html#mlflow.entities.Feedback" title="mlflow.entities.Feedback"><span class="pre">Feedback</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlflow.entities.html#mlflow.entities.Feedback" title="mlflow.entities.Feedback"><span class="pre">Feedback</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">EvaluationDatasetTypes</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mlflow.genai.optimize.OptimizerConfig" title="mlflow.genai.optimize.types.OptimizerConfig"><span class="pre">mlflow.genai.optimize.types.OptimizerConfig</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mlflow.genai.optimize.PromptOptimizationResult" title="mlflow.genai.optimize.types.PromptOptimizationResult"><span class="pre">mlflow.genai.optimize.types.PromptOptimizationResult</span></a></span></span><a class="reference internal" href="../_modules/mlflow/genai/optimize/base.html#optimize_prompt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.optimize.optimize_prompt" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This function may change or be removed in a future release without warning.</p>
+</div>
+<p>Optimize a LLM prompt using the given dataset and evaluation metrics.
+The optimized prompt template is automatically registered as a new version of the
+original prompt and included in the result.
+Currently, this API only supports DSPy’s MIPROv2 optimizer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_llm_params</strong> – Parameters for the the LLM that prompt is optimized for.
+The model name must be specified in the format <cite>&lt;provider&gt;/&lt;model&gt;</cite>.</p></li>
+<li><p><strong>prompt</strong> – The URI or Prompt object of the MLflow prompt to optimize.
+The optimized prompt is registered as a new version of the prompt.</p></li>
+<li><p><strong>train_data</strong> – <p>Training dataset used for optimization.
+The data must be one of the following formats:</p>
+<ul>
+<li><p>An EvaluationDataset entity</p></li>
+<li><p>Pandas DataFrame</p></li>
+<li><p>Spark DataFrame</p></li>
+<li><p>List of dictionaries</p></li>
+</ul>
+<p>The dataset must include the following columns:</p>
+<ul>
+<li><p>inputs: A column containing single inputs in dict format.
+Each input should contain keys matching the variables in the prompt template.</p></li>
+<li><p>expectations: A column containing a dictionary
+of ground truths for individual output fields.</p></li>
+</ul>
+</p></li>
+<li><p><strong>scorers</strong> – List of scorers that evaluate the inputs, outputs and expectations.
+Note: Trace input is not supported for optimization. Use inputs, outputs and
+expectations for optimization. Also, pass the <cite>objective</cite> argument
+when using scorers with string or <a class="reference internal" href="mlflow.entities.html#mlflow.entities.Feedback" title="mlflow.entities.Feedback"><code class="xref py py-class docutils literal notranslate"><span class="pre">Feedback</span></code></a> type outputs.</p></li>
+<li><p><strong>objective</strong> – A callable that computes the overall performance metric from individual
+assessments. Takes a dict mapping assessment names to assessment scores and
+returns a float value (greater is better).</p></li>
+<li><p><strong>eval_data</strong> – Evaluation dataset with the same format as train_data. If not provided,
+train_data will be automatically split into training and evaluation sets.</p></li>
+<li><p><strong>optimizer_config</strong> – Configuration parameters for the optimizer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The optimization result including the optimized prompt.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#mlflow.genai.optimize.PromptOptimizationResult" title="mlflow.genai.optimize.PromptOptimizationResult">PromptOptimizationResult</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">scorer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptimizerConfig</span><span class="p">,</span> <span class="n">LLMParams</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;YOUR_API_KEY&quot;</span>
+
+
+<span class="nd">@scorer</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">exact_match</span><span class="p">(</span><span class="n">expectations</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">expectations</span> <span class="o">==</span> <span class="n">outputs</span>
+
+
+<span class="n">prompt</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">register_prompt</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;qa&quot;</span><span class="p">,</span>
+    <span class="n">template</span><span class="o">=</span><span class="s2">&quot;Answer the following question: {{question}}&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">optimize_prompt</span><span class="p">(</span>
+    <span class="n">target_llm_params</span><span class="o">=</span><span class="n">LLMParams</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4.1-nano&quot;</span><span class="p">),</span>
+    <span class="n">train_data</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">+1&quot;</span><span class="p">},</span> <span class="s2">&quot;expectations&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;answer&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+    <span class="p">],</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">exact_match</span><span class="p">],</span>
+    <span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="o">.</span><span class="n">uri</span><span class="p">,</span>
+    <span class="n">optimizer_config</span><span class="o">=</span><span class="n">OptimizerConfig</span><span class="p">(</span><span class="n">num_instruction_candidates</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">prompt</span><span class="o">.</span><span class="n">template</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <span class="target" id="module-mlflow.genai.judges"></span><dl class="py function">

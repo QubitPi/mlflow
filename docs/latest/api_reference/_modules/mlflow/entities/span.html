@@ -538,6 +538,10 @@
             <span class="n">end_time</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">],</span>
             <span class="n">attributes</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;attributes&quot;</span><span class="p">],</span>
             <span class="n">status</span><span class="o">=</span><span class="n">SpanStatus</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;status_code&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;status_message&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_otel_status</span><span class="p">(),</span>
+            <span class="c1"># Setting an empty resource explicitly. Otherwise OTel create a new Resource by</span>
+            <span class="c1"># Resource.create(), which introduces a significant overhead in some environments.</span>
+            <span class="c1"># https://github.com/mlflow/mlflow/issues/15625</span>
+            <span class="n">resource</span><span class="o">=</span><span class="n">_OTelResource</span><span class="o">.</span><span class="n">get_empty</span><span class="p">(),</span>
             <span class="n">events</span><span class="o">=</span><span class="p">[</span>
                 <span class="n">OTelEvent</span><span class="p">(</span>
                     <span class="n">name</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>

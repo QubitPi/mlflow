@@ -273,6 +273,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.lifecycle_stage</span><span class="w"> </span><span class="kn">import</span> <span class="n">LifecycleStage</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.environment_variables</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="p">,</span>
+    <span class="n">MLFLOW_ACTIVE_MODEL_ID</span><span class="p">,</span>
     <span class="n">MLFLOW_ENABLE_ASYNC_LOGGING</span><span class="p">,</span>
     <span class="n">MLFLOW_ENABLE_SYSTEM_METRICS_LOGGING</span><span class="p">,</span>
     <span class="n">MLFLOW_EXPERIMENT_ID</span><span class="p">,</span>
@@ -3515,7 +3516,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">set_by_user</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="c1"># use _MLFLOW_ACTIVE_MODEL_ID as the default value for model_id</span>
+        <span class="c1"># use active model ID from environment variables as the default value for model_id</span>
         <span class="c1"># so that for subprocesses the default _ACTIVE_MODEL_CONTEXT.model_id</span>
         <span class="c1"># is still valid, and we don&#39;t need to read from env var.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_by_user</span> <span class="o">=</span> <span class="n">set_by_user</span>
@@ -3524,11 +3525,11 @@
             <span class="c1"># so that it can be used in the main process, since databricks serving</span>
             <span class="c1"># loads model from threads.</span>
             <span class="k">with</span> <span class="n">_active_model_id_env_lock</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span> <span class="o">=</span> <span class="n">model_id</span> <span class="ow">or</span> <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span> <span class="o">=</span> <span class="n">model_id</span> <span class="ow">or</span> <span class="n">_get_active_model_id_from_env</span><span class="p">()</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span><span class="p">:</span>
                     <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span> <span class="o">=</span> <span class="n">model_id</span> <span class="ow">or</span> <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_id</span> <span class="o">=</span> <span class="n">model_id</span> <span class="ow">or</span> <span class="n">_get_active_model_id_from_env</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;ActiveModelContext(model_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model_id</span><span class="si">}</span><span class="s2">, set_by_user=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">set_by_user</span><span class="si">}</span><span class="s2">)&quot;</span>
@@ -3540,6 +3541,33 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_by_user</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_by_user</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_active_model_id_from_env</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the active model ID from environment variables, with proper precedence handling.</span>
+
+<span class="sd">    This utility function reads the active model ID from environment variables with the following</span>
+<span class="sd">    precedence order:</span>
+<span class="sd">    1. MLFLOW_ACTIVE_MODEL_ID (public variable) - takes precedence if set</span>
+<span class="sd">    2. _MLFLOW_ACTIVE_MODEL_ID (legacy internal variable) - used as fallback</span>
+
+<span class="sd">    Historical Context:</span>
+<span class="sd">    The _MLFLOW_ACTIVE_MODEL_ID environment variable was originally created for internal MLflow</span>
+<span class="sd">    use only. With the introduction of MLFLOW_ACTIVE_MODEL_ID as the public API, we prioritize</span>
+<span class="sd">    the public variable to encourage migration to the public interface while maintaining</span>
+<span class="sd">    backward compatibility by falling back to the legacy variable when only it is set.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The active model ID if found in environment variables, otherwise None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check public variable first to prioritize the public API</span>
+    <span class="n">public_model_id</span> <span class="o">=</span> <span class="n">MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">public_model_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">public_model_id</span>
+
+    <span class="c1"># Fallback to legacy internal variable for backward compatibility</span>
+    <span class="k">return</span> <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
 
 <span class="n">_ACTIVE_MODEL_CONTEXT</span> <span class="o">=</span> <span class="n">ThreadLocalVariable</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">ActiveModelContext</span><span class="p">())</span>
@@ -3693,8 +3721,9 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the active model ID. If no active model is set with ``set_active_model()``, the</span>
 <span class="sd">    default active model is set using model ID from the environment variable</span>
-<span class="sd">    ``_MLFLOW_ACTIVE_MODEL_ID``. If neither is set, return None.</span>
-<span class="sd">    Note that this function only get the active model ID from the current thread.</span>
+<span class="sd">    ``MLFLOW_ACTIVE_MODEL_ID`` or the legacy environment variable ``_MLFLOW_ACTIVE_MODEL_ID``.</span>
+<span class="sd">    If neither is set, return None. Note that this function only get the active model ID from the</span>
+<span class="sd">    current thread.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The active model ID if set, otherwise None.</span>
@@ -3730,7 +3759,10 @@
 <div class="viewcode-block" id="clear_active_model"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.clear_active_model">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">clear_active_model</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Clear the active model. This will clear the active model previously set by</span>
-<span class="sd">    :py:func:`mlflow.set_active_model` from current thread. To temporarily switch</span>
+<span class="sd">    :py:func:`mlflow.set_active_model` or via the ``MLFLOW_ACTIVE_MODEL_ID`` environment variable</span>
+<span class="sd">    or the ``_MLFLOW_ACTIVE_MODEL_ID`` legacy environment variable.</span>
+
+<span class="sd">    from current thread. To temporarily switch</span>
 <span class="sd">    the active model, use ``with mlflow.set_active_model(...)`` instead.</span>
 
 <span class="sd">    .. code-block:: python</span>
@@ -3753,11 +3785,11 @@
 <span class="sd">            assert mlflow.get_active_model_id() == active_model.model_id</span>
 <span class="sd">        assert mlflow.get_active_model_id() is None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># reset the environment variable as well to avoid it being used when creating</span>
+    <span class="c1"># reset the environment variables as well to avoid them being used when creating</span>
     <span class="c1"># ActiveModelContext</span>
-    <span class="c1"># no lock here because this environment variable is not expected to be set outside</span>
-    <span class="c1"># of databricks serving environment</span>
+    <span class="n">MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">unset</span><span class="p">()</span>
     <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">unset</span><span class="p">()</span>
+
     <span class="c1"># set_by_user is False because this API clears the state of active model</span>
     <span class="c1"># and MLflow might still set the active model in cases like `load_model`</span>
     <span class="n">_ACTIVE_MODEL_CONTEXT</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ActiveModelContext</span><span class="p">(</span><span class="n">set_by_user</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>

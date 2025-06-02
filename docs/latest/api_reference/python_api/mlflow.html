@@ -1438,8 +1438,9 @@ metrics of evaluating the model with the given dataset.</p>
 <span class="sig-prename descclassname"><span class="pre">mlflow.</span></span><span class="sig-name descname"><span class="pre">get_active_model_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#get_active_model_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.get_active_model_id" title="Permalink to this definition"> </a></dt>
 <dd><p>Get the active model ID. If no active model is set with <code class="docutils literal notranslate"><span class="pre">set_active_model()</span></code>, the
 default active model is set using model ID from the environment variable
-<code class="docutils literal notranslate"><span class="pre">_MLFLOW_ACTIVE_MODEL_ID</span></code>. If neither is set, return None.
-Note that this function only get the active model ID from the current thread.</p>
+<code class="docutils literal notranslate"><span class="pre">MLFLOW_ACTIVE_MODEL_ID</span></code> or the legacy environment variable <code class="docutils literal notranslate"><span class="pre">_MLFLOW_ACTIVE_MODEL_ID</span></code>.
+If neither is set, return None. Note that this function only get the active model ID from the
+current thread.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The active model ID if set, otherwise None.</p>
@@ -4863,7 +4864,9 @@ for details)</p>
 <dt class="sig sig-object py" id="mlflow.clear_active_model">
 <span class="sig-prename descclassname"><span class="pre">mlflow.</span></span><span class="sig-name descname"><span class="pre">clear_active_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#clear_active_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.clear_active_model" title="Permalink to this definition"> </a></dt>
 <dd><p>Clear the active model. This will clear the active model previously set by
-<a class="reference internal" href="#mlflow.set_active_model" title="mlflow.set_active_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.set_active_model()</span></code></a> from current thread. To temporarily switch
+<a class="reference internal" href="#mlflow.set_active_model" title="mlflow.set_active_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.set_active_model()</span></code></a> or via the <code class="docutils literal notranslate"><span class="pre">MLFLOW_ACTIVE_MODEL_ID</span></code> environment variable
+or the <code class="docutils literal notranslate"><span class="pre">_MLFLOW_ACTIVE_MODEL_ID</span></code> legacy environment variable.</p>
+<p>from current thread. To temporarily switch
 the active model, use <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">mlflow.set_active_model(...)</span></code> instead.</p>
 <div class="literal-block-wrapper docutils container" id="id103">
 <div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id103" title="Permalink to this code"> </a></div>

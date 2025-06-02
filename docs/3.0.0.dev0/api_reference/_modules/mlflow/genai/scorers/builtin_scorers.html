@@ -239,8 +239,7 @@
               <div itemprop="articleBody">
                 
   <h1>Source code for mlflow.genai.scorers.builtin_scorers</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Assessment</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.assessment</span><span class="w"> </span><span class="kn">import</span> <span class="n">Feedback</span>
@@ -254,7 +253,6 @@
     <span class="n">parse_inputs_to_str</span><span class="p">,</span>
     <span class="n">parse_output_to_str</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.databricks_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">BAD_REQUEST</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.annotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">experimental</span>
 
 <span class="n">GENAI_CONFIG_NAME</span> <span class="o">=</span> <span class="s2">&quot;databricks-agent&quot;</span>
@@ -267,25 +265,6 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">required_columns</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-
-    <span class="c1"># Avoid direct mutation of built-in scorer fields like name. Overriding the default setting must</span>
-    <span class="c1"># be done through the `with_config` method. This is because the short-hand syntax like</span>
-    <span class="c1"># `mlflow.genai.scorers.chunk_relevance` returns a single instance rather than a new instance.</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-            <span class="s2">&quot;Built-in scorer fields are immutable. Please use the `with_config` method to &quot;</span>
-            <span class="s2">&quot;get a new instance with the custom field values.&quot;</span><span class="p">,</span>
-            <span class="n">error_code</span><span class="o">=</span><span class="n">BAD_REQUEST</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">with_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BuiltInScorer&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get a new scorer instance with the given configuration, such as name, global guidelines.</span>
-
-<span class="sd">        Override this method with the appropriate config keys. This method must return the scorer</span>
-<span class="sd">        instance itself with the updated configuration.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">missing_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_columns</span> <span class="o">-</span> <span class="n">columns</span>
@@ -302,18 +281,15 @@
 <span class="sd">    You can invoke the scorer directly with a single input for testing, or pass it to</span>
 <span class="sd">    `mlflow.genai.evaluate` for running full evaluation on a dataset.</span>
 
-<span class="sd">    Use `mlflow.genai.scorers.retrieval_relevance` to get an instance of this scorer with</span>
-<span class="sd">    default setting. You can override the setting by the :py:meth:`with_config` method.</span>
-
 <span class="sd">    Example (direct usage):</span>
 
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        import mlflow</span>
-<span class="sd">        from mlflow.genai.scorers import retrieval_relevance</span>
+<span class="sd">        from mlflow.genai.scorers import RetrievalRelevance</span>
 
 <span class="sd">        trace = mlflow.get_trace(&quot;&lt;your-trace-id&gt;&quot;)</span>
-<span class="sd">        feedbacks = retrieval_relevance(trace=trace)</span>
+<span class="sd">        feedbacks = RetrievalRelevance(name=&quot;my_retrieval_relevance&quot;)(trace=trace)</span>
 <span class="sd">        print(feedbacks)</span>
 
 <span class="sd">    Example (with evaluate):</span>
@@ -323,7 +299,7 @@
 <span class="sd">        import mlflow</span>
 
 <span class="sd">        data = mlflow.search_traces(...)</span>
-<span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[retrieval_relevance])</span>
+<span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[RetrievalRelevance()])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;retrieval_relevance&quot;</span>
@@ -376,21 +352,14 @@
         <span class="n">average</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">chunk_feedbacks</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk_feedbacks</span><span class="p">)</span>
 
         <span class="n">span_level_feedback</span> <span class="o">=</span> <span class="n">Feedback</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="c1"># NB: Adding a special suffix for span-level aggregation so that UI can distinguish</span>
+            <span class="c1"># it from the chunk-level score and render it on span correctly.</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;/precision&quot;</span><span class="p">,</span>
             <span class="n">value</span><span class="o">=</span><span class="n">average</span><span class="p">,</span>
             <span class="n">source</span><span class="o">=</span><span class="n">chunk_feedbacks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
             <span class="n">span_id</span><span class="o">=</span><span class="n">span_id</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">span_level_feedback</span><span class="p">]</span> <span class="o">+</span> <span class="n">chunk_feedbacks</span>
-
-<div class="viewcode-block" id="RetrievalRelevance.with_config"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.RetrievalRelevance.with_config">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">with_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;retrieval_relevance&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RetrievalRelevance&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get a new scorer instance with a specified name.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            name: The name of the scorer. Default is &quot;retrieval_relevance&quot;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">RetrievalRelevance</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="p">[</span><span class="n">span_level_feedback</span><span class="p">]</span> <span class="o">+</span> <span class="n">chunk_feedbacks</span></div>
 
 
 <div class="viewcode-block" id="RetrievalSufficiency"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.RetrievalSufficiency">[docs]</a><span class="nd">@experimental</span>
@@ -402,18 +371,15 @@
 <span class="sd">    You can invoke the scorer directly with a single input for testing, or pass it to</span>
 <span class="sd">    `mlflow.genai.evaluate` for running full evaluation on a dataset.</span>
 
-<span class="sd">    Use `mlflow.genai.scorers.retrieval_sufficiency` to get an instance of this scorer with</span>
-<span class="sd">    default setting. You can override the setting by the :py:meth:`with_config` method.</span>
-
 <span class="sd">    Example (direct usage):</span>
 
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        import mlflow</span>
-<span class="sd">        from mlflow.genai.scorers import retrieval_sufficiency</span>
+<span class="sd">        from mlflow.genai.scorers import RetrievalSufficiency</span>
 
 <span class="sd">        trace = mlflow.get_trace(&quot;&lt;your-trace-id&gt;&quot;)</span>
-<span class="sd">        feedback = retrieval_sufficiency(trace=trace)</span>
+<span class="sd">        feedback = RetrievalSufficiency(name=&quot;my_retrieval_sufficiency&quot;)(trace=trace)</span>
 <span class="sd">        print(feedback)</span>
 
 <span class="sd">    Example (with evaluate):</span>
@@ -423,7 +389,7 @@
 <span class="sd">        import mlflow</span>
 
 <span class="sd">        data = mlflow.search_traces(...)</span>
-<span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[retrieval_sufficiency])</span>
+<span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[RetrievalSufficiency()])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;retrieval_sufficiency&quot;</span>
@@ -482,16 +448,7 @@
             <span class="n">feedback</span><span class="o">.</span><span class="n">span_id</span> <span class="o">=</span> <span class="n">span_id</span>
             <span class="n">feedbacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feedback</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">feedbacks</span>
-
-<div class="viewcode-block" id="RetrievalSufficiency.with_config"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.RetrievalSufficiency.with_config">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">with_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;retrieval_sufficiency&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RetrievalSufficiency&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get a new scorer instance with a specified name.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            name: The name of the scorer. Default is &quot;retrieval_sufficiency&quot;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">RetrievalSufficiency</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">feedbacks</span></div>
 
 
 <div class="viewcode-block" id="RetrievalGroundedness"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.RetrievalGroundedness">[docs]</a><span class="nd">@experimental</span>
@@ -503,18 +460,15 @@
 <span class="sd">    You can invoke the scorer directly with a single input for testing, or pass it to</span>
 <span class="sd">    `mlflow.genai.evaluate` for running full evaluation on a dataset.</span>
 
-<span class="sd">    Use `mlflow.genai.scorers.retrieval_groundedness` to get an instance of this scorer with</span>
-<span class="sd">    default setting. You can override the setting by the :py:meth:`with_config` method.</span>
-
 <span class="sd">    Example (direct usage):</span>
 
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        import mlflow</span>
-<span class="sd">        from mlflow.genai.scorers import retrieval_groundedness</span>
+<span class="sd">        from mlflow.genai.scorers import RetrievalGroundedness</span>
 
 <span class="sd">        trace = mlflow.get_trace(&quot;&lt;your-trace-id&gt;&quot;)</span>
-<span class="sd">        feedback = retrieval_groundedness(trace=trace)</span>
+<span class="sd">        feedback = RetrievalGroundedness(name=&quot;my_retrieval_groundedness&quot;)(trace=trace)</span>
 <span class="sd">        print(feedback)</span>
 
 <span class="sd">    Example (with evaluate):</span>
@@ -524,7 +478,7 @@
 <span class="sd">        import mlflow</span>
 
 <span class="sd">        data = mlflow.search_traces(...)</span>
-<span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[retrieval_groundedness])</span>
+<span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[RetrievalGroundedness()])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;retrieval_groundedness&quot;</span>
@@ -553,19 +507,7 @@
             <span class="p">)</span>
             <span class="n">feedback</span><span class="o">.</span><span class="n">span_id</span> <span class="o">=</span> <span class="n">span_id</span>
             <span class="n">feedbacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feedback</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">feedbacks</span>
-
-<div class="viewcode-block" id="RetrievalGroundedness.with_config"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.RetrievalGroundedness.with_config">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">with_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;retrieval_groundedness&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RetrievalGroundedness&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get a new scorer instance with a specified name.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            name: The name of the scorer. Default is &quot;retrieval_groundedness&quot;.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The updated RetrievalGroundedness scorer instance.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">RetrievalGroundedness</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">feedbacks</span></div>
 
 
 <div class="viewcode-block" id="GuidelineAdherence"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.GuidelineAdherence">[docs]</a><span class="nd">@experimental</span>
@@ -576,9 +518,6 @@
 
 <span class="sd">    You can invoke the scorer directly with a single input for testing, or pass it to</span>
 <span class="sd">    `mlflow.genai.evaluate` for running full evaluation on a dataset.</span>
-
-<span class="sd">    Use `mlflow.genai.scorers.guideline_adherence` to get an instance of this scorer with</span>
-<span class="sd">    default setting. You can override the setting by the :py:meth:`with_config` method.</span>
 
 <span class="sd">    There are two different ways to specify judges, depending on the use case:</span>
 
@@ -592,14 +531,17 @@
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        import mlflow</span>
-<span class="sd">        from mlflow.genai.scorers import guideline_adherence</span>
+<span class="sd">        from mlflow.genai.scorers import GuidelineAdherence</span>
 
 <span class="sd">        # Create a global judge</span>
-<span class="sd">        english = guideline_adherence.with_config(</span>
+<span class="sd">        english = GuidelineAdherence(</span>
 <span class="sd">            name=&quot;english_guidelines&quot;,</span>
 <span class="sd">            global_guidelines=[&quot;The response must be in English&quot;],</span>
 <span class="sd">        )</span>
-<span class="sd">        feedback = english(outputs=&quot;The capital of France is Paris.&quot;)</span>
+<span class="sd">        feedback = english(</span>
+<span class="sd">            inputs={&quot;question&quot;: &quot;What is the capital of France?&quot;},</span>
+<span class="sd">            outputs=&quot;The capital of France is Paris.&quot;,</span>
+<span class="sd">        )</span>
 <span class="sd">        print(feedback)</span>
 
 <span class="sd">    Example (with evaluate):</span>
@@ -611,13 +553,13 @@
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        import mlflow</span>
-<span class="sd">        from mlflow.genai.scorers import guideline_adherence</span>
+<span class="sd">        from mlflow.genai.scorers import GuidelineAdherence</span>
 
-<span class="sd">        english = guideline_adherence.with_config(</span>
+<span class="sd">        english = GuidelineAdherence(</span>
 <span class="sd">            name=&quot;english&quot;,</span>
 <span class="sd">            global_guidelines=[&quot;The response must be in English&quot;],</span>
 <span class="sd">        )</span>
-<span class="sd">        clarify = guideline_adherence.with_config(</span>
+<span class="sd">        clarify = GuidelineAdherence(</span>
 <span class="sd">            name=&quot;clarify&quot;,</span>
 <span class="sd">            global_guidelines=[&quot;The response must be clear, coherent, and concise&quot;],</span>
 <span class="sd">        )</span>
@@ -649,7 +591,7 @@
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        import mlflow</span>
-<span class="sd">        from mlflow.genai.scorers import guideline_adherence</span>
+<span class="sd">        from mlflow.genai.scorers import GuidelineAdherence</span>
 
 <span class="sd">        data = [</span>
 <span class="sd">            {</span>
@@ -667,7 +609,7 @@
 <span class="sd">                },</span>
 <span class="sd">            },</span>
 <span class="sd">        ]</span>
-<span class="sd">        mlflow.genai.evaluate(data=data, scorers=[guideline_adherence])</span>
+<span class="sd">        mlflow.genai.evaluate(data=data, scorers=[GuidelineAdherence()])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;guideline_adherence&quot;</span>
@@ -683,6 +625,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
         <span class="n">outputs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
         <span class="n">expectations</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Assessment</span><span class="p">:</span>
@@ -690,6 +633,7 @@
 <span class="sd">        Evaluate adherence to specified guidelines.</span>
 
 <span class="sd">        Args:</span>
+<span class="sd">            inputs: A dictionary of input data, e.g. {&quot;question&quot;: &quot;What is the capital of France?&quot;}.</span>
 <span class="sd">            outputs: The response from the model, e.g. &quot;The capital of France is Paris.&quot;</span>
 <span class="sd">            expectations: A dictionary of expectations for the response. This must contain either</span>
 <span class="sd">                `guidelines` key, which is used to evaluate the response against the guidelines</span>
@@ -704,45 +648,17 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">guidelines</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
                 <span class="s2">&quot;Guidelines must be specified either in the `expectations` parameter or &quot;</span>
-                <span class="s2">&quot;by the `with_config` method of the scorer.&quot;</span>
+                <span class="s2">&quot;by the `global_guidelines` attribute of the scorer.&quot;</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">judges</span><span class="o">.</span><span class="n">meets_guidelines</span><span class="p">(</span>
             <span class="n">guidelines</span><span class="o">=</span><span class="n">guidelines</span><span class="p">,</span>
-            <span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="n">outputs</span><span class="p">},</span>
+            <span class="n">context</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="n">parse_inputs_to_str</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span>
+                <span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="n">parse_output_to_str</span><span class="p">(</span><span class="n">outputs</span><span class="p">),</span>
+            <span class="p">},</span>
             <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-        <span class="p">)</span>
-
-<div class="viewcode-block" id="GuidelineAdherence.with_config"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.GuidelineAdherence.with_config">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">with_config</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;guideline_adherence&quot;</span><span class="p">,</span>
-        <span class="n">global_guidelines</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;GuidelineAdherence&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get a new scorer instance with the given name and global guidelines.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            name: The name of the scorer. Default is &quot;guideline_adherence&quot;.</span>
-<span class="sd">            global_guidelines: A list of global guidelines to be used for evaluation.</span>
-<span class="sd">                If not provided, the scorer will use the per-row guidelines in the input dataset.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The updated GuidelineAdherence scorer instance.</span>
-
-<span class="sd">        Example:</span>
-
-<span class="sd">        .. code-block:: python</span>
-
-<span class="sd">            from mlflow.genai.scorers import guideline_adherence</span>
-
-<span class="sd">            is_english = guideline_adherence.with_config(</span>
-<span class="sd">                name=&quot;is_english&quot;, global_guidelines=[&quot;The response must be in English&quot;]</span>
-<span class="sd">            )</span>
-
-<span class="sd">            mlflow.genai.evaluate(data=data, scorers=[is_english])</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">GuidelineAdherence</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">global_guidelines</span><span class="o">=</span><span class="n">global_guidelines</span><span class="p">)</span></div></div>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="RelevanceToQuery"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.RelevanceToQuery">[docs]</a><span class="nd">@experimental</span>
@@ -754,17 +670,14 @@
 <span class="sd">    You can invoke the scorer directly with a single input for testing, or pass it to</span>
 <span class="sd">    `mlflow.genai.evaluate` for running full evaluation on a dataset.</span>
 
-<span class="sd">    Use `mlflow.genai.scorers.relevance_to_query` to get an instance of this scorer with</span>
-<span class="sd">    default setting. You can override the setting by the :py:meth:`with_config` method.</span>
-
 <span class="sd">    Example (direct usage):</span>
 
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        import mlflow</span>
-<span class="sd">        from mlflow.genai.scorers import relevance_to_query</span>
+<span class="sd">        from mlflow.genai.scorers import RelevanceToQuery</span>
 
-<span class="sd">        assessment = relevance_to_query(</span>
+<span class="sd">        assessment = RelevanceToQuery(name=&quot;my_relevance_to_query&quot;)(</span>
 <span class="sd">            inputs={&quot;question&quot;: &quot;What is the capital of France?&quot;},</span>
 <span class="sd">            outputs=&quot;The capital of France is Paris.&quot;,</span>
 <span class="sd">        )</span>
@@ -775,7 +688,7 @@
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        import mlflow</span>
-<span class="sd">        from mlflow.genai.scorers import relevance_to_query</span>
+<span class="sd">        from mlflow.genai.scorers import RelevanceToQuery</span>
 
 <span class="sd">        data = [</span>
 <span class="sd">            {</span>
@@ -783,7 +696,7 @@
 <span class="sd">                &quot;outputs&quot;: &quot;The capital of France is Paris.&quot;,</span>
 <span class="sd">            }</span>
 <span class="sd">        ]</span>
-<span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[relevance_to_query])</span>
+<span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[RelevanceToQuery()])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;relevance_to_query&quot;</span>
@@ -806,16 +719,7 @@
         <span class="n">feedback</span> <span class="o">=</span> <span class="n">judges</span><span class="o">.</span><span class="n">is_context_relevant</span><span class="p">(</span><span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">outputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="c1"># drop chunk id metadata</span>
         <span class="n">feedback</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;chunk_index&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">feedback</span>
-
-<div class="viewcode-block" id="RelevanceToQuery.with_config"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.RelevanceToQuery.with_config">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">with_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;relevance_to_query&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RelevanceToQuery&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get a new scorer instance with a specified name.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            name: The name of the scorer. Default is &quot;relevance_to_query&quot;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">RelevanceToQuery</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">feedback</span></div>
 
 
 <div class="viewcode-block" id="Safety"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.Safety">[docs]</a><span class="nd">@experimental</span>
@@ -826,17 +730,14 @@
 <span class="sd">    You can invoke the scorer directly with a single input for testing, or pass it to</span>
 <span class="sd">    `mlflow.genai.evaluate` for running full evaluation on a dataset.</span>
 
-<span class="sd">    Use `mlflow.genai.scorers.safety` to get an instance of this scorer with</span>
-<span class="sd">    default setting. You can override the setting by the :py:meth:`with_config` method.</span>
-
 <span class="sd">    Example (direct usage):</span>
 
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        import mlflow</span>
-<span class="sd">        from mlflow.genai.scorers import safety</span>
+<span class="sd">        from mlflow.genai.scorers import Safety</span>
 
-<span class="sd">        assessment = safety(outputs=&quot;The capital of France is Paris.&quot;)</span>
+<span class="sd">        assessment = Safety(name=&quot;my_safety&quot;)(outputs=&quot;The capital of France is Paris.&quot;)</span>
 <span class="sd">        print(assessment)</span>
 
 <span class="sd">    Example (with evaluate):</span>
@@ -844,7 +745,7 @@
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        import mlflow</span>
-<span class="sd">        from mlflow.genai.scorers import safety</span>
+<span class="sd">        from mlflow.genai.scorers import Safety</span>
 
 <span class="sd">        data = [</span>
 <span class="sd">            {</span>
@@ -852,7 +753,7 @@
 <span class="sd">                &quot;outputs&quot;: &quot;The capital of France is Paris.&quot;,</span>
 <span class="sd">            }</span>
 <span class="sd">        ]</span>
-<span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[safety])</span>
+<span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[Safety()])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;safety&quot;</span>
@@ -869,16 +770,7 @@
 <span class="sd">            An :py:class:`mlflow.entities.assessment.Feedback~` object with a boolean value</span>
 <span class="sd">            indicating the safety of the response.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">judges</span><span class="o">.</span><span class="n">is_safe</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">parse_output_to_str</span><span class="p">(</span><span class="n">outputs</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
-<div class="viewcode-block" id="Safety.with_config"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.Safety.with_config">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">with_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;safety&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Safety&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get a new scorer instance with a specified name.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            name: The name of the scorer. Default is &quot;safety&quot;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Safety</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">judges</span><span class="o">.</span><span class="n">is_safe</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">parse_output_to_str</span><span class="p">(</span><span class="n">outputs</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Correctness"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.Correctness">[docs]</a><span class="nd">@experimental</span>
@@ -889,17 +781,14 @@
 <span class="sd">    You can invoke the scorer directly with a single input for testing, or pass it to</span>
 <span class="sd">    `mlflow.genai.evaluate` for running full evaluation on a dataset.</span>
 
-<span class="sd">    Use `mlflow.genai.scorers.correctness` to get an instance of this scorer with</span>
-<span class="sd">    default setting. You can override the setting by the :py:meth:`with_config` method.</span>
-
 <span class="sd">    Example (direct usage):</span>
 
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        import mlflow</span>
-<span class="sd">        from mlflow.genai.scorers import correctness</span>
+<span class="sd">        from mlflow.genai.scorers import Correctness</span>
 
-<span class="sd">        assessment = correctness(</span>
+<span class="sd">        assessment = Correctness(name=&quot;my_correctness&quot;)(</span>
 <span class="sd">            inputs={</span>
 <span class="sd">                &quot;question&quot;: &quot;What is the difference between reduceByKey and groupByKey in Spark?&quot;</span>
 <span class="sd">            },</span>
@@ -919,7 +808,7 @@
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        import mlflow</span>
-<span class="sd">        from mlflow.genai.scorers import correctness</span>
+<span class="sd">        from mlflow.genai.scorers import Correctness</span>
 
 <span class="sd">        data = [</span>
 <span class="sd">            {</span>
@@ -938,7 +827,7 @@
 <span class="sd">                ],</span>
 <span class="sd">            }</span>
 <span class="sd">        ]</span>
-<span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[correctness])</span>
+<span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=[Correctness()])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;correctness&quot;</span>
@@ -989,26 +878,7 @@
             <span class="n">expected_response</span><span class="o">=</span><span class="n">expected_response</span><span class="p">,</span>
             <span class="n">expected_facts</span><span class="o">=</span><span class="n">expected_facts</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-        <span class="p">)</span>
-
-<div class="viewcode-block" id="Correctness.with_config"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.Correctness.with_config">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">with_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;correctness&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Correctness&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get a new scorer instance with a specified name.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            name: The new name of the scorer. Default is &quot;correctness&quot;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Correctness</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div></div>
-
-
-<span class="c1"># === Shorthand for getting builtin scorer instances ===</span>
-<span class="n">retrieval_groundedness</span> <span class="o">=</span> <span class="n">RetrievalGroundedness</span><span class="p">()</span>
-<span class="n">retrieval_relevance</span> <span class="o">=</span> <span class="n">RetrievalRelevance</span><span class="p">()</span>
-<span class="n">retrieval_sufficiency</span> <span class="o">=</span> <span class="n">RetrievalSufficiency</span><span class="p">()</span>
-<span class="n">guideline_adherence</span> <span class="o">=</span> <span class="n">GuidelineAdherence</span><span class="p">()</span>
-<span class="n">relevance_to_query</span> <span class="o">=</span> <span class="n">RelevanceToQuery</span><span class="p">()</span>
-<span class="n">safety</span> <span class="o">=</span> <span class="n">Safety</span><span class="p">()</span>
-<span class="n">correctness</span> <span class="o">=</span> <span class="n">Correctness</span><span class="p">()</span>
+        <span class="p">)</span></div>
 
 
 <span class="c1"># === Shorthand for all builtin RAG scorers ===</span>
@@ -1029,10 +899,10 @@
 <span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=get_rag_scorers())</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span>
-        <span class="n">retrieval_relevance</span><span class="p">,</span>
-        <span class="n">retrieval_sufficiency</span><span class="p">,</span>
-        <span class="n">retrieval_groundedness</span><span class="p">,</span>
-        <span class="n">relevance_to_query</span><span class="p">,</span>
+        <span class="n">RetrievalRelevance</span><span class="p">(),</span>
+        <span class="n">RetrievalSufficiency</span><span class="p">(),</span>
+        <span class="n">RetrievalGroundedness</span><span class="p">(),</span>
+        <span class="n">RelevanceToQuery</span><span class="p">(),</span>
     <span class="p">]</span></div>
 
 
@@ -1060,9 +930,9 @@
 <span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=get_all_scorers())</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">get_rag_scorers</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span>
-        <span class="n">guideline_adherence</span><span class="p">,</span>
-        <span class="n">safety</span><span class="p">,</span>
-        <span class="n">correctness</span><span class="p">,</span>
+        <span class="n">GuidelineAdherence</span><span class="p">(),</span>
+        <span class="n">Safety</span><span class="p">(),</span>
+        <span class="n">Correctness</span><span class="p">(),</span>
     <span class="p">]</span></div>
 
 

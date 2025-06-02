@@ -380,14 +380,14 @@ single trace object corresponding to the prediction for the row. This dataframe
 is easily obtained from the existing traces stored in MLflow, by using the
 <a class="reference internal" href="mlflow.html#mlflow.search_traces" title="mlflow.search_traces"><code class="xref py py-func docutils literal notranslate"><span class="pre">mlflow.search_traces()</span></code></a> function.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">correctness</span><span class="p">,</span> <span class="n">safety</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Correctness</span><span class="p">,</span> <span class="n">Safety</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="n">trace_df</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_traces</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;&lt;my-model-id&gt;&quot;</span><span class="p">)</span>
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
     <span class="n">data</span><span class="o">=</span><span class="n">trace_df</span><span class="p">,</span>
-    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">correctness</span><span class="p">,</span> <span class="n">safety</span><span class="p">],</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">Correctness</span><span class="p">(),</span> <span class="n">Safety</span><span class="p">()],</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -406,7 +406,7 @@ the trace object from the custom scorer function by using the <cite>trace</cite>
 <p>Alternatively, you can pass inputs, outputs, and expectations (ground truth) as
 a column in the dataframe (or equivalent list of dictionaries).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">correctness</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Correctness</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
@@ -426,7 +426,7 @@ a column in the dataframe (or equivalent list of dictionaries).</p>
 
 <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
     <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
-    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">correctness</span><span class="p">()],</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">Correctness</span><span class="p">()],</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -436,7 +436,7 @@ you can pass a callable to the <cite>predict_fn</cite> parameter. In this case, 
 pass the inputs to the <cite>predict_fn</cite> as keyword arguments. Therefore, the “inputs”
 column must be a dictionary with the parameter names as keys.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">correctness</span><span class="p">,</span> <span class="n">safety</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Correctness</span><span class="p">,</span> <span class="n">Safety</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">openai</span>
 
 <span class="c1"># Create a dataframe with input samples</span>
@@ -461,7 +461,7 @@ column must be a dictionary with the parameter names as keys.</p>
 <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
     <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
     <span class="n">predict_fn</span><span class="o">=</span><span class="n">predict_fn</span><span class="p">,</span>
-    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">correctness</span><span class="p">,</span> <span class="n">safety</span><span class="p">],</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">Correctness</span><span class="p">(),</span> <span class="n">Safety</span><span class="p">()],</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -850,13 +850,11 @@ properly with your input schema.</p>
 <p>Correctness ensures that the agent’s responses are correct and accurate.</p>
 <p>You can invoke the scorer directly with a single input for testing, or pass it to
 <cite>mlflow.genai.evaluate</cite> for running full evaluation on a dataset.</p>
-<p>Use <cite>mlflow.genai.scorers.correctness</cite> to get an instance of this scorer with
-default setting. You can override the setting by the <a class="reference internal" href="#mlflow.genai.scorers.Correctness.with_config" title="mlflow.genai.scorers.Correctness.with_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">with_config()</span></code></a> method.</p>
 <p>Example (direct usage):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">correctness</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Correctness</span>
 
-<span class="n">assessment</span> <span class="o">=</span> <span class="n">correctness</span><span class="p">(</span>
+<span class="n">assessment</span> <span class="o">=</span> <span class="n">Correctness</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_correctness&quot;</span><span class="p">)(</span>
     <span class="n">inputs</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;What is the difference between reduceByKey and groupByKey in Spark?&quot;</span>
     <span class="p">},</span>
@@ -874,7 +872,7 @@ default setting. You can override the setting by the <a class="reference interna
 </div>
 <p>Example (with evaluate):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">correctness</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Correctness</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">{</span>
@@ -893,7 +891,7 @@ default setting. You can override the setting by the <a class="reference interna
         <span class="p">],</span>
     <span class="p">}</span>
 <span class="p">]</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">correctness</span><span class="p">])</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">Correctness</span><span class="p">()])</span>
 </pre></div>
 </div>
 <dl class="py attribute">
@@ -917,17 +915,6 @@ default setting. You can override the setting by the <a class="reference interna
 <span class="sig-name descname"><span class="pre">validate_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#Correctness.validate_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.Correctness.validate_columns" title="Permalink to this definition"> </a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="mlflow.genai.scorers.Correctness.with_config">
-<span class="sig-name descname"><span class="pre">with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'correctness'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mlflow.genai.scorers.Correctness" title="mlflow.genai.scorers.builtin_scorers.Correctness"><span class="pre">mlflow.genai.scorers.builtin_scorers.Correctness</span></a></span></span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#Correctness.with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.Correctness.with_config" title="Permalink to this definition"> </a></dt>
-<dd><p>Get a new scorer instance with a specified name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> – The new name of the scorer. Default is “correctness”.</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -942,22 +929,23 @@ default setting. You can override the setting by the <a class="reference interna
 or instructions provided in the guidelines.</p>
 <p>You can invoke the scorer directly with a single input for testing, or pass it to
 <cite>mlflow.genai.evaluate</cite> for running full evaluation on a dataset.</p>
-<p>Use <cite>mlflow.genai.scorers.guideline_adherence</cite> to get an instance of this scorer with
-default setting. You can override the setting by the <a class="reference internal" href="#mlflow.genai.scorers.GuidelineAdherence.with_config" title="mlflow.genai.scorers.GuidelineAdherence.with_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">with_config()</span></code></a> method.</p>
 <p>There are two different ways to specify judges, depending on the use case:</p>
 <p><strong>1. Global Guidelines</strong></p>
 <p>If you want to evaluate all the response with a single set of guidelines, you can specify
 the guidelines in the <cite>guidelines</cite> parameter of this scorer.</p>
 <p>Example (direct usage):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">guideline_adherence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">GuidelineAdherence</span>
 
 <span class="c1"># Create a global judge</span>
-<span class="n">english</span> <span class="o">=</span> <span class="n">guideline_adherence</span><span class="o">.</span><span class="n">with_config</span><span class="p">(</span>
+<span class="n">english</span> <span class="o">=</span> <span class="n">GuidelineAdherence</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;english_guidelines&quot;</span><span class="p">,</span>
     <span class="n">global_guidelines</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;The response must be in English&quot;</span><span class="p">],</span>
 <span class="p">)</span>
-<span class="n">feedback</span> <span class="o">=</span> <span class="n">english</span><span class="p">(</span><span class="n">outputs</span><span class="o">=</span><span class="s2">&quot;The capital of France is Paris.&quot;</span><span class="p">)</span>
+<span class="n">feedback</span> <span class="o">=</span> <span class="n">english</span><span class="p">(</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;What is the capital of France?&quot;</span><span class="p">},</span>
+    <span class="n">outputs</span><span class="o">=</span><span class="s2">&quot;The capital of France is Paris.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">feedback</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -966,13 +954,13 @@ the guidelines in the <cite>guidelines</cite> parameter of this scorer.</p>
 will be uniformly applied to all the examples in the dataset. The evaluation result will
 contains two scores “english” and “clarify”.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">guideline_adherence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">GuidelineAdherence</span>
 
-<span class="n">english</span> <span class="o">=</span> <span class="n">guideline_adherence</span><span class="o">.</span><span class="n">with_config</span><span class="p">(</span>
+<span class="n">english</span> <span class="o">=</span> <span class="n">GuidelineAdherence</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;english&quot;</span><span class="p">,</span>
     <span class="n">global_guidelines</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;The response must be in English&quot;</span><span class="p">],</span>
 <span class="p">)</span>
-<span class="n">clarify</span> <span class="o">=</span> <span class="n">guideline_adherence</span><span class="o">.</span><span class="n">with_config</span><span class="p">(</span>
+<span class="n">clarify</span> <span class="o">=</span> <span class="n">GuidelineAdherence</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;clarify&quot;</span><span class="p">,</span>
     <span class="n">global_guidelines</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;The response must be clear, coherent, and concise&quot;</span><span class="p">],</span>
 <span class="p">)</span>
@@ -999,7 +987,7 @@ you can annotate a trace with “guidelines” expectation and use the trace as 
 column will be applied to each example individually. The evaluation result will contain a
 single “guideline_adherence” score.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">guideline_adherence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">GuidelineAdherence</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">{</span>
@@ -1017,7 +1005,7 @@ single “guideline_adherence” score.</p>
         <span class="p">},</span>
     <span class="p">},</span>
 <span class="p">]</span>
-<span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">guideline_adherence</span><span class="p">])</span>
+<span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">GuidelineAdherence</span><span class="p">()])</span>
 </pre></div>
 </div>
 <dl class="py attribute">
@@ -1046,34 +1034,6 @@ single “guideline_adherence” score.</p>
 <span class="sig-name descname"><span class="pre">validate_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#GuidelineAdherence.validate_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.GuidelineAdherence.validate_columns" title="Permalink to this definition"> </a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="mlflow.genai.scorers.GuidelineAdherence.with_config">
-<span class="sig-name descname"><span class="pre">with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'guideline_adherence'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_guidelines</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mlflow.genai.scorers.GuidelineAdherence" title="mlflow.genai.scorers.builtin_scorers.GuidelineAdherence"><span class="pre">mlflow.genai.scorers.builtin_scorers.GuidelineAdherence</span></a></span></span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#GuidelineAdherence.with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.GuidelineAdherence.with_config" title="Permalink to this definition"> </a></dt>
-<dd><p>Get a new scorer instance with the given name and global guidelines.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – The name of the scorer. Default is “guideline_adherence”.</p></li>
-<li><p><strong>global_guidelines</strong> – A list of global guidelines to be used for evaluation.
-If not provided, the scorer will use the per-row guidelines in the input dataset.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The updated GuidelineAdherence scorer instance.</p>
-</dd>
-</dl>
-<p>Example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">guideline_adherence</span>
-
-<span class="n">is_english</span> <span class="o">=</span> <span class="n">guideline_adherence</span><span class="o">.</span><span class="n">with_config</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;is_english&quot;</span><span class="p">,</span> <span class="n">global_guidelines</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;The response must be in English&quot;</span><span class="p">]</span>
-<span class="p">)</span>
-
-<span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">is_english</span><span class="p">])</span>
-</pre></div>
-</div>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -1088,13 +1048,11 @@ If not provided, the scorer will use the per-row guidelines in the input dataset
 deviating into unrelated topics.</p>
 <p>You can invoke the scorer directly with a single input for testing, or pass it to
 <cite>mlflow.genai.evaluate</cite> for running full evaluation on a dataset.</p>
-<p>Use <cite>mlflow.genai.scorers.relevance_to_query</cite> to get an instance of this scorer with
-default setting. You can override the setting by the <a class="reference internal" href="#mlflow.genai.scorers.RelevanceToQuery.with_config" title="mlflow.genai.scorers.RelevanceToQuery.with_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">with_config()</span></code></a> method.</p>
 <p>Example (direct usage):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">relevance_to_query</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RelevanceToQuery</span>
 
-<span class="n">assessment</span> <span class="o">=</span> <span class="n">relevance_to_query</span><span class="p">(</span>
+<span class="n">assessment</span> <span class="o">=</span> <span class="n">RelevanceToQuery</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_relevance_to_query&quot;</span><span class="p">)(</span>
     <span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;What is the capital of France?&quot;</span><span class="p">},</span>
     <span class="n">outputs</span><span class="o">=</span><span class="s2">&quot;The capital of France is Paris.&quot;</span><span class="p">,</span>
 <span class="p">)</span>
@@ -1103,7 +1061,7 @@ default setting. You can override the setting by the <a class="reference interna
 </div>
 <p>Example (with evaluate):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">relevance_to_query</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RelevanceToQuery</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">{</span>
@@ -1111,7 +1069,7 @@ default setting. You can override the setting by the <a class="reference interna
         <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="s2">&quot;The capital of France is Paris.&quot;</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">]</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">relevance_to_query</span><span class="p">])</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">RelevanceToQuery</span><span class="p">()])</span>
 </pre></div>
 </div>
 <dl class="py attribute">
@@ -1130,17 +1088,6 @@ default setting. You can override the setting by the <a class="reference interna
 <span class="sig-name descname"><span class="pre">required_columns</span></span><em class="property"><span class="pre">:</span> <span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#mlflow.genai.scorers.RelevanceToQuery.required_columns" title="Permalink to this definition"> </a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="mlflow.genai.scorers.RelevanceToQuery.with_config">
-<span class="sig-name descname"><span class="pre">with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'relevance_to_query'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mlflow.genai.scorers.RelevanceToQuery" title="mlflow.genai.scorers.builtin_scorers.RelevanceToQuery"><span class="pre">mlflow.genai.scorers.builtin_scorers.RelevanceToQuery</span></a></span></span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#RelevanceToQuery.with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.RelevanceToQuery.with_config" title="Permalink to this definition"> </a></dt>
-<dd><p>Get a new scorer instance with a specified name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> – The name of the scorer. Default is “relevance_to_query”.</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -1155,14 +1102,12 @@ default setting. You can override the setting by the <a class="reference interna
 provided in the retrieved context.</p>
 <p>You can invoke the scorer directly with a single input for testing, or pass it to
 <cite>mlflow.genai.evaluate</cite> for running full evaluation on a dataset.</p>
-<p>Use <cite>mlflow.genai.scorers.retrieval_groundedness</cite> to get an instance of this scorer with
-default setting. You can override the setting by the <a class="reference internal" href="#mlflow.genai.scorers.RetrievalGroundedness.with_config" title="mlflow.genai.scorers.RetrievalGroundedness.with_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">with_config()</span></code></a> method.</p>
 <p>Example (direct usage):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">retrieval_groundedness</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetrievalGroundedness</span>
 
 <span class="n">trace</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_trace</span><span class="p">(</span><span class="s2">&quot;&lt;your-trace-id&gt;&quot;</span><span class="p">)</span>
-<span class="n">feedback</span> <span class="o">=</span> <span class="n">retrieval_groundedness</span><span class="p">(</span><span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">)</span>
+<span class="n">feedback</span> <span class="o">=</span> <span class="n">RetrievalGroundedness</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_retrieval_groundedness&quot;</span><span class="p">)(</span><span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">feedback</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1170,7 +1115,7 @@ default setting. You can override the setting by the <a class="reference interna
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_traces</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">retrieval_groundedness</span><span class="p">])</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">RetrievalGroundedness</span><span class="p">()])</span>
 </pre></div>
 </div>
 <dl class="py attribute">
@@ -1189,20 +1134,6 @@ default setting. You can override the setting by the <a class="reference interna
 <span class="sig-name descname"><span class="pre">required_columns</span></span><em class="property"><span class="pre">:</span> <span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#mlflow.genai.scorers.RetrievalGroundedness.required_columns" title="Permalink to this definition"> </a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="mlflow.genai.scorers.RetrievalGroundedness.with_config">
-<span class="sig-name descname"><span class="pre">with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'retrieval_groundedness'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mlflow.genai.scorers.RetrievalGroundedness" title="mlflow.genai.scorers.builtin_scorers.RetrievalGroundedness"><span class="pre">mlflow.genai.scorers.builtin_scorers.RetrievalGroundedness</span></a></span></span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#RetrievalGroundedness.with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.RetrievalGroundedness.with_config" title="Permalink to this definition"> </a></dt>
-<dd><p>Get a new scorer instance with a specified name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> – The name of the scorer. Default is “retrieval_groundedness”.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The updated RetrievalGroundedness scorer instance.</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -1216,14 +1147,12 @@ default setting. You can override the setting by the <a class="reference interna
 <p>Retrieval relevance measures whether each chunk is relevant to the input request.</p>
 <p>You can invoke the scorer directly with a single input for testing, or pass it to
 <cite>mlflow.genai.evaluate</cite> for running full evaluation on a dataset.</p>
-<p>Use <cite>mlflow.genai.scorers.retrieval_relevance</cite> to get an instance of this scorer with
-default setting. You can override the setting by the <a class="reference internal" href="#mlflow.genai.scorers.RetrievalRelevance.with_config" title="mlflow.genai.scorers.RetrievalRelevance.with_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">with_config()</span></code></a> method.</p>
 <p>Example (direct usage):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">retrieval_relevance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetrievalRelevance</span>
 
 <span class="n">trace</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_trace</span><span class="p">(</span><span class="s2">&quot;&lt;your-trace-id&gt;&quot;</span><span class="p">)</span>
-<span class="n">feedbacks</span> <span class="o">=</span> <span class="n">retrieval_relevance</span><span class="p">(</span><span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">)</span>
+<span class="n">feedbacks</span> <span class="o">=</span> <span class="n">RetrievalRelevance</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_retrieval_relevance&quot;</span><span class="p">)(</span><span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">feedbacks</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1231,7 +1160,7 @@ default setting. You can override the setting by the <a class="reference interna
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_traces</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">retrieval_relevance</span><span class="p">])</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">RetrievalRelevance</span><span class="p">()])</span>
 </pre></div>
 </div>
 <dl class="py attribute">
@@ -1250,17 +1179,6 @@ default setting. You can override the setting by the <a class="reference interna
 <span class="sig-name descname"><span class="pre">required_columns</span></span><em class="property"><span class="pre">:</span> <span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#mlflow.genai.scorers.RetrievalRelevance.required_columns" title="Permalink to this definition"> </a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="mlflow.genai.scorers.RetrievalRelevance.with_config">
-<span class="sig-name descname"><span class="pre">with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'retrieval_relevance'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mlflow.genai.scorers.RetrievalRelevance" title="mlflow.genai.scorers.builtin_scorers.RetrievalRelevance"><span class="pre">mlflow.genai.scorers.builtin_scorers.RetrievalRelevance</span></a></span></span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#RetrievalRelevance.with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.RetrievalRelevance.with_config" title="Permalink to this definition"> </a></dt>
-<dd><p>Get a new scorer instance with a specified name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> – The name of the scorer. Default is “retrieval_relevance”.</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -1275,14 +1193,12 @@ default setting. You can override the setting by the <a class="reference interna
 information to generate the expected response.</p>
 <p>You can invoke the scorer directly with a single input for testing, or pass it to
 <cite>mlflow.genai.evaluate</cite> for running full evaluation on a dataset.</p>
-<p>Use <cite>mlflow.genai.scorers.retrieval_sufficiency</cite> to get an instance of this scorer with
-default setting. You can override the setting by the <a class="reference internal" href="#mlflow.genai.scorers.RetrievalSufficiency.with_config" title="mlflow.genai.scorers.RetrievalSufficiency.with_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">with_config()</span></code></a> method.</p>
 <p>Example (direct usage):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">retrieval_sufficiency</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetrievalSufficiency</span>
 
 <span class="n">trace</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_trace</span><span class="p">(</span><span class="s2">&quot;&lt;your-trace-id&gt;&quot;</span><span class="p">)</span>
-<span class="n">feedback</span> <span class="o">=</span> <span class="n">retrieval_sufficiency</span><span class="p">(</span><span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">)</span>
+<span class="n">feedback</span> <span class="o">=</span> <span class="n">RetrievalSufficiency</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_retrieval_sufficiency&quot;</span><span class="p">)(</span><span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">feedback</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1290,7 +1206,7 @@ default setting. You can override the setting by the <a class="reference interna
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_traces</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">retrieval_sufficiency</span><span class="p">])</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">RetrievalSufficiency</span><span class="p">()])</span>
 </pre></div>
 </div>
 <dl class="py attribute">
@@ -1314,17 +1230,6 @@ default setting. You can override the setting by the <a class="reference interna
 <span class="sig-name descname"><span class="pre">validate_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#RetrievalSufficiency.validate_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.RetrievalSufficiency.validate_columns" title="Permalink to this definition"> </a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="mlflow.genai.scorers.RetrievalSufficiency.with_config">
-<span class="sig-name descname"><span class="pre">with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'retrieval_sufficiency'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mlflow.genai.scorers.RetrievalSufficiency" title="mlflow.genai.scorers.builtin_scorers.RetrievalSufficiency"><span class="pre">mlflow.genai.scorers.builtin_scorers.RetrievalSufficiency</span></a></span></span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#RetrievalSufficiency.with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.RetrievalSufficiency.with_config" title="Permalink to this definition"> </a></dt>
-<dd><p>Get a new scorer instance with a specified name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> – The name of the scorer. Default is “retrieval_sufficiency”.</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -1338,19 +1243,17 @@ default setting. You can override the setting by the <a class="reference interna
 <p>Safety ensures that the agent’s responses do not contain harmful, offensive, or toxic content.</p>
 <p>You can invoke the scorer directly with a single input for testing, or pass it to
 <cite>mlflow.genai.evaluate</cite> for running full evaluation on a dataset.</p>
-<p>Use <cite>mlflow.genai.scorers.safety</cite> to get an instance of this scorer with
-default setting. You can override the setting by the <a class="reference internal" href="#mlflow.genai.scorers.Safety.with_config" title="mlflow.genai.scorers.Safety.with_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">with_config()</span></code></a> method.</p>
 <p>Example (direct usage):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">safety</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Safety</span>
 
-<span class="n">assessment</span> <span class="o">=</span> <span class="n">safety</span><span class="p">(</span><span class="n">outputs</span><span class="o">=</span><span class="s2">&quot;The capital of France is Paris.&quot;</span><span class="p">)</span>
+<span class="n">assessment</span> <span class="o">=</span> <span class="n">Safety</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_safety&quot;</span><span class="p">)(</span><span class="n">outputs</span><span class="o">=</span><span class="s2">&quot;The capital of France is Paris.&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">assessment</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Example (with evaluate):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">safety</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Safety</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">{</span>
@@ -1358,7 +1261,7 @@ default setting. You can override the setting by the <a class="reference interna
         <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="s2">&quot;The capital of France is Paris.&quot;</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">]</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">safety</span><span class="p">])</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">Safety</span><span class="p">()])</span>
 </pre></div>
 </div>
 <dl class="py attribute">
@@ -1376,17 +1279,6 @@ default setting. You can override the setting by the <a class="reference interna
 <dt class="sig sig-object py" id="mlflow.genai.scorers.Safety.required_columns">
 <span class="sig-name descname"><span class="pre">required_columns</span></span><em class="property"><span class="pre">:</span> <span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#mlflow.genai.scorers.Safety.required_columns" title="Permalink to this definition"> </a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="mlflow.genai.scorers.Safety.with_config">
-<span class="sig-name descname"><span class="pre">with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'safety'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mlflow.genai.scorers.Safety" title="mlflow.genai.scorers.builtin_scorers.Safety"><span class="pre">mlflow.genai.scorers.builtin_scorers.Safety</span></a></span></span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#Safety.with_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.Safety.with_config" title="Permalink to this definition"> </a></dt>
-<dd><p>Get a new scorer instance with a specified name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> – The name of the scorer. Default is “safety”.</p>
-</dd>
-</dl>
-</dd></dl>
 
 </dd></dl>
 
@@ -1763,7 +1655,7 @@ while lower values (e.g., 0.2) make it more deterministic.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="mlflow.genai.optimize.OptimizerConfig">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlflow.genai.optimize.</span></span><span class="sig-name descname"><span class="pre">OptimizerConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">num_instruction_candidates:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">8</span></em>, <em class="sig-param"><span class="pre">max_few_show_examples:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">3</span></em>, <em class="sig-param"><span class="pre">num_threads:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">optimizer_llm:</span> <span class="pre">Optional[mlflow.genai.optimize.types.LLMParams]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">algorithm:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'DSPy/MIPROv2'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/genai/optimize/types.html#OptimizerConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig" title="Permalink to this definition"> </a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlflow.genai.optimize.</span></span><span class="sig-name descname"><span class="pre">OptimizerConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">num_instruction_candidates:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">8</span></em>, <em class="sig-param"><span class="pre">max_few_show_examples:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">3</span></em>, <em class="sig-param"><span class="pre">num_threads:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">optimizer_llm:</span> <span class="pre">Optional[mlflow.genai.optimize.types.LLMParams]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">algorithm:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'DSPy/MIPROv2'</span></em>, <em class="sig-param"><span class="pre">verbose:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/genai/optimize/types.html#OptimizerConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig" title="Permalink to this definition"> </a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1783,6 +1675,7 @@ Default: (number of CPU cores * 2 + 1)</p></li>
 <li><p><strong>optimizer_llm</strong> – Optional LLM parameters for the teacher model. If not provided,
 the target LLM will be used as the teacher.</p></li>
 <li><p><strong>algorithm</strong> – The optimization algorithm to use. Default: “DSPy/MIPROv2”</p></li>
+<li><p><strong>verbose</strong> – Whether to show optimizer logs during optimization. Default: False</p></li>
 </ul>
 </dd>
 </dl>
@@ -1809,6 +1702,11 @@ the target LLM will be used as the teacher.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlflow.genai.optimize.OptimizerConfig.optimizer_llm">
 <span class="sig-name descname"><span class="pre">optimizer_llm</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mlflow.genai.optimize.LLMParams" title="mlflow.genai.optimize.types.LLMParams"><span class="pre">mlflow.genai.optimize.types.LLMParams</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig.optimizer_llm" title="Permalink to this definition"> </a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlflow.genai.optimize.OptimizerConfig.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig.verbose" title="Permalink to this definition"> </a></dt>
 <dd></dd></dl>
 
 </dd></dl>

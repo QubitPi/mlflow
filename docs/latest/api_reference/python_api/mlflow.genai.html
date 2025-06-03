@@ -1309,25 +1309,6 @@ information to generate the expected response.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="mlflow.genai.scorers.get_rag_scorers">
-<span class="sig-prename descclassname"><span class="pre">mlflow.genai.scorers.</span></span><span class="sig-name descname"><span class="pre">get_rag_scorers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">mlflow.genai.scorers.builtin_scorers.BuiltInScorer</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/mlflow/genai/scorers/builtin_scorers.html#get_rag_scorers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.get_rag_scorers" title="Permalink to this definition"> </a></dt>
-<dd><div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Experimental: This function may change or be removed in a future release without warning.</p>
-</div>
-<p>Returns a list of built-in scorers for evaluating RAG models. Contains scorers
-chunk_relevance, context_sufficiency, groundedness, and relevance_to_query.</p>
-<p>Example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_rag_scorers</span>
-
-<span class="n">data</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_traces</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">genai</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="n">get_rag_scorers</span><span class="p">())</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="mlflow.genai.scorers.scorer">
 <span class="sig-prename descclassname"><span class="pre">mlflow.genai.scorers.</span></span><span class="sig-name descname"><span class="pre">scorer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregations</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">typing.Union</span><span class="p"><span class="pre">[</span></span><span class="pre">typing.Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">'min'</span><span class="p"><span class="pre">,</span> </span><span class="pre">'max'</span><span class="p"><span class="pre">,</span> </span><span class="pre">'mean'</span><span class="p"><span class="pre">,</span> </span><span class="pre">'median'</span><span class="p"><span class="pre">,</span> </span><span class="pre">'variance'</span><span class="p"><span class="pre">,</span> </span><span class="pre">'p90'</span><span class="p"><span class="pre">,</span> </span><span class="pre">'p99'</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">typing.Callable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/genai/scorers/base.html#scorer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.scorers.scorer" title="Permalink to this definition"> </a></dt>
 <dd><div class="admonition note">
@@ -1655,7 +1636,7 @@ while lower values (e.g., 0.2) make it more deterministic.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="mlflow.genai.optimize.OptimizerConfig">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlflow.genai.optimize.</span></span><span class="sig-name descname"><span class="pre">OptimizerConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">num_instruction_candidates:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">8</span></em>, <em class="sig-param"><span class="pre">max_few_show_examples:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">3</span></em>, <em class="sig-param"><span class="pre">num_threads:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">optimizer_llm:</span> <span class="pre">Optional[mlflow.genai.optimize.types.LLMParams]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">algorithm:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'DSPy/MIPROv2'</span></em>, <em class="sig-param"><span class="pre">verbose:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/genai/optimize/types.html#OptimizerConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig" title="Permalink to this definition"> </a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlflow.genai.optimize.</span></span><span class="sig-name descname"><span class="pre">OptimizerConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">num_instruction_candidates:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">6</span></em>, <em class="sig-param"><span class="pre">max_few_show_examples:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">6</span></em>, <em class="sig-param"><span class="pre">num_threads:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">optimizer_llm:</span> <span class="pre">Optional[mlflow.genai.optimize.types.LLMParams]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">algorithm:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'DSPy/MIPROv2'</span></em>, <em class="sig-param"><span class="pre">verbose:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/genai/optimize/types.html#OptimizerConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig" title="Permalink to this definition"> </a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1667,9 +1648,9 @@ while lower values (e.g., 0.2) make it more deterministic.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_instruction_candidates</strong> – Number of candidate instructions to generate
 during each optimization iteration. Higher values may lead to better
-results but increase optimization time. Default: 8</p></li>
+results but increase optimization time. Default: 6</p></li>
 <li><p><strong>max_few_show_examples</strong> – Maximum number of examples to show in few-shot
-demonstrations. Default: 3</p></li>
+demonstrations. Default: 6</p></li>
 <li><p><strong>num_threads</strong> – Number of threads to use for parallel optimization.
 Default: (number of CPU cores * 2 + 1)</p></li>
 <li><p><strong>optimizer_llm</strong> – Optional LLM parameters for the teacher model. If not provided,
@@ -1686,12 +1667,12 @@ the target LLM will be used as the teacher.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlflow.genai.optimize.OptimizerConfig.max_few_show_examples">
-<span class="sig-name descname"><span class="pre">max_few_show_examples</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig.max_few_show_examples" title="Permalink to this definition"> </a></dt>
+<span class="sig-name descname"><span class="pre">max_few_show_examples</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><em class="property"> <span class="pre">=</span> <span class="pre">6</span></em><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig.max_few_show_examples" title="Permalink to this definition"> </a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlflow.genai.optimize.OptimizerConfig.num_instruction_candidates">
-<span class="sig-name descname"><span class="pre">num_instruction_candidates</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><em class="property"> <span class="pre">=</span> <span class="pre">8</span></em><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig.num_instruction_candidates" title="Permalink to this definition"> </a></dt>
+<span class="sig-name descname"><span class="pre">num_instruction_candidates</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><em class="property"> <span class="pre">=</span> <span class="pre">6</span></em><a class="headerlink" href="#mlflow.genai.optimize.OptimizerConfig.num_instruction_candidates" title="Permalink to this definition"> </a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">

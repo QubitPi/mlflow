@@ -2320,6 +2320,11 @@
 <span class="sd">        When using Databricks Connect to connect to a remote Databricks cluster,</span>
 <span class="sd">        the Databricks cluster must use runtime version &gt;= 16, and if the &#39;prebuilt_env_uri&#39;</span>
 <span class="sd">        parameter is set, &#39;env_manager&#39; parameter should not be set.</span>
+<span class="sd">        the Databricks cluster must use runtime version &gt;= 15.4,and if the &#39;prebuilt_env_uri&#39;</span>
+<span class="sd">        parameter is set, &#39;env_manager&#39; parameter should not be set,</span>
+<span class="sd">        if the runtime version is 15.4 and the cluster is</span>
+<span class="sd">        standard access mode, the cluster need to configure</span>
+<span class="sd">        &quot;spark.databricks.safespark.archive.artifact.unpack.disabled&quot; to &quot;false&quot;.</span>
 
 <span class="sd">    .. note::</span>
 <span class="sd">        Please be aware that when operating in Databricks Serverless,</span>
@@ -2510,11 +2515,27 @@
             <span class="p">)</span>
         <span class="c1"># `udf_sandbox_info.runtime_version` format is like &#39;&lt;major_version&gt;.&lt;minor_version&gt;&#39;.</span>
         <span class="c1"># It&#39;s safe to apply `Version`.</span>
-        <span class="k">if</span> <span class="n">Version</span><span class="p">(</span><span class="n">udf_sandbox_info</span><span class="o">.</span><span class="n">runtime_version</span><span class="p">)</span><span class="o">.</span><span class="n">major</span> <span class="o">&lt;</span> <span class="mi">16</span><span class="p">:</span>
+        <span class="n">dbr_runtime_version</span> <span class="o">=</span> <span class="n">Version</span><span class="p">(</span><span class="n">udf_sandbox_info</span><span class="o">.</span><span class="n">runtime_version</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dbr_runtime_version</span> <span class="o">&lt;</span> <span class="n">Version</span><span class="p">(</span><span class="s2">&quot;15.4&quot;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
                 <span class="s2">&quot;Using &#39;mlflow.pyfunc.spark_udf&#39; in Databricks Serverless or in remote &quot;</span>
-                <span class="s2">&quot;Databricks Connect requires Databricks runtime version &gt;= 16.0.&quot;</span>
+                <span class="s2">&quot;Databricks Connect requires Databricks runtime version &gt;= 15.4.&quot;</span>
             <span class="p">)</span>
+        <span class="k">if</span> <span class="n">dbr_runtime_version</span> <span class="o">==</span> <span class="n">Version</span><span class="p">(</span><span class="s2">&quot;15.4&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;spark.databricks.pyspark.udf.isolation.enabled&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
+                <span class="c1"># The connected cluster is standard (shared) mode.</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                        <span class="s2">&quot;spark.databricks.safespark.archive.artifact.unpack.disabled&quot;</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                    <span class="o">!=</span> <span class="s2">&quot;false&quot;</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                        <span class="s2">&quot;Using &#39;mlflow.pyfunc.spark_udf&#39; in remote Databricks Connect requires &quot;</span>
+                        <span class="s2">&quot;Databricks cluster setting &quot;</span>
+                        <span class="s2">&quot;&#39;spark.databricks.safespark.archive.artifact.unpack.disabled&#39; to &#39;false&#39; &quot;</span>
+                        <span class="s2">&quot;if Databricks runtime version is 15.4&quot;</span>
+                    <span class="p">)</span>
 
     <span class="n">nfs_root_dir</span> <span class="o">=</span> <span class="n">get_nfs_cache_root_dir</span><span class="p">()</span>
     <span class="n">should_use_nfs</span> <span class="o">=</span> <span class="n">nfs_root_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>

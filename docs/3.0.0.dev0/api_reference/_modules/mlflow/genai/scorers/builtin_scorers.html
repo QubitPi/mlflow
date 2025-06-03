@@ -716,10 +716,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">request</span> <span class="o">=</span> <span class="n">parse_inputs_to_str</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
         <span class="c1"># NB: Reuse is_context_relevant judge to evaluate response</span>
-        <span class="n">feedback</span> <span class="o">=</span> <span class="n">judges</span><span class="o">.</span><span class="n">is_context_relevant</span><span class="p">(</span><span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">outputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="c1"># drop chunk id metadata</span>
-        <span class="n">feedback</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;chunk_index&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">feedback</span></div>
+        <span class="k">return</span> <span class="n">judges</span><span class="o">.</span><span class="n">is_context_relevant</span><span class="p">(</span><span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">outputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Safety"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.Safety">[docs]</a><span class="nd">@experimental</span>
@@ -881,31 +878,7 @@
         <span class="p">)</span></div>
 
 
-<span class="c1"># === Shorthand for all builtin RAG scorers ===</span>
-<div class="viewcode-block" id="get_rag_scorers"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.get_rag_scorers">[docs]</a><span class="nd">@experimental</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_rag_scorers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BuiltInScorer</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns a list of built-in scorers for evaluating RAG models. Contains scorers</span>
-<span class="sd">    chunk_relevance, context_sufficiency, groundedness, and relevance_to_query.</span>
-
-<span class="sd">    Example:</span>
-
-<span class="sd">    .. code-block:: python</span>
-
-<span class="sd">        import mlflow</span>
-<span class="sd">        from mlflow.genai.scorers import get_rag_scorers</span>
-
-<span class="sd">        data = mlflow.search_traces(...)</span>
-<span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=get_rag_scorers())</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="n">RetrievalRelevance</span><span class="p">(),</span>
-        <span class="n">RetrievalSufficiency</span><span class="p">(),</span>
-        <span class="n">RetrievalGroundedness</span><span class="p">(),</span>
-        <span class="n">RelevanceToQuery</span><span class="p">(),</span>
-    <span class="p">]</span></div>
-
-
+<span class="c1"># === Shorthand for getting preset of builtin scorers ===</span>
 <div class="viewcode-block" id="get_all_scorers"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.scorers.get_all_scorers">[docs]</a><span class="nd">@experimental</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_all_scorers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BuiltInScorer</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -929,10 +902,14 @@
 <span class="sd">        ]</span>
 <span class="sd">        result = mlflow.genai.evaluate(data=data, scorers=get_all_scorers())</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">get_rag_scorers</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="k">return</span> <span class="p">[</span>
         <span class="n">GuidelineAdherence</span><span class="p">(),</span>
         <span class="n">Safety</span><span class="p">(),</span>
         <span class="n">Correctness</span><span class="p">(),</span>
+        <span class="n">RelevanceToQuery</span><span class="p">(),</span>
+        <span class="n">RetrievalRelevance</span><span class="p">(),</span>
+        <span class="n">RetrievalSufficiency</span><span class="p">(),</span>
+        <span class="n">RetrievalGroundedness</span><span class="p">(),</span>
     <span class="p">]</span></div>
 
 

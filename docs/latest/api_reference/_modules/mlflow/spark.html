@@ -297,7 +297,6 @@
     <span class="n">_validate_env_arguments</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.file_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">TempDir</span><span class="p">,</span>
     <span class="n">get_total_file_size</span><span class="p">,</span>
     <span class="n">shutil_copytree_without_file_permissions</span><span class="p">,</span>
     <span class="n">write_to</span><span class="p">,</span>
@@ -313,7 +312,6 @@
     <span class="n">generate_tmp_dfs_path</span><span class="p">,</span>
     <span class="n">get_databricks_profile_uri_from_artifact_uri</span><span class="p">,</span>
     <span class="n">is_databricks_acled_artifacts_uri</span><span class="p">,</span>
-    <span class="n">is_local_uri</span><span class="p">,</span>
     <span class="n">is_valid_dbfs_uri</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -529,125 +527,29 @@
     <span class="n">_validate_model</span><span class="p">(</span><span class="n">spark_model</span><span class="p">)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineModel</span>
 
-    <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">artifact_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
-            <span class="s2">&quot;Both `artifact_path` (deprecated) and `name` parameters were specified. &quot;</span>
-            <span class="s2">&quot;Please only specify `name`.&quot;</span>
-        <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">artifact_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;`artifact_path` is deprecated. Please use `name` instead.&quot;</span><span class="p">)</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="n">artifact_path</span>
-        <span class="c1"># to avoid another warning in Model.log</span>
-        <span class="n">artifact_path</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="k">if</span> <span class="n">_is_spark_connect_model</span><span class="p">(</span><span class="n">spark_model</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Model</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
-            <span class="n">artifact_path</span><span class="o">=</span><span class="n">artifact_path</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">flavor</span><span class="o">=</span><span class="n">mlflow</span><span class="o">.</span><span class="n">spark</span><span class="p">,</span>
-            <span class="n">spark_model</span><span class="o">=</span><span class="n">spark_model</span><span class="p">,</span>
-            <span class="n">conda_env</span><span class="o">=</span><span class="n">conda_env</span><span class="p">,</span>
-            <span class="n">code_paths</span><span class="o">=</span><span class="n">code_paths</span><span class="p">,</span>
-            <span class="n">registered_model_name</span><span class="o">=</span><span class="n">registered_model_name</span><span class="p">,</span>
-            <span class="n">signature</span><span class="o">=</span><span class="n">signature</span><span class="p">,</span>
-            <span class="n">input_example</span><span class="o">=</span><span class="n">input_example</span><span class="p">,</span>
-            <span class="n">await_registration_for</span><span class="o">=</span><span class="n">await_registration_for</span><span class="p">,</span>
-            <span class="n">pip_requirements</span><span class="o">=</span><span class="n">pip_requirements</span><span class="p">,</span>
-            <span class="n">extra_pip_requirements</span><span class="o">=</span><span class="n">extra_pip_requirements</span><span class="p">,</span>
-            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
-            <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
-            <span class="n">model_type</span><span class="o">=</span><span class="n">model_type</span><span class="p">,</span>
-            <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
-            <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spark_model</span><span class="p">,</span> <span class="n">PipelineModel</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">_is_spark_connect_model</span><span class="p">(</span><span class="n">spark_model</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spark_model</span><span class="p">,</span> <span class="n">PipelineModel</span><span class="p">)):</span>
         <span class="n">spark_model</span> <span class="o">=</span> <span class="n">PipelineModel</span><span class="p">([</span><span class="n">spark_model</span><span class="p">])</span>
-    <span class="n">run_id</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">_get_or_start_run</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
-    <span class="n">run_root_artifact_uri</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_artifact_uri</span><span class="p">()</span>
-    <span class="n">remote_model_path</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">_should_use_mlflowdbfs</span><span class="p">(</span><span class="n">run_root_artifact_uri</span><span class="p">):</span>
-        <span class="n">remote_model_path</span> <span class="o">=</span> <span class="n">append_to_uri_path</span><span class="p">(</span><span class="n">run_root_artifact_uri</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">_SPARK_MODEL_PATH_SUB</span><span class="p">)</span>
-        <span class="n">mlflowdbfs_path</span> <span class="o">=</span> <span class="n">_mlflowdbfs_path</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">databricks_utils</span><span class="o">.</span><span class="n">MlflowCredentialContext</span><span class="p">(</span>
-            <span class="n">get_databricks_profile_uri_from_artifact_uri</span><span class="p">(</span><span class="n">run_root_artifact_uri</span><span class="p">)</span>
-        <span class="p">):</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">spark_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">mlflowdbfs_path</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span><span class="s2">&quot;failed to save spark model via mlflowdbfs&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
-    <span class="c1"># If the artifact URI is a local filesystem path, defer to Model.log() to persist the model,</span>
-    <span class="c1"># since Spark may not be able to write directly to the driver&#39;s filesystem. For example,</span>
-    <span class="c1"># writing to `file:/uri` will write to the local filesystem from each executor, which will</span>
-    <span class="c1"># be incorrect on multi-node clusters.</span>
-    <span class="c1"># If the artifact URI is not a local filesystem path we attempt to write directly to the</span>
-    <span class="c1"># artifact repo via Spark. If this fails, we defer to Model.log().</span>
-    <span class="k">elif</span> <span class="p">(</span>
-        <span class="n">is_local_uri</span><span class="p">(</span><span class="n">run_root_artifact_uri</span><span class="p">)</span>
-        <span class="ow">or</span> <span class="n">databricks_utils</span><span class="o">.</span><span class="n">is_in_databricks_serverless_runtime</span><span class="p">()</span>
-        <span class="ow">or</span> <span class="n">databricks_utils</span><span class="o">.</span><span class="n">is_in_databricks_shared_cluster_runtime</span><span class="p">()</span>
-        <span class="ow">or</span> <span class="ow">not</span> <span class="n">_maybe_save_model</span><span class="p">(</span>
-            <span class="n">spark_model</span><span class="p">,</span>
-            <span class="n">append_to_uri_path</span><span class="p">(</span><span class="n">run_root_artifact_uri</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span>
-        <span class="p">)</span>
-    <span class="p">):</span>
-        <span class="n">dfs_tmpdir</span> <span class="o">=</span> <span class="n">dfs_tmpdir</span> <span class="ow">or</span> <span class="n">MLFLOW_DFS_TMP</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-        <span class="n">_check_databricks_uc_volume_tmpdir_availability</span><span class="p">(</span><span class="n">dfs_tmpdir</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Model</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
-            <span class="n">artifact_path</span><span class="o">=</span><span class="n">artifact_path</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">flavor</span><span class="o">=</span><span class="n">mlflow</span><span class="o">.</span><span class="n">spark</span><span class="p">,</span>
-            <span class="n">spark_model</span><span class="o">=</span><span class="n">spark_model</span><span class="p">,</span>
-            <span class="n">conda_env</span><span class="o">=</span><span class="n">conda_env</span><span class="p">,</span>
-            <span class="n">code_paths</span><span class="o">=</span><span class="n">code_paths</span><span class="p">,</span>
-            <span class="n">dfs_tmpdir</span><span class="o">=</span><span class="n">dfs_tmpdir</span><span class="p">,</span>
-            <span class="n">registered_model_name</span><span class="o">=</span><span class="n">registered_model_name</span><span class="p">,</span>
-            <span class="n">signature</span><span class="o">=</span><span class="n">signature</span><span class="p">,</span>
-            <span class="n">input_example</span><span class="o">=</span><span class="n">input_example</span><span class="p">,</span>
-            <span class="n">await_registration_for</span><span class="o">=</span><span class="n">await_registration_for</span><span class="p">,</span>
-            <span class="n">pip_requirements</span><span class="o">=</span><span class="n">pip_requirements</span><span class="p">,</span>
-            <span class="n">extra_pip_requirements</span><span class="o">=</span><span class="n">extra_pip_requirements</span><span class="p">,</span>
-            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
-            <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
-            <span class="n">model_type</span><span class="o">=</span><span class="n">model_type</span><span class="p">,</span>
-            <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
-            <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="c1"># Otherwise, override the default model log behavior and save model directly to artifact repo</span>
-    <span class="n">logged_model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">initialize_logged_model</span><span class="p">(</span>
+    <span class="k">return</span> <span class="n">Model</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+        <span class="n">artifact_path</span><span class="o">=</span><span class="n">artifact_path</span><span class="p">,</span>
         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-        <span class="n">source_run_id</span><span class="o">=</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span> <span class="k">if</span> <span class="p">(</span><span class="n">run</span> <span class="o">:=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">active_run</span><span class="p">())</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">model_type</span><span class="o">=</span><span class="n">model_type</span><span class="p">,</span>
+        <span class="n">flavor</span><span class="o">=</span><span class="n">mlflow</span><span class="o">.</span><span class="n">spark</span><span class="p">,</span>
+        <span class="n">spark_model</span><span class="o">=</span><span class="n">spark_model</span><span class="p">,</span>
+        <span class="n">conda_env</span><span class="o">=</span><span class="n">conda_env</span><span class="p">,</span>
+        <span class="n">code_paths</span><span class="o">=</span><span class="n">code_paths</span><span class="p">,</span>
+        <span class="n">registered_model_name</span><span class="o">=</span><span class="n">registered_model_name</span><span class="p">,</span>
+        <span class="n">signature</span><span class="o">=</span><span class="n">signature</span><span class="p">,</span>
+        <span class="n">input_example</span><span class="o">=</span><span class="n">input_example</span><span class="p">,</span>
+        <span class="n">await_registration_for</span><span class="o">=</span><span class="n">await_registration_for</span><span class="p">,</span>
+        <span class="n">pip_requirements</span><span class="o">=</span><span class="n">pip_requirements</span><span class="p">,</span>
+        <span class="n">extra_pip_requirements</span><span class="o">=</span><span class="n">extra_pip_requirements</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
         <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
         <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">mlflow_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">artifact_path</span><span class="o">=</span><span class="n">logged_model</span><span class="o">.</span><span class="n">artifact_location</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">TempDir</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
-        <span class="n">tmp_model_metadata_dir</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">path</span><span class="p">()</span>
-        <span class="n">_save_model_metadata</span><span class="p">(</span>
-            <span class="n">tmp_model_metadata_dir</span><span class="p">,</span>
-            <span class="n">spark_model</span><span class="p">,</span>
-            <span class="n">mlflow_model</span><span class="p">,</span>
-            <span class="n">conda_env</span><span class="p">,</span>
-            <span class="n">code_paths</span><span class="p">,</span>
-            <span class="n">signature</span><span class="o">=</span><span class="n">signature</span><span class="p">,</span>
-            <span class="n">input_example</span><span class="o">=</span><span class="n">input_example</span><span class="p">,</span>
-            <span class="n">pip_requirements</span><span class="o">=</span><span class="n">pip_requirements</span><span class="p">,</span>
-            <span class="n">extra_pip_requirements</span><span class="o">=</span><span class="n">extra_pip_requirements</span><span class="p">,</span>
-            <span class="n">remote_model_path</span><span class="o">=</span><span class="n">remote_model_path</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">log_artifacts</span><span class="p">(</span><span class="n">tmp_model_metadata_dir</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">_record_logged_model</span><span class="p">(</span><span class="n">mlflow_model</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">registered_model_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">mlflow</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;models:/</span><span class="si">{</span><span class="n">logged_model</span><span class="o">.</span><span class="n">model_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">registered_model_name</span><span class="p">,</span>
-                <span class="n">await_registration_for</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">get_model_info</span><span class="p">()</span></div>
+        <span class="n">model_type</span><span class="o">=</span><span class="n">model_type</span><span class="p">,</span>
+        <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
+    <span class="p">)</span></div>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_mlflowdbfs_path</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">artifact_path</span><span class="p">):</span>

@@ -260,7 +260,8 @@
     <span class="n">SQL_WAREHOUSE</span> <span class="o">=</span> <span class="s2">&quot;sql_warehouse&quot;</span>
     <span class="n">FUNCTION</span> <span class="o">=</span> <span class="s2">&quot;function&quot;</span>
     <span class="n">GENIE_SPACE</span> <span class="o">=</span> <span class="s2">&quot;genie_space&quot;</span>
-    <span class="n">TABLE</span> <span class="o">=</span> <span class="s2">&quot;table&quot;</span></div>
+    <span class="n">TABLE</span> <span class="o">=</span> <span class="s2">&quot;table&quot;</span>
+    <span class="n">APP</span> <span class="o">=</span> <span class="s2">&quot;app&quot;</span></div>
 
 
 <div class="viewcode-block" id="Resource"><a class="viewcode-back" href="../../../python_api/mlflow.models.html#mlflow.models.Resource">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Resource</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
@@ -474,6 +475,27 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">on_behalf_of_user</span><span class="p">)</span>
 
 
+<span class="k">class</span><span class="w"> </span><span class="nc">DatabricksApp</span><span class="p">(</span><span class="n">DatabricksResource</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines a Databricks Unity Catalog (UC) Table, which establishes table dependencies</span>
+<span class="sd">    for Model Serving. This table will be referenced in Agent Model Serving endpoints,</span>
+<span class="sd">    where an agent queries a SQL table via either Genie or UC Functions.</span>
+
+<span class="sd">     Args:</span>
+<span class="sd">         table_name (str): The name of the table used by the model</span>
+<span class="sd">         on_behalf_of_user (Optional[bool]): If True, the resource is accessed with</span>
+<span class="sd">        with the permission of the invoker of the model in the serving endpoint. If set to</span>
+<span class="sd">        None or False, the resource is accessed with the permissions of the creator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResourceType</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ResourceType</span><span class="o">.</span><span class="n">APP</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">on_behalf_of_user</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">app_name</span><span class="p">,</span> <span class="n">on_behalf_of_user</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_resource_class_by_type</span><span class="p">(</span><span class="n">target_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource_type</span><span class="p">:</span> <span class="n">ResourceType</span><span class="p">):</span>
     <span class="n">resource_classes</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;databricks&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -484,6 +506,7 @@
             <span class="n">ResourceType</span><span class="o">.</span><span class="n">FUNCTION</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">DatabricksFunction</span><span class="p">,</span>
             <span class="n">ResourceType</span><span class="o">.</span><span class="n">GENIE_SPACE</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">DatabricksGenieSpace</span><span class="p">,</span>
             <span class="n">ResourceType</span><span class="o">.</span><span class="n">TABLE</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">DatabricksTable</span><span class="p">,</span>
+            <span class="n">ResourceType</span><span class="o">.</span><span class="n">APP</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">DatabricksApp</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">}</span>
     <span class="n">resource</span> <span class="o">=</span> <span class="n">resource_classes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">target_uri</span><span class="p">)</span>

@@ -696,6 +696,26 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_span</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="LiveSpan.record_exception"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.LiveSpan.record_exception">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">record_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Record an exception on the span, adding an exception event and setting span status to ERROR.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            exception: The exception to record. Can be an Exception instance or a string</span>
+<span class="sd">                describing the exception.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exception</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">SpanEvent</span><span class="o">.</span><span class="n">from_exception</span><span class="p">(</span><span class="n">exception</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exception</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">SpanEvent</span><span class="o">.</span><span class="n">from_exception</span><span class="p">(</span><span class="ne">Exception</span><span class="p">(</span><span class="n">exception</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                <span class="s2">&quot;The `exception` parameter must be an Exception instance or a string.&quot;</span><span class="p">,</span>
+                <span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="n">SpanStatusCode</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span></div>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">end</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">outputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -909,6 +929,9 @@
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="NoOpSpan.add_event"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.NoOpSpan.add_event">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">SpanEvent</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="NoOpSpan.record_exception"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.NoOpSpan.record_exception">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">record_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">]):</span>
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="NoOpSpan.end"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.NoOpSpan.end">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">end</span><span class="p">(</span>

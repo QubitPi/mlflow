@@ -272,7 +272,9 @@
     <span class="n">_construct_databricks_uc_registered_model_url</span><span class="p">,</span>
     <span class="n">get_workspace_id</span><span class="p">,</span>
     <span class="n">get_workspace_url</span><span class="p">,</span>
+    <span class="n">stage_model_for_databricks_model_serving</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.env_pack</span><span class="w"> </span><span class="kn">import</span> <span class="n">EnvPackType</span><span class="p">,</span> <span class="n">pack_env_for_databricks_model_serving</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.logging_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">eprint</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.uri</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_databricks_unity_catalog_uri</span>
 
@@ -285,6 +287,7 @@
     <span class="n">await_registration_for</span><span class="o">=</span><span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">env_pack</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">EnvPackType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelVersion</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new model version in model registry for the model files specified by ``model_uri``.</span>
 
@@ -305,6 +308,13 @@
 <span class="sd">            waits for five minutes. Specify 0 or None to skip waiting.</span>
 <span class="sd">        tags: A dictionary of key-value pairs that are converted into</span>
 <span class="sd">            :py:class:`mlflow.entities.model_registry.ModelVersionTag` objects.</span>
+<span class="sd">        env_pack: If specified, the model dependencies will first be installed into the current</span>
+<span class="sd">            Python environment, and then the complete environment will be packaged and included</span>
+<span class="sd">            in the registered model artifacts. This is useful when deploying the model to a</span>
+<span class="sd">            serving environment like Databricks Model Serving.</span>
+
+<span class="sd">            .. Note:: Experimental: This parameter may change or be removed in a future</span>
+<span class="sd">                                    release without warning.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Single :py:class:`mlflow.entities.model_registry.ModelVersion` object created by</span>
@@ -344,6 +354,7 @@
         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
         <span class="n">await_registration_for</span><span class="o">=</span><span class="n">await_registration_for</span><span class="p">,</span>
         <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
+        <span class="n">env_pack</span><span class="o">=</span><span class="n">env_pack</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -354,6 +365,7 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">local_model_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">env_pack</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">EnvPackType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelVersion</span><span class="p">:</span>
     <span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
     <span class="k">try</span><span class="p">:</span>
@@ -411,6 +423,15 @@
 
     <span class="c1"># Otherwise if the uri is of the form models:/..., try to get the model_id from the uri directly</span>
     <span class="n">model_id</span> <span class="o">=</span> <span class="n">_parse_model_id_if_present</span><span class="p">(</span><span class="n">model_uri</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">model_id</span> <span class="k">else</span> <span class="n">model_id</span>
+
+    <span class="k">if</span> <span class="n">env_pack</span> <span class="o">==</span> <span class="s2">&quot;databricks_model_serving&quot;</span><span class="p">:</span>
+        <span class="n">eprint</span><span class="p">(</span><span class="s2">&quot;Packing environment for Databricks Model Serving...&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">pack_env_for_databricks_model_serving</span><span class="p">(</span>
+            <span class="n">model_uri</span><span class="p">,</span>
+            <span class="n">enforce_pip_requirements</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">artifacts_path_with_env</span><span class="p">:</span>
+            <span class="n">client</span><span class="o">.</span><span class="n">log_model_artifacts</span><span class="p">(</span><span class="n">model_id</span><span class="p">,</span> <span class="n">artifacts_path_with_env</span><span class="p">)</span>
+
     <span class="n">create_version_response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">_create_model_version</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
         <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
@@ -457,6 +478,24 @@
             <span class="n">model_id</span><span class="p">,</span>
             <span class="p">{</span><span class="n">mlflow_tags</span><span class="o">.</span><span class="n">MLFLOW_MODEL_VERSIONS</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">new_value</span><span class="p">)},</span>
         <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">env_pack</span> <span class="o">==</span> <span class="s2">&quot;databricks_model_serving&quot;</span><span class="p">:</span>
+        <span class="n">eprint</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Staging model </span><span class="si">{</span><span class="n">create_version_response</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;version </span><span class="si">{</span><span class="n">create_version_response</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;for Databricks Model Serving...&quot;</span>
+        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">stage_model_for_databricks_model_serving</span><span class="p">(</span>
+                <span class="n">model_name</span><span class="o">=</span><span class="n">create_version_response</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">model_version</span><span class="o">=</span><span class="n">create_version_response</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">eprint</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to stage model for Databricks Model Serving: </span><span class="si">{</span><span class="n">e</span><span class="si">!s}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;The model was registered successfully and is available for serving, but may take &quot;</span>
+                <span class="s2">&quot;longer to deploy.&quot;</span>
+            <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">create_version_response</span>
 

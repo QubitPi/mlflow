@@ -762,6 +762,28 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">trace_size_bytes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trace</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
     <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">trace_metadata</span><span class="p">[</span><span class="n">TraceMetadataKey</span><span class="o">.</span><span class="n">SIZE_BYTES</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">trace_size_bytes</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">update_trace_state_from_span_conditionally</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">root_span</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update trace state from span status, but only if the user hasn&#39;t explicitly set</span>
+<span class="sd">    a different trace status.</span>
+
+<span class="sd">    This utility preserves user-set trace status while maintaining default behavior</span>
+<span class="sd">    for traces that haven&#39;t been explicitly configured. Used by trace processors when</span>
+<span class="sd">    converting traces to an exportable state.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        trace: The trace object to potentially update</span>
+<span class="sd">        root_span: The root span whose status may be used to update the trace state</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.trace_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceState</span>
+
+    <span class="c1"># Only update trace state from span status if trace is still IN_PROGRESS</span>
+    <span class="c1"># If the trace state is anything else, it means the user explicitly set it</span>
+    <span class="c1"># and we should preserve it</span>
+    <span class="k">if</span> <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TraceState</span><span class="o">.</span><span class="n">IN_PROGRESS</span><span class="p">:</span>
+        <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TraceState</span><span class="o">.</span><span class="n">from_otel_status</span><span class="p">(</span><span class="n">root_span</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
 </pre></div>
 
               </div>

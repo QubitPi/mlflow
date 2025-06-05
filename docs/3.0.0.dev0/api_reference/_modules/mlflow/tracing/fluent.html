@@ -257,6 +257,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.span</span><span class="w"> </span><span class="kn">import</span> <span class="n">NO_OP_SPAN_TRACE_ID</span><span class="p">,</span> <span class="n">LiveSpan</span><span class="p">,</span> <span class="n">create_mlflow_span</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.span_event</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpanEvent</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.span_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpanStatusCode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.trace_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceState</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.trace_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceStatus</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.store.tracking</span><span class="w"> </span><span class="kn">import</span> <span class="n">SEARCH_TRACES_DEFAULT_MAX_RESULTS</span>
@@ -1189,6 +1190,7 @@
     <span class="n">client_request_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">request_preview</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">response_preview</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TraceState</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update the current active trace with the given options.</span>
@@ -1204,6 +1206,9 @@
 <span class="sd">        response_preview: A preview of the response to be shown in the Trace list view in the UI.</span>
 <span class="sd">            By default, MLflow will truncate the trace response naively by limiting the length.</span>
 <span class="sd">            This parameter allows you to specify a custom preview string.</span>
+<span class="sd">        state: The state to set on the trace. Can be a TraceState enum value or string.</span>
+<span class="sd">            Only &quot;OK&quot; and &quot;ERROR&quot; are allowed. This overrides the overall trace state without</span>
+<span class="sd">            affecting the status of the current span.</span>
 
 <span class="sd">    Example:</span>
 
@@ -1308,6 +1313,17 @@
             <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">request_preview</span> <span class="o">=</span> <span class="n">request_preview</span>
         <span class="k">if</span> <span class="n">response_preview</span><span class="p">:</span>
             <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">response_preview</span> <span class="o">=</span> <span class="n">response_preview</span>
+        <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">_invalid_state_error</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;State must be either &#39;OK&#39; or &#39;ERROR&#39;, but got &#39;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">TraceState</span><span class="o">.</span><span class="n">OK</span><span class="p">,</span> <span class="n">TraceState</span><span class="o">.</span><span class="n">ERROR</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">_invalid_state_error</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+            <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
 
         <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">{})</span>
         <span class="k">if</span> <span class="n">client_request_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

@@ -1187,6 +1187,7 @@
 
 <div class="viewcode-block" id="update_current_trace"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.update_current_trace">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">update_current_trace</span><span class="p">(</span>
     <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">client_request_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">request_preview</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">response_preview</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1196,7 +1197,11 @@
 <span class="sd">    Update the current active trace with the given options.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        tags: A dictionary of tags to update the trace with.</span>
+<span class="sd">        tags: A dictionary of tags to update the trace with Tags are designed for mutable values,</span>
+<span class="sd">            that can be updated after the trace is created via MLflow UI or API.</span>
+<span class="sd">        metadata: A dictionary of metadata to update the trace with. Metadata cannot be updated</span>
+<span class="sd">            once the trace is logged. It is suitable for recording immutable values like the</span>
+<span class="sd">            git hash of the application version that produced the trace.</span>
 <span class="sd">        client_request_id: Client supplied request ID to associate with the trace. This is</span>
 <span class="sd">            useful for linking the trace back to a specific request in your application or</span>
 <span class="sd">            external system. If None, the client request ID is not updated.</span>
@@ -1231,6 +1236,20 @@
 
 <span class="sd">            with mlflow.start_span(&quot;span&quot;):</span>
 <span class="sd">                mlflow.update_current_trace(tags={&quot;fruit&quot;: &quot;apple&quot;}, client_request_id=&quot;req-12345&quot;)</span>
+
+<span class="sd">        Updating source information of the trace. These keys are reserved ones and MLflow populate</span>
+<span class="sd">        them from environment information by default. You can override them if needed. Please refer</span>
+<span class="sd">        to the MLflow Tracing documentation for the full list of reserved metadata keys.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            mlflow.update_current_trace(</span>
+<span class="sd">                metadata={</span>
+<span class="sd">                    &quot;mlflow.source.name&quot;: &quot;inference.py&quot;,</span>
+<span class="sd">                    &quot;mlflow.source.git.commit&quot;: &quot;1234567890&quot;,</span>
+<span class="sd">                    &quot;mlflow.source.git.repoURL&quot;: &quot;https://github.com/mlflow/mlflow&quot;,</span>
+<span class="sd">                },</span>
+<span class="sd">            )</span>
 
 <span class="sd">        Updating request preview:</span>
 
@@ -1277,20 +1296,17 @@
         <span class="p">)</span>
         <span class="k">return</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tags</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="n">non_string_items</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tags</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)}</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_warn_non_string_values</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">non_string_items</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)}</span>
         <span class="k">if</span> <span class="n">non_string_items</span><span class="p">:</span>
-            <span class="n">none_values_present</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">non_string_items</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-            <span class="n">null_tag_advice</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;Consider dropping None values from the tag dict prior to updating the trace.&quot;</span>
-                <span class="k">if</span> <span class="n">none_values_present</span>
-                <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-            <span class="p">)</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Found non-string values in tags. Please note that non-string tag values will &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;automatically be stringified when the trace is logged. </span><span class="si">{</span><span class="n">null_tag_advice</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Non-string items: </span><span class="si">{</span><span class="n">non_string_items</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Found non-string values in </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2">. Non-string values in </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> will &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;automatically be stringified when the trace is logged. Non-string items: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">non_string_items</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
+
+    <span class="n">_warn_non_string_values</span><span class="p">(</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">{},</span> <span class="s2">&quot;tags&quot;</span><span class="p">)</span>
+    <span class="n">_warn_non_string_values</span><span class="p">(</span><span class="n">metadata</span> <span class="ow">or</span> <span class="p">{},</span> <span class="s2">&quot;metadata&quot;</span><span class="p">)</span>
 
     <span class="c1"># Update tags and client request ID for the trace stored in-memory rather than directly</span>
     <span class="c1"># updating the backend store. The in-memory trace will be exported when it is ended.</span>
@@ -1326,6 +1342,7 @@
             <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
 
         <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">{})</span>
+        <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">trace_metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">metadata</span> <span class="ow">or</span> <span class="p">{})</span>
         <span class="k">if</span> <span class="n">client_request_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">client_request_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">client_request_id</span><span class="p">)</span></div>
 

@@ -243,6 +243,52 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.assessment</span><span class="w"> </span><span class="kn">import</span> <span class="n">Feedback</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.utils.enum_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
+
+
+<div class="viewcode-block" id="CategoricalRating"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.judges.CategoricalRating">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">CategoricalRating</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A categorical rating for an assessment.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from mlflow.genai.judges import CategoricalRating</span>
+<span class="sd">            from mlflow.entities import Feedback</span>
+
+<span class="sd">            # Create feedback with categorical rating</span>
+<span class="sd">            feedback = Feedback(</span>
+<span class="sd">                name=&quot;my_metric&quot;, value=CategoricalRating.YES, rationale=&quot;The metric is passing.&quot;</span>
+<span class="sd">            )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">YES</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span>
+    <span class="n">NO</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span>
+    <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">cls</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">member</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">member</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">UNKNOWN</span></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sanitize_feedback</span><span class="p">(</span><span class="n">feedback</span><span class="p">:</span> <span class="n">Feedback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Feedback</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sanitize the feedback object from the databricks judges.</span>
+
+<span class="sd">    The judge returns a CategoricalRating class defined in the databricks-agents package.</span>
+<span class="sd">    This function converts it to our CategoricalRating definition above.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        feedback: The Feedback object to convert.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A new Feedback object with our CategoricalRating.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">feedback</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">CategoricalRating</span><span class="p">(</span><span class="n">feedback</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">feedback</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">requires_databricks_agents</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
@@ -304,10 +350,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">databricks.agents.evals.judges</span><span class="w"> </span><span class="kn">import</span> <span class="n">relevance_to_query</span>
 
-    <span class="k">return</span> <span class="n">relevance_to_query</span><span class="p">(</span>
-        <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
-        <span class="n">response</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="p">),</span>
-        <span class="n">assessment_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+    <span class="k">return</span> <span class="n">_sanitize_feedback</span><span class="p">(</span>
+        <span class="n">relevance_to_query</span><span class="p">(</span>
+            <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
+            <span class="n">response</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="p">),</span>
+            <span class="n">assessment_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="p">)</span></div>
 
 
@@ -355,12 +403,14 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">databricks.agents.evals.judges</span><span class="w"> </span><span class="kn">import</span> <span class="n">context_sufficiency</span>
 
-    <span class="k">return</span> <span class="n">context_sufficiency</span><span class="p">(</span>
-        <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
-        <span class="n">retrieved_context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
-        <span class="n">expected_facts</span><span class="o">=</span><span class="n">expected_facts</span><span class="p">,</span>
-        <span class="n">expected_response</span><span class="o">=</span><span class="n">expected_response</span><span class="p">,</span>
-        <span class="n">assessment_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+    <span class="k">return</span> <span class="n">_sanitize_feedback</span><span class="p">(</span>
+        <span class="n">context_sufficiency</span><span class="p">(</span>
+            <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
+            <span class="n">retrieved_context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
+            <span class="n">expected_facts</span><span class="o">=</span><span class="n">expected_facts</span><span class="p">,</span>
+            <span class="n">expected_response</span><span class="o">=</span><span class="n">expected_response</span><span class="p">,</span>
+            <span class="n">assessment_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="p">)</span></div>
 
 
@@ -389,12 +439,14 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">databricks.agents.evals.judges</span><span class="w"> </span><span class="kn">import</span> <span class="n">correctness</span>
 
-    <span class="k">return</span> <span class="n">correctness</span><span class="p">(</span>
-        <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
-        <span class="n">response</span><span class="o">=</span><span class="n">response</span><span class="p">,</span>
-        <span class="n">expected_facts</span><span class="o">=</span><span class="n">expected_facts</span><span class="p">,</span>
-        <span class="n">expected_response</span><span class="o">=</span><span class="n">expected_response</span><span class="p">,</span>
-        <span class="n">assessment_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+    <span class="k">return</span> <span class="n">_sanitize_feedback</span><span class="p">(</span>
+        <span class="n">correctness</span><span class="p">(</span>
+            <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
+            <span class="n">response</span><span class="o">=</span><span class="n">response</span><span class="p">,</span>
+            <span class="n">expected_facts</span><span class="o">=</span><span class="n">expected_facts</span><span class="p">,</span>
+            <span class="n">expected_response</span><span class="o">=</span><span class="n">expected_response</span><span class="p">,</span>
+            <span class="n">assessment_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="p">)</span></div>
 
 
@@ -436,11 +488,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">databricks.agents.evals.judges</span><span class="w"> </span><span class="kn">import</span> <span class="n">groundedness</span>
 
-    <span class="k">return</span> <span class="n">groundedness</span><span class="p">(</span>
-        <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
-        <span class="n">response</span><span class="o">=</span><span class="n">response</span><span class="p">,</span>
-        <span class="n">retrieved_context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
-        <span class="n">assessment_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+    <span class="k">return</span> <span class="n">_sanitize_feedback</span><span class="p">(</span>
+        <span class="n">groundedness</span><span class="p">(</span>
+            <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
+            <span class="n">response</span><span class="o">=</span><span class="n">response</span><span class="p">,</span>
+            <span class="n">retrieved_context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
+            <span class="n">assessment_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="p">)</span></div>
 
 
@@ -468,10 +522,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">databricks.agents.evals.judges</span><span class="w"> </span><span class="kn">import</span> <span class="n">safety</span>
 
-    <span class="k">return</span> <span class="n">safety</span><span class="p">(</span>
-        <span class="n">response</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
-        <span class="n">assessment_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_sanitize_feedback</span><span class="p">(</span><span class="n">safety</span><span class="p">(</span><span class="n">response</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">assessment_name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="meets_guidelines"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.judges.meets_guidelines">[docs]</a><span class="nd">@requires_databricks_agents</span>
@@ -522,10 +573,12 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">guidelines</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">guidelines</span> <span class="o">=</span> <span class="p">[</span><span class="n">guidelines</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">guideline_adherence</span><span class="p">(</span>
-        <span class="n">guidelines</span><span class="o">=</span><span class="n">guidelines</span><span class="p">,</span>
-        <span class="n">guidelines_context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
-        <span class="n">assessment_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+    <span class="k">return</span> <span class="n">_sanitize_feedback</span><span class="p">(</span>
+        <span class="n">guideline_adherence</span><span class="p">(</span>
+            <span class="n">guidelines</span><span class="o">=</span><span class="n">guidelines</span><span class="p">,</span>
+            <span class="n">guidelines_context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
+            <span class="n">assessment_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="p">)</span></div>
 </pre></div>
 

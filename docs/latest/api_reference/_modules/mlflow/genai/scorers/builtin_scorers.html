@@ -239,14 +239,16 @@
               <div itemprop="articleBody">
                 
   <h1>Source code for mlflow.genai.scorers.builtin_scorers</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.assessment</span><span class="w"> </span><span class="kn">import</span> <span class="n">Feedback</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.trace</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trace</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai</span><span class="w"> </span><span class="kn">import</span> <span class="n">judges</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.judges.databricks</span><span class="w"> </span><span class="kn">import</span> <span class="n">requires_databricks_agents</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Scorer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">_SERIALIZATION_VERSION</span><span class="p">,</span> <span class="n">Scorer</span><span class="p">,</span> <span class="n">SerializedScorer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.utils.trace_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">extract_retrieval_context_from_trace</span><span class="p">,</span>
     <span class="n">parse_inputs_to_str</span><span class="p">,</span>
@@ -263,7 +265,59 @@
 <span class="sd">    inherit from this class.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">required_columns</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">model_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Override model_dump to handle builtin scorer serialization.&quot;&quot;&quot;</span>
+        <span class="c1"># Use mode=&#39;json&#39; to automatically convert sets to lists for JSON compatibility</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+
+        <span class="n">pydantic_model_data</span> <span class="o">=</span> <span class="n">BaseModel</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Create serialized scorer with core fields</span>
+        <span class="n">serialized</span> <span class="o">=</span> <span class="n">SerializedScorer</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">aggregations</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">aggregations</span><span class="p">,</span>
+            <span class="n">mlflow_version</span><span class="o">=</span><span class="n">mlflow</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span>
+            <span class="n">serialization_version</span><span class="o">=</span><span class="n">_SERIALIZATION_VERSION</span><span class="p">,</span>
+            <span class="n">builtin_scorer_class</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="n">builtin_scorer_pydantic_data</span><span class="o">=</span><span class="n">pydantic_model_data</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">asdict</span><span class="p">(</span><span class="n">serialized</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">model_validate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BuiltInScorer&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Override model_validate to handle builtin scorer deserialization.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;builtin_scorer_class&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid builtin scorer data: expected a dictionary with &#39;builtin_scorer_class&#39;&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; field, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">builtin_scorers</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">SerializedScorer</span>
+
+        <span class="c1"># Parse the serialized data using our dataclass</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">serialized</span> <span class="o">=</span> <span class="n">SerializedScorer</span><span class="p">(</span><span class="o">**</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to parse serialized scorer data: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">scorer_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">builtin_scorers</span><span class="p">,</span> <span class="n">serialized</span><span class="o">.</span><span class="n">builtin_scorer_class</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown builtin scorer class: </span><span class="si">{</span><span class="n">serialized</span><span class="o">.</span><span class="n">builtin_scorer_class</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Use the builtin_scorer_pydantic_data directly to reconstruct the scorer</span>
+        <span class="n">constructor_args</span> <span class="o">=</span> <span class="n">serialized</span><span class="o">.</span><span class="n">builtin_scorer_pydantic_data</span> <span class="ow">or</span> <span class="p">{}</span>
+
+        <span class="k">return</span> <span class="n">scorer_class</span><span class="p">(</span><span class="o">**</span><span class="n">constructor_args</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">missing_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_columns</span> <span class="o">-</span> <span class="n">columns</span>

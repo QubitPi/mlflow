@@ -240,6 +240,7 @@
                 
   <h1>Source code for mlflow.genai.evaluation.base</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
 
@@ -253,7 +254,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Scorer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers.builtin_scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">GENAI_CONFIG_NAME</span><span class="p">,</span> <span class="n">BuiltInScorer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">valid_data_for_builtin_scorers</span><span class="p">,</span> <span class="n">validate_scorers</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.utils.trace_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_predict_fn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.utils.trace_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">clean_up_extra_traces</span><span class="p">,</span> <span class="n">convert_predict_fn</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.evaluation.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">EvaluationResult</span><span class="p">,</span>
     <span class="n">_is_model_deployment_endpoint_uri</span><span class="p">,</span>
@@ -506,7 +507,8 @@
             <span class="n">module</span><span class="o">=</span><span class="s2">&quot;mlflow.data.evaluation_dataset&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
+        <span class="n">eval_start_time</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
             <span class="n">model</span><span class="o">=</span><span class="n">predict_fn</span><span class="p">,</span>
             <span class="c1"># If the input dataset is a managed dataset, we pass the original dataset</span>
             <span class="c1"># to the evaluate function to preserve metadata like dataset name.</span>
@@ -517,7 +519,11 @@
             <span class="n">model_type</span><span class="o">=</span><span class="n">GENAI_CONFIG_NAME</span><span class="p">,</span>
             <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
             <span class="n">_called_from_genai_evaluate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+
+        <span class="c1"># Clean up noisy traces generated during evaluation</span>
+        <span class="n">clean_up_extra_traces</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="n">eval_start_time</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
 
 
 <div class="viewcode-block" id="to_predict_fn"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.to_predict_fn">[docs]</a><span class="nd">@experimental</span>

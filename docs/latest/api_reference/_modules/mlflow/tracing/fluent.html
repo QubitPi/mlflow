@@ -880,6 +880,7 @@
     <span class="n">return_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span> <span class="s2">&quot;list&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">model_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">sql_warehouse_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">include_spans</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;pandas.DataFrame&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Trace</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return traces that match the given list of search expressions within the experiments.</span>
@@ -941,6 +942,10 @@
 <span class="sd">        model_id: If specified, search traces associated with the given model ID.</span>
 <span class="sd">        sql_warehouse_id: Only used in Databricks. The ID of the SQL warehouse to use for</span>
 <span class="sd">            searching traces in inference tables.</span>
+
+<span class="sd">        include_spans: If ``True``, include spans in the returned traces. Otherwise, only</span>
+<span class="sd">            the trace metadata is returned, e.g., trace ID, start time, end time, etc,</span>
+<span class="sd">            without any spans. Default to ``True``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Traces that satisfy the search expressions. Either as a list of</span>
@@ -1043,6 +1048,7 @@
             <span class="n">page_token</span><span class="o">=</span><span class="n">next_page_token</span><span class="p">,</span>
             <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
             <span class="n">sql_warehouse_id</span><span class="o">=</span><span class="n">sql_warehouse_id</span><span class="p">,</span>
+            <span class="n">include_spans</span><span class="o">=</span><span class="n">include_spans</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="n">results</span> <span class="o">=</span> <span class="n">get_results_from_paginated_fn</span><span class="p">(</span>
@@ -1245,6 +1251,8 @@
 
 <span class="sd">            mlflow.update_current_trace(</span>
 <span class="sd">                metadata={</span>
+<span class="sd">                    &quot;mlflow.trace.session&quot;: &quot;session-4f855da00427&quot;,</span>
+<span class="sd">                    &quot;mlflow.trace.user&quot;: &quot;user-id-cc156f29bcfb&quot;,</span>
 <span class="sd">                    &quot;mlflow.source.name&quot;: &quot;inference.py&quot;,</span>
 <span class="sd">                    &quot;mlflow.source.git.commit&quot;: &quot;1234567890&quot;,</span>
 <span class="sd">                    &quot;mlflow.source.git.repoURL&quot;: &quot;https://github.com/mlflow/mlflow&quot;,</span>

@@ -287,7 +287,7 @@
     <span class="n">Feedback</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.assessment_source</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssessmentSource</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.model_registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelVersion</span><span class="p">,</span> <span class="n">Prompt</span><span class="p">,</span> <span class="n">RegisteredModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.model_registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelVersion</span><span class="p">,</span> <span class="n">Prompt</span><span class="p">,</span> <span class="n">PromptVersion</span><span class="p">,</span> <span class="n">RegisteredModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.model_registry.model_version_stages</span><span class="w"> </span><span class="kn">import</span> <span class="n">ALL_STAGES</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.span</span><span class="w"> </span><span class="kn">import</span> <span class="n">NO_OP_SPAN_TRACE_ID</span><span class="p">,</span> <span class="n">NoOpSpan</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.trace_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceStatus</span>
@@ -683,7 +683,7 @@
         <span class="n">commit_message</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">version_metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Prompt</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PromptVersion</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a new :py:class:`Prompt &lt;mlflow.entities.Prompt&gt;` in the MLflow Prompt Registry.</span>
 
@@ -804,7 +804,7 @@
         <span class="c1"># Fetch the prompt-level tags from the registered model</span>
         <span class="n">prompt_tags</span> <span class="o">=</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_registered_model</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">_tags</span>
 
-        <span class="k">return</span> <span class="n">Prompt</span><span class="o">.</span><span class="n">from_model_version</span><span class="p">(</span><span class="n">mv</span><span class="p">,</span> <span class="n">prompt_tags</span><span class="o">=</span><span class="n">prompt_tags</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">PromptVersion</span><span class="o">.</span><span class="n">from_model_version</span><span class="p">(</span><span class="n">mv</span><span class="p">,</span> <span class="n">prompt_tags</span><span class="o">=</span><span class="n">prompt_tags</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MlflowClient.search_prompts"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.search_prompts">[docs]</a>    <span class="nd">@translate_prompt_exception</span>
     <span class="nd">@require_prompt_registry</span>
@@ -854,7 +854,7 @@
     <span class="nd">@translate_prompt_exception</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_prompt</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">name_or_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allow_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Prompt</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PromptVersion</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load a :py:class:`Prompt &lt;mlflow.entities.Prompt&gt;` from the MLflow Prompt Registry.</span>
 
@@ -908,7 +908,7 @@
         <span class="c1"># Fetch the prompt-level tags from the registered model</span>
         <span class="n">prompt_tags</span> <span class="o">=</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_registered_model</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">_tags</span>
 
-        <span class="k">return</span> <span class="n">Prompt</span><span class="o">.</span><span class="n">from_model_version</span><span class="p">(</span><span class="n">mv</span><span class="p">,</span> <span class="n">prompt_tags</span><span class="o">=</span><span class="n">prompt_tags</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">PromptVersion</span><span class="o">.</span><span class="n">from_model_version</span><span class="p">(</span><span class="n">mv</span><span class="p">,</span> <span class="n">prompt_tags</span><span class="o">=</span><span class="n">prompt_tags</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MlflowClient.delete_prompt"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.delete_prompt">[docs]</a>    <span class="nd">@experimental</span>
     <span class="nd">@require_prompt_registry</span>
@@ -934,7 +934,7 @@
 <div class="viewcode-block" id="MlflowClient.log_prompt"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.log_prompt">[docs]</a>    <span class="nd">@experimental</span>
     <span class="nd">@require_prompt_registry</span>
     <span class="nd">@translate_prompt_exception</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">log_prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prompt</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Prompt</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prompt</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PromptVersion</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Associate a prompt registered within the MLflow Prompt Registry with an MLflow Run.</span>
 
@@ -949,11 +949,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_prompt</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">Prompt</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">PromptVersion</span><span class="p">):</span>
             <span class="c1"># NB: We need to load the prompt once from the registry because the tags in</span>
             <span class="c1"># local prompt object may not be in sync with the registry.</span>
             <span class="n">prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_prompt</span><span class="p">(</span><span class="n">prompt</span><span class="o">.</span><span class="n">uri</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">Prompt</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">PromptVersion</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
                 <span class="s2">&quot;The `prompt` argument must be a Prompt object or a prompt URI.&quot;</span><span class="p">,</span>
             <span class="p">)</span>
@@ -1007,7 +1007,7 @@
 <div class="viewcode-block" id="MlflowClient.list_logged_prompts"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.list_logged_prompts">[docs]</a>    <span class="nd">@experimental</span>
     <span class="nd">@require_prompt_registry</span>
     <span class="nd">@translate_prompt_exception</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">list_logged_prompts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Prompt</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list_logged_prompts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">PromptVersion</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        List all prompts associated with an MLflow Run.</span>
 
@@ -1025,7 +1025,7 @@
         <span class="p">)</span>
         <span class="c1"># NB: We don&#39;t support pagination here because the number of prompts associated</span>
         <span class="c1"># with a Run is expected to be small.</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">Prompt</span><span class="o">.</span><span class="n">from_model_version</span><span class="p">(</span><span class="n">mv</span><span class="p">)</span> <span class="k">for</span> <span class="n">mv</span> <span class="ow">in</span> <span class="n">mvs</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="p">[</span><span class="n">PromptVersion</span><span class="o">.</span><span class="n">from_model_version</span><span class="p">(</span><span class="n">mv</span><span class="p">)</span> <span class="k">for</span> <span class="n">mv</span> <span class="ow">in</span> <span class="n">mvs</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="MlflowClient.set_prompt_alias"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.set_prompt_alias">[docs]</a>    <span class="nd">@experimental</span>
     <span class="nd">@require_prompt_registry</span>

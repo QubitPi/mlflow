@@ -300,6 +300,7 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.prompt.registry_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">has_prompt_tag</span><span class="p">,</span>
+    <span class="n">parse_prompt_name_or_uri</span><span class="p">,</span>
     <span class="n">require_prompt_registry</span><span class="p">,</span>
     <span class="n">translate_prompt_exception</span><span class="p">,</span>
     <span class="n">validate_prompt_name</span><span class="p">,</span>
@@ -309,6 +310,7 @@
     <span class="n">FEATURE_DISABLED</span><span class="p">,</span>
     <span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
     <span class="n">RESOURCE_DOES_NOT_EXIST</span><span class="p">,</span>
+    <span class="n">ErrorCode</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.store.artifact.utils.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_model_name_and_version</span><span class="p">,</span>
@@ -757,6 +759,29 @@
 
         <span class="n">validate_prompt_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">is_databricks_unity_catalog_uri</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_registry_uri</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">registry_client</span><span class="o">.</span><span class="n">create_prompt</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">commit_message</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">{}</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="n">MlflowException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">error_code</span> <span class="o">==</span> <span class="n">ErrorCode</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="n">ErrorCode</span><span class="o">.</span><span class="n">ALREADY_EXISTS</span><span class="p">):</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Re-raise other errors like permission issues, validation errors, etc.</span>
+                    <span class="k">raise</span>
+
+            <span class="c1"># Create the prompt version</span>
+            <span class="n">prompt_version</span> <span class="o">=</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">create_prompt_version</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">commit_message</span><span class="p">,</span>
+                <span class="n">tags</span><span class="o">=</span><span class="n">version_metadata</span> <span class="ow">or</span> <span class="p">{},</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_prompt_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">prompt_version</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+
+        <span class="c1"># OSS approach using RegisteredModel with special tags</span>
         <span class="n">is_new_prompt</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">rm</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">tags</span> <span class="o">=</span> <span class="n">tags</span> <span class="ow">or</span> <span class="p">{}</span>
@@ -815,17 +840,17 @@
         <span class="n">page_token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PagedList</span><span class="p">[</span><span class="n">Prompt</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Retrieve prompt templates from the MLflow Prompt Registry.</span>
+<span class="sd">        Search for prompts in the MLflow Prompt Registry.</span>
 
-<span class="sd">        This call returns only those registered models that have been marked</span>
+<span class="sd">        This call returns prompt metadata for prompts that have been marked</span>
 <span class="sd">        as prompts (i.e. tagged with `mlflow.prompt.is_prompt=true`). We can</span>
 <span class="sd">        further restrict results via a standard registry filter expression.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            filter_string (Optional[str]):</span>
 <span class="sd">                An additional registry‐search expression to apply (e.g.</span>
-<span class="sd">                `&quot;name LIKE &#39;my_prompt%&#39;&quot;`).  The prompt‐tag filter is always</span>
-<span class="sd">                applied internally.  Defaults to `None` (no extra filtering).</span>
+<span class="sd">                `&quot;name LIKE &#39;my_prompt%&#39;&quot;`).  For Unity Catalog registries, must include</span>
+<span class="sd">                catalog and schema: &quot;catalog = &#39;catalog_name&#39; AND schema = &#39;schema_name&#39;&quot;.</span>
 <span class="sd">            max_results (int):</span>
 <span class="sd">                The maximum number of prompts to return in one page.  Defaults</span>
 <span class="sd">                to `SEARCH_MAX_RESULTS_DEFAULT` (typically 1 000).</span>
@@ -834,17 +859,32 @@
 <span class="sd">                to retrieve the next page of results.  Defaults to `None`.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`Prompt &lt;mlflow.entities.model_registry.Prompt&gt;`:</span>
-<span class="sd">                A pageable list of :py:class:`Prompt &lt;mlflow.entities.model_registry.Prompt&gt;`</span>
-<span class="sd">                entities representing prompt templates. Inspect the returned object&#39;s</span>
-<span class="sd">                `.token` attribute to fetch subsequent pages.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">fls</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;tag.`</span><span class="si">{</span><span class="n">IS_PROMPT_TAG_KEY</span><span class="si">}</span><span class="s2">` = &#39;true&#39;&quot;</span>
-        <span class="k">if</span> <span class="n">filter_string</span><span class="p">:</span>
-            <span class="n">fls</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fls</span><span class="si">}</span><span class="s2"> AND </span><span class="si">{</span><span class="n">filter_string</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="sd">            A pageable list of Prompt objects representing prompt metadata:</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span><span class="o">.</span><span class="n">search_registered_models</span><span class="p">(</span>
-            <span class="n">filter_string</span><span class="o">=</span><span class="n">fls</span><span class="p">,</span>
+<span class="sd">            - name: The prompt name</span>
+<span class="sd">            - description: The prompt description</span>
+<span class="sd">            - tags: Prompt-level tags</span>
+<span class="sd">            - creation_timestamp: When the prompt was created</span>
+
+<span class="sd">            To get the actual prompt template content, use get_prompt() with a specific version:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                # Search for prompts</span>
+<span class="sd">                prompts = client.search_prompts(filter_string=&quot;name LIKE &#39;greeting%&#39;&quot;)</span>
+
+<span class="sd">                # Get specific version content</span>
+<span class="sd">                for prompt in prompts:</span>
+<span class="sd">                    prompt_version = client.get_prompt_version(prompt.name, version=&quot;1&quot;)</span>
+<span class="sd">                    print(f&quot;Template: {prompt.template}&quot;)</span>
+
+<span class="sd">            Inspect the returned object&#39;s `.token` attribute to fetch subsequent pages.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
+
+        <span class="c1"># Delegate to the store - each store handles its own implementation</span>
+        <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">search_prompts</span><span class="p">(</span>
+            <span class="n">filter_string</span><span class="o">=</span><span class="n">filter_string</span><span class="p">,</span>
             <span class="n">max_results</span><span class="o">=</span><span class="n">max_results</span><span class="p">,</span>
             <span class="n">page_token</span><span class="o">=</span><span class="n">page_token</span><span class="p">,</span>
         <span class="p">)</span></div>
@@ -853,8 +893,11 @@
     <span class="nd">@require_prompt_registry</span>
     <span class="nd">@translate_prompt_exception</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_prompt</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">name_or_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allow_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PromptVersion</span><span class="p">:</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name_or_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">allow_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PromptVersion</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load a :py:class:`Prompt &lt;mlflow.entities.Prompt&gt;` from the MLflow Prompt Registry.</span>
 
@@ -868,9 +911,6 @@
 
 <span class="sd">            client = MlflowClient(registry_uri=&quot;sqlite:///prompt_registry.db&quot;)</span>
 
-<span class="sd">            # Load the latest version of the prompt by name</span>
-<span class="sd">            prompt = client.load_prompt(&quot;my_prompt&quot;)</span>
-
 <span class="sd">            # Load a specific version of the prompt by name and version</span>
 <span class="sd">            prompt = client.load_prompt(&quot;my_prompt&quot;, version=1)</span>
 
@@ -879,56 +919,29 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            name_or_uri: The name of the prompt, or the URI in the format &quot;prompts:/name/version&quot;.</span>
-<span class="sd">            version: The version of the prompt. If not specified, the latest version will be loaded.</span>
+<span class="sd">            version: The version of the prompt (required when using name, not allowed when</span>
+<span class="sd">                using URI).</span>
 <span class="sd">            allow_missing: If True, return None instead of raising Exception if the specified prompt</span>
 <span class="sd">                is not found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">name_or_uri</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;prompts:/&quot;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
-                    <span class="s2">&quot;The `version` argument should not be specified when loading a prompt by URI.&quot;</span><span class="p">,</span>
-                    <span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_prompt_uri</span><span class="p">(</span><span class="n">name_or_uri</span><span class="p">)</span>
+        <span class="n">parsed_name_or_uri</span><span class="p">,</span> <span class="n">parsed_version</span> <span class="o">=</span> <span class="n">parse_prompt_name_or_uri</span><span class="p">(</span><span class="n">name_or_uri</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parsed_name_or_uri</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;prompts:/&quot;</span><span class="p">):</span>
+            <span class="c1"># URI case: parse the URI to extract name and version</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_prompt_uri</span><span class="p">(</span><span class="n">parsed_name_or_uri</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">name_or_uri</span>
+            <span class="c1"># Name case: use the name and provided version</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">parsed_name_or_uri</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="n">parsed_version</span>
 
         <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">mv</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">registry_client</span><span class="o">.</span><span class="n">get_latest_versions</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">stages</span><span class="o">=</span><span class="n">ALL_STAGES</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span>
-                <span class="k">else</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_model_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="c1"># Use get_prompt_version for specific version/alias</span>
+            <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_prompt_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+
         <span class="k">except</span> <span class="n">MlflowException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">allow_missing</span> <span class="ow">and</span> <span class="n">exc</span><span class="o">.</span><span class="n">error_code</span> <span class="o">==</span> <span class="s2">&quot;RESOURCE_DOES_NOT_EXIST&quot;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
-            <span class="k">raise</span>
-
-        <span class="c1"># Fetch the prompt-level tags from the registered model</span>
-        <span class="n">prompt_tags</span> <span class="o">=</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_registered_model</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">_tags</span>
-
-        <span class="k">return</span> <span class="n">PromptVersion</span><span class="o">.</span><span class="n">from_model_version</span><span class="p">(</span><span class="n">mv</span><span class="p">,</span> <span class="n">prompt_tags</span><span class="o">=</span><span class="n">prompt_tags</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="MlflowClient.delete_prompt"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.delete_prompt">[docs]</a>    <span class="nd">@experimental</span>
-    <span class="nd">@require_prompt_registry</span>
-    <span class="nd">@translate_prompt_exception</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">delete_prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Delete a :py:class:`Prompt &lt;mlflow.entities.Prompt&gt;` from the MLflow Prompt Registry.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            name: The name of the prompt.</span>
-<span class="sd">            version: The version of the prompt to delete.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_prompt</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
-        <span class="n">registry_client</span><span class="o">.</span><span class="n">delete_model_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
-
-        <span class="c1"># If no more versions are left, delete the registered model</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_latest_versions</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">stages</span><span class="o">=</span><span class="n">ALL_STAGES</span><span class="p">):</span>
-            <span class="n">registry_client</span><span class="o">.</span><span class="n">delete_registered_model</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+            <span class="k">raise</span></div>
 
     <span class="c1"># TODO: Use model_id in MLflow 3.0</span>
 <div class="viewcode-block" id="MlflowClient.log_prompt"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.log_prompt">[docs]</a>    <span class="nd">@experimental</span>
@@ -5727,7 +5740,146 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">search_logged_models</span><span class="p">(</span>
             <span class="n">experiment_ids</span><span class="p">,</span> <span class="n">filter_string</span><span class="p">,</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">max_results</span><span class="p">,</span> <span class="n">order_by</span><span class="p">,</span> <span class="n">page_token</span>
-        <span class="p">)</span></div></div>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="MlflowClient.create_prompt"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.create_prompt">[docs]</a>    <span class="nd">@experimental</span>
+    <span class="nd">@require_prompt_registry</span>
+    <span class="nd">@translate_prompt_exception</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_prompt</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Prompt</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new prompt in the registry.</span>
+
+<span class="sd">        This method delegates directly to the store, providing full Unity Catalog support</span>
+<span class="sd">        when used with Unity Catalog registries.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: Name of the prompt.</span>
+<span class="sd">            description: Optional description of the prompt.</span>
+<span class="sd">            tags: Optional dictionary of prompt tags.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A Prompt object.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from mlflow import MlflowClient</span>
+
+<span class="sd">            client = MlflowClient()</span>
+<span class="sd">            prompt_info = client.create_prompt(</span>
+<span class="sd">                name=&quot;my_prompt&quot;,</span>
+<span class="sd">                description=&quot;A helpful prompt&quot;,</span>
+<span class="sd">                tags={&quot;team&quot;: &quot;data-science&quot;},</span>
+<span class="sd">            )</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">create_prompt</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MlflowClient.create_prompt_version"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.create_prompt_version">[docs]</a>    <span class="nd">@experimental</span>
+    <span class="nd">@require_prompt_registry</span>
+    <span class="nd">@translate_prompt_exception</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_prompt_version</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PromptVersion</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new version of an existing prompt.</span>
+
+<span class="sd">        This method delegates directly to the store, providing full Unity Catalog support</span>
+<span class="sd">        when used with Unity Catalog registries.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: Name of the prompt.</span>
+<span class="sd">            template: Template text of the prompt version.</span>
+<span class="sd">            description: Optional description of the prompt version.</span>
+<span class="sd">            tags: Optional dictionary of prompt version tags.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A PromptVersion object.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from mlflow import MlflowClient</span>
+
+<span class="sd">            client = MlflowClient()</span>
+<span class="sd">            prompt_version = client.create_prompt_version(</span>
+<span class="sd">                name=&quot;my_prompt&quot;,</span>
+<span class="sd">                template=&quot;Respond as a {{style}} assistant: {{query}}&quot;,</span>
+<span class="sd">                description=&quot;Added style parameter&quot;,</span>
+<span class="sd">                tags={&quot;author&quot;: &quot;alice&quot;},</span>
+<span class="sd">            )</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">create_prompt_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MlflowClient.get_prompt"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.get_prompt">[docs]</a>    <span class="nd">@experimental</span>
+    <span class="nd">@require_prompt_registry</span>
+    <span class="nd">@translate_prompt_exception</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Prompt</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get prompt metadata by name.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: Name of the prompt.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A Prompt object containing prompt metadata, or None if not found.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from mlflow import MlflowClient</span>
+
+<span class="sd">            client = MlflowClient()</span>
+<span class="sd">            prompt = client.get_prompt(&quot;my_prompt&quot;)</span>
+<span class="sd">            if prompt:</span>
+<span class="sd">                print(f&quot;Prompt: {prompt.name}&quot;)</span>
+<span class="sd">                print(f&quot;Description: {prompt.description}&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_prompt</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MlflowClient.get_prompt_version"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.get_prompt_version">[docs]</a>    <span class="nd">@experimental</span>
+    <span class="nd">@require_prompt_registry</span>
+    <span class="nd">@translate_prompt_exception</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_prompt_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PromptVersion</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a specific prompt version.</span>
+
+<span class="sd">        This method delegates directly to the store, providing full Unity Catalog support</span>
+<span class="sd">        when used with Unity Catalog registries.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: Name of the prompt.</span>
+<span class="sd">            version: Version of the prompt (number or alias).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A PromptVersion object with the specific version content, or None if not found.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from mlflow import MlflowClient</span>
+
+<span class="sd">            client = MlflowClient()</span>
+<span class="sd">            prompt_version = client.get_prompt_version(&quot;my_prompt&quot;, &quot;1&quot;)</span>
+<span class="sd">            prompt_alias = client.get_prompt_version(&quot;my_prompt&quot;, &quot;production&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_prompt_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span></div></div>
 </pre></div>
 
               </div>

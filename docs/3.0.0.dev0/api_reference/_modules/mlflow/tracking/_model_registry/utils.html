@@ -240,6 +240,7 @@
                 
   <h1>Source code for mlflow.tracking._model_registry.utils</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.environment_variables</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLFLOW_REGISTRY_URI</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.store.db.db_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">DATABASE_ENGINES</span>
@@ -251,7 +252,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking._model_registry.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelRegistryStoreRegistry</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking._tracking_service.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_resolve_tracking_uri</span><span class="p">,</span>
-    <span class="n">get_tracking_uri</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils._spark_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_get_active_spark_session</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.credentials</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_default_host_creds</span>
@@ -260,7 +260,13 @@
     <span class="n">is_in_databricks_serverless_runtime</span><span class="p">,</span>
     <span class="n">warn_on_deprecated_cross_workspace_registry_uri</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.uri</span><span class="w"> </span><span class="kn">import</span> <span class="n">_DATABRICKS_UNITY_CATALOG_SCHEME</span><span class="p">,</span> <span class="n">_OSS_UNITY_CATALOG_SCHEME</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.uri</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_DATABRICKS_UNITY_CATALOG_SCHEME</span><span class="p">,</span>
+    <span class="n">_OSS_UNITY_CATALOG_SCHEME</span><span class="p">,</span>
+    <span class="n">construct_db_uc_uri_from_profile</span><span class="p">,</span>
+    <span class="n">get_db_info_from_uri</span><span class="p">,</span>
+    <span class="n">is_databricks_uri</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="c1"># NOTE: in contrast to tracking, we do not support the following ways to specify</span>
 <span class="c1"># the model registry URI:</span>
@@ -332,7 +338,18 @@
         <span class="c1"># Connected to Serverless</span>
         <span class="k">return</span> <span class="s2">&quot;databricks-uc&quot;</span>
 
-    <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;spark.mlflow.modelRegistryUri&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisException</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;spark.mlflow.modelRegistryUri&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">AnalysisException</span><span class="p">:</span>
+        <span class="c1"># In serverless clusters, session.conf.get() is unsupported</span>
+        <span class="c1"># and raises an AnalysisException. We may encounter this case</span>
+        <span class="c1"># when DBConnect is used to connect to a serverless cluster,</span>
+        <span class="c1"># in which case the prior `is_in_databricks_serverless_runtime()`</span>
+        <span class="c1"># check will have returned false (as of 2025-06-07, it checks</span>
+        <span class="c1"># an environment variable that isn&#39;t set by DBConnect)</span>
+        <span class="k">return</span> <span class="kc">None</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_registry_uri_from_context</span><span class="p">():</span>
@@ -341,6 +358,39 @@
     <span class="k">elif</span> <span class="p">(</span><span class="n">uri</span> <span class="o">:=</span> <span class="n">MLFLOW_REGISTRY_URI</span><span class="o">.</span><span class="n">get</span><span class="p">())</span> <span class="ow">or</span> <span class="p">(</span><span class="n">uri</span> <span class="o">:=</span> <span class="n">_get_registry_uri_from_spark_session</span><span class="p">()):</span>
         <span class="k">return</span> <span class="n">uri</span>
     <span class="k">return</span> <span class="n">_registry_uri</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_default_registry_uri_for_tracking_uri</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the default registry URI for a given tracking URI.</span>
+
+<span class="sd">    If the tracking URI starts with &quot;databricks&quot;, returns &quot;databricks-uc&quot; with profile if present.</span>
+<span class="sd">    Otherwise, returns the tracking URI itself.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tracking_uri: The tracking URI to get the default registry URI for</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The default registry URI</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tracking_uri</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">is_databricks_uri</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">):</span>
+        <span class="c1"># If the tracking URI is &quot;databricks&quot;, we impute the registry URI as &quot;databricks-uc&quot;</span>
+        <span class="c1"># corresponding to Databricks Unity Catalog Model Registry, which is the recommended</span>
+        <span class="c1"># model registry offering on Databricks</span>
+        <span class="k">if</span> <span class="n">tracking_uri</span> <span class="o">==</span> <span class="s2">&quot;databricks&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_DATABRICKS_UNITY_CATALOG_SCHEME</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Extract profile from tracking URI and construct databricks-uc URI</span>
+            <span class="n">profile</span><span class="p">,</span> <span class="n">key_prefix</span> <span class="o">=</span> <span class="n">get_db_info_from_uri</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">profile</span><span class="p">:</span>
+                <span class="c1"># Reconstruct the profile string including key_prefix if present</span>
+                <span class="n">profile_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">profile</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">key_prefix</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">key_prefix</span> <span class="k">else</span> <span class="n">profile</span>
+                <span class="k">return</span> <span class="n">construct_db_uc_uri_from_profile</span><span class="p">(</span><span class="n">profile_string</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_DATABRICKS_UNITY_CATALOG_SCHEME</span>
+
+    <span class="c1"># For non-databricks tracking URIs, use the tracking URI as the registry URI</span>
+    <span class="k">return</span> <span class="n">tracking_uri</span>
 
 
 <div class="viewcode-block" id="get_registry_uri"><a class="viewcode-back" href="../../../../python_api/mlflow.config.html#mlflow.get_registry_uri">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_registry_uri</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -368,11 +418,20 @@
 <span class="sd">        Current tracking uri: file:///.../mlruns</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_get_registry_uri_from_context</span><span class="p">()</span> <span class="ow">or</span> <span class="n">get_tracking_uri</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">_resolve_registry_uri</span><span class="p">()</span></div>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_registry_uri</span><span class="p">(</span><span class="n">registry_uri</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tracking_uri</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">registry_uri</span> <span class="ow">or</span> <span class="n">_get_registry_uri_from_context</span><span class="p">()</span> <span class="ow">or</span> <span class="n">_resolve_tracking_uri</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_registry_uri</span><span class="p">(</span>
+    <span class="n">registry_uri</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tracking_uri</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve the registry URI following the same logic as get_registry_uri().</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">registry_uri</span>
+        <span class="ow">or</span> <span class="n">_get_registry_uri_from_context</span><span class="p">()</span>
+        <span class="ow">or</span> <span class="n">_get_default_registry_uri_for_tracking_uri</span><span class="p">(</span><span class="n">_resolve_tracking_uri</span><span class="p">(</span><span class="n">tracking_uri</span><span class="p">))</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_sqlalchemy_store</span><span class="p">(</span><span class="n">store_uri</span><span class="p">):</span>

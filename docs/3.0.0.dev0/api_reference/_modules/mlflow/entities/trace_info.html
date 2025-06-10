@@ -253,7 +253,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.trace_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceState</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.trace_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceStatus</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.service_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceInfoV3</span> <span class="k">as</span> <span class="n">ProtoTraceInfoV3</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.constant</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceMetadataKey</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.constant</span><span class="w"> </span><span class="kn">import</span> <span class="n">TRACE_SCHEMA_VERSION</span><span class="p">,</span> <span class="n">TRACE_SCHEMA_VERSION_KEY</span><span class="p">,</span> <span class="n">TraceMetadataKey</span>
 
 
 <div class="viewcode-block" id="TraceInfo"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.TraceInfo">[docs]</a><span class="nd">@dataclass</span>
@@ -357,6 +357,12 @@
 
 <div class="viewcode-block" id="TraceInfo.from_proto"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.TraceInfo.from_proto">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_proto</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">proto</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;TraceInfo&quot;</span><span class="p">:</span>
+        <span class="n">trace_metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">trace_metadata</span><span class="p">)</span>
+        <span class="c1"># NB: MLflow automatically converts trace metadata and spans to V3 format, even if the</span>
+        <span class="c1"># trace was originally created in V2 format with an earlier version of MLflow. Accordingly,</span>
+        <span class="c1"># we also update the `TRACE_SCHEMA_VERSION_KEY` in the trace metadata to V3 for consistency</span>
+        <span class="n">trace_metadata</span><span class="p">[</span><span class="n">TRACE_SCHEMA_VERSION_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">TRACE_SCHEMA_VERSION</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">trace_id</span><span class="o">=</span><span class="n">proto</span><span class="o">.</span><span class="n">trace_id</span><span class="p">,</span>
             <span class="n">client_request_id</span><span class="o">=</span><span class="p">(</span>
@@ -372,8 +378,7 @@
                 <span class="k">else</span> <span class="kc">None</span>
             <span class="p">),</span>
             <span class="n">state</span><span class="o">=</span><span class="n">TraceState</span><span class="o">.</span><span class="n">from_proto</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">state</span><span class="p">),</span>
-            <span class="c1"># ScalarMapContainer -&gt; native dict</span>
-            <span class="n">trace_metadata</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">trace_metadata</span><span class="p">),</span>
+            <span class="n">trace_metadata</span><span class="o">=</span><span class="n">trace_metadata</span><span class="p">,</span>
             <span class="n">tags</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">proto</span><span class="o">.</span><span class="n">tags</span><span class="p">),</span>
             <span class="n">assessments</span><span class="o">=</span><span class="p">[</span><span class="n">Assessment</span><span class="o">.</span><span class="n">from_proto</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">proto</span><span class="o">.</span><span class="n">assessments</span><span class="p">],</span>
         <span class="p">)</span></div>

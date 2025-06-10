@@ -979,6 +979,40 @@ Tags: {}
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlflow.client.MlflowClient.delete_prompt">
+<span class="sig-name descname"><span class="pre">delete_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.delete_prompt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.delete_prompt" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This function may change or be removed in a future release without warning.</p>
+</div>
+<p>Delete a prompt from the registry.</p>
+<p>For Unity Catalog registries, this method first checks if any versions exist for the prompt
+and throws an error if undeleted versions are found. All versions must be explicitly
+deleted first before the prompt itself can be deleted.</p>
+<p>For other registries, the prompt is deleted normally without version checking.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – Name of the prompt to delete.</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+
+<span class="c1"># For Unity Catalog, delete all versions first</span>
+<span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">get_registry_uri</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;databricks-uc&quot;</span><span class="p">):</span>
+    <span class="n">versions</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">search_prompt_versions</span><span class="p">(</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">versions</span><span class="o">.</span><span class="n">prompt_versions</span><span class="p">:</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">delete_prompt_version</span><span class="p">(</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+
+<span class="c1"># Then delete the prompt</span>
+<span class="n">client</span><span class="o">.</span><span class="n">delete_prompt</span><span class="p">(</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlflow.client.MlflowClient.delete_prompt_alias">
 <span class="sig-name descname"><span class="pre">delete_prompt_alias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alias</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.delete_prompt_alias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.delete_prompt_alias" title="Permalink to this definition"> </a></dt>
 <dd><div class="admonition note">
@@ -994,6 +1028,60 @@ Tags: {}
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlflow.client.MlflowClient.delete_prompt_tag">
+<span class="sig-name descname"><span class="pre">delete_prompt_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.delete_prompt_tag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.delete_prompt_tag" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This function may change or be removed in a future release without warning.</p>
+</div>
+<p>Delete a tag from a prompt.</p>
+<p>This method delegates directly to the store, providing full Unity Catalog support
+when used with Unity Catalog registries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Name of the prompt.</p></li>
+<li><p><strong>key</strong> – Tag key to delete.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+<span class="n">client</span><span class="o">.</span><span class="n">delete_prompt_tag</span><span class="p">(</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">,</span> <span class="s2">&quot;environment&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlflow.client.MlflowClient.delete_prompt_version">
+<span class="sig-name descname"><span class="pre">delete_prompt_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.delete_prompt_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.delete_prompt_version" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This function may change or be removed in a future release without warning.</p>
+</div>
+<p>Delete a specific prompt version.</p>
+<p>This method delegates directly to the store, providing full Unity Catalog support
+when used with Unity Catalog registries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Name of the prompt.</p></li>
+<li><p><strong>version</strong> – Version of the prompt to delete.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+<span class="n">client</span><span class="o">.</span><span class="n">delete_prompt_version</span><span class="p">(</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -2143,6 +2231,36 @@ when used with Unity Catalog registries.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlflow.client.MlflowClient.get_prompt_version_by_alias">
+<span class="sig-name descname"><span class="pre">get_prompt_version_by_alias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alias</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mlflow.entities.html#mlflow.entities.model_registry.PromptVersion" title="mlflow.entities.model_registry.PromptVersion"><span class="pre">PromptVersion</span></a></span></span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.get_prompt_version_by_alias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.get_prompt_version_by_alias" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This function may change or be removed in a future release without warning.</p>
+</div>
+<p>Get a prompt version by alias.</p>
+<p>This method delegates directly to the store, providing full Unity Catalog support
+when used with Unity Catalog registries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Name of the prompt.</p></li>
+<li><p><strong>alias</strong> – Alias of the prompt version.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A PromptVersion object.</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+<span class="n">prompt_version</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_prompt_version_by_alias</span><span class="p">(</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">,</span> <span class="s2">&quot;production&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlflow.client.MlflowClient.get_registered_model">
 <span class="sig-name descname"><span class="pre">get_registered_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mlflow.entities.html#mlflow.entities.model_registry.RegisteredModel" title="mlflow.entities.model_registry.RegisteredModel"><span class="pre">RegisteredModel</span></a></span></span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.get_registered_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.get_registered_model" title="Permalink to this definition"> </a></dt>
 <dd><p>Get a registered model.</p>
@@ -2262,6 +2380,51 @@ status: FINISHED
 <span class="n">trace</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_trace</span><span class="p">(</span><span class="n">trace_id</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlflow.client.MlflowClient.link_prompt_version_to_model">
+<span class="sig-name descname"><span class="pre">link_prompt_version_to_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.link_prompt_version_to_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.link_prompt_version_to_model" title="Permalink to this definition"> </a></dt>
+<dd><p>Link a prompt version to a model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – The name of the prompt.</p></li>
+<li><p><strong>version</strong> – The version of the prompt.</p></li>
+<li><p><strong>model_id</strong> – The ID of the model to link the prompt version to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlflow.client.MlflowClient.link_prompts_to_trace">
+<span class="sig-name descname"><span class="pre">link_prompts_to_trace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prompt_versions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mlflow.entities.html#mlflow.entities.model_registry.PromptVersion" title="mlflow.entities.model_registry.PromptVersion"><span class="pre">PromptVersion</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.link_prompts_to_trace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.link_prompts_to_trace" title="Permalink to this definition"> </a></dt>
+<dd><p>Link multiple prompt versions to a trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prompt_versions</strong> – List of PromptVersion objects to link.</p></li>
+<li><p><strong>trace_id</strong> – Trace ID to link to each prompt version.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+
+<span class="c1"># Get prompt versions and link to trace</span>
+<span class="n">prompt_v1</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_prompt_version</span><span class="p">(</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<span class="n">prompt_v2</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_prompt_version</span><span class="p">(</span><span class="s2">&quot;another_prompt&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">)</span>
+
+<span class="n">client</span><span class="o">.</span><span class="n">link_prompts_to_trace</span><span class="p">(</span>
+    <span class="n">prompt_versions</span><span class="o">=</span><span class="p">[</span><span class="n">prompt_v1</span><span class="p">,</span> <span class="n">prompt_v2</span><span class="p">],</span>
+    <span class="n">trace_id</span><span class="o">=</span><span class="s2">&quot;trace_123&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
 </div>
 </dd></dl>
 
@@ -3823,6 +3986,38 @@ name=CordobaWeatherForecastModel; run_id=e14afa2f47a040728060c1699968fd43; versi
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlflow.client.MlflowClient.search_prompt_versions">
+<span class="sig-name descname"><span class="pre">search_prompt_versions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page_token</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.search_prompt_versions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.search_prompt_versions" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This function may change or be removed in a future release without warning.</p>
+</div>
+<p>Search prompt versions for a given prompt name.</p>
+<p>This method delegates directly to the store. Only supported in Unity Catalog registries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Name of the prompt to search versions for.</p></li>
+<li><p><strong>max_results</strong> – Maximum number of versions to return.</p></li>
+<li><p><strong>page_token</strong> – Token for pagination.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SearchPromptVersionsResponse containing the list of versions.</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">search_prompt_versions</span><span class="p">(</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">,</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">prompt_versions</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Version </span><span class="si">{</span><span class="n">version</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">version</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlflow.client.MlflowClient.search_prompts">
 <span class="sig-name descname"><span class="pre">search_prompts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page_token</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mlflow.entities.html#mlflow.store.entities.PagedList" title="mlflow.store.entities.PagedList"><span class="pre">PagedList</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Prompt</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.search_prompts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.search_prompts" title="Permalink to this definition"> </a></dt>
 <dd><p>Search for prompts in the MLflow Prompt Registry.</p>
@@ -4237,6 +4432,34 @@ Tags: {&#39;t&#39;: &#39;1&#39;, &#39;t1&#39;: &#39;1&#39;}
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlflow.client.MlflowClient.set_prompt_tag">
+<span class="sig-name descname"><span class="pre">set_prompt_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.set_prompt_tag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.set_prompt_tag" title="Permalink to this definition"> </a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experimental: This function may change or be removed in a future release without warning.</p>
+</div>
+<p>Set a tag on a prompt.</p>
+<p>This method delegates directly to the store, providing full Unity Catalog support
+when used with Unity Catalog registries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Name of the prompt.</p></li>
+<li><p><strong>key</strong> – Tag key.</p></li>
+<li><p><strong>value</strong> – Tag value.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+<span class="n">client</span><span class="o">.</span><span class="n">set_prompt_tag</span><span class="p">(</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">,</span> <span class="s2">&quot;environment&quot;</span><span class="p">,</span> <span class="s2">&quot;production&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">

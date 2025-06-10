@@ -982,6 +982,51 @@
             <span class="n">prompt</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">prompt</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">PROMPT_ASSOCIATED_RUN_IDS_TAG_KEY</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">run_ids</span><span class="p">)</span>
         <span class="p">)</span></div>
 
+<div class="viewcode-block" id="MlflowClient.link_prompt_version_to_model"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.link_prompt_version_to_model">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">link_prompt_version_to_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Link a prompt version to a model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: The name of the prompt.</span>
+<span class="sd">            version: The version of the prompt.</span>
+<span class="sd">            model_id: The ID of the model to link the prompt version to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span><span class="o">.</span><span class="n">link_prompt_version_to_model</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span>
+            <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="MlflowClient.link_prompts_to_trace"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.link_prompts_to_trace">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">link_prompts_to_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prompt_versions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PromptVersion</span><span class="p">],</span> <span class="n">trace_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Link multiple prompt versions to a trace.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            prompt_versions: List of PromptVersion objects to link.</span>
+<span class="sd">            trace_id: Trace ID to link to each prompt version.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                import mlflow</span>
+<span class="sd">                from mlflow import MlflowClient</span>
+
+<span class="sd">                client = MlflowClient()</span>
+
+<span class="sd">                # Get prompt versions and link to trace</span>
+<span class="sd">                prompt_v1 = client.get_prompt_version(&quot;my_prompt&quot;, &quot;1&quot;)</span>
+<span class="sd">                prompt_v2 = client.get_prompt_version(&quot;another_prompt&quot;, &quot;2&quot;)</span>
+
+<span class="sd">                client.link_prompts_to_trace(</span>
+<span class="sd">                    prompt_versions=[prompt_v1, prompt_v2],</span>
+<span class="sd">                    trace_id=&quot;trace_123&quot;,</span>
+<span class="sd">                )</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span><span class="o">.</span><span class="n">link_prompts_to_trace</span><span class="p">(</span>
+            <span class="n">prompt_versions</span><span class="o">=</span><span class="n">prompt_versions</span><span class="p">,</span>
+            <span class="n">trace_id</span><span class="o">=</span><span class="n">trace_id</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
     <span class="c1"># TODO: Use model_id in MLflow 3.0</span>
 <div class="viewcode-block" id="MlflowClient.detach_prompt_from_run"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.detach_prompt_from_run">[docs]</a>    <span class="nd">@experimental</span>
     <span class="nd">@require_prompt_registry</span>
@@ -1070,10 +1115,16 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
-        <span class="n">mv</span> <span class="o">=</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_model_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">IS_PROMPT_TAG_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mv</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Prompt &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; does not exist.&quot;</span><span class="p">,</span> <span class="n">RESOURCE_DOES_NOT_EXIST</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pv</span> <span class="o">=</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_prompt_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Prompt &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; version </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span><span class="p">,</span> <span class="n">RESOURCE_DOES_NOT_EXIST</span>
+                <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Prompt &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; version </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span><span class="p">,</span> <span class="n">RESOURCE_DOES_NOT_EXIST</span>
+            <span class="p">)</span>
 
 <div class="viewcode-block" id="MlflowClient.parse_prompt_uri"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.parse_prompt_uri">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">parse_prompt_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -5879,7 +5930,207 @@
 <span class="sd">            prompt_alias = client.get_prompt_version(&quot;my_prompt&quot;, &quot;production&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_prompt_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_prompt_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MlflowClient.delete_prompt_version"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.delete_prompt_version">[docs]</a>    <span class="nd">@experimental</span>
+    <span class="nd">@require_prompt_registry</span>
+    <span class="nd">@translate_prompt_exception</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_prompt_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete a specific prompt version.</span>
+
+<span class="sd">        This method delegates directly to the store, providing full Unity Catalog support</span>
+<span class="sd">        when used with Unity Catalog registries.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: Name of the prompt.</span>
+<span class="sd">            version: Version of the prompt to delete.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from mlflow import MlflowClient</span>
+
+<span class="sd">            client = MlflowClient()</span>
+<span class="sd">            client.delete_prompt_version(&quot;my_prompt&quot;, &quot;1&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">delete_prompt_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MlflowClient.set_prompt_tag"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.set_prompt_tag">[docs]</a>    <span class="nd">@experimental</span>
+    <span class="nd">@require_prompt_registry</span>
+    <span class="nd">@translate_prompt_exception</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_prompt_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set a tag on a prompt.</span>
+
+<span class="sd">        This method delegates directly to the store, providing full Unity Catalog support</span>
+<span class="sd">        when used with Unity Catalog registries.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: Name of the prompt.</span>
+<span class="sd">            key: Tag key.</span>
+<span class="sd">            value: Tag value.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from mlflow import MlflowClient</span>
+
+<span class="sd">            client = MlflowClient()</span>
+<span class="sd">            client.set_prompt_tag(&quot;my_prompt&quot;, &quot;environment&quot;, &quot;production&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">set_prompt_tag</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MlflowClient.delete_prompt_tag"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.delete_prompt_tag">[docs]</a>    <span class="nd">@experimental</span>
+    <span class="nd">@require_prompt_registry</span>
+    <span class="nd">@translate_prompt_exception</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_prompt_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete a tag from a prompt.</span>
+
+<span class="sd">        This method delegates directly to the store, providing full Unity Catalog support</span>
+<span class="sd">        when used with Unity Catalog registries.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: Name of the prompt.</span>
+<span class="sd">            key: Tag key to delete.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from mlflow import MlflowClient</span>
+
+<span class="sd">            client = MlflowClient()</span>
+<span class="sd">            client.delete_prompt_tag(&quot;my_prompt&quot;, &quot;environment&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">delete_prompt_tag</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MlflowClient.get_prompt_version_by_alias"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.get_prompt_version_by_alias">[docs]</a>    <span class="nd">@experimental</span>
+    <span class="nd">@require_prompt_registry</span>
+    <span class="nd">@translate_prompt_exception</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_prompt_version_by_alias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">alias</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PromptVersion</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a prompt version by alias.</span>
+
+<span class="sd">        This method delegates directly to the store, providing full Unity Catalog support</span>
+<span class="sd">        when used with Unity Catalog registries.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: Name of the prompt.</span>
+<span class="sd">            alias: Alias of the prompt version.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A PromptVersion object.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from mlflow import MlflowClient</span>
+
+<span class="sd">            client = MlflowClient()</span>
+<span class="sd">            prompt_version = client.get_prompt_version_by_alias(&quot;my_prompt&quot;, &quot;production&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_prompt_version_by_alias</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">alias</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MlflowClient.search_prompt_versions"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.search_prompt_versions">[docs]</a>    <span class="nd">@experimental</span>
+    <span class="nd">@require_prompt_registry</span>
+    <span class="nd">@translate_prompt_exception</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search_prompt_versions</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_results</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">page_token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Search prompt versions for a given prompt name.</span>
+
+<span class="sd">        This method delegates directly to the store. Only supported in Unity Catalog registries.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: Name of the prompt to search versions for.</span>
+<span class="sd">            max_results: Maximum number of versions to return.</span>
+<span class="sd">            page_token: Token for pagination.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            SearchPromptVersionsResponse containing the list of versions.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from mlflow import MlflowClient</span>
+
+<span class="sd">            client = MlflowClient()</span>
+<span class="sd">            response = client.search_prompt_versions(&quot;my_prompt&quot;, max_results=10)</span>
+<span class="sd">            for version in response.prompt_versions:</span>
+<span class="sd">                print(f&quot;Version {version.version}: {version.description}&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">search_prompt_versions</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">max_results</span><span class="p">,</span> <span class="n">page_token</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MlflowClient.delete_prompt"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.delete_prompt">[docs]</a>    <span class="nd">@experimental</span>
+    <span class="nd">@require_prompt_registry</span>
+    <span class="nd">@translate_prompt_exception</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete a prompt from the registry.</span>
+
+<span class="sd">        For Unity Catalog registries, this method first checks if any versions exist for the prompt</span>
+<span class="sd">        and throws an error if undeleted versions are found. All versions must be explicitly</span>
+<span class="sd">        deleted first before the prompt itself can be deleted.</span>
+
+<span class="sd">        For other registries, the prompt is deleted normally without version checking.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: Name of the prompt to delete.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from mlflow import MlflowClient</span>
+
+<span class="sd">            client = MlflowClient()</span>
+
+<span class="sd">            # For Unity Catalog, delete all versions first</span>
+<span class="sd">            if client.get_registry_uri().startswith(&quot;databricks-uc&quot;):</span>
+<span class="sd">                versions = client.search_prompt_versions(&quot;my_prompt&quot;)</span>
+<span class="sd">                for version in versions.prompt_versions:</span>
+<span class="sd">                    client.delete_prompt_version(&quot;my_prompt&quot;, version.version)</span>
+
+<span class="sd">            # Then delete the prompt</span>
+<span class="sd">            client.delete_prompt(&quot;my_prompt&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
+
+        <span class="c1"># Only check for existing versions in Unity Catalog registries</span>
+        <span class="n">registry_uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registry_uri</span>
+
+        <span class="k">if</span> <span class="n">is_databricks_unity_catalog_uri</span><span class="p">(</span><span class="n">registry_uri</span><span class="p">):</span>
+            <span class="n">search_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_prompt_versions</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># Check if any versions exist</span>
+            <span class="n">has_versions</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">hasattr</span><span class="p">(</span><span class="n">search_response</span><span class="p">,</span> <span class="s2">&quot;prompt_versions&quot;</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">search_response</span><span class="o">.</span><span class="n">prompt_versions</span>
+                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">search_response</span><span class="o">.</span><span class="n">prompt_versions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">has_versions</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Cannot delete prompt &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; because it still has undeleted versions. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Please delete all versions first using delete_prompt_version(), &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;then delete the prompt.&quot;</span><span class="p">,</span>
+                    <span class="n">INVALID_PARAMETER_VALUE</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="c1"># For non-Unity Catalog registries, or if version check passes, delete the prompt</span>
+        <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">delete_prompt</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div></div>
 </pre></div>
 
               </div>

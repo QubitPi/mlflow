@@ -254,10 +254,19 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Scorer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers.builtin_scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">GENAI_CONFIG_NAME</span><span class="p">,</span> <span class="n">BuiltInScorer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">valid_data_for_builtin_scorers</span><span class="p">,</span> <span class="n">validate_scorers</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.utils.trace_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">clean_up_extra_traces</span><span class="p">,</span> <span class="n">convert_predict_fn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.utils.trace_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">clean_up_extra_traces</span><span class="p">,</span>
+    <span class="n">convert_predict_fn</span><span class="p">,</span>
+    <span class="n">copy_model_serving_trace_to_eval_run</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.evaluation.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">EvaluationResult</span><span class="p">,</span>
     <span class="n">_is_model_deployment_endpoint_uri</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.constant</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DATABRICKS_OPTIONS_KEY</span><span class="p">,</span>
+    <span class="n">DATABRICKS_OUTPUT_KEY</span><span class="p">,</span>
+    <span class="n">RETURN_TRACE_OPTION_KEY</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.annotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">experimental</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.uri</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_databricks_uri</span>
@@ -590,19 +599,47 @@
 
     <span class="n">client</span> <span class="o">=</span> <span class="n">get_deploy_client</span><span class="p">(</span><span class="s2">&quot;databricks&quot;</span><span class="p">)</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">endpoint</span> <span class="o">=</span> <span class="n">_parse_model_uri</span><span class="p">(</span><span class="n">endpoint_uri</span><span class="p">)</span>
+    <span class="n">endpoint_info</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_endpoint</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+
+    <span class="c1"># Databricks Foundation Model API does not allow passing &quot;databricks_options&quot; in the payload,</span>
+    <span class="c1"># so we need to handle this case separately.</span>
+    <span class="n">is_fmapi</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">endpoint_info</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">is_fmapi</span> <span class="o">=</span> <span class="n">endpoint_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;endpoint_type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;FOUNDATION_MODEL_API&quot;</span>
 
     <span class="c1"># NB: Wrap the function to show better docstring and change signature to `model_inputs`</span>
     <span class="c1">#   to unnamed keyword arguments. This is necessary because we pass input samples as</span>
     <span class="c1">#   keyword arguments to the predict function.</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict_fn</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="c1"># NB: Manually set inputs and outputs rather than using @mlflow.trace decorator,</span>
-        <span class="c1">#   because we want to record keyword arguments with names rather than **kwargs.</span>
-        <span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_span</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;predict&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">span</span><span class="p">:</span>
-            <span class="n">span</span><span class="o">.</span><span class="n">set_inputs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="n">span</span><span class="o">.</span><span class="n">set_attribute</span><span class="p">(</span><span class="s2">&quot;endpoint&quot;</span><span class="p">,</span> <span class="n">endpoint_uri</span><span class="p">)</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="n">span</span><span class="o">.</span><span class="n">set_outputs</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">result</span>
+        <span class="n">start_time_ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span>
+        <span class="c1"># Inject `{&quot;databricks_options&quot;: {&quot;return_trace&quot;: True}}` to the input payload</span>
+        <span class="c1"># to return the trace in the response.</span>
+        <span class="n">databricks_options</span> <span class="o">=</span> <span class="p">{</span><span class="n">DATABRICKS_OPTIONS_KEY</span><span class="p">:</span> <span class="p">{</span><span class="n">RETURN_TRACE_OPTION_KEY</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">kwargs</span> <span class="k">if</span> <span class="n">is_fmapi</span> <span class="k">else</span> <span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">databricks_options</span><span class="p">}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+        <span class="n">end_time_ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time_ns</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span>
+
+        <span class="c1"># If the endpoint returns a trace, copy it to the current experiment.</span>
+        <span class="k">if</span> <span class="n">trace_dict</span> <span class="o">:=</span> <span class="n">result</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">DATABRICKS_OUTPUT_KEY</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;trace&quot;</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">copy_model_serving_trace_to_eval_run</span><span class="p">(</span><span class="n">trace_dict</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">result</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Failed to copy trace from the endpoint response to the current experiment. &quot;</span>
+                    <span class="s2">&quot;Trace will only have a root span with request and response.&quot;</span><span class="p">,</span>
+                    <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="c1"># If the endpoint doesn&#39;t return a trace, manually create a trace with request/response.</span>
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">log_trace</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;predict&quot;</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="n">response</span><span class="o">=</span><span class="n">result</span><span class="p">,</span>
+            <span class="n">start_time_ms</span><span class="o">=</span><span class="n">start_time_ms</span><span class="p">,</span>
+            <span class="n">execution_time_ms</span><span class="o">=</span><span class="n">end_time_ms</span> <span class="o">-</span> <span class="n">start_time_ms</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
 
     <span class="n">predict_fn</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">A wrapper function for invoking the model serving endpoint `</span><span class="si">{</span><span class="n">endpoint_uri</span><span class="si">}</span><span class="s2">`.</span>
@@ -610,7 +647,7 @@
 <span class="s2">Args:</span>
 <span class="s2">    **kwargs: The input samples to be passed to the model serving endpoint.</span>
 <span class="s2">        For example, if the endpoint accepts a JSON object with a `messages` key,</span>
-<span class="s2">        the input sample should be a dictionary with a `messages` key.</span>
+<span class="s2">        the function also expects to get `messages` as an argument.</span>
 <span class="s2">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">predict_fn</span></div>
 </pre></div>

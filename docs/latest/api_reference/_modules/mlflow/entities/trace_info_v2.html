@@ -250,6 +250,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.service_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceInfo</span> <span class="k">as</span> <span class="n">ProtoTraceInfo</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.service_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceRequestMetadata</span> <span class="k">as</span> <span class="n">ProtoTraceRequestMetadata</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.service_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceTag</span> <span class="k">as</span> <span class="n">ProtoTraceTag</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.constant</span><span class="w"> </span><span class="kn">import</span> <span class="n">TRACE_SCHEMA_VERSION</span><span class="p">,</span> <span class="n">TRACE_SCHEMA_VERSION_KEY</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_truncate_request_metadata</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
@@ -373,6 +374,12 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">trace_info_dict</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TraceInfoV2.to_v3"><a class="viewcode-back" href="../../../python_api/mlflow.entities.html#mlflow.entities.TraceInfoV2.to_v3">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_v3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">response</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TraceInfo</span><span class="p">:</span>
+        <span class="c1"># NB: MLflow automatically converts trace metadata and spans to V3 format, even if the</span>
+        <span class="c1"># trace was originally created in V2 format with an earlier version of MLflow. Accordingly,</span>
+        <span class="c1"># we also update the `TRACE_SCHEMA_VERSION_KEY` in the trace metadata to V3 for consistency</span>
+        <span class="n">trace_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">trace_metadata</span><span class="p">[</span><span class="n">TRACE_SCHEMA_VERSION_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">TRACE_SCHEMA_VERSION</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">TraceInfo</span><span class="p">(</span>
             <span class="n">trace_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">request_id</span><span class="p">,</span>
             <span class="n">trace_location</span><span class="o">=</span><span class="n">TraceLocation</span><span class="o">.</span><span class="n">from_experiment_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">),</span>
@@ -381,7 +388,7 @@
             <span class="n">request_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamp_ms</span><span class="p">,</span>
             <span class="n">execution_duration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">execution_time_ms</span><span class="p">,</span>
             <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">to_state</span><span class="p">(),</span>
-            <span class="n">trace_metadata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">request_metadata</span><span class="p">,</span>
+            <span class="n">trace_metadata</span><span class="o">=</span><span class="n">trace_metadata</span><span class="p">,</span>
             <span class="n">tags</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tags</span><span class="p">,</span>
             <span class="n">assessments</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">assessments</span><span class="p">,</span>
         <span class="p">)</span></div></div>

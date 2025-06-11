@@ -703,24 +703,6 @@ Last Updated timestamp: 1662004217511
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="mlflow.delete_prompt_alias">
-<span class="sig-prename descclassname"><span class="pre">mlflow.</span></span><span class="sig-name descname"><span class="pre">delete_prompt_alias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alias</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/_model_registry/fluent.html#delete_prompt_alias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.delete_prompt_alias" title="Permalink to this definition"> </a></dt>
-<dd><div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Experimental: This function may change or be removed in a future release without warning.</p>
-</div>
-<p>Delete an alias for a <a class="reference internal" href="mlflow.entities.html#mlflow.entities.Prompt" title="mlflow.entities.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a> in the MLflow Prompt Registry.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – The name of the prompt.</p></li>
-<li><p><strong>alias</strong> – The alias to delete for the prompt.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="mlflow.delete_run">
 <span class="sig-prename descclassname"><span class="pre">mlflow.</span></span><span class="sig-name descname"><span class="pre">delete_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#delete_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.delete_run" title="Permalink to this definition"> </a></dt>
 <dd><p>Deletes a run with the given ID.</p>
@@ -1804,40 +1786,6 @@ a terminal status (i.e. FINISHED, FAILED, or KILLED).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="mlflow.load_prompt">
-<span class="sig-prename descclassname"><span class="pre">mlflow.</span></span><span class="sig-name descname"><span class="pre">load_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_or_uri</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_missing</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mlflow.entities.html#mlflow.entities.model_registry.PromptVersion" title="mlflow.entities.model_registry.PromptVersion"><span class="pre">PromptVersion</span></a></span></span><a class="reference internal" href="../_modules/mlflow/tracking/_model_registry/fluent.html#load_prompt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.load_prompt" title="Permalink to this definition"> </a></dt>
-<dd><div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Experimental: This function may change or be removed in a future release without warning.</p>
-</div>
-<p>Load a <a class="reference internal" href="mlflow.entities.html#mlflow.entities.Prompt" title="mlflow.entities.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a> from the MLflow Prompt Registry.</p>
-<p>The prompt can be specified by name and version, or by URI.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name_or_uri</strong> – The name of the prompt, or the URI in the format “prompts:/name/version”.</p></li>
-<li><p><strong>version</strong> – The version of the prompt (required when using name, not allowed when using URI).</p></li>
-<li><p><strong>allow_missing</strong> – If True, return None instead of raising Exception if the specified prompt
-is not found.</p></li>
-</ul>
-</dd>
-</dl>
-<p>Example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-
-<span class="c1"># Load a specific version of the prompt</span>
-<span class="n">prompt</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">load_prompt</span><span class="p">(</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-<span class="c1"># Load a specific version of the prompt by URI</span>
-<span class="n">prompt</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">load_prompt</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="s2">&quot;prompts:/my_prompt/1&quot;</span><span class="p">)</span>
-
-<span class="c1"># Load a prompt version with an alias &quot;production&quot;</span>
-<span class="n">prompt</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">load_prompt</span><span class="p">(</span><span class="s2">&quot;prompts:/my_prompt@production&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="mlflow.load_table">
 <span class="sig-prename descclassname"><span class="pre">mlflow.</span></span><span class="sig-name descname"><span class="pre">load_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifact_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_ids</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_columns</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/fluent.html#load_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.load_table" title="Permalink to this definition"> </a></dt>
 <dd><p>Load a table from MLflow Tracking as a pandas.DataFrame. The table is loaded from the
@@ -2772,90 +2720,6 @@ Version: 1
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="mlflow.register_prompt">
-<span class="sig-prename descclassname"><span class="pre">mlflow.</span></span><span class="sig-name descname"><span class="pre">register_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit_message</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version_metadata</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mlflow.entities.html#mlflow.entities.model_registry.PromptVersion" title="mlflow.entities.model_registry.PromptVersion"><span class="pre">PromptVersion</span></a></span></span><a class="reference internal" href="../_modules/mlflow/tracking/_model_registry/fluent.html#register_prompt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.register_prompt" title="Permalink to this definition"> </a></dt>
-<dd><div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Experimental: This function may change or be removed in a future release without warning.</p>
-</div>
-<p>Register a new <a class="reference internal" href="mlflow.entities.html#mlflow.entities.Prompt" title="mlflow.entities.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a> in the MLflow Prompt Registry.</p>
-<p>A <a class="reference internal" href="mlflow.entities.html#mlflow.entities.Prompt" title="mlflow.entities.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a> is a pair of name and
-template text at minimum. With MLflow Prompt Registry, you can create, manage, and
-version control prompts with the MLflow’s robust model tracking framework.</p>
-<p>If there is no registered prompt with the given name, a new prompt will be created.
-Otherwise, a new version of the existing prompt will be created.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – The name of the prompt.</p></li>
-<li><p><strong>template</strong> – <p>The template text of the prompt. It can contain variables enclosed in
-double curly braces, e.g. {variable}, which will be replaced with actual values
-by the <cite>format</cite> method.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If you want to use the prompt with a framework that uses single curly braces
-e.g. LangChain, you can use the <cite>to_single_brace_format</cite> method to convert the
-loaded prompt to a format that uses single curly braces.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">prompt</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">load_prompt</span><span class="p">(</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">)</span>
-<span class="n">langchain_format</span> <span class="o">=</span> <span class="n">prompt</span><span class="o">.</span><span class="n">to_single_brace_format</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-</p></li>
-<li><p><strong>commit_message</strong> – A message describing the changes made to the prompt, similar to a
-Git commit message. Optional.</p></li>
-<li><p><strong>version_metadata</strong> – A dictionary of metadata associated with the <strong>prompt version</strong>.
-This is useful for storing version-specific information, such as the author of
-the changes. Optional.</p></li>
-<li><p><strong>tags</strong> – A dictionary of tags associated with the entire prompt. This is different from
-the <cite>version_metadata</cite> as it is not tied to a specific version of the prompt,
-but to the prompt as a whole. For example, you can use tags to add an application
-name for which the prompt is created. Since the application uses the prompt in
-multiple versions, it makes sense to use tags instead of version-specific metadata.
-Optional.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <a class="reference internal" href="mlflow.entities.html#mlflow.entities.Prompt" title="mlflow.entities.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a> object that was created.</p>
-</dd>
-</dl>
-<p>Example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-
-<span class="c1"># Register a new prompt</span>
-<span class="n">mlflow</span><span class="o">.</span><span class="n">register_prompt</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">,</span>
-    <span class="n">template</span><span class="o">=</span><span class="s2">&quot;Respond to the user&#39;s message as a {{style}} AI.&quot;</span><span class="p">,</span>
-    <span class="n">version_metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;Alice&quot;</span><span class="p">},</span>
-<span class="p">)</span>
-
-<span class="c1"># Load the prompt from the registry</span>
-<span class="n">prompt</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">load_prompt</span><span class="p">(</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">)</span>
-
-<span class="c1"># Use the prompt in your application</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">openai</span>
-
-<span class="n">openai_client</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">OpenAI</span><span class="p">()</span>
-<span class="n">openai_client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completion</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">,</span>
-    <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;friendly&quot;</span><span class="p">)},</span>
-        <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello, how are you?&quot;</span><span class="p">},</span>
-    <span class="p">],</span>
-<span class="p">)</span>
-
-<span class="c1"># Update the prompt with a new version</span>
-<span class="n">prompt</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">register_prompt</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">,</span>
-    <span class="n">template</span><span class="o">=</span><span class="s2">&quot;Respond to the user&#39;s message as a {{style}} AI. {{greeting}}&quot;</span><span class="p">,</span>
-    <span class="n">commit_message</span><span class="o">=</span><span class="s2">&quot;Add a greeting to the prompt.&quot;</span><span class="p">,</span>
-    <span class="n">version_metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;Bob&quot;</span><span class="p">},</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="mlflow.run">
 <span class="sig-prename descclassname"><span class="pre">mlflow.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_point</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'main'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docker_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'local'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synchronous</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_manager</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docker_auth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/projects.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.run" title="Permalink to this definition"> </a></dt>
 <dd><p>Run an MLflow project. The project can be local or stored at a Git URI.</p>
@@ -3155,11 +3019,6 @@ name=CordobaWeatherForecastModel; run_id=ae9a606a12834c04a8ef1006d0cff779; versi
 </div>
 </div>
 </dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="mlflow.search_prompts">
-<span class="sig-prename descclassname"><span class="pre">mlflow.</span></span><span class="sig-name descname"><span class="pre">search_prompts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mlflow.entities.html#mlflow.store.entities.PagedList" title="mlflow.store.entities.PagedList"><span class="pre">PagedList</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Prompt</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/_model_registry/fluent.html#search_prompts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.search_prompts" title="Permalink to this definition"> </a></dt>
-<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlflow.search_registered_models">
@@ -3468,41 +3327,6 @@ up to length 5000, but some may support larger values.</p></li>
 </ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="mlflow.set_prompt_alias">
-<span class="sig-prename descclassname"><span class="pre">mlflow.</span></span><span class="sig-name descname"><span class="pre">set_prompt_alias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alias</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/_model_registry/fluent.html#set_prompt_alias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.set_prompt_alias" title="Permalink to this definition"> </a></dt>
-<dd><div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Experimental: This function may change or be removed in a future release without warning.</p>
-</div>
-<p>Set an alias for a <a class="reference internal" href="mlflow.entities.html#mlflow.entities.Prompt" title="mlflow.entities.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a> in the MLflow Prompt Registry.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – The name of the prompt.</p></li>
-<li><p><strong>alias</strong> – The alias to set for the prompt.</p></li>
-<li><p><strong>version</strong> – The version of the prompt.</p></li>
-</ul>
-</dd>
-</dl>
-<p>Example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
-
-<span class="c1"># Set an alias for the prompt</span>
-<span class="n">mlflow</span><span class="o">.</span><span class="n">set_prompt_alias</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;production&quot;</span><span class="p">)</span>
-
-<span class="c1"># Load the prompt by alias (use &quot;@&quot; to specify the alias)</span>
-<span class="n">prompt</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">load_prompt</span><span class="p">(</span><span class="s2">&quot;prompts:/my_prompt@production&quot;</span><span class="p">)</span>
-
-<span class="c1"># Switch the alias to a new version of the prompt</span>
-<span class="n">mlflow</span><span class="o">.</span><span class="n">set_prompt_alias</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;production&quot;</span><span class="p">)</span>
-
-<span class="c1"># Delete the alias</span>
-<span class="n">mlflow</span><span class="o">.</span><span class="n">delete_prompt_alias</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_prompt&quot;</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;production&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="py function">

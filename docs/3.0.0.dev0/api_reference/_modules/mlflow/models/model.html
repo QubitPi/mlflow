@@ -1226,7 +1226,7 @@
             <span class="k">if</span> <span class="n">prompts</span><span class="p">:</span>
                 <span class="n">client</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowClient</span><span class="p">()</span>
                 <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">:</span>
-                    <span class="n">client</span><span class="o">.</span><span class="n">log_prompt</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">prompt</span><span class="p">)</span>
+                    <span class="n">client</span><span class="o">.</span><span class="n">link_prompt_version_to_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">prompt</span><span class="p">)</span>
 
             <span class="n">mlflow</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">fluent</span><span class="o">.</span><span class="n">log_artifacts</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">mlflow_model</span><span class="o">.</span><span class="n">artifact_path</span><span class="p">,</span> <span class="n">run_id</span><span class="p">)</span>
 
@@ -1532,11 +1532,10 @@
                 <span class="c1"># client.finalize_logged_model(model.model_id, status=LoggedModelStatus.READY)</span>
 
                 <span class="c1"># Associate prompts to the model Run</span>
-                <span class="c1"># TODO: pass model_id to log_prompt</span>
                 <span class="k">if</span> <span class="n">prompts</span> <span class="ow">and</span> <span class="n">run_id</span><span class="p">:</span>
                     <span class="n">client</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">MlflowClient</span><span class="p">()</span>
                     <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">:</span>
-                        <span class="n">client</span><span class="o">.</span><span class="n">log_prompt</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">prompt</span><span class="p">)</span>
+                        <span class="n">client</span><span class="o">.</span><span class="n">link_prompt_version_to_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="n">prompt</span><span class="p">)</span>
 
                 <span class="c1"># if the model_config kwarg is passed in, then log the model config as an params</span>
                 <span class="k">if</span> <span class="n">model_config</span> <span class="o">:=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model_config&quot;</span><span class="p">):</span>

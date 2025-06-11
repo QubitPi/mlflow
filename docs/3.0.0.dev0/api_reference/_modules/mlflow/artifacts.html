@@ -245,9 +245,11 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">posixpath</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.file_info</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileInfo</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.databricks_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="n">BAD_REQUEST</span><span class="p">,</span> <span class="n">INVALID_PARAMETER_VALUE</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking</span><span class="w"> </span><span class="kn">import</span> <span class="n">_get_store</span>
@@ -320,6 +322,12 @@
     <span class="k">if</span> <span class="n">artifact_uri</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_download_artifact_from_uri</span><span class="p">(</span><span class="n">artifact_uri</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">dst_path</span><span class="p">)</span>
 
+    <span class="c1"># Use `runs:/&lt;run_id&gt;/&lt;artifact_path&gt;` to download both run and model (if exists) artifacts</span>
+    <span class="k">if</span> <span class="n">run_id</span> <span class="ow">and</span> <span class="n">artifact_path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_download_artifact_from_uri</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">posixpath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span><span class="w"> </span><span class="n">artifact_path</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">dst_path</span>
+        <span class="p">)</span>
+
     <span class="n">artifact_path</span> <span class="o">=</span> <span class="n">artifact_path</span> <span class="k">if</span> <span class="n">artifact_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
 
     <span class="n">store</span> <span class="o">=</span> <span class="n">_get_store</span><span class="p">(</span><span class="n">store_uri</span><span class="o">=</span><span class="n">tracking_uri</span><span class="p">)</span>
@@ -327,17 +335,7 @@
     <span class="n">artifact_repo</span> <span class="o">=</span> <span class="n">get_artifact_repository</span><span class="p">(</span>
         <span class="n">add_databricks_profile_info_to_artifact_uri</span><span class="p">(</span><span class="n">artifact_uri</span><span class="p">,</span> <span class="n">tracking_uri</span><span class="p">)</span>
     <span class="p">)</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">artifact_repo</span><span class="o">.</span><span class="n">download_artifacts</span><span class="p">(</span><span class="n">artifact_path</span><span class="p">,</span> <span class="n">dst_path</span><span class="o">=</span><span class="n">dst_path</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">run_id</span> <span class="ow">and</span> <span class="n">artifact_path</span><span class="p">:</span>
-            <span class="c1"># To ensure backward compatibility with MLflow 2.x and earlier,</span>
-            <span class="c1"># download artifacts using `runs:/&lt;run_id&gt;/&lt;artifact_path&gt;` URI format.</span>
-            <span class="k">return</span> <span class="n">_download_artifact_from_uri</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">artifact_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">dst_path</span>
-            <span class="p">)</span>
-        <span class="k">raise</span></div>
+    <span class="k">return</span> <span class="n">artifact_repo</span><span class="o">.</span><span class="n">download_artifacts</span><span class="p">(</span><span class="n">artifact_path</span><span class="p">,</span> <span class="n">dst_path</span><span class="o">=</span><span class="n">dst_path</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="list_artifacts"><a class="viewcode-back" href="../../python_api/mlflow.artifacts.html#mlflow.artifacts.list_artifacts">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">list_artifacts</span><span class="p">(</span>
@@ -345,7 +343,7 @@
     <span class="n">run_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">artifact_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">tracking_uri</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">FileInfo</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;List artifacts at the specified URI.</span>
 
 <span class="sd">    Args:</span>
@@ -374,6 +372,10 @@
     <span class="k">if</span> <span class="n">artifact_uri</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">root_uri</span><span class="p">,</span> <span class="n">artifact_path</span> <span class="o">=</span> <span class="n">_get_root_uri_and_artifact_path</span><span class="p">(</span><span class="n">artifact_uri</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">get_artifact_repository</span><span class="p">(</span><span class="n">artifact_uri</span><span class="o">=</span><span class="n">root_uri</span><span class="p">)</span><span class="o">.</span><span class="n">list_artifacts</span><span class="p">(</span><span class="n">artifact_path</span><span class="p">)</span>
+
+    <span class="c1"># Use `runs:/&lt;run_id&gt;/&lt;artifact_path&gt;` to list both run and model (if exists) artifacts</span>
+    <span class="k">if</span> <span class="n">run_id</span> <span class="ow">and</span> <span class="n">artifact_path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_artifact_repository</span><span class="p">(</span><span class="n">artifact_uri</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;runs:/</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">list_artifacts</span><span class="p">(</span><span class="n">artifact_path</span><span class="p">)</span>
 
     <span class="n">store</span> <span class="o">=</span> <span class="n">_get_store</span><span class="p">(</span><span class="n">store_uri</span><span class="o">=</span><span class="n">tracking_uri</span><span class="p">)</span>
     <span class="n">artifact_uri</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">artifact_uri</span>

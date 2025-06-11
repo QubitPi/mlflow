@@ -239,16 +239,24 @@
               <div itemprop="articleBody">
                 
   <h1>Source code for mlflow.tracking._model_registry.fluent</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.logged_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoggedModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.model_registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelVersion</span><span class="p">,</span> <span class="n">Prompt</span><span class="p">,</span> <span class="n">PromptVersion</span><span class="p">,</span> <span class="n">RegisteredModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">Run</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.environment_variables</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLFLOW_PRINT_MODEL_URLS_ON_CREATION</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.environment_variables</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MLFLOW_PRINT_MODEL_URLS_ON_CREATION</span><span class="p">,</span>
+    <span class="n">MLFLOW_PROMPT_CACHE_MAX_SIZE</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLMODEL_FILE_NAME</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.prompt.registry_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_prompt_name_or_uri</span><span class="p">,</span> <span class="n">require_prompt_registry</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.protos.databricks_pb2</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ALREADY_EXISTS</span><span class="p">,</span>
@@ -263,11 +271,12 @@
     <span class="n">SEARCH_MODEL_VERSION_MAX_RESULTS_DEFAULT</span><span class="p">,</span>
     <span class="n">SEARCH_REGISTERED_MODEL_MAX_RESULTS_DEFAULT</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.fluent</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_active_trace_id</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.trace_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryTraceManager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking._model_registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowClient</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.fluent</span><span class="w"> </span><span class="kn">import</span> <span class="n">active_run</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.fluent</span><span class="w"> </span><span class="kn">import</span> <span class="n">active_run</span><span class="p">,</span> <span class="n">get_active_model_id</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_results_from_paginated_fn</span><span class="p">,</span> <span class="n">mlflow_tags</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.annotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">experimental</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.databricks_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_construct_databricks_uc_registered_model_url</span><span class="p">,</span>
     <span class="n">get_workspace_id</span><span class="p">,</span>
@@ -279,6 +288,13 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.uri</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_databricks_unity_catalog_uri</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="n">PROMPT_API_MIGRATION_MSG</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;The `mlflow.</span><span class="si">{func_name}</span><span class="s2">` API is moved to the `mlflow.genai` namespace. Please use &quot;</span>
+    <span class="s2">&quot;`mlflow.genai.</span><span class="si">{func_name}</span><span class="s2">` instead. The original API will be removed in the &quot;</span>
+    <span class="s2">&quot;future release.&quot;</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="register_model"><a class="viewcode-back" href="../../../../python_api/mlflow.html#mlflow.register_model">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">register_model</span><span class="p">(</span>
@@ -391,7 +407,8 @@
         <span class="n">runs_artifact_repo</span> <span class="o">=</span> <span class="n">RunsArtifactRepository</span><span class="p">(</span><span class="n">model_uri</span><span class="p">)</span>
         <span class="c1"># List artifacts in `&lt;run_artifact_root&gt;/&lt;artifact_path&gt;` to see if the run has artifacts.</span>
         <span class="c1"># If so use the run&#39;s artifact location as source.</span>
-        <span class="k">if</span> <span class="n">runs_artifact_repo</span><span class="o">.</span><span class="n">_is_directory</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="n">runs_artifact_repo</span><span class="o">.</span><span class="n">_list_run_artifacts</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">MLMODEL_FILE_NAME</span> <span class="ow">in</span> <span class="p">(</span><span class="n">art</span><span class="o">.</span><span class="n">path</span> <span class="k">for</span> <span class="n">art</span> <span class="ow">in</span> <span class="n">artifacts</span><span class="p">):</span>
             <span class="n">source</span> <span class="o">=</span> <span class="n">RunsArtifactRepository</span><span class="o">.</span><span class="n">get_underlying_uri</span><span class="p">(</span><span class="n">model_uri</span><span class="p">)</span>
         <span class="c1"># Otherwise check if there&#39;s a logged model with</span>
         <span class="c1"># name artifact_path and source_run_id run_id</span>
@@ -753,13 +770,11 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="register_prompt"><a class="viewcode-back" href="../../../../python_api/mlflow.html#mlflow.register_prompt">[docs]</a><span class="nd">@experimental</span>
 <span class="nd">@require_prompt_registry</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">register_prompt</span><span class="p">(</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">commit_message</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">version_metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PromptVersion</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -792,15 +807,9 @@
 
 <span class="sd">        commit_message: A message describing the changes made to the prompt, similar to a</span>
 <span class="sd">            Git commit message. Optional.</span>
-<span class="sd">        version_metadata: A dictionary of metadata associated with the **prompt version**.</span>
+<span class="sd">        tags: A dictionary of tags associated with the **prompt version**.</span>
 <span class="sd">            This is useful for storing version-specific information, such as the author of</span>
 <span class="sd">            the changes. Optional.</span>
-<span class="sd">        tags: A dictionary of tags associated with the entire prompt. This is different from</span>
-<span class="sd">            the `version_metadata` as it is not tied to a specific version of the prompt,</span>
-<span class="sd">            but to the prompt as a whole. For example, you can use tags to add an application</span>
-<span class="sd">            name for which the prompt is created. Since the application uses the prompt in</span>
-<span class="sd">            multiple versions, it makes sense to use tags instead of version-specific metadata.</span>
-<span class="sd">            Optional.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :py:class:`Prompt &lt;mlflow.entities.Prompt&gt;` object that was created.</span>
@@ -815,7 +824,6 @@
 <span class="sd">        mlflow.register_prompt(</span>
 <span class="sd">            name=&quot;my_prompt&quot;,</span>
 <span class="sd">            template=&quot;Respond to the user&#39;s message as a {{style}} AI.&quot;,</span>
-<span class="sd">            version_metadata={&quot;author&quot;: &quot;Alice&quot;},</span>
 <span class="sd">        )</span>
 
 <span class="sd">        # Load the prompt from the registry</span>
@@ -838,23 +846,34 @@
 <span class="sd">            name=&quot;my_prompt&quot;,</span>
 <span class="sd">            template=&quot;Respond to the user&#39;s message as a {{style}} AI. {{greeting}}&quot;,</span>
 <span class="sd">            commit_message=&quot;Add a greeting to the prompt.&quot;,</span>
-<span class="sd">            version_metadata={&quot;author&quot;: &quot;Bob&quot;},</span>
+<span class="sd">            tags={&quot;author&quot;: &quot;Bob&quot;},</span>
 <span class="sd">        )</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="n">PROMPT_API_MIGRATION_MSG</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">func_name</span><span class="o">=</span><span class="s2">&quot;register_prompt&quot;</span><span class="p">),</span>
+        <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
+
     <span class="k">return</span> <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">register_prompt</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
         <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
         <span class="n">commit_message</span><span class="o">=</span><span class="n">commit_message</span><span class="p">,</span>
         <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
-        <span class="n">version_metadata</span><span class="o">=</span><span class="n">version_metadata</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
 
 
-<div class="viewcode-block" id="search_prompts"><a class="viewcode-back" href="../../../../python_api/mlflow.html#mlflow.search_prompts">[docs]</a><span class="nd">@require_prompt_registry</span>
+<span class="nd">@require_prompt_registry</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">search_prompts</span><span class="p">(</span>
     <span class="n">filter_string</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">max_results</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PagedList</span><span class="p">[</span><span class="n">Prompt</span><span class="p">]:</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="n">PROMPT_API_MIGRATION_MSG</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">func_name</span><span class="o">=</span><span class="s2">&quot;search_prompts&quot;</span><span class="p">),</span>
+        <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">pagination_wrapper_func</span><span class="p">(</span><span class="n">number_to_get</span><span class="p">,</span> <span class="n">next_page_token</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">search_prompts</span><span class="p">(</span>
             <span class="n">filter_string</span><span class="o">=</span><span class="n">filter_string</span><span class="p">,</span> <span class="n">max_results</span><span class="o">=</span><span class="n">number_to_get</span><span class="p">,</span> <span class="n">page_token</span><span class="o">=</span><span class="n">next_page_token</span>
@@ -864,13 +883,16 @@
         <span class="n">pagination_wrapper_func</span><span class="p">,</span>
         <span class="n">SEARCH_REGISTERED_MODEL_MAX_RESULTS_DEFAULT</span><span class="p">,</span>
         <span class="n">max_results</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
 
 
-<div class="viewcode-block" id="load_prompt"><a class="viewcode-back" href="../../../../python_api/mlflow.html#mlflow.load_prompt">[docs]</a><span class="nd">@experimental</span>
 <span class="nd">@require_prompt_registry</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_prompt</span><span class="p">(</span>
-    <span class="n">name_or_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allow_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">name_or_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">allow_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">link_to_model</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">model_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PromptVersion</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load a :py:class:`Prompt &lt;mlflow.entities.Prompt&gt;` from the MLflow Prompt Registry.</span>
@@ -882,6 +904,10 @@
 <span class="sd">        version: The version of the prompt (required when using name, not allowed when using URI).</span>
 <span class="sd">        allow_missing: If True, return None instead of raising Exception if the specified prompt</span>
 <span class="sd">            is not found.</span>
+<span class="sd">        link_to_model: If True, the prompt will be linked to the model with the ID specified</span>
+<span class="sd">                       by `model_id`, or the active model ID if `model_id` is None and</span>
+<span class="sd">                       there is an active model.</span>
+<span class="sd">        model_id: The ID of the model to which to link the prompt, if `link_to_model` is True.</span>
 
 <span class="sd">    Example:</span>
 
@@ -899,27 +925,120 @@
 <span class="sd">        prompt = mlflow.load_prompt(&quot;prompts:/my_prompt@production&quot;)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="n">PROMPT_API_MIGRATION_MSG</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">func_name</span><span class="o">=</span><span class="s2">&quot;load_prompt&quot;</span><span class="p">),</span>
+        <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;@&quot;</span> <span class="ow">in</span> <span class="n">name_or_uri</span><span class="p">:</span>
+        <span class="c1"># Don&#39;t cache prompts loaded by alias since aliases can change over time</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="n">_load_prompt_not_cached</span><span class="p">(</span>
+            <span class="n">name_or_uri</span><span class="o">=</span><span class="n">name_or_uri</span><span class="p">,</span>
+            <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span>
+            <span class="n">allow_missing</span><span class="o">=</span><span class="n">allow_missing</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Otherwise, we use a cached function to avoid loading the same prompt multiple times.</span>
+        <span class="c1"># If the prompt from the cache is not found and allowing_missing is True, we</span>
+        <span class="c1"># try to load the prompt from the client without cache, since it may have been</span>
+        <span class="c1"># registered after the cache was created (uncommon scenario).</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="n">_load_prompt_cached</span><span class="p">(</span>
+            <span class="n">name_or_uri</span><span class="o">=</span><span class="n">name_or_uri</span><span class="p">,</span>
+            <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span>
+            <span class="n">allow_missing</span><span class="o">=</span><span class="n">allow_missing</span><span class="p">,</span>
+        <span class="p">)</span> <span class="ow">or</span> <span class="n">_load_prompt_not_cached</span><span class="p">(</span>
+            <span class="n">name_or_uri</span><span class="o">=</span><span class="n">name_or_uri</span><span class="p">,</span>
+            <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span>
+            <span class="n">allow_missing</span><span class="o">=</span><span class="n">allow_missing</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">prompt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+
+    <span class="c1"># If there is an active MLflow run, associate the prompt with the run.</span>
+    <span class="c1"># Note that we do this synchronously because it&#39;s unlikely that run linking occurs</span>
+    <span class="c1"># in a latency sensitive environment, since runs aren&#39;t typically used in real-time /</span>
+    <span class="c1"># production scenarios</span>
+    <span class="k">if</span> <span class="n">run</span> <span class="o">:=</span> <span class="n">active_run</span><span class="p">():</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">link_prompt_version_to_run</span><span class="p">(</span>
+            <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;prompts:/</span><span class="si">{</span><span class="n">prompt</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">prompt</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">link_to_model</span><span class="p">:</span>
+        <span class="n">model_id</span> <span class="o">=</span> <span class="n">model_id</span> <span class="ow">or</span> <span class="n">get_active_model_id</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">model_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Run linking in background thread to avoid blocking prompt loading. Prompt linking</span>
+            <span class="c1"># is not critical for the user&#39;s workflow (if the prompt fails to link, the user&#39;s</span>
+            <span class="c1"># workflow is minorly affected), so we handle it asynchronously and gracefully</span>
+            <span class="c1"># handle any failures without impacting the core prompt loading functionality.</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">_link_prompt_async</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">client</span><span class="o">.</span><span class="n">link_prompt_version_to_model</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">prompt</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">version</span><span class="o">=</span><span class="n">prompt</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+                        <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="c1"># NB: We should still load the prompt even if linking fails, since the prompt</span>
+                    <span class="c1"># is critical to the caller&#39;s application logic</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Failed to link prompt &#39;</span><span class="si">{</span><span class="n">prompt</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; version &#39;</span><span class="si">{</span><span class="n">prompt</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot; to model &#39;</span><span class="si">{</span><span class="n">model_id</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">,</span>
+                        <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+            <span class="c1"># Start linking in background - don&#39;t wait for completion</span>
+            <span class="n">link_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span>
+                <span class="n">target</span><span class="o">=</span><span class="n">_link_prompt_async</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;link_prompt_thread-</span><span class="si">{</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">link_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">trace_id</span> <span class="o">:=</span> <span class="n">get_active_trace_id</span><span class="p">():</span>
+        <span class="n">InMemoryTraceManager</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span><span class="o">.</span><span class="n">register_prompt</span><span class="p">(</span>
+            <span class="n">trace_id</span><span class="o">=</span><span class="n">trace_id</span><span class="p">,</span>
+            <span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">prompt</span>
+
+
+<span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="n">MLFLOW_PROMPT_CACHE_MAX_SIZE</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_prompt_cached</span><span class="p">(</span>
+    <span class="n">name_or_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">allow_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PromptVersion</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Internal cached function to load prompts from registry.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_load_prompt_not_cached</span><span class="p">(</span><span class="n">name_or_uri</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">allow_missing</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_prompt_not_cached</span><span class="p">(</span>
+    <span class="n">name_or_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">allow_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PromptVersion</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load prompt from client, handling URI parsing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
 
     <span class="c1"># Use utility to handle URI vs name+version parsing</span>
     <span class="n">parsed_name_or_uri</span><span class="p">,</span> <span class="n">parsed_version</span> <span class="o">=</span> <span class="n">parse_prompt_name_or_uri</span><span class="p">(</span><span class="n">name_or_uri</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">parsed_name_or_uri</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;prompts:/&quot;</span><span class="p">):</span>
         <span class="c1"># For URIs, don&#39;t pass version parameter</span>
-        <span class="n">prompt</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">load_prompt</span><span class="p">(</span><span class="n">parsed_name_or_uri</span><span class="p">,</span> <span class="n">allow_missing</span><span class="o">=</span><span class="n">allow_missing</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">load_prompt</span><span class="p">(</span><span class="n">parsed_name_or_uri</span><span class="p">,</span> <span class="n">allow_missing</span><span class="o">=</span><span class="n">allow_missing</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># For names, use the parsed version</span>
-        <span class="n">prompt</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">load_prompt</span><span class="p">(</span>
+        <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">load_prompt</span><span class="p">(</span>
             <span class="n">parsed_name_or_uri</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">parsed_version</span><span class="p">,</span> <span class="n">allow_missing</span><span class="o">=</span><span class="n">allow_missing</span>
         <span class="p">)</span>
 
-    <span class="c1"># If there is an active MLflow run, associate the prompt with the run</span>
-    <span class="k">if</span> <span class="n">run</span> <span class="o">:=</span> <span class="n">active_run</span><span class="p">():</span>
-        <span class="n">client</span><span class="o">.</span><span class="n">log_prompt</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;prompts:/</span><span class="si">{</span><span class="n">prompt</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">prompt</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">prompt</span></div>
-
-
-<div class="viewcode-block" id="set_prompt_alias"><a class="viewcode-back" href="../../../../python_api/mlflow.html#mlflow.set_prompt_alias">[docs]</a><span class="nd">@experimental</span>
 <span class="nd">@require_prompt_registry</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">set_prompt_alias</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">alias</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -948,11 +1067,15 @@
 <span class="sd">        # Delete the alias</span>
 <span class="sd">        mlflow.delete_prompt_alias(name=&quot;my_prompt&quot;, alias=&quot;production&quot;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="n">PROMPT_API_MIGRATION_MSG</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">func_name</span><span class="o">=</span><span class="s2">&quot;set_prompt_alias&quot;</span><span class="p">),</span>
+        <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
 
-    <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">set_prompt_alias</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="n">alias</span><span class="p">)</span></div>
+    <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">set_prompt_alias</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="n">alias</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="delete_prompt_alias"><a class="viewcode-back" href="../../../../python_api/mlflow.html#mlflow.delete_prompt_alias">[docs]</a><span class="nd">@experimental</span>
 <span class="nd">@require_prompt_registry</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">delete_prompt_alias</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">alias</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -962,7 +1085,13 @@
 <span class="sd">        name: The name of the prompt.</span>
 <span class="sd">        alias: The alias to delete for the prompt.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">delete_prompt_alias</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="n">alias</span><span class="p">)</span></div>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="n">PROMPT_API_MIGRATION_MSG</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">func_name</span><span class="o">=</span><span class="s2">&quot;delete_prompt_alias&quot;</span><span class="p">),</span>
+        <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">delete_prompt_alias</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="n">alias</span><span class="p">)</span>
 </pre></div>
 
               </div>

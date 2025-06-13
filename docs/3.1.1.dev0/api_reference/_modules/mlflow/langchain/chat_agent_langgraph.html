@@ -257,7 +257,7 @@
     <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="c1"># If LangGraph 0.3.x is installed but langgraph_prebuilt is not,</span>
         <span class="c1"># show a friendlier error message</span>
-        <span class="k">if</span> <span class="n">Version</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">metadata</span><span class="p">(</span><span class="s2">&quot;langgraph&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">version</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">Version</span><span class="p">(</span><span class="s2">&quot;0.3.0&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">Version</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s2">&quot;langgraph&quot;</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="n">Version</span><span class="p">(</span><span class="s2">&quot;0.3.0&quot;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
                 <span class="s2">&quot;Please install `langgraph-prebuilt&gt;=0.1.2` to use MLflow LangGraph ChatAgent &quot;</span>
                 <span class="s2">&quot;helpers with LangGraph 0.3.x.</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -345,7 +345,7 @@
 <span class="sd">        from langchain_core.runnables import RunnableConfig, RunnableLambda</span>
 <span class="sd">        from langchain_core.tools import BaseTool</span>
 <span class="sd">        from langgraph.graph import END, StateGraph</span>
-<span class="sd">        from langgraph.graph.graph import CompiledGraph</span>
+<span class="sd">        from langgraph.graph.state import CompiledStateGraph</span>
 <span class="sd">        from langgraph.prebuilt import ToolNode</span>
 <span class="sd">        from mlflow.langchain.chat_agent_langgraph import ChatAgentState, ChatAgentToolNode</span>
 
@@ -354,7 +354,7 @@
 <span class="sd">            model: LanguageModelLike,</span>
 <span class="sd">            tools: Union[ToolNode, Sequence[BaseTool]],</span>
 <span class="sd">            agent_prompt: Optional[str] = None,</span>
-<span class="sd">        ) -&gt; CompiledGraph:</span>
+<span class="sd">        ) -&gt; CompiledStateGraph:</span>
 <span class="sd">            model = model.bind_tools(tools)</span>
 
 <span class="sd">            def routing_logic(state: ChatAgentState):</span>

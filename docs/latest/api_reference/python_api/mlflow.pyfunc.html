@@ -855,7 +855,7 @@ Values must be YAML-serializable.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlflow.pyfunc.build_model_env">
-<span class="sig-prename descclassname"><span class="pre">mlflow.pyfunc.</span></span><span class="sig-name descname"><span class="pre">build_model_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/pyfunc.html#build_model_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.build_model_env" title="Permalink to this definition"> </a></dt>
+<span class="sig-prename descclassname"><span class="pre">mlflow.pyfunc.</span></span><span class="sig-name descname"><span class="pre">build_model_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_manager</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'virtualenv'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mlflow/pyfunc.html#build_model_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.pyfunc.build_model_env" title="Permalink to this definition"> </a></dt>
 <dd><p>Prebuild model python environment and generate an archive file saved to provided
 <cite>save_path</cite>.</p>
 <dl class="simple">
@@ -903,6 +903,9 @@ archive file path.
 The path can be either local directory path or
 mounted DBFS path such as ‘/dbfs/…’ or
 mounted UC volume path such as ‘/Volumes/…’.</p></li>
+<li><p><strong>env_manager</strong> – The environment manager to use in order to create the python environment
+for model inference, the value can be either ‘virtualenv’ or ‘uv’, the default
+value is ‘virtualenv’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1768,8 +1771,11 @@ unaffected. If <cite>prebuilt_env_uri</cite> parameter is not set, the default v
 is <code class="docutils literal notranslate"><span class="pre">local</span></code>, and the following values are supported:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">virtualenv</span></code>: Use virtualenv to restore the python environment that
+was used to train the model. This is the default option if <code class="docutils literal notranslate"><span class="pre">env_manager</span></code>
+is not set.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">uv</span></code> : Use uv to restore the python environment that
 was used to train the model.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">conda</span></code>: (Recommended) Use Conda to restore the software environment
+<li><p><code class="docutils literal notranslate"><span class="pre">conda</span></code>: Use Conda to restore the software environment
 that was used to train the model.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">local</span></code>: Use the current Python environment for model inference, which
 may differ from the environment used to train the model and may lead to

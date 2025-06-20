@@ -3790,9 +3790,13 @@
     <span class="n">MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">unset</span><span class="p">()</span>
     <span class="n">_MLFLOW_ACTIVE_MODEL_ID</span><span class="o">.</span><span class="n">unset</span><span class="p">()</span>
 
+    <span class="c1"># Reset the active model context to avoid the active model ID set by other threads</span>
+    <span class="c1"># to be used when creating a new ActiveModelContext</span>
+    <span class="n">_ACTIVE_MODEL_CONTEXT</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
     <span class="c1"># set_by_user is False because this API clears the state of active model</span>
     <span class="c1"># and MLflow might still set the active model in cases like `load_model`</span>
-    <span class="n">_ACTIVE_MODEL_CONTEXT</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ActiveModelContext</span><span class="p">(</span><span class="n">set_by_user</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
+    <span class="n">_ACTIVE_MODEL_CONTEXT</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ActiveModelContext</span><span class="p">(</span><span class="n">set_by_user</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Active model is cleared&quot;</span><span class="p">)</span></div>
 </pre></div>
 
               </div>

@@ -239,7 +239,10 @@
               <div itemprop="articleBody">
                 
   <h1>Source code for mlflow.autogen</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.autogen.chat</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -248,6 +251,7 @@
     <span class="n">log_tools</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpanType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.constant</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpanAttributeKey</span><span class="p">,</span> <span class="n">TokenUsageKey</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">construct_full_inputs</span><span class="p">,</span> <span class="n">set_span_chat_messages</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.annotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">experimental</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.autologging_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -256,6 +260,7 @@
     <span class="n">safe_patch</span><span class="p">,</span>
 <span class="p">)</span>
 
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">FLAVOR_NAME</span> <span class="o">=</span> <span class="s2">&quot;autogen&quot;</span>
 
 
@@ -316,6 +321,9 @@
                     <span class="k">if</span> <span class="n">chat_message</span> <span class="o">:=</span> <span class="n">convert_assistant_message_to_chat_message</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
                         <span class="n">set_span_chat_messages</span><span class="p">(</span><span class="n">span</span><span class="p">,</span> <span class="p">[</span><span class="n">chat_message</span><span class="p">],</span> <span class="n">append</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+                <span class="k">if</span> <span class="n">usage</span> <span class="o">:=</span> <span class="n">_parse_usage</span><span class="p">(</span><span class="n">outputs</span><span class="p">):</span>
+                    <span class="n">span</span><span class="o">.</span><span class="n">set_attribute</span><span class="p">(</span><span class="n">SpanAttributeKey</span><span class="o">.</span><span class="n">CHAT_USAGE</span><span class="p">,</span> <span class="n">usage</span><span class="p">)</span>
+
                 <span class="n">span</span><span class="o">.</span><span class="n">set_outputs</span><span class="p">(</span><span class="n">_convert_value_to_dict</span><span class="p">(</span><span class="n">outputs</span><span class="p">))</span>
 
                 <span class="k">return</span> <span class="n">outputs</span>
@@ -361,6 +369,20 @@
         <span class="n">all_subclasses</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_get_all_subclasses</span><span class="p">(</span><span class="n">subclass</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">all_subclasses</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_usage</span><span class="p">(</span><span class="n">output</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">usage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;usage&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">usage</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="n">TokenUsageKey</span><span class="o">.</span><span class="n">INPUT_TOKENS</span><span class="p">:</span> <span class="n">usage</span><span class="o">.</span><span class="n">prompt_tokens</span><span class="p">,</span>
+                <span class="n">TokenUsageKey</span><span class="o">.</span><span class="n">OUTPUT_TOKENS</span><span class="p">:</span> <span class="n">usage</span><span class="o">.</span><span class="n">completion_tokens</span><span class="p">,</span>
+                <span class="n">TokenUsageKey</span><span class="o">.</span><span class="n">TOTAL_TOKENS</span><span class="p">:</span> <span class="n">usage</span><span class="o">.</span><span class="n">prompt_tokens</span> <span class="o">+</span> <span class="n">usage</span><span class="o">.</span><span class="n">completion_tokens</span><span class="p">,</span>
+            <span class="p">}</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to parse token usage from output: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
 </pre></div>
 
               </div>

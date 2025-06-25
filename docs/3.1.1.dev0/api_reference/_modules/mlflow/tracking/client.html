@@ -314,6 +314,7 @@
     <span class="n">ErrorCode</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.store.artifact.utils.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_parse_model_uri</span><span class="p">,</span>
     <span class="n">get_model_name_and_version</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.store.entities.paged_list</span><span class="w"> </span><span class="kn">import</span> <span class="n">PagedList</span>
@@ -919,18 +920,20 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parsed_name_or_uri</span><span class="p">,</span> <span class="n">parsed_version</span> <span class="o">=</span> <span class="n">parse_prompt_name_or_uri</span><span class="p">(</span><span class="n">name_or_uri</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">parsed_name_or_uri</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;prompts:/&quot;</span><span class="p">):</span>
-            <span class="c1"># URI case: parse the URI to extract name and version</span>
-            <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_prompt_uri</span><span class="p">(</span><span class="n">parsed_name_or_uri</span><span class="p">)</span>
+            <span class="c1"># URI case: parse the URI to extract name and version/alias</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">version_or_alias</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_prompt_uri</span><span class="p">(</span><span class="n">parsed_name_or_uri</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Name case: use the name and provided version</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">parsed_name_or_uri</span>
-            <span class="n">version</span> <span class="o">=</span> <span class="n">parsed_version</span>
+            <span class="n">version_or_alias</span> <span class="o">=</span> <span class="n">parsed_version</span>
 
         <span class="n">registry_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_registry_client</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Use get_prompt_version for specific version/alias</span>
-            <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_prompt_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
-
+            <span class="c1"># If version_or_alias is not a digit, treat as alias</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">version_or_alias</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">version_or_alias</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_prompt_version_by_alias</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version_or_alias</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">registry_client</span><span class="o">.</span><span class="n">get_prompt_version</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version_or_alias</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">MlflowException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">allow_missing</span> <span class="ow">and</span> <span class="n">exc</span><span class="o">.</span><span class="n">error_code</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;RESOURCE_DOES_NOT_EXIST&quot;</span><span class="p">,</span> <span class="s2">&quot;NOT_FOUND&quot;</span><span class="p">):</span>
                 <span class="k">return</span> <span class="kc">None</span>
@@ -1147,21 +1150,33 @@
 <div class="viewcode-block" id="MlflowClient.parse_prompt_uri"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.parse_prompt_uri">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">parse_prompt_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parse prompt URI into prompt name and prompt version.</span>
-<span class="sd">        - &#39;prompt:/&lt;name&gt;/&lt;version&gt;&#39; -&gt; (&#39;&lt;name&gt;&#39;, &#39;&lt;version&gt;&#39;)</span>
-<span class="sd">        - &#39;prompt:/&lt;name&gt;@&lt;alias&gt;&#39; -&gt; (&#39;&lt;name&gt;&#39;, &#39;&lt;version&gt;&#39;)</span>
+<span class="sd">        - &#39;prompts:/&lt;name&gt;/&lt;version&gt;&#39; -&gt; (&#39;&lt;name&gt;&#39;, &#39;&lt;version&gt;&#39;)</span>
+<span class="sd">        - &#39;prompts:/&lt;name&gt;@&lt;alias&gt;&#39; -&gt; (&#39;&lt;name&gt;&#39;, &#39;&lt;version&gt;&#39;)</span>
+
+<span class="sd">        This method reuses the existing model URI parsing logic with prompts prefix.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">parsed</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+        <span class="c1"># Use the existing model URI parsing utilities with prompts scheme</span>
+        <span class="n">parsed_prompt_uri</span> <span class="o">=</span> <span class="n">_parse_model_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">scheme</span><span class="o">=</span><span class="s2">&quot;prompts&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span> <span class="o">!=</span> <span class="s2">&quot;prompts&quot;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Invalid prompt URI: </span><span class="si">{</span><span class="n">uri</span><span class="si">}</span><span class="s2">. Expected schema &#39;prompts:/&lt;name&gt;/&lt;version&gt;&#39;&quot;</span>
+        <span class="k">if</span> <span class="n">parsed_prompt_uri</span><span class="o">.</span><span class="n">model_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># This shouldn&#39;t happen for prompts (no model IDs), but handle gracefully</span>
+            <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid prompt URI format: </span><span class="si">{</span><span class="n">uri</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">parsed_prompt_uri</span><span class="o">.</span><span class="n">version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Direct version reference: prompts:/name/version</span>
+            <span class="k">return</span> <span class="n">parsed_prompt_uri</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">parsed_prompt_uri</span><span class="o">.</span><span class="n">version</span>
+
+        <span class="k">if</span> <span class="n">parsed_prompt_uri</span><span class="o">.</span><span class="n">alias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Alias reference: prompts:/name@alias - resolve to version</span>
+            <span class="n">prompt_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_prompt_version_by_alias</span><span class="p">(</span>
+                <span class="n">parsed_prompt_uri</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">parsed_prompt_uri</span><span class="o">.</span><span class="n">alias</span>
             <span class="p">)</span>
+            <span class="k">return</span> <span class="n">parsed_prompt_uri</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">prompt_version</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
 
-        <span class="c1"># Replace schema to &#39;models:/&#39; to reuse the model URI parsing logic</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">get_model_name_and_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;models:</span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">MlflowException</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">MlflowException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Prompt &#39;</span><span class="si">{</span><span class="n">uri</span><span class="si">}</span><span class="s2">&#39; does not exist.&quot;</span><span class="p">,</span> <span class="n">RESOURCE_DOES_NOT_EXIST</span><span class="p">)</span></div>
+        <span class="c1"># Handle stage or latest (not supported for prompts)</span>
+        <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid prompt URI: </span><span class="si">{</span><span class="n">uri</span><span class="si">}</span><span class="s2">. Prompts do not support stage-based references.&quot;</span>
+        <span class="p">)</span></div>
 
     <span class="c1">##### Tracing #####</span>
 <div class="viewcode-block" id="MlflowClient.delete_traces"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.delete_traces">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">delete_traces</span><span class="p">(</span>

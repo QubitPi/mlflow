@@ -245,7 +245,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.annotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">experimental</span>
 
@@ -413,7 +413,7 @@
         <span class="n">_clear_dependencies_schemas</span><span class="p">()</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_dependencies_schema_from_model</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="s2">&quot;Model&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_dependencies_schema_from_model</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="s2">&quot;Model&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the dependencies schema from the logged model metadata.</span>
 
@@ -514,7 +514,7 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">DependenciesSchemas</span><span class="p">:</span>
     <span class="n">retriever_schemas</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">RetrieverSchema</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="n">DependenciesSchemasType</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="n">DependenciesSchemasType</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">retriever_schemas</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 

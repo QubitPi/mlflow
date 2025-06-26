@@ -404,7 +404,7 @@
         <span class="k">return</span> <span class="n">x</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_handle_ndarray_input</span><span class="p">(</span><span class="n">input_array</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_handle_ndarray_input</span><span class="p">(</span><span class="n">input_array</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_array</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">input_array</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -762,7 +762,9 @@
     <span class="k">return</span> <span class="n">example</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_mlflow_model_input_example_dict</span><span class="p">(</span><span class="n">mlflow_model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span> <span class="n">uri_or_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_mlflow_model_input_example_dict</span><span class="p">(</span>
+    <span class="n">mlflow_model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span> <span class="n">uri_or_path</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Args:</span>
 <span class="sd">        mlflow_model: Model metadata.</span>
@@ -2019,7 +2021,7 @@
     <span class="k">return</span> <span class="n">data</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_convert_llm_input_data</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert_llm_input_data</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert input data to a format that can be passed to the model with GenAI flavors such as</span>
 <span class="sd">    LangChain and LLamaIndex.</span>

@@ -276,7 +276,7 @@
 
     <span class="c1"># Builtin scorer fields (for scorers from mlflow.genai.scorers.builtin_scorers)</span>
     <span class="n">builtin_scorer_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">builtin_scorer_pydantic_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">builtin_scorer_pydantic_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># Decorator scorer fields (for @scorer decorated functions)</span>
     <span class="n">call_source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -287,9 +287,9 @@
 <div class="viewcode-block" id="Scorer"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.Scorer">[docs]</a><span class="nd">@experimental</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="s2">&quot;3.0.0&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Scorer</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">aggregations</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">aggregations</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="Scorer.model_dump"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.Scorer.model_dump">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">model_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="Scorer.model_dump"><a class="viewcode-back" href="../../../../python_api/mlflow.genai.html#mlflow.genai.Scorer.model_dump">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">model_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Override model_dump to include source code.&quot;&quot;&quot;</span>
         <span class="c1"># Create serialized scorer with core fields</span>
         <span class="n">serialized</span> <span class="o">=</span> <span class="n">SerializedScorer</span><span class="p">(</span>
@@ -320,7 +320,7 @@
 
         <span class="k">return</span> <span class="n">asdict</span><span class="p">(</span><span class="n">serialized</span><span class="p">)</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_extract_source_code_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_extract_source_code_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract source code information for the original decorated function.&quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.scorers.scorer_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_function_body</span>
 
@@ -564,7 +564,12 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">aggregations</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
-        <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="s2">&quot;p90&quot;</span><span class="p">,</span> <span class="s2">&quot;p99&quot;</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]]</span>
+        <span class="nb">list</span><span class="p">[</span>
+            <span class="n">Union</span><span class="p">[</span>
+                <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="s2">&quot;p90&quot;</span><span class="p">,</span> <span class="s2">&quot;p99&quot;</span><span class="p">],</span>
+                <span class="n">Callable</span><span class="p">[[</span><span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]],</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
+            <span class="p">]</span>
+        <span class="p">]</span>
     <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -700,7 +705,7 @@
 
     <span class="k">class</span><span class="w"> </span><span class="nc">CustomScorer</span><span class="p">(</span><span class="n">Scorer</span><span class="p">):</span>
         <span class="c1"># Store reference to the original function</span>
-        <span class="n">_original_func</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">_original_func</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">):</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>

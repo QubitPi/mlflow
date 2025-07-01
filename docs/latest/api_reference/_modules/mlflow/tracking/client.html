@@ -328,6 +328,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_display_handler</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.fluent</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_span_no_context</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.trace_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryTraceManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.utils.copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy_trace_to_experiment</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.utils.warning</span><span class="w"> </span><span class="kn">import</span> <span class="n">request_id_backward_compatible</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking._model_registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_AWAIT_MAX_SLEEP_SECONDS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking._model_registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span> <span class="k">as</span> <span class="n">registry_utils</span>
@@ -1483,31 +1484,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The trace ID of the logged trace.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracking.fluent</span><span class="w"> </span><span class="kn">import</span> <span class="n">_get_experiment_id</span>
-
-        <span class="c1"># If the trace is created outside MLflow experiment (e.g. model serving), it does</span>
-        <span class="c1"># not have an experiment ID, but we need to log it to the tracking server.</span>
-        <span class="n">experiment_id</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">experiment_id</span> <span class="ow">or</span> <span class="n">_get_experiment_id</span><span class="p">()</span>
-
-        <span class="c1"># Create trace info entry in the backend</span>
-        <span class="c1"># Note that the backend generates a new request ID for the trace. Currently there is</span>
-        <span class="c1"># no way to insert the trace with a specific request ID given by the user.</span>
-        <span class="n">new_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracing_client</span><span class="o">.</span><span class="n">start_trace</span><span class="p">(</span>
-            <span class="n">experiment_id</span><span class="o">=</span><span class="n">experiment_id</span><span class="p">,</span>
-            <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">timestamp_ms</span><span class="p">,</span>
-            <span class="n">request_metadata</span><span class="o">=</span><span class="p">{},</span>
-            <span class="n">tags</span><span class="o">=</span><span class="p">{},</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tracing_client</span><span class="o">.</span><span class="n">end_trace</span><span class="p">(</span>
-            <span class="n">request_id</span><span class="o">=</span><span class="n">new_info</span><span class="o">.</span><span class="n">trace_id</span><span class="p">,</span>
-            <span class="c1"># Compute the end time of the original trace</span>
-            <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">timestamp_ms</span> <span class="o">+</span> <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">execution_time_ms</span><span class="p">,</span>
-            <span class="n">status</span><span class="o">=</span><span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
-            <span class="n">request_metadata</span><span class="o">=</span><span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">request_metadata</span><span class="p">,</span>
-            <span class="n">tags</span><span class="o">=</span><span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">tags</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tracing_client</span><span class="o">.</span><span class="n">_upload_trace_data</span><span class="p">(</span><span class="n">new_info</span><span class="p">,</span> <span class="n">trace</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">new_info</span><span class="o">.</span><span class="n">trace_id</span>
+        <span class="k">return</span> <span class="n">copy_trace_to_experiment</span><span class="p">(</span><span class="n">trace</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">experiment_id</span><span class="o">=</span><span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MlflowClient.start_span"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.start_span">[docs]</a>    <span class="nd">@request_id_backward_compatible</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">start_span</span><span class="p">(</span>

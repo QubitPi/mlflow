@@ -257,7 +257,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.genai.utils.trace_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">clean_up_extra_traces</span><span class="p">,</span>
     <span class="n">convert_predict_fn</span><span class="p">,</span>
-    <span class="n">copy_model_serving_trace_to_eval_run</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.models.evaluation.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">EvaluationResult</span><span class="p">,</span>
@@ -268,6 +267,7 @@
     <span class="n">DATABRICKS_OUTPUT_KEY</span><span class="p">,</span>
     <span class="n">RETURN_TRACE_OPTION_KEY</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.tracing.utils.copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy_trace_to_experiment</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.annotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">experimental</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.uri</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_databricks_uri</span>
 
@@ -622,7 +622,7 @@
         <span class="c1"># If the endpoint returns a trace, copy it to the current experiment.</span>
         <span class="k">if</span> <span class="n">trace_dict</span> <span class="o">:=</span> <span class="n">result</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">DATABRICKS_OUTPUT_KEY</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;trace&quot;</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">copy_model_serving_trace_to_eval_run</span><span class="p">(</span><span class="n">trace_dict</span><span class="p">)</span>
+                <span class="n">copy_trace_to_experiment</span><span class="p">(</span><span class="n">trace_dict</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">result</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>

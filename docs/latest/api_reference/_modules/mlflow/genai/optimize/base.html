@@ -390,8 +390,9 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_select_optimizer</span><span class="p">(</span><span class="n">optimizer_config</span><span class="p">:</span> <span class="n">OptimizerConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseOptimizer</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">optimizer_config</span><span class="o">.</span><span class="n">algorithm</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_ALGORITHMS</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Algorithm </span><span class="si">{</span><span class="n">optimizer_config</span><span class="o">.</span><span class="n">algorithm</span><span class="si">}</span><span class="s2"> is not supported. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Supported algorithms are </span><span class="si">{</span><span class="n">_ALGORITHMS</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Unsupported algorithm: &#39;</span><span class="si">{</span><span class="n">optimizer_config</span><span class="o">.</span><span class="n">algorithm</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Available algorithms: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">_ALGORITHMS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;Please choose from the supported algorithms above.&quot;</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">_ALGORITHMS</span><span class="p">[</span><span class="n">optimizer_config</span><span class="o">.</span><span class="n">algorithm</span><span class="p">](</span><span class="n">optimizer_config</span><span class="p">)</span>
@@ -401,15 +402,16 @@
     <span class="k">for</span> <span class="n">scorer</span> <span class="ow">in</span> <span class="n">scorers</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scorer</span><span class="p">,</span> <span class="n">Scorer</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Scorer </span><span class="si">{</span><span class="n">scorer</span><span class="si">}</span><span class="s2"> is not a valid scorer. Please use the @scorer decorator &quot;</span>
-                <span class="s2">&quot;to convert a function into a scorer or inherit from the Scorer class&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid scorer: </span><span class="si">{</span><span class="n">scorer</span><span class="si">}</span><span class="s2">. Please use @scorer decorator &quot;</span>
+                <span class="s2">&quot;on your function or inherit from Scorer class.&quot;</span>
             <span class="p">)</span>
 
         <span class="n">signature</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">scorer</span><span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;trace&quot;</span> <span class="ow">in</span> <span class="n">signature</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MlflowException</span><span class="o">.</span><span class="n">invalid_parameter_value</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Trace input is found in Scorer </span><span class="si">{</span><span class="n">scorer</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="s2">&quot;Scorers for optimization can only take inputs, outputs or expectations.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid scorer parameter: </span><span class="si">{</span><span class="n">scorer</span><span class="si">}</span><span class="s2"> contains &#39;trace&#39; parameter. &quot;</span>
+                <span class="s2">&quot;Optimization scorers can only use: inputs, outputs, or expectations. &quot;</span>
+                <span class="s2">&quot;Remove &#39;trace&#39; parameter from your scorer function.&quot;</span>
             <span class="p">)</span>
 
 
@@ -424,7 +426,7 @@
     <span class="k">if</span> <span class="n">optimizer_config</span><span class="o">.</span><span class="n">autolog</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Run `</span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">` is created for autologging prompt optimization. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;🚀 MLflow Run `</span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">` started for prompt optimization! &quot;</span>
                 <span class="s2">&quot;Watch the run to track the optimization progress.&quot;</span>
             <span class="p">)</span>
             <span class="n">log_table</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="s2">&quot;train_data.json&quot;</span><span class="p">)</span>

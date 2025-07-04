@@ -20,7 +20,7 @@
 
 
 <script src="/docs/3.1.2.dev0/js/runllm.js" defer="defer"></script><link rel="stylesheet" href="/docs/3.1.2.dev0/assets/css/styles.d76489f0.css">
-<script src="/docs/3.1.2.dev0/assets/js/runtime~main.3c326175.js" defer="defer"></script>
+<script src="/docs/3.1.2.dev0/assets/js/runtime~main.0dafec3b.js" defer="defer"></script>
 <script src="/docs/3.1.2.dev0/assets/js/main.7f369dea.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -34,7 +34,7 @@
 <a class="button button--primary" style="margin-bottom:1rem;display:block;width:min-content" href="https://raw.githubusercontent.com/mlflow/mlflow/master/docs/docs/classic-ml/deep-learning/transformers/tutorials/conversational/pyfunc-chat-model.ipynb" download="">Download this notebook</a>
 <p>Welcome to our tutorial on using Transformers and MLflow to create an OpenAI-compatible chat model. In MLflow 2.11 and up, MLflow&#x27;s Transformers flavors support special task type <code>llm/v1/chat</code>, which turns thousands of <a href="https://huggingface.co/models?pipeline_tag=text-generation" target="_blank" rel="noopener noreferrer">text-generation</a> models on Hugging Face into conversational chat bots that are interoperable with OpenAI models. This enables you to seamlessly swap out your chat app’s backing LLM or to easily evaluate different models without having to edit your client-side code.</p>
 <p>If you haven&#x27;t already seen it, you may find it helpful to go through our <a href="https://mlflow.org/docs/latest/ml/deep-learning/transformers/tutorials/conversational/conversational-model.html" target="_blank" rel="noopener noreferrer">introductory notebook on chat and Transformers</a> before proceeding with this one, as this notebook is slightly higher-level and does not delve too deeply into the inner workings of Transformers or MLflow Tracking.</p>
-<p><strong>Note</strong>: This page covers how to deploy a <strong>Transformers</strong> models as a chatbot. If you are using a different framework or a custom python model, use <a href="https://mlflow.org/docs/latest/genai/chat-model-intro/index.html" target="_blank" rel="noopener noreferrer">ChatModel</a> instead to build an OpenAI-compatible chat bot.</p>
+<p><strong>Note</strong>: This page covers how to deploy a <strong>Transformers</strong> models as a chatbot. If you are using a different framework or a custom python model, use <a href="https://mlflow.org/docs/latest/genai/flavors/chat-model-intro/index.html" target="_blank" rel="noopener noreferrer">ChatModel</a> instead to build an OpenAI-compatible chat bot.</p>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="learning-objectives">Learning objectives<a href="#learning-objectives" class="hash-link" aria-label="Direct link to Learning objectives" title="Direct link to Learning objectives">​</a></h3>
 <p>In this tutorial, you will:</p>
 <ul>
@@ -47,7 +47,7 @@
 <pre style="margin:0;border-radius:0;background:none;font-size:0.85rem;flex-grow:1;padding:var(--padding-sm)">env: TOKENIZERS_PARALLELISM=false</pre>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="building-a-chat-model">Building a Chat Model<a href="#building-a-chat-model" class="hash-link" aria-label="Direct link to Building a Chat Model" title="Direct link to Building a Chat Model">​</a></h3>
 <p>MLflow&#x27;s native Transformers integration allows you to specify the <code>task</code> param when saving or logging your pipelines. Originally, this param accepts any of the <a href="https://huggingface.co/tasks" target="_blank" rel="noopener noreferrer">Transformers pipeline task types</a>, but the <code>mlflow.transformers</code> flavor adds a few more MLflow-specific keys for <code>text-generation</code> pipeline types.</p>
-<p>For <code>text-generation</code> pipelines, instead of specifying <code>text-generation</code> as the task type, you can provide one of two string literals conforming to the <a href="https://mlflow.org/docs/latest/ml/deployments/index.html#general-configuration-parameters" target="_blank" rel="noopener noreferrer">MLflow AI Gateway&#x27;s endpoint_type specification</a> (&quot;llm/v1/embeddings&quot; can be specified as a task on models saved with <code>mlflow.sentence_transformers</code>):</p>
+<p>For <code>text-generation</code> pipelines, instead of specifying <code>text-generation</code> as the task type, you can provide one of two string literals conforming to the <a href="https://mlflow.org/docs/latest/genai/governance/ai-gateway/#deployments-configuration-details" target="_blank" rel="noopener noreferrer">MLflow AI Gateway&#x27;s endpoint_type specification</a> (&quot;llm/v1/embeddings&quot; can be specified as a task on models saved with <code>mlflow.sentence_transformers</code>):</p>
 <ul>
 <li>&quot;llm/v1/chat&quot; for chat-style applications</li>
 <li>&quot;llm/v1/completions&quot; for generic completions</li>

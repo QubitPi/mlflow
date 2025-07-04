@@ -266,6 +266,7 @@
     <span class="n">SpanAttributeKey</span><span class="p">,</span>
     <span class="n">TokenUsageKey</span><span class="p">,</span>
     <span class="n">TraceMetadataKey</span><span class="p">,</span>
+    <span class="n">TraceSizeStatsKey</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.utils.mlflow_tags</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMMUTABLE_TAGS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">IS_TRACING_SDK_ONLY</span>
@@ -757,17 +758,85 @@
         <span class="k">pass</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">add_size_bytes_to_trace_metadata</span><span class="p">(</span><span class="n">trace</span><span class="p">:</span> <span class="n">Trace</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_calculate_percentile</span><span class="p">(</span><span class="n">sorted_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">percentile</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculate the size of the trace in bytes and add it as a tag to the trace.</span>
+<span class="sd">    Calculate the percentile value from sorted data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sorted_data: A sorted list of numeric values</span>
+<span class="sd">        percentile: The percentile to calculate (e.g., 0.25 for 25th percentile)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The percentile value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sorted_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sorted_data</span><span class="p">)</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">percentile</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">lower</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="n">lower</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">upper</span> <span class="o">&gt;=</span> <span class="n">n</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">sorted_data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Linear interpolation between two nearest values</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="n">index</span> <span class="o">-</span> <span class="n">lower</span>
+    <span class="k">return</span> <span class="n">sorted_data</span><span class="p">[</span><span class="n">lower</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">weight</span><span class="p">)</span> <span class="o">+</span> <span class="n">sorted_data</span><span class="p">[</span><span class="n">upper</span><span class="p">]</span> <span class="o">*</span> <span class="n">weight</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">add_size_stats_to_trace_metadata</span><span class="p">(</span><span class="n">trace</span><span class="p">:</span> <span class="n">Trace</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the stats of trace and span sizes and add it as a metadata to the trace.</span>
 
 <span class="sd">    This method modifies the trace object in place by adding a new tag.</span>
 
 <span class="sd">    Note: For simplicity, we calculate the size without considering the size metadata itself.</span>
 <span class="sd">    This provides a close approximation without requiring complex calculations.</span>
+
+<span class="sd">    This function must not throw an exception.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">trace_size_bytes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trace</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
-    <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">trace_metadata</span><span class="p">[</span><span class="n">TraceMetadataKey</span><span class="o">.</span><span class="n">SIZE_BYTES</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">trace_size_bytes</span><span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trace</span><span class="p">,</span> <span class="n">TraceData</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">span_sizes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="n">trace</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">spans</span><span class="p">:</span>
+            <span class="n">span_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">span</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="bp">cls</span><span class="o">=</span><span class="n">TraceJSONEncoder</span><span class="p">)</span>
+            <span class="n">span_sizes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">span_json</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)))</span>
+
+        <span class="c1"># NB: To compute the size of the total trace, we need to include the size of the</span>
+        <span class="c1"># the trace info and the parent dicts for the spans. To avoid serializing spans</span>
+        <span class="c1"># again (which can be expensive), we compute the size of the trace without spans</span>
+        <span class="c1"># and combine it with the total size of the spans.</span>
+        <span class="n">empty_trace</span> <span class="o">=</span> <span class="n">Trace</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">TraceData</span><span class="p">(</span><span class="n">spans</span><span class="o">=</span><span class="p">[]))</span>
+        <span class="n">metadata_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">empty_trace</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+        <span class="c1"># NB: the third term is the size of comma separators between spans (&quot;, &quot;).</span>
+        <span class="n">trace_size_bytes</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">span_sizes</span><span class="p">)</span> <span class="o">+</span> <span class="n">metadata_size</span> <span class="o">+</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">span_sizes</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
+
+        <span class="c1"># Sort span sizes for percentile calculation</span>
+        <span class="n">sorted_span_sizes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">span_sizes</span><span class="p">)</span>
+
+        <span class="n">size_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">TraceSizeStatsKey</span><span class="o">.</span><span class="n">TOTAL_SIZE_BYTES</span><span class="p">:</span> <span class="n">trace_size_bytes</span><span class="p">,</span>
+            <span class="n">TraceSizeStatsKey</span><span class="o">.</span><span class="n">NUM_SPANS</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">span_sizes</span><span class="p">),</span>
+            <span class="n">TraceSizeStatsKey</span><span class="o">.</span><span class="n">MAX_SPAN_SIZE_BYTES</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">span_sizes</span><span class="p">),</span>
+            <span class="n">TraceSizeStatsKey</span><span class="o">.</span><span class="n">P25_SPAN_SIZE_BYTES</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span>
+                <span class="n">_calculate_percentile</span><span class="p">(</span><span class="n">sorted_span_sizes</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">TraceSizeStatsKey</span><span class="o">.</span><span class="n">P50_SPAN_SIZE_BYTES</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span>
+                <span class="n">_calculate_percentile</span><span class="p">(</span><span class="n">sorted_span_sizes</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">TraceSizeStatsKey</span><span class="o">.</span><span class="n">P75_SPAN_SIZE_BYTES</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span>
+                <span class="n">_calculate_percentile</span><span class="p">(</span><span class="n">sorted_span_sizes</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">trace_metadata</span><span class="p">[</span><span class="n">TraceMetadataKey</span><span class="o">.</span><span class="n">SIZE_STATS</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">size_stats</span><span class="p">)</span>
+        <span class="c1"># Keep the total size as a separate metadata for backward compatibility</span>
+        <span class="n">trace</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">trace_metadata</span><span class="p">[</span><span class="n">TraceMetadataKey</span><span class="o">.</span><span class="n">SIZE_BYTES</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">trace_size_bytes</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to add size stats to trace metadata.&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">update_trace_state_from_span_conditionally</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">root_span</span><span class="p">):</span>

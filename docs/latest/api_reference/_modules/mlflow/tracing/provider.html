@@ -261,6 +261,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">opentelemetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">context</span> <span class="k">as</span> <span class="n">context_api</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">opentelemetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">trace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">opentelemetry.sdk.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">Resource</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">opentelemetry.sdk.trace</span><span class="w"> </span><span class="kn">import</span> <span class="n">TracerProvider</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
@@ -522,7 +523,10 @@
         <span class="c1"># Default to MLflow Tracking Server</span>
         <span class="n">processor</span> <span class="o">=</span> <span class="n">_get_mlflow_span_processor</span><span class="p">(</span><span class="n">tracking_uri</span><span class="o">=</span><span class="n">mlflow</span><span class="o">.</span><span class="n">get_tracking_uri</span><span class="p">())</span>
 
-    <span class="n">tracer_provider</span> <span class="o">=</span> <span class="n">TracerProvider</span><span class="p">()</span>
+    <span class="c1"># Setting an empty resource to avoid triggering resource aggregation, which causes</span>
+    <span class="c1"># an issue in LiteLLM tracing: https://github.com/mlflow/mlflow/issues/16296</span>
+    <span class="c1"># MLflow tracing does not use resource right now.</span>
+    <span class="n">tracer_provider</span> <span class="o">=</span> <span class="n">TracerProvider</span><span class="p">(</span><span class="n">resource</span><span class="o">=</span><span class="n">Resource</span><span class="o">.</span><span class="n">get_empty</span><span class="p">())</span>
     <span class="n">tracer_provider</span><span class="o">.</span><span class="n">add_span_processor</span><span class="p">(</span><span class="n">processor</span><span class="p">)</span>
     <span class="n">_MLFLOW_TRACER_PROVIDER</span> <span class="o">=</span> <span class="n">tracer_provider</span>
 

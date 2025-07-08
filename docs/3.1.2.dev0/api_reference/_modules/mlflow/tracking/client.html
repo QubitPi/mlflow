@@ -2364,6 +2364,36 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">set_experiment_tag</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="MlflowClient.delete_experiment_tag"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.delete_experiment_tag">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">delete_experiment_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete a tag from the experiment with the specified ID.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            experiment_id: String ID of the experiment.</span>
+<span class="sd">            key: Name of the tag to be deleted.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from mlflow import MlflowClient</span>
+
+<span class="sd">            # Create an experiment and set its tag</span>
+<span class="sd">            client = MlflowClient()</span>
+<span class="sd">            experiment_id = client.create_experiment(&quot;Social Media NLP Experiments&quot;)</span>
+<span class="sd">            client.set_experiment_tag(experiment_id, &quot;nlp.framework&quot;, &quot;Spark NLP&quot;)</span>
+
+<span class="sd">            # Fetch experiment metadata information, validate that tag is set</span>
+<span class="sd">            experiment = client.get_experiment(experiment_id)</span>
+<span class="sd">            assert experiment.tags == {&quot;nlp.framework&quot;: &quot;Spark NLP&quot;}</span>
+
+<span class="sd">            client.delete_experiment_tag(experiment_id, &quot;nlp.framework&quot;)</span>
+
+<span class="sd">            # Fetch experiment metadata information, validate that tag is deleted</span>
+<span class="sd">            experiment = client.get_experiment(experiment_id)</span>
+<span class="sd">            assert experiment.tags == {}</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tracking_client</span><span class="o">.</span><span class="n">delete_experiment_tag</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="MlflowClient.set_tag"><a class="viewcode-back" href="../../../python_api/mlflow.client.html#mlflow.client.MlflowClient.set_tag">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">set_tag</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">synchronous</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RunOperations</span><span class="p">]:</span>

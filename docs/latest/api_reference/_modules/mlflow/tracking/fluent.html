@@ -1075,6 +1075,29 @@
     <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">set_experiment_tag</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="delete_experiment_tag"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.delete_experiment_tag">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">delete_experiment_tag</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Delete a tag from the current experiment.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        key: Name of the tag to be deleted.</span>
+
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">        :test:</span>
+<span class="sd">        :caption: Example</span>
+
+<span class="sd">        import mlflow</span>
+
+<span class="sd">        exp = mlflow.set_experiment(&quot;test-delete-tag&quot;)</span>
+<span class="sd">        mlflow.set_experiment_tag(&quot;release.version&quot;, &quot;1.0&quot;)</span>
+<span class="sd">        mlflow.delete_experiment_tag(&quot;release.version&quot;)</span>
+<span class="sd">        exp = mlflow.get_experiment(exp.experiment_id)</span>
+<span class="sd">        assert &quot;release.version&quot; not in exp.tags</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">experiment_id</span> <span class="o">=</span> <span class="n">_get_experiment_id</span><span class="p">()</span>
+    <span class="n">MlflowClient</span><span class="p">()</span><span class="o">.</span><span class="n">delete_experiment_tag</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="set_tag"><a class="viewcode-back" href="../../../python_api/mlflow.html#mlflow.set_tag">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">set_tag</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">synchronous</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RunOperations</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set a tag under the current run. If no run is active, this method will create a new active</span>

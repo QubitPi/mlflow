@@ -780,6 +780,38 @@ Lifecycle_stage: deleted
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlflow.client.MlflowClient.delete_experiment_tag">
+<span class="sig-name descname"><span class="pre">delete_experiment_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.delete_experiment_tag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.delete_experiment_tag" title="Permalink to this definition"> </a></dt>
+<dd><p>Delete a tag from the experiment with the specified ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_id</strong> – String ID of the experiment.</p></li>
+<li><p><strong>key</strong> – Name of the tag to be deleted.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowClient</span>
+
+<span class="c1"># Create an experiment and set its tag</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+<span class="n">experiment_id</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_experiment</span><span class="p">(</span><span class="s2">&quot;Social Media NLP Experiments&quot;</span><span class="p">)</span>
+<span class="n">client</span><span class="o">.</span><span class="n">set_experiment_tag</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span> <span class="s2">&quot;nlp.framework&quot;</span><span class="p">,</span> <span class="s2">&quot;Spark NLP&quot;</span><span class="p">)</span>
+
+<span class="c1"># Fetch experiment metadata information, validate that tag is set</span>
+<span class="n">experiment</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_experiment</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">experiment</span><span class="o">.</span><span class="n">tags</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;nlp.framework&quot;</span><span class="p">:</span> <span class="s2">&quot;Spark NLP&quot;</span><span class="p">}</span>
+
+<span class="n">client</span><span class="o">.</span><span class="n">delete_experiment_tag</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span> <span class="s2">&quot;nlp.framework&quot;</span><span class="p">)</span>
+
+<span class="c1"># Fetch experiment metadata information, validate that tag is deleted</span>
+<span class="n">experiment</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_experiment</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">experiment</span><span class="o">.</span><span class="n">tags</span> <span class="o">==</span> <span class="p">{}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlflow.client.MlflowClient.delete_logged_model">
 <span class="sig-name descname"><span class="pre">delete_logged_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/mlflow/tracking/client.html#MlflowClient.delete_logged_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlflow.client.MlflowClient.delete_logged_model" title="Permalink to this definition"> </a></dt>
 <dd><div class="admonition note">

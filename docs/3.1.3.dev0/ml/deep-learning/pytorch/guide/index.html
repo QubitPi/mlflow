@@ -20,8 +20,8 @@
 
 
 <script src="/docs/3.1.3.dev0/js/runllm.js" defer="defer"></script><link rel="stylesheet" href="/docs/3.1.3.dev0/assets/css/styles.ef578135.css">
-<script src="/docs/3.1.3.dev0/assets/js/runtime~main.22be421a.js" defer="defer"></script>
-<script src="/docs/3.1.3.dev0/assets/js/main.1d30efb2.js" defer="defer"></script>
+<script src="/docs/3.1.3.dev0/assets/js/runtime~main.da093dca.js" defer="defer"></script>
+<script src="/docs/3.1.3.dev0/assets/js/main.fef34d22.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5J249Z5D" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -65,21 +65,21 @@
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="manually-logging-pytorch-experiments">Manually Logging PyTorch Experiments<a href="#manually-logging-pytorch-experiments" class="hash-link" aria-label="Direct link to Manually Logging PyTorch Experiments" title="Direct link to Manually Logging PyTorch Experiments">​</a></h3>
 <p>For standard PyTorch workflows, you can easily integrate MLflow logging into your training loops using these key APIs:</p>
 <ul>
-<li><a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html/#mlflow.log_metric" target="_blank"><code>mlflow.log_metric<!-- -->()</code></a> / <a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html/#mlflow.log_metrics" target="_blank"><code>mlflow.log_metrics<!-- -->()</code></a>: Log metrics like accuracy and loss during training</li>
-<li><a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html/#mlflow.log_param" target="_blank"><code>mlflow.log_param<!-- -->()</code></a> / <a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html/#mlflow.log_params" target="_blank"><code>mlflow.log_params<!-- -->()</code></a>: Log parameters like learning rate and batch size</li>
-<li><a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.pytorch.html/#mlflow.pytorch.log_model" target="_blank"><code>mlflow.pytorch.log_model<!-- -->()</code></a>: Save your PyTorch model to MLflow</li>
-<li><a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html/#mlflow.log_artifact" target="_blank"><code>mlflow.log_artifact<!-- -->()</code></a>: Log artifacts like model checkpoints and visualizations</li>
+<li><a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html#mlflow.log_metric" target="_blank"><code>mlflow.log_metric<!-- -->()</code></a> / <a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html#mlflow.log_metrics" target="_blank"><code>mlflow.log_metrics<!-- -->()</code></a>: Log metrics like accuracy and loss during training</li>
+<li><a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html#mlflow.log_param" target="_blank"><code>mlflow.log_param<!-- -->()</code></a> / <a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html#mlflow.log_params" target="_blank"><code>mlflow.log_params<!-- -->()</code></a>: Log parameters like learning rate and batch size</li>
+<li><a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.pytorch.html#mlflow.pytorch.log_model" target="_blank"><code>mlflow.pytorch.log_model<!-- -->()</code></a>: Save your PyTorch model to MLflow</li>
+<li><a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html#mlflow.log_artifact" target="_blank"><code>mlflow.log_artifact<!-- -->()</code></a>: Log artifacts like model checkpoints and visualizations</li>
 </ul>
 <details class="details_lb9f alert alert--info details_b_Ee" data-collapsed="true"><summary>Best Practices for PyTorch Logging</summary><div><div class="collapsibleContent_i85q"><h4 class="anchor anchorWithStickyNavbar_LWe7" id="initialization-phase">Initialization Phase<a href="#initialization-phase" class="hash-link" aria-label="Direct link to Initialization Phase" title="Direct link to Initialization Phase">​</a></h4><ul>
-<li>📋 <strong>Log Configuration Parameters</strong>: Use <a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html/#mlflow.log_params" target="_blank"><code>mlflow.log_params<!-- -->()</code></a> at the beginning of training to record learning rate, batch size, optimizer configuration, etc.</li>
-<li>🏗️ <strong>Log Model Architecture</strong>: Use <code>torchinfo</code> to generate a model summary and log it via <a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html/#mlflow.log_artifact" target="_blank"><code>mlflow.log_artifact<!-- -->()</code></a></li>
+<li>📋 <strong>Log Configuration Parameters</strong>: Use <a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html#mlflow.log_params" target="_blank"><code>mlflow.log_params<!-- -->()</code></a> at the beginning of training to record learning rate, batch size, optimizer configuration, etc.</li>
+<li>🏗️ <strong>Log Model Architecture</strong>: Use <code>torchinfo</code> to generate a model summary and log it via <a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html#mlflow.log_artifact" target="_blank"><code>mlflow.log_artifact<!-- -->()</code></a></li>
 <li>⚙️ <strong>Log Dependencies</strong>: Record PyTorch version and key packages to ensure reproducibility</li>
 </ul><h4 class="anchor anchorWithStickyNavbar_LWe7" id="training-phase">Training Phase<a href="#training-phase" class="hash-link" aria-label="Direct link to Training Phase" title="Direct link to Training Phase">​</a></h4><ul>
 <li>📊 <strong>Batch vs. Epoch Logging</strong>: For long epochs, log key metrics every N batches; otherwise, log per epoch</li>
-<li>📈 <strong>Use Batched Logging</strong>: Prefer <a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html/#mlflow.log_metrics" target="_blank"><code>mlflow.log_metrics<!-- -->()</code></a> over multiple <a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html/#mlflow.log_metric" target="_blank"><code>mlflow.log_metric<!-- -->()</code></a> calls for better performance</li>
+<li>📈 <strong>Use Batched Logging</strong>: Prefer <a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html#mlflow.log_metrics" target="_blank"><code>mlflow.log_metrics<!-- -->()</code></a> over multiple <a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.html#mlflow.log_metric" target="_blank"><code>mlflow.log_metric<!-- -->()</code></a> calls for better performance</li>
 <li>🔄 <strong>Track Training Dynamics</strong>: Log not just final metrics but their evolution throughout training</li>
 </ul><h4 class="anchor anchorWithStickyNavbar_LWe7" id="finalization-phase">Finalization Phase<a href="#finalization-phase" class="hash-link" aria-label="Direct link to Finalization Phase" title="Direct link to Finalization Phase">​</a></h4><ul>
-<li>💾 <strong>Save Final Model</strong>: Use <a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.pytorch.html/#mlflow.pytorch.log_model" target="_blank"><code>mlflow.pytorch.log_model<!-- -->()</code></a> to save the trained model</li>
+<li>💾 <strong>Save Final Model</strong>: Use <a href="/docs/3.1.3.dev0/api_reference/python_api/mlflow.pytorch.html#mlflow.pytorch.log_model" target="_blank"><code>mlflow.pytorch.log_model<!-- -->()</code></a> to save the trained model</li>
 <li>📊 <strong>Log Performance Visualizations</strong>: Create and save plots of training curves, confusion matrices, etc.</li>
 <li>📝 <strong>Add Model Signature</strong>: Include input/output signatures for better model understanding</li>
 </ul></div></div></details>
